@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>演習トレーニング | Classy Learning</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400&family=Noto+Serif+JP:wght@400;500;600&family=Noto+Sans+JP:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Dragula (ドラッグ並べ替えライブラリ) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js"></script>
+
+<!-- Canvas Confetti (全問正解時の花火演出) -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+<!-- Firebase SDK (リアルタイム同期用) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+<!-- 各科目の外部問題データベースJSの読み込み -->
+<script src="psychology.js"></script>
+<script src="mindbehavior.js"></script>
+<script src="microbiology.js"></script>
+
+<style>
+body {
+font-family: 'Noto Sans JP', sans-serif;
+background-color: #0F172A;
+color: #CBD5E1;
+}
+.serif-title {
+font-family: 'Noto Serif JP', 'Cormorant Garamond', serif;
+}
+.en-title {
+font-family: 'Cormorant Garamond', serif;
+letter-spacing: 0.15em;
+}
+.glass-card {
+background: rgba(30, 41, 59, 0.75);
+backdrop-filter: blur(16px);
+-webkit-backdrop-filter: blur(16px);
+border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.card-item {
+background: rgba(15, 23, 42, 0.6);
+border: 1px solid rgba(255, 255, 255, 0.08);
+transition: all 0.2s ease-in-out;
+}
+.card-item:hover:not(:disabled) {
+background: rgba(30, 41, 59, 0.9);
+border-color: rgba(217, 119, 6, 0.4);
+transform: translateY(-2px);
+}
+.card-item:disabled {
+opacity: 0.45;
+cursor: not-allowed;
+filter: grayscale(0.4);
+}
+.gu-mirror {
+position: fixed !important;
+margin: 0 !important;
+z-index: 9999 !important;
+opacity: 0.85;
+background: #1E293B;
+border: 1px solid #D97706;
+box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+border-radius: 0.75rem;
+}
+.gu-transit {
+opacity: 0.25;
+}
+
+/* カスタムスライダー */
+input[type=range] {
+-webkit-appearance: none;
+width: 100%;
+background: transparent;
+}
+input[type=range]:focus {
+outline: none;
+}
+input[type=range]::-webkit-slider-runnable-track {
+width: 100%;
+height: 6px;
+cursor: pointer;
+background: rgba(217, 119, 6, 0.25);
+border-radius: 3px;
+}
+input[type=range]::-webkit-slider-thumb {
+height: 20px;
+width: 20px;
+border-radius: 50%;
+background: #D97706;
+cursor: pointer;
+-webkit-appearance: none;
+margin-top: -7px;
+box-shadow: 0 0 10px rgba(0,0,0,0.5);
+transition: background-color 0.2s ease;
+}
+input[type=range]::-webkit-slider-thumb:hover {
+background: #F59E0B;
+}
+
+/* 早押しボタン用アニメーション */
+.buzz-btn {
+box-shadow: 0 8px 0 #b45309, 0 15px 20px rgba(0,0,0,0.4);
+transition: all 0.1s ease;
+}
+.buzz-btn:active:not(:disabled) {
+transform: translateY(4px);
+box-shadow: 0 4px 0 #b45309, 0 8px 10px rgba(0,0,0,0.4);
+}
+.buzz-btn:disabled {
+opacity: 0.5;
+cursor: not-allowed;
+box-shadow: none;
+transform: translateY(4px);
+}
+</style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between p-4 sm:p-6 md:p-8 relative selection:bg-amber-500/30 selection:text-amber-200">
+
+<!-- 左上 ハンバーガーボタン -->
+<div class="absolute top-4 left-4 sm:top-6 sm:left-6 z-40">
+<button onclick="toggleNavDrawer()" class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white transition backdrop-blur-md shadow-lg">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+</button>
+</div>
+
+<!-- スライドメニュー -->
+<div id="nav-overlay" onclick="closeNavDrawer()" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 transition-opacity"></div>
+<div id="nav-drawer" class="fixed top-0 left-0 h-full w-72 glass-card bg-slate-900/95 border-r border-slate-800 z-50 transform -translate-x-full transition-transform duration-300 p-6 flex flex-col justify-between shadow-2xl">
+<div>
+<div class="flex items-center justify-between pb-4 border-b border-slate-800">
+<span class="en-title text-xs text-amber-500/80 tracking-widest uppercase font-semibold">NAVIGATION MENU</span>
+<button onclick="closeNavDrawer()" class="text-slate-400 hover:text-white text-sm p-1 transition">✕</button>
+</div>
+<div class="mt-6 space-y-2.5">
+<button onclick="closeNavDrawer(); showSubjectScreen();" class="w-full text-left px-4 py-3 rounded-xl bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/50 text-slate-200 text-xs transition flex items-center gap-3 group">
+<span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 font-mono text-amber-400 text-[10px] font-bold">SOLO</span>
+<span class="font-medium">個人演習（科目一覧）</span>
+</button>
+<button onclick="closeNavDrawer(); showMultiplayerLobby();" class="w-full text-left px-4 py-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs transition flex items-center gap-3 group">
+<span class="px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 font-mono text-amber-400 text-[10px] font-bold">2P</span>
+<span class="font-medium">早押し対戦（2人マルチ）</span>
+</button>
+<button onclick="closeNavDrawer(); openAuthModal();" class="w-full text-left px-4 py-3 rounded-xl bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/50 text-slate-200 text-xs transition flex items-center gap-3 group">
+<span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 font-mono text-amber-400 text-[10px] font-bold">ADM</span>
+<span class="font-medium">管理者メニュー</span>
+</button>
+</div>
+</div>
+<div class="text-[11px] text-slate-500 font-light text-center border-t border-slate-800/80 pt-4">
+Classy Learning System
+</div>
+</div>
+
+<!-- メイン領域 -->
+<div class="w-full max-w-xl mx-auto my-auto py-6 sm:py-10">
+<header class="text-center mb-8">
+<div class="en-title text-amber-500/90 text-xs font-semibold tracking-widest uppercase mb-2">Knowledge Assessment</div>
+<h1 class="serif-title text-2xl sm:text-3xl font-medium text-slate-100 tracking-wide">過去問・小テスト演習</h1>
+<p class="text-xs text-slate-400 mt-2 font-light">落ち着いた空間で深める知識と理解</p>
+</header>
+
+<main class="glass-card rounded-2xl p-5 sm:p-8 shadow-2xl relative overflow-hidden">
+
+<!-- 画面1: 科目選択 (SOLO) -->
+<div id="screen-subjects" class="space-y-4">
+<div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+<h2 id="subjects-header-title" class="en-title text-xs text-slate-400 tracking-widest uppercase">Select Subject</h2>
+<span id="subject-count-display" class="text-xs text-slate-500 font-light">全6科目</span>
+</div>
+<div id="subject-list-container" class="grid gap-3 pt-1"></div>
+</div>
+
+<!-- 画面1.5: 心理学 小テスト選択 -->
+<div id="screen-round-select" class="hidden space-y-4">
+<div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+<button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline">← 戻る</button>
+<span id="round-subject-title" class="serif-title text-sm text-slate-300">心理学 小テスト選択</span>
+</div>
+
+<div class="flex flex-col sm:flex-row items-center justify-center gap-3 py-4">
+<select id="roundSelect" class="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg p-2.5 focus:ring-amber-500 focus:border-amber-500 w-full sm:w-auto">
+<option value="1">第1回</option>
+<option value="2">第2回</option>
+<option value="3">第3回</option>
+<option value="4">第4回</option>
+<option value="5">第5回</option>
+<option value="6">第6回</option>
+<option value="7">第7回</option>
+<option value="8">第8回</option>
+<option value="9">第9回</option>
+<option value="10">第10回</option>
+<option value="11">第11回</option>
+<option value="12">第12回</option>
+<option value="13">第13回</option>
+<option value="all">総合練習問題</option>
+</select>
+<button id="startButton" class="w-full sm:w-auto px-5 py-2.5 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-lg text-sm font-semibold transition">次へ進む</button>
+</div>
+
+<div id="quizContainer"></div>
+</div>
+
+<!-- 画面2: クイズ開始前設定 (SOLO) -->
+<div id="screen-quiz-start" class="hidden space-y-6 text-center">
+<div class="pb-3 border-b border-slate-700/50 flex items-center justify-between">
+<button id="start-back-btn" onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline">← 戻る</button>
+<span id="quiz-subject-title" class="serif-title text-sm text-slate-300">科目名</span>
+</div>
+
+<div class="py-2 space-y-2">
+<div class="en-title text-3xl text-amber-500/90 font-semibold">PRACTICE QUIZ</div>
+<h2 id="start-screen-heading" class="serif-title text-2xl text-slate-100">演習問題</h2>
+<p id="start-screen-desc" class="text-xs text-slate-400 font-light leading-relaxed max-w-sm mx-auto">
+過去問データベースから問題が出題されます。
+</p>
+</div>
+
+<div id="count-selector-container" class="hidden space-y-6 p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
+<div class="space-y-2">
+<div class="text-xs text-slate-400 uppercase tracking-widest font-medium">出題数を選択</div>
+<div class="text-4xl font-bold text-amber-500 font-mono"><span id="slider-count-display">10</span> <span class="text-sm font-normal text-slate-500">問</span></div>
+</div>
+<div class="px-2">
+<input type="range" id="quiz-count-slider" min="10" max="50" step="10" value="10" oninput="updateSliderValue(this.value)" class="w-full">
+<div class="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
+<span>10</span><span>20</span><span>30</span><span>40</span><span>50</span>
+</div>
+</div>
+</div>
+
+<div id="highscore-badge" class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs flex justify-between items-center max-w-xs mx-auto">
+<span class="text-slate-400 font-light flex items-center gap-1.5">
+<svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+最高記録:
+</span>
+<span id="start-screen-highscore" class="font-bold text-amber-400">未挑戦</span>
+</div>
+
+<button onclick="startQuiz()" class="w-full py-4 rounded-xl bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold text-sm transition shadow-lg tracking-widest">
+演習を開始する
+</button>
+</div>
+
+<!-- 画面3: クイズ実行画面 (SOLO) -->
+<div id="screen-quiz-play" class="hidden space-y-5">
+<div class="flex justify-between items-center pb-3 border-b border-slate-700/50 text-xs">
+<span id="quiz-progress-text" class="en-title text-amber-500 font-semibold uppercase">QUESTION 1 / 10</span>
+<div class="flex items-center gap-3">
+<span id="quiz-score-live" class="text-slate-400 font-light">正解: 0</span>
+<button onclick="quitQuiz()" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-rose-900/40 text-slate-400 hover:text-rose-300 border border-slate-700 transition text-[11px]">✕ 中断</button>
+</div>
+</div>
+
+<!-- 30秒制限時間タイマーバー -->
+<div class="w-full bg-slate-800/80 h-2 rounded-full overflow-hidden border border-slate-700/50">
+<div id="quiz-timer-bar" class="h-full bg-amber-500 w-full transition-all duration-100 ease-linear"></div>
+</div>
+
+<div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+<div id="quiz-question-number" class="text-[11px] text-amber-500/80 font-medium">Q1</div>
+<div id="quiz-question-text" class="text-sm text-slate-100 leading-relaxed font-normal">---</div>
+</div>
+
+<div id="quiz-options-container" class="space-y-2.5"></div>
+
+<div id="quiz-feedback-box" class="hidden p-4 rounded-xl border text-xs leading-relaxed space-y-2">
+<div id="quiz-feedback-title" class="font-bold text-sm"></div>
+<div id="quiz-feedback-desc" class="text-slate-300"></div>
+<button id="quiz-next-btn" onclick="nextQuestion()" class="w-full mt-2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition">次へ進む →</button>
+</div>
+</div>
+
+<!-- 画面4: クイズ結果画面 (SOLO) -->
+<div id="screen-quiz-result" class="hidden text-center space-y-6 py-4">
+<div class="en-title text-xs text-amber-500/80 tracking-widest uppercase">RESULT</div>
+<h2 class="serif-title text-2xl text-slate-100">演習完了</h2>
+
+<div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 max-w-xs mx-auto space-y-2 relative overflow-hidden">
+<div id="new-record-badge" class="hidden absolute top-2 right-2 bg-amber-500/20 border border-amber-500/50 text-amber-300 text-[10px] px-2 py-0.5 rounded-full font-bold animate-pulse flex items-center gap-1">
+<span>BEST RECORD</span>
+</div>
+<div class="text-xs text-slate-400">あなたのスコア</div>
+<div class="text-4xl font-bold text-amber-400"><span id="final-score-val">0</span> <span id="final-total-val" class="text-base font-normal text-slate-400">/ 10</span></div>
+<div id="final-eval-text" class="text-xs text-amber-500/90 pt-2 font-light">素晴らしい集中力です！</div>
+</div>
+
+<div class="flex gap-3 pt-2">
+<button onclick="startQuiz()" class="w-1/2 py-3.5 rounded-xl bg-amber-700 hover:bg-amber-600 text-amber-50 text-xs font-medium transition">もう一度挑戦する</button>
+<button onclick="showSubjectScreen()" class="w-1/2 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition">科目選択へ戻る</button>
+</div>
+</div>
+
+<!-- 画面5: マルチプレイ（早押し対戦）ロビー画面 -->
+<div id="screen-multi-lobby" class="hidden space-y-6">
+<div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+<button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline">← シングルへ戻る</button>
+<span class="en-title text-xs text-amber-500 font-semibold tracking-widest uppercase">2-PLAYER BATTLE</span>
+</div>
+
+<div class="text-center space-y-2 py-2">
+<h2 class="serif-title text-2xl text-slate-100">2人リアルタイム早押し対戦</h2>
+<p class="text-xs text-slate-400 font-light">部屋コードを作成・共有して友達と早押し問題で勝負しよう！</p>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<!-- 部屋を作る (ホスト) -->
+<div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4 text-center">
+<div class="text-xs font-semibold text-amber-400 uppercase tracking-wider">部屋を作成する (部屋主)</div>
+<p class="text-[11px] text-slate-400 font-light">あなたが部屋主となり、問題科目を選択してゲームを開始できます。</p>
+<button onclick="createMultiRoom()" class="w-full py-3 rounded-xl bg-amber-700 hover:bg-amber-600 text-amber-50 text-xs font-semibold transition shadow-lg">
+部屋を作成する
+</button>
+</div>
+
+<!-- 部屋に入る (ゲスト) -->
+<div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4 text-center">
+<div class="text-xs font-semibold text-amber-400 uppercase tracking-wider">コードで入室する</div>
+<input type="text" id="join-code-input" maxlength="4" placeholder="4桁コード (例: 1234)" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-100 text-center font-mono text-base uppercase focus:outline-none focus:border-amber-500">
+<button onclick="joinMultiRoom()" class="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition border border-slate-700">
+入室する
+</button>
+</div>
+</div>
+</div>
+
+<!-- 画面6: マルチ対戦待機ルーム (ホスト/ゲスト) -->
+<div id="screen-multi-room" class="hidden space-y-6 text-center">
+<div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+<button onclick="leaveMultiRoom()" class="text-xs text-rose-400 hover:underline">← 部屋を出る</button>
+<span class="en-title text-xs text-amber-500 font-semibold tracking-widest">ROOM: <span id="multi-room-code-display" class="font-mono text-amber-400 text-sm">----</span></span>
+</div>
+
+<div class="p-4 rounded-xl bg-slate-900/90 border border-amber-500/30 space-y-1">
+<div class="text-[11px] text-slate-400 uppercase tracking-widest">部屋コードを友達に教えてください</div>
+<div id="multi-room-code-large" class="text-3xl font-mono font-bold text-amber-400 tracking-widest">----</div>
+</div>
+
+<!-- プレイヤー状態 -->
+<div class="grid grid-cols-2 gap-3">
+<div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1">
+<div class="text-[10px] text-slate-400">プレイヤー 1 (部屋主)</div>
+<div id="p1-status" class="text-xs font-bold text-amber-400">接続中...</div>
+</div>
+<div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1">
+<div class="text-[10px] text-slate-400">プレイヤー 2 (ゲスト)</div>
+<div id="p2-status" class="text-xs font-bold text-slate-500">待機中...</div>
+</div>
+</div>
+
+<!-- 部屋主専用設定エリア -->
+<div id="host-settings-area" class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3 text-left hidden">
+<div class="text-xs font-semibold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+<span>⚙</span> <span>科目と出題の設定 (部屋主のみ)</span>
+</div>
+<div class="space-y-2">
+<label class="text-[11px] text-slate-400 block">対戦科目を選択:</label>
+<select id="multi-subject-select" class="w-full bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg p-2.5 focus:border-amber-500">
+<!-- JSで動的生成 -->
+</select>
+</div>
+<div class="space-y-2">
+<label class="text-[11px] text-slate-400 block">出題数: <span id="multi-count-val" class="text-amber-400 font-bold font-mono">10</span> 問</label>
+<input type="range" id="multi-count-slider" min="5" max="20" step="5" value="10" oninput="document.getElementById('multi-count-val').textContent=this.value" class="w-full">
+</div>
+</div>
+
+<div id="guest-waiting-msg" class="text-xs text-amber-400 font-light animate-pulse hidden">
+部屋主が科目を選択し、スタートするのを待っています...
+</div>
+
+<button id="multi-start-btn" onclick="startMultiGame()" disabled class="w-full py-3.5 rounded-xl bg-amber-700 disabled:bg-slate-800 disabled:text-slate-600 disabled:border disabled:border-slate-800 hover:bg-amber-600 text-amber-50 font-semibold text-xs transition shadow-lg tracking-widest">
+2人が揃うとスタートできます
+</button>
+</div>
+
+<!-- 画面7: マルチプレイ早押し対戦実行画面 -->
+<div id="screen-multi-play" class="hidden space-y-5">
+<div class="flex justify-between items-center pb-3 border-b border-slate-700/50 text-xs">
+<span id="multi-progress-text" class="en-title text-amber-500 font-semibold uppercase">QUESTION 1 / 10</span>
+<div class="flex items-center gap-4 text-xs font-mono">
+<span class="text-amber-400">あなた: <strong id="multi-my-score">0</strong></span>
+<span class="text-slate-400">相手: <strong id="multi-opp-score">0</strong></span>
+</div>
+</div>
+
+<div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+<div id="multi-q-num" class="text-[11px] text-amber-500/80 font-medium">Q1</div>
+<div id="multi-q-text" class="text-sm text-slate-100 leading-relaxed font-normal">---</div>
+</div>
+
+<!-- 早押し・判定状態表示エリア -->
+<div id="buzz-status-banner" class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center text-xs font-bold transition">
+問題がスタートしました！早押しボタンを押してください！
+</div>
+
+<!-- 早押し（PUSH）ボタン -->
+<div id="buzz-btn-container" class="py-2 text-center">
+<button id="buzz-btn" onclick="pressBuzzButton()" class="buzz-btn w-32 h-32 rounded-full bg-amber-600 hover:bg-amber-500 text-amber-50 text-xl font-black tracking-widest border-4 border-amber-300 shadow-2xl active:scale-95 transition mx-auto flex items-center justify-center">
+押す！
+</button>
+</div>
+
+<!-- 選択肢群 (回答権取得者のみ押せる) -->
+<div id="multi-options-container" class="space-y-2.5 opacity-50 pointer-events-none transition"></div>
+
+<div id="multi-next-btn-wrap" class="hidden">
+<button id="multi-next-btn" onclick="nextMultiQuestionHost()" class="w-full py-2.5 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-lg text-xs font-medium transition">次の問題へ進む (部屋主操作) →</button>
+</div>
+</div>
+
+</main>
+</div>
+
+<!-- 管理者パスワードモーダル -->
+<div id="modal-auth" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4">
+<div class="glass-card w-full max-w-sm rounded-2xl p-5 space-y-4 border border-slate-700/60 shadow-2xl">
+<div class="text-center space-y-1">
+<div class="en-title text-[10px] text-amber-500/80 tracking-widest uppercase font-semibold">AUTHENTICATION</div>
+<h3 class="serif-title text-lg text-slate-100">管理者認証</h3>
+</div>
+<input type="password" id="admin-password-input" placeholder="パスワードを入力" onkeydown="if(event.key==='Enter') submitPassword()" class="w-full px-3.5 py-2.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-100 text-sm text-center tracking-widest focus:outline-none focus:border-amber-600">
+<div id="auth-error-msg" class="text-center text-[11px] text-rose-400 font-light hidden">パスワードが正しくありません</div>
+<div class="flex gap-2.5">
+<button onclick="closeAuthModal()" class="w-1/2 py-2 bg-slate-800 text-slate-300 rounded-lg text-xs hover:bg-slate-700 transition">キャンセル</button>
+<button onclick="submitPassword()" class="w-1/2 py-2 bg-amber-700 text-amber-50 rounded-lg text-xs hover:bg-amber-600 transition font-semibold">認証する</button>
+</div>
+</div>
+</div>
+
+<!-- 管理者設定モーダル -->
+<div id="modal-admin" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4">
+<div class="glass-card w-full max-w-xl rounded-2xl p-5 sm:p-6 space-y-5 border border-slate-700/60 shadow-2xl max-h-[90vh] overflow-y-auto">
+<div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+<div>
+<div class="en-title text-[10px] text-amber-500/80 tracking-widest uppercase font-semibold">ADMINISTRATION</div>
+<h3 class="serif-title text-lg text-slate-100">管理者設定・科目編集</h3>
+</div>
+<button onclick="closeAdminModal()" class="text-slate-400 text-sm p-1 transition hover:text-white">✕</button>
+</div>
+
+<div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 space-y-3">
+<div class="text-xs font-semibold text-amber-400 flex items-center gap-1.5 uppercase tracking-widest">
+<span>＋</span> <span>新しい科目を追加する</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+<input type="text" id="new-subject-name" placeholder="科目名 (例: 薬理学)" class="sm:col-span-2 px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
+<input type="text" id="new-subject-code" placeholder="コード (例: PHA)" class="px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 uppercase">
+</div>
+<button onclick="addNewSubject()" class="w-full py-2 bg-amber-700/90 hover:bg-amber-600 text-amber-50 text-xs font-medium rounded-lg transition shadow tracking-widest">
+科目を追加登録する
+</button>
+</div>
+
+<div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-3">
+<div class="flex justify-between items-center">
+<div class="text-xs font-medium text-slate-200 uppercase tracking-widest">登録済み科目の並べ替え・設定</div>
+<span class="text-[10px] text-emerald-400 font-light flex items-center gap-1">● リアルタイム同期中</span>
+</div>
+<p class="text-[11px] text-slate-400 font-light leading-relaxed">
+左側の「☰」をドラッグして順番を変更できます。設定変更は全利用者に即時反映されます。
+</p>
+<div id="admin-drag-container" class="space-y-2 pt-1"></div>
+</div>
+
+<button onclick="resetAllDataToDefault()" class="w-full py-2 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/50 text-[11px] rounded-lg transition flex items-center justify-center gap-1.5 font-light">
+<span>データを初期状態にリセット</span>
+</button>
+
+<button onclick="closeAdminModal()" class="w-full py-2.5 bg-slate-800 text-slate-300 rounded-lg text-xs hover:bg-slate-700 transition">閉じる</button>
+</div>
+</div>
+
+<script>
+// =========================================================
+// 1. Firebase 設定
+// =========================================================
+const firebaseConfig = {
+databaseURL: "https://test-taisaku-7e433-default-rtdb.firebaseio.com/"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// プレイヤーIDの生成（セッションごとにユニーク）
+let myPlayerId = sessionStorage.getItem('my_player_id');
+if (!myPlayerId) {
+myPlayerId = 'usr_' + Math.random().toString(36).substring(2, 9);
+sessionStorage.setItem('my_player_id', myPlayerId);
+}
+
+// =========================================================
+// 全問題データベース定義
+// =========================================================
+window.QUIZ_DB = window.QUIZ_DB || {};
+window.QUIZ_DB.psychology = window.QUIZ_DB.psychology || [];
+window.QUIZ_DB.mind_behavior = window.QUIZ_DB.mind_behavior || [];
+window.QUIZ_DB.medical_intro = window.QUIZ_DB.medical_intro || [];
+window.QUIZ_DB.microbiology = window.QUIZ_DB.microbiology || [];
+window.QUIZ_DB.anatomy = window.QUIZ_DB.anatomy || [];
+window.QUIZ_DB.physiology = window.QUIZ_DB.physiology || [];
+
+// ---------------------------------------------------------
+// データ形式の揺らぎを自動解決するヘルパー関数
+// ---------------------------------------------------------
+function normalizeQuestion(item) {
+if (!item) return null;
+
+const qText = item.q || item.question || item.title || item.text || "問題文がありません";
+
+let opts = item.options || item.choices || item.answers || [];
+if (!Array.isArray(opts)) {
+opts = [];
+}
+
+let ansIdx = 0;
+if (typeof item.answer === 'number') {
+ansIdx = item.answer;
+} else if (typeof item.correct === 'number') {
+ansIdx = item.correct;
+} else if (typeof item.correctIndex === 'number') {
+ansIdx = item.correctIndex;
+} else if (typeof item.answerIndex === 'number') {
+ansIdx = item.answerIndex;
+} else if (typeof item.answer === 'string') {
+const parsed = parseInt(item.answer, 10);
+if (!isNaN(parsed)) ansIdx = parsed;
+}
+
+const expText = item.exp || item.explanation || item.desc || item.detail || "解説はありません。";
+
+return {
+...item,
+q: qText,
+options: opts,
+answer: ansIdx,
+exp: expText
+};
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+const startBtn = document.getElementById("startButton");
+if (startBtn) {
+startBtn.addEventListener("click", () => {
+const selectedValue = document.getElementById("roundSelect").value;
+currentRound = (selectedValue === "all") ? null : parseInt(selectedValue, 10);
+
+if (typeof window.getQuestions === "function") {
+const currentQuestions = window.getQuestions(selectedValue);
+if (Array.isArray(currentQuestions) && currentQuestions.length > 0) {
+window.QUIZ_DB.psychology = currentQuestions;
+}
+}
+showStartScreen();
+});
+}
+});
+
+const defaultSubjects = [
+{ id: "psychology", name: "心理学", code: "PSY", visible: true, status: "available", isFixed: true, hasRounds: true, fixedCount: null },
+{ id: "mind_behavior", name: "こころと行動", code: "MND", visible: true, status: "available", isFixed: true, hasRounds: false, fixedCount: null },
+{ id: "medical_intro", name: "医療概論", code: "MED", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+{ id: "physiology", name: "生理学", code: "PHY", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+{ id: "microbiology", name: "微生物学", code: "MIC", visible: true, status: "available", isFixed: true, hasRounds: false, fixedCount: null },
+{ id: "anatomy", name: "解剖学", code: "ANA", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null }
+];
+
+let subjects = [...defaultSubjects];
+let currentSubject = null;
+let currentRound = null;
+let activeQuestions = [];
+let currentQIndex = 0;
+let score = 0;
+let isAnswered = false;
+let dragulaInstance = null;
+
+// 制限時間タイマー制御変数
+let quizTimer = null;
+let timeLeft = 30;
+const QUIZ_LIMIT_TIME = 30; // 30秒
+
+// マルチプレイ用変数
+let currentRoomCode = null;
+let isHost = false;
+let roomRef = null;
+let roomData = null;
+
+// 平均正答率計算用ヘルパー関数
+function getAverageAccuracy(subjectId) {
+const historyKey = `history_accuracy_${subjectId}`;
+const records = JSON.parse(localStorage.getItem(historyKey) || '[]');
+if (!records || records.length === 0) return null;
+const sum = records.reduce((acc, curr) => acc + curr, 0);
+return Math.round(sum / records.length);
+}
+
+// =========================================================
+// 初期化・リアルタイム監視
+// =========================================================
+window.addEventListener('DOMContentLoaded', () => {
+initRealtimeSync();
+initDragula();
+});
+
+function initRealtimeSync() {
+db.ref('subjects').on('value', (snapshot) => {
+const val = snapshot.val();
+if (val) {
+subjects = val;
+} else {
+saveSubjectsToStorage();
+}
+renderSubjectList();
+if (!document.getElementById('modal-admin').classList.contains('hidden')) {
+renderAdminDragList();
+}
+});
+}
+
+function toggleNavDrawer() {
+const drawer = document.getElementById('nav-drawer');
+const overlay = document.getElementById('nav-overlay');
+const isOpen = !drawer.classList.contains('-translate-x-full');
+if (isOpen) {
+closeNavDrawer();
+} else {
+drawer.classList.remove('-translate-x-full');
+overlay.classList.remove('hidden');
+}
+}
+
+function closeNavDrawer() {
+document.getElementById('nav-drawer').classList.add('-translate-x-full');
+document.getElementById('nav-overlay').classList.add('hidden');
+}
+
+// =========================================================
+// 画面切り替えロジック
+// =========================================================
+function hideAllScreens() {
+stopQuizTimer();
+document.getElementById('screen-subjects').classList.add('hidden');
+document.getElementById('screen-round-select').classList.add('hidden');
+document.getElementById('screen-quiz-start').classList.add('hidden');
+document.getElementById('screen-quiz-play').classList.add('hidden');
+document.getElementById('screen-quiz-result').classList.add('hidden');
+document.getElementById('screen-multi-lobby').classList.add('hidden');
+document.getElementById('screen-multi-room').classList.add('hidden');
+document.getElementById('screen-multi-play').classList.add('hidden');
+}
+
+function showSubjectScreen() {
+hideAllScreens();
+document.getElementById('screen-subjects').classList.remove('hidden');
+renderSubjectList();
+}
+
+function renderSubjectList() {
+const container = document.getElementById('subject-list-container');
+const visibleSubjects = subjects.filter(s => s.visible !== false);
+document.getElementById('subject-count-display').textContent = `全${visibleSubjects.length}科目`;
+
+container.innerHTML = visibleSubjects.map(s => {
+const isPrep = s.status === 'preparing';
+const statusLabel = isPrep ? '【準備中】' : (s.hasRounds ? '全13回 小テスト対応' : (s.fixedCount ? `過去問演習（${s.fixedCount}問固定）` : '過去問演習・問題数選択可'));
+
+const avgAcc = isPrep ? null : getAverageAccuracy(s.id);
+const avgDisplay = (avgAcc !== null) ? `${avgAcc}%` : '-- %';
+
+return `
+<button onclick="selectSubject('${s.id}')" ${isPrep ? 'disabled' : ''} class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+<div class="flex items-center gap-3">
+<span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">${s.code}</span>
+<div>
+<div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">${s.name}</div>
+<div class="text-[11px] ${isPrep ? 'text-amber-500/80 font-semibold' : 'text-slate-400 font-light'} mt-0.5">${statusLabel}</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<div class="text-[10px] text-slate-500 font-light">平均正答率</div>
+<div class="text-xs font-mono font-semibold ${avgAcc !== null ? 'text-amber-400' : 'text-slate-600'}">${avgDisplay}</div>
+</div>
+<span class="text-slate-500 group-hover:text-amber-400 transition text-sm">${isPrep ? '🔒' : '→'}</span>
+</div>
+</button>
+`;
+}).join('');
+}
+
+function selectSubject(subjectId) {
+currentSubject = subjects.find(s => s.id === subjectId);
+if (!currentSubject || currentSubject.status === 'preparing') return;
+
+if (currentSubject.hasRounds) {
+showRoundSelectionScreen();
+} else {
+currentRound = null;
+showStartScreen();
+}
+}
+
+function showRoundSelectionScreen() {
+currentSubject = subjects.find(s => s.id === "psychology") || currentSubject;
+hideAllScreens();
+document.getElementById('screen-round-select').classList.remove('hidden');
+}
+
+function showStartScreen() {
+hideAllScreens();
+document.getElementById('screen-quiz-start').classList.remove('hidden');
+
+const titleEl = document.getElementById('quiz-subject-title');
+const headingEl = document.getElementById('start-screen-heading');
+const descEl = document.getElementById('start-screen-desc');
+const countContainer = document.getElementById('count-selector-container');
+const backBtn = document.getElementById('start-back-btn');
+
+if (currentSubject.hasRounds) {
+backBtn.onclick = () => showRoundSelectionScreen();
+if (currentRound) {
+titleEl.textContent = `${currentSubject.name} - 第${currentRound}回`;
+headingEl.textContent = `第 ${currentRound} 回 小テスト演習`;
+descEl.textContent = `第${currentRound}回の小テスト（10問）を開始します。正解率100%を目指しましょう。`;
+countContainer.classList.add('hidden');
+} else {
+titleEl.textContent = `${currentSubject.name} - 総合演習`;
+headingEl.textContent = `全範囲 総合演習`;
+descEl.textContent = `全13回の中からランダムに問題が出題されます。`;
+countContainer.classList.remove('hidden');
+}
+} else {
+backBtn.onclick = () => showSubjectScreen();
+titleEl.textContent = currentSubject.name;
+headingEl.textContent = `${currentSubject.name} 練習問題`;
+
+if (currentSubject.fixedCount) {
+descEl.textContent = `指定された問題が出題されます。`;
+countContainer.classList.add('hidden');
+} else {
+descEl.textContent = `データベースから指定した問題数が出題されます。`;
+countContainer.classList.remove('hidden');
+}
+}
+
+updateHighscoreDisplay();
+}
+
+function updateSliderValue(val) {
+document.getElementById('slider-count-display').textContent = val;
+}
+
+function getHighscoreKey() {
+const roundSuffix = currentRound ? `_r${currentRound}` : '';
+return `highscore_${currentSubject.id}${roundSuffix}`;
+}
+
+function updateHighscoreDisplay() {
+const key = getHighscoreKey();
+const saved = localStorage.getItem(key);
+const badge = document.getElementById('start-screen-highscore');
+badge.textContent = (saved !== null) ? `${saved} 点` : "未挑戦";
+}
+
+// =========================================================
+// シングル クイズ実行ロジック
+// =========================================================
+function startQuiz() {
+let rawData = [];
+if (currentSubject.id === "microbiology" && typeof getMicrobiologyQuestions === "function") {
+rawData = getMicrobiologyQuestions();
+} else if (window.QUIZ_DB[currentSubject.id]) {
+rawData = window.QUIZ_DB[currentSubject.id];
+}
+
+if (!rawData || rawData.length === 0) {
+alert("該当科目の問題が登録されていません。");
+return;
+}
+
+let list = [];
+if (currentSubject.hasRounds && currentRound !== null) {
+list = rawData.filter(q => q.round === currentRound);
+if (list.length === 0) list = [...rawData];
+} else {
+list = [...rawData];
+}
+
+// データ構造の不一致を自動正規化
+list = list.map(q => normalizeQuestion(q)).filter(Boolean);
+
+// 選択肢のランダムシャッフル＆正解インデックスの自動再計算
+list = list.map(q => {
+if (!q.options || q.options.length <= 1) return q;
+const correctOptText = q.options[q.answer];
+const shuffledOpts = [...q.options].sort(() => Math.random() - 0.5);
+const newAnsIdx = shuffledOpts.findIndex(opt => opt === correctOptText);
+
+return {
+...q,
+options: shuffledOpts,
+answer: newAnsIdx !== -1 ? newAnsIdx : 0
+};
+});
+
+list = list.sort(() => Math.random() - 0.5);
+
+if (!currentSubject.hasRounds || currentRound === null) {
+let reqCount = currentSubject.fixedCount || (parseInt(document.getElementById('quiz-count-slider')?.value) || 10);
+list = list.slice(0, Math.min(reqCount, list.length));
+}
+
+activeQuestions = list;
+currentQIndex = 0;
+score = 0;
+
+hideAllScreens();
+document.getElementById('screen-quiz-play').classList.remove('hidden');
+renderQuestion();
+}
+
+function renderQuestion() {
+isAnswered = false;
+const q = activeQuestions[currentQIndex];
+const total = activeQuestions.length;
+
+document.getElementById('quiz-progress-text').textContent = `QUESTION ${currentQIndex + 1} / ${total}`;
+document.getElementById('quiz-score-live').textContent = `正解: ${score}`;
+document.getElementById('quiz-question-number').textContent = `Q${currentQIndex + 1}`;
+document.getElementById('quiz-question-text').textContent = q.q;
+
+const fbBox = document.getElementById('quiz-feedback-box');
+fbBox.className = "hidden p-4 rounded-xl border text-xs leading-relaxed space-y-2";
+
+const container = document.getElementById('quiz-options-container');
+container.innerHTML = q.options.map((opt, idx) => `
+<button onclick="handleAnswer(${idx})" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center justify-between">
+<span>${opt}</span>
+<span class="opt-mark hidden font-bold"></span>
+</button>
+`).join('');
+
+// 30秒タイマー開始
+startQuizTimer();
+}
+
+// 制限時間タイマー制御機能
+function startQuizTimer() {
+stopQuizTimer();
+timeLeft = QUIZ_LIMIT_TIME;
+updateTimerBarUI();
+
+const intervalMs = 100; // 0.1秒単位でバーを滑らかに動かす
+quizTimer = setInterval(() => {
+timeLeft -= intervalMs / 1000;
+if (timeLeft <= 0) {
+timeLeft = 0;
+updateTimerBarUI();
+stopQuizTimer();
+handleAnswer(-1); // 時間切れ判定（選んでいないため不正解）
+} else {
+updateTimerBarUI();
+}
+}, intervalMs);
+}
+
+function stopQuizTimer() {
+if (quizTimer) {
+clearInterval(quizTimer);
+quizTimer = null;
+}
+}
+
+function updateTimerBarUI() {
+const bar = document.getElementById('quiz-timer-bar');
+if (!bar) return;
+
+const percentage = Math.max(0, (timeLeft / QUIZ_LIMIT_TIME) * 100);
+bar.style.width = `${percentage}%`;
+
+// 残り時間による色変化
+if (percentage <= 16.6) { // 約5秒以下
+bar.className = "h-full bg-rose-500 transition-all duration-100 ease-linear";
+} else if (percentage <= 33.3) { // 約10秒以下
+bar.className = "h-full bg-amber-500 transition-all duration-100 ease-linear";
+} else {
+bar.className = "h-full bg-emerald-500 transition-all duration-100 ease-linear";
+}
+}
+
+function handleAnswer(selectedIdx) {
+if (isAnswered) return;
+isAnswered = true;
+stopQuizTimer(); // 回答時点でタイマー停止
+
+const q = activeQuestions[currentQIndex];
+const buttons = document.querySelectorAll('.quiz-opt-btn');
+const fbBox = document.getElementById('quiz-feedback-box');
+const fbTitle = document.getElementById('quiz-feedback-title');
+const fbDesc = document.getElementById('quiz-feedback-desc');
+const isCorrect = (selectedIdx === q.answer);
+const isTimeout = (selectedIdx === -1);
+
+buttons.forEach((btn, idx) => {
+btn.disabled = true;
+if (idx === q.answer) {
+btn.classList.add('border-emerald-500/80', 'bg-emerald-950/40', 'text-emerald-300');
+} else if (idx === selectedIdx && !isCorrect) {
+btn.classList.add('border-rose-500/80', 'bg-rose-950/40', 'text-rose-300');
+}
+});
+
+if (isCorrect) {
+score++;
+fbBox.className = "p-4 rounded-xl border border-emerald-500/40 bg-emerald-950/30 text-emerald-200 text-xs leading-relaxed space-y-2 block";
+fbTitle.textContent = "✓ 正解！";
+} else {
+fbBox.className = "p-4 rounded-xl border border-rose-500/40 bg-rose-950/30 text-rose-200 text-xs leading-relaxed space-y-2 block";
+fbTitle.textContent = isTimeout ? "⌛ 時間切れ..." : "✕ 不正解...";
+}
+
+fbDesc.textContent = q.exp || "解説はありません。";
+document.getElementById('quiz-score-live').textContent = `正解: ${score}`;
+
+document.getElementById('quiz-next-btn').textContent = (currentQIndex + 1 >= activeQuestions.length) ? "結果を見る →" : "次へ進む →";
+}
+
+function nextQuestion() {
+currentQIndex++;
+if (currentQIndex < activeQuestions.length) {
+renderQuestion();
+} else {
+showResultScreen();
+}
+}
+
+function quitQuiz() {
+if (confirm("演習を中断して科目選択に戻りますか？")) {
+stopQuizTimer();
+showSubjectScreen();
+}
+}
+
+function showResultScreen() {
+stopQuizTimer();
+hideAllScreens();
+document.getElementById('screen-quiz-result').classList.remove('hidden');
+
+const total = activeQuestions.length;
+document.getElementById('final-score-val').textContent = score;
+document.getElementById('final-total-val').textContent = `/ ${total}`;
+
+// 正答率の履歴保存
+if (currentSubject && total > 0) {
+const currentAccuracy = Math.round((score / total) * 100);
+const historyKey = `history_accuracy_${currentSubject.id}`;
+const records = JSON.parse(localStorage.getItem(historyKey) || '[]');
+records.push(currentAccuracy);
+localStorage.setItem(historyKey, JSON.stringify(records));
+}
+
+const key = getHighscoreKey();
+const prevMax = parseInt(localStorage.getItem(key) || '0', 10);
+const badge = document.getElementById('new-record-badge');
+
+if (score > prevMax) {
+localStorage.setItem(key, score.toString());
+badge.classList.remove('hidden');
+} else {
+badge.classList.add('hidden');
+}
+
+const evalEl = document.getElementById('final-eval-text');
+const ratio = score / total;
+
+if (ratio === 1) {
+evalEl.textContent = "🎉 パーフェクト！素晴らしい全問正解です！";
+evalEl.className = "text-xs font-bold text-amber-400 pt-2 tracking-wide animate-bounce";
+launchFireworks();
+} else if (ratio >= 0.8) {
+evalEl.textContent = "素晴らしい集中力です！合格圏内です。";
+evalEl.className = "text-xs text-amber-500/90 pt-2 font-light";
+} else if (ratio >= 0.6) {
+evalEl.textContent = "惜しい！間違えた部分を復習しましょう。";
+evalEl.className = "text-xs text-amber-500/90 pt-2 font-light";
+} else {
+evalEl.textContent = "焦らずテキストを見直して再挑戦しましょう。";
+evalEl.className = "text-xs text-amber-500/90 pt-2 font-light";
+}
+}
+
+function launchFireworks() {
+if (typeof confetti !== 'function') return;
+const duration = 2.5 * 1000;
+const animationEnd = Date.now() + duration;
+
+const interval = setInterval(function() {
+const timeLeft = animationEnd - Date.now();
+if (timeLeft <= 0) return clearInterval(interval);
+confetti({
+particleCount: 50 * (timeLeft / duration),
+startVelocity: 30,
+spread: 360,
+ticks: 60,
+origin: { x: Math.random(), y: Math.random() - 0.2 }
+});
+}, 250);
+}
+
+// =========================================================
+// 2人早押しマルチプレイ機能
+// =========================================================
+function showMultiplayerLobby() {
+hideAllScreens();
+document.getElementById('screen-multi-lobby').classList.remove('hidden');
+}
+
+function createMultiRoom() {
+const code = Math.floor(1000 + Math.random() * 9000).toString();
+currentRoomCode = code;
+isHost = true;
+
+roomRef = db.ref('rooms/' + code);
+
+// 切断時の自動クリーンアップ
+roomRef.onDisconnect().remove();
+
+const initialRoomState = {
+host: myPlayerId,
+guest: null,
+status: "waiting",
+subjectId: subjects.find(s => s.visible !== false)?.id || "psychology",
+questionCount: 10,
+currentQIndex: 0,
+buzzedPlayer: null,
+scores: {
+[myPlayerId]: 0
+}
+};
+
+roomRef.set(initialRoomState).then(() => {
+setupRoomListener();
+showRoomWaitScreen();
+});
+}
+
+function joinMultiRoom() {
+const inputCode = document.getElementById('join-code-input').value.trim();
+if (inputCode.length !== 4) {
+alert("4桁の部屋コードを入力してください。");
+return;
+}
+
+currentRoomCode = inputCode;
+isHost = false;
+roomRef = db.ref('rooms/' + inputCode);
+
+roomRef.get().then((snapshot) => {
+if (!snapshot.exists()) {
+alert("部屋が見つかりません。コードを確認してください。");
+return;
+}
+
+const data = snapshot.val();
+if (data.guest && data.guest !== myPlayerId) {
+alert("この部屋はすでに満員です。");
+return;
+}
+
+// 切断時にゲストIDのみ消去
+roomRef.child('guest').onDisconnect().remove();
+
+// ゲストとして入室
+const updates = {
+guest: myPlayerId,
+[`scores/${myPlayerId}`]: 0
+};
+roomRef.update(updates).then(() => {
+setupRoomListener();
+showRoomWaitScreen();
+});
+});
+}
+
+function showRoomWaitScreen() {
+hideAllScreens();
+document.getElementById('screen-multi-room').classList.remove('hidden');
+document.getElementById('multi-room-code-display').textContent = currentRoomCode;
+document.getElementById('multi-room-code-large').textContent = currentRoomCode;
+
+const hostSettings = document.getElementById('host-settings-area');
+const guestMsg = document.getElementById('guest-waiting-msg');
+
+if (isHost) {
+hostSettings.classList.remove('hidden');
+guestMsg.classList.add('hidden');
+
+// ホスト用科目選択プルダウン構築
+const selectEl = document.getElementById('multi-subject-select');
+selectEl.innerHTML = subjects.filter(s => s.visible !== false && s.status !== 'preparing').map(s => `
+<option value="${s.id}">${s.name} (${s.code})</option>
+`).join('');
+
+selectEl.onchange = (e) => {
+roomRef.update({ subjectId: e.target.value });
+};
+document.getElementById('multi-count-slider').onchange = (e) => {
+roomRef.update({ questionCount: parseInt(e.target.value, 10) });
+};
+
+} else {
+hostSettings.classList.add('hidden');
+guestMsg.classList.remove('hidden');
+}
+}
+
+function setupRoomListener() {
+roomRef.on('value', (snapshot) => {
+roomData = snapshot.val();
+if (!roomData) {
+alert("部屋が解散されました。");
+leaveMultiRoom();
+return;
+}
+
+// 待機画面のプレイヤー接続ステータス更新
+document.getElementById('p1-status').textContent = "接続中 (部屋主)";
+if (roomData.guest) {
+document.getElementById('p2-status').textContent = "接続済み (ゲスト)";
+document.getElementById('p2-status').className = "text-xs font-bold text-emerald-400";
+if (isHost) {
+const startBtn = document.getElementById('multi-start-btn');
+startBtn.disabled = false;
+startBtn.textContent = "対戦を開始する！";
+}
+} else {
+document.getElementById('p2-status').textContent = "待機中...";
+document.getElementById('p2-status').className = "text-xs font-bold text-slate-500";
+if (isHost) {
+const startBtn = document.getElementById('multi-start-btn');
+startBtn.disabled = true;
+startBtn.textContent = "2人が揃うとスタートできます";
+}
+}
+
+// ゲーム開始検知
+if (roomData.status === 'playing' && document.getElementById('screen-multi-play').classList.contains('hidden')) {
+startMultiPlayUI();
+}
+
+// プレイ中の状態リアルタイム反映
+if (roomData.status === 'playing') {
+updateMultiPlayUI();
+}
+});
+}
+
+function leaveMultiRoom() {
+if (roomRef) {
+roomRef.off();
+if (isHost) {
+roomRef.remove();
+} else {
+roomRef.child('guest').remove();
+}
+roomRef = null;
+}
+showMultiplayerLobby();
+}
+
+function startMultiGame() {
+if (!isHost) return;
+
+const subId = roomData.subjectId;
+let rawData = [];
+if (subId === "microbiology" && typeof getMicrobiologyQuestions === "function") {
+rawData = getMicrobiologyQuestions();
+} else if (QUIZ_DB[subId]) {
+rawData = QUIZ_DB[subId];
+}
+
+if (!rawData || rawData.length === 0) {
+alert("選択された科目に問題が存在しません。");
+return;
+}
+
+// データ構造正規化
+let qList = rawData.map(q => normalizeQuestion(q)).filter(Boolean);
+
+// 対戦用に選択肢のシャッフル処理を適用
+qList = qList.map(q => {
+if (!q.options || q.options.length <= 1) return q;
+const correctOptText = q.options[q.answer];
+const shuffledOpts = [...q.options].sort(() => Math.random() - 0.5);
+const newAnsIdx = shuffledOpts.findIndex(opt => opt === correctOptText);
+
+return {
+...q,
+options: shuffledOpts,
+answer: newAnsIdx !== -1 ? newAnsIdx : 0
+};
+});
+
+qList = qList.sort(() => Math.random() - 0.5);
+qList = qList.slice(0, Math.min(roomData.questionCount || 10, qList.length));
+
+roomRef.update({
+status: 'playing',
+questions: qList,
+currentQIndex: 0,
+buzzedPlayer: null,
+answerState: null
+});
+}
+
+function startMultiPlayUI() {
+hideAllScreens();
+document.getElementById('screen-multi-play').classList.remove('hidden');
+}
+
+function updateMultiPlayUI() {
+if (!roomData || !roomData.questions) return;
+
+const qIndex = roomData.currentQIndex || 0;
+const rawQ = roomData.questions[qIndex];
+const q = normalizeQuestion(rawQ);
+const total = roomData.questions.length;
+
+document.getElementById('multi-progress-text').textContent = `QUESTION ${qIndex + 1} / ${total}`;
+document.getElementById('multi-q-num').textContent = `Q${qIndex + 1}`;
+document.getElementById('multi-q-text').textContent = q.q;
+
+// スコア表示
+const myScore = roomData.scores ? (roomData.scores[myPlayerId] || 0) : 0;
+const oppId = isHost ? roomData.guest : roomData.host;
+const oppScore = roomData.scores ? (roomData.scores[oppId] || 0) : 0;
+
+document.getElementById('multi-my-score').textContent = myScore;
+document.getElementById('multi-opp-score').textContent = oppScore;
+
+// 部屋主用の次へ進むボタン制御
+const nextBtnWrap = document.getElementById('multi-next-btn-wrap');
+if (isHost && roomData.answerState) {
+nextBtnWrap.classList.remove('hidden');
+} else {
+nextBtnWrap.classList.add('hidden');
+}
+
+const buzzBanner = document.getElementById('buzz-status-banner');
+const buzzBtn = document.getElementById('buzz-btn');
+const optionsContainer = document.getElementById('multi-options-container');
+
+// 選択肢描画
+optionsContainer.innerHTML = q.options.map((opt, idx) => `
+<button onclick="submitMultiAnswer(${idx})" class="multi-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition">
+${opt}
+</button>
+`).join('');
+
+// 早押し状態の分岐判定
+if (!roomData.buzzedPlayer) {
+buzzBanner.textContent = "⚡ 早押しボタンを押してください！";
+buzzBanner.className = "p-3 rounded-xl bg-slate-900/90 border border-amber-500/30 text-amber-300 text-xs font-bold";
+buzzBtn.disabled = false;
+optionsContainer.classList.add('opacity-50', 'pointer-events-none');
+
+} else if (roomData.buzzedPlayer === myPlayerId) {
+buzzBtn.disabled = true;
+
+if (!roomData.answerState) {
+buzzBanner.textContent = "🎯 あなたが回答権を獲得！選択肢を選んでください！";
+buzzBanner.className = "p-3 rounded-xl bg-amber-500/20 border border-amber-500/60 text-amber-300 text-xs font-bold animate-pulse";
+optionsContainer.classList.remove('opacity-50', 'pointer-events-none');
+} else {
+if (roomData.answerState.isCorrect) {
+buzzBanner.textContent = "✓ 正解！+1ポイント獲得！";
+buzzBanner.className = "p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/60 text-emerald-300 text-xs font-bold";
+} else {
+buzzBanner.textContent = "✕ 不正解...";
+buzzBanner.className = "p-3 rounded-xl bg-rose-950/60 border border-rose-500/60 text-rose-300 text-xs font-bold";
+}
+optionsContainer.classList.add('opacity-50', 'pointer-events-none');
+}
+
+} else {
+buzzBtn.disabled = true;
+optionsContainer.classList.add('opacity-50', 'pointer-events-none');
+
+if (!roomData.answerState) {
+buzzBanner.textContent = "相手が回答権を獲得！回答中...";
+buzzBanner.className = "p-3 rounded-xl bg-slate-900/90 border border-slate-700 text-slate-400 text-xs font-bold";
+} else {
+if (roomData.answerState.isCorrect) {
+buzzBanner.textContent = "相手が正解しました！";
+buzzBanner.className = "p-3 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs font-bold";
+} else {
+buzzBanner.textContent = "相手が不正解でした！";
+buzzBanner.className = "p-3 rounded-xl bg-slate-900/90 border border-slate-700 text-slate-300 text-xs font-bold";
+}
+}
+}
+}
+
+function pressBuzzButton() {
+if (!roomRef || roomData.buzzedPlayer) return;
+
+// ボタン連続押し防止のため、ローカルで即時無効化
+document.getElementById('buzz-btn').disabled = true;
+
+roomRef.child('buzzedPlayer').transaction((current) => {
+if (current === null) {
+return myPlayerId;
+}
+return undefined; // 既に獲得済みの場合はキャンセル
+});
+}
+
+function submitMultiAnswer(optIndex) {
+if (roomData.buzzedPlayer !== myPlayerId || roomData.answerState) return;
+
+const q = normalizeQuestion(roomData.questions[roomData.currentQIndex]);
+const isCorrect = (optIndex === q.answer);
+
+const updates = {
+'answerState': {
+player: myPlayerId,
+selected: optIndex,
+isCorrect: isCorrect
+}
+};
+
+if (isCorrect) {
+const currentScore = roomData.scores ? (roomData.scores[myPlayerId] || 0) : 0;
+updates[`scores/${myPlayerId}`] = currentScore + 1;
+}
+
+roomRef.update(updates);
+}
+
+function nextMultiQuestionHost() {
+if (!isHost) return;
+
+const nextIndex = roomData.currentQIndex + 1;
+if (nextIndex >= roomData.questions.length) {
+const myScore = roomData.scores[myPlayerId] || 0;
+const oppId = roomData.guest;
+const oppScore = roomData.scores[oppId] || 0;
+
+let winMsg = "引き分け！";
+if (myScore > oppScore) winMsg = "あなたの勝利！🎉";
+if (myScore < oppScore) winMsg = "相手の勝利！";
+
+alert(`【対戦終了】\nあなた: ${myScore}点\n相手: ${oppScore}点\n\n${winMsg}`);
+leaveMultiRoom();
+} else {
+roomRef.update({
+currentQIndex: nextIndex,
+buzzedPlayer: null,
+answerState: null
+});
+}
+}
+
+window.addEventListener('beforeunload', () => {
+if (roomRef) {
+if (isHost) {
+roomRef.remove();
+} else {
+roomRef.child('guest').remove();
+}
+}
+});
+
+// =========================================================
+// 管理者機能・モーダル・リアルタイム同期保存
+// =========================================================
+function openAuthModal() {
+document.getElementById('modal-auth').classList.remove('hidden');
+document.getElementById('admin-password-input').value = '';
+document.getElementById('auth-error-msg').classList.add('hidden');
+}
+
+function closeAuthModal() {
+document.getElementById('modal-auth').classList.add('hidden');
+}
+
+function submitPassword() {
+if (document.getElementById('admin-password-input').value === "2721") {
+closeAuthModal();
+openAdminModal();
+} else {
+document.getElementById('auth-error-msg').classList.remove('hidden');
+}
+}
+
+function openAdminModal() {
+document.getElementById('modal-admin').classList.remove('hidden');
+renderAdminDragList();
+}
+
+function closeAdminModal() {
+document.getElementById('modal-admin').classList.add('hidden');
+renderSubjectList();
+}
+
+function renderAdminDragList() {
+const container = document.getElementById('admin-drag-container');
+container.innerHTML = subjects.map((s) => {
+const isVisible = s.visible !== false;
+const status = s.status || "available";
+
+return `
+<div data-id="${s.id}" class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+<div class="flex items-center gap-2">
+<span class="drag-handle cursor-grab text-slate-600 hover:text-amber-400 p-1 select-none">☰</span>
+<span class="font-mono text-[10px] text-amber-500 font-bold">${s.code}</span>
+<span class="text-slate-200 font-medium">${s.name}</span>
+${s.isFixed ? '<span class="text-[10px] text-amber-500/70 border border-amber-500/30 px-1.5 py-0.2 rounded">固定</span>' : ''}
+</div>
+
+<div class="flex items-center gap-2 ml-auto">
+<select onchange="updateSubjectStatus('${s.id}', this.value)" class="bg-slate-900 border border-slate-700 text-[11px] text-slate-300 rounded px-2 py-1 focus:outline-none focus:border-amber-500">
+<option value="available" ${status === 'available' ? 'selected' : ''}>公開</option>
+<option value="preparing" ${status === 'preparing' ? 'selected' : ''}>準備中</option>
+</select>
+
+<button onclick="toggleSubjectVisibility('${s.id}')" class="px-2.5 py-1 rounded text-[11px] transition border ${isVisible ? 'bg-slate-800 text-amber-400 border-amber-500/30' : 'bg-slate-900 text-slate-500 border-slate-800'}">
+${isVisible ? '表示中' : '非表示'}
+</button>
+
+${!s.isFixed ? `<button onclick="deleteSubject('${s.id}')" class="text-rose-400 hover:text-rose-300 text-[11px] p-1 ml-1">削除</button>` : ''}
+</div>
+</div>
+`;
+}).join('');
+}
+
+function toggleSubjectVisibility(id) {
+const subject = subjects.find(s => s.id === id);
+if (subject) {
+subject.visible = !(subject.visible !== false);
+saveSubjectsToStorage();
+renderAdminDragList();
+}
+}
+
+function updateSubjectStatus(id, newStatus) {
+const subject = subjects.find(s => s.id === id);
+if (subject) {
+subject.status = newStatus;
+saveSubjectsToStorage();
+renderAdminDragList();
+}
+}
+
+function initDragula() {
+if (typeof dragula !== 'function') return;
+const container = document.getElementById('admin-drag-container');
+dragulaInstance = dragula([container], {
+moves: (el, container, handle) => handle.classList.contains('drag-handle')
+});
+
+dragulaInstance.on('drop', () => {
+const children = Array.from(container.children);
+const newOrderIds = children.map(child => child.getAttribute('data-id'));
+subjects.sort((a, b) => newOrderIds.indexOf(a.id) - newOrderIds.indexOf(b.id));
+saveSubjectsToStorage();
+});
+}
+
+function addNewSubject() {
+const nameInput = document.getElementById('new-subject-name');
+const codeInput = document.getElementById('new-subject-code');
+const name = nameInput.value.trim();
+const code = codeInput.value.trim().toUpperCase();
+
+if (!name || !code) {
+alert("科目名とコードを入力してください。");
+return;
+}
+
+const newId = `sub_${Date.now()}`;
+subjects.push({
+id: newId,
+name: name,
+code: code,
+visible: true,
+status: "available",
+isFixed: false,
+hasRounds: false,
+fixedCount: null
+});
+
+QUIZ_DB[newId] = [
+{ q: `${name}のサンプル問題1です。正しい選択肢はどれか？`, options: ["1. 選択肢 A", "2. 選択肢 B", "3. 正解の選択肢 C", "4. 選択肢 D"], answer: 2, exp: "サンプルの解説です。" }
+];
+
+saveSubjectsToStorage();
+nameInput.value = '';
+codeInput.value = '';
+renderAdminDragList();
+}
+
+function deleteSubject(id) {
+if (confirm("この科目を削除してもよろしいですか？")) {
+subjects = subjects.filter(s => s.id !== id);
+saveSubjectsToStorage();
+renderAdminDragList();
+}
+}
+
+function saveSubjectsToStorage() {
+db.ref('subjects').set(subjects);
+}
+
+function resetAllDataToDefault() {
+if (confirm("すべての初期化を行いますか？（設定や最高記録がリセットされます）")) {
+localStorage.clear();
+subjects = [...defaultSubjects];
+saveSubjectsToStorage();
+}
+}
+</script>
+</body>
+</html>
