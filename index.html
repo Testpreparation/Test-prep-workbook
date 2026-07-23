@@ -24,6 +24,7 @@
 <script src="psychology.js"></script>
 <script src="mindbehavior.js"></script>
 <script src="microbiology.js"></script>
+<script src="anatomy.js"></script>
 
 <style>
 body {
@@ -772,14 +773,16 @@ badge.textContent = (saved !== null) ? `${saved} 点` : "未挑戦";
 // シングル クイズ実行ロジック
 // =========================================================
 function startQuiz() {
-let rawData = [];
-if (currentSubject.id === "microbiology" && typeof getMicrobiologyQuestions === "function") {
-rawData = getMicrobiologyQuestions();
-} else if (window.QUIZ_DB[currentSubject.id]) {
-rawData = window.QUIZ_DB[currentSubject.id];
+// 外部JS関数経由での取得（定義されている場合）
+if (currentSubject.id === 'microbiology' && typeof window.getMicrobiologyQuestions === 'function') {
+const microData = window.getMicrobiologyQuestions();
+if (Array.isArray(microData) && microData.length > 0) {
+window.QUIZ_DB.microbiology = microData;
+}
 }
 
-if (!rawData || rawData.length === 0) {
+let rawData = QUIZ_DB[currentSubject.id] || [];
+if (rawData.length === 0) {
 alert("該当科目の問題が登録されていません。");
 return;
 }
@@ -1178,14 +1181,17 @@ function startMultiGame() {
 if (!isHost) return;
 
 const subId = roomData.subjectId;
-let rawData = [];
-if (subId === "microbiology" && typeof getMicrobiologyQuestions === "function") {
-rawData = getMicrobiologyQuestions();
-} else if (QUIZ_DB[subId]) {
-rawData = QUIZ_DB[subId];
+
+// 微生物学の外部JSデータ取得チェック
+if (subId === 'microbiology' && typeof window.getMicrobiologyQuestions === 'function') {
+const microData = window.getMicrobiologyQuestions();
+if (Array.isArray(microData) && microData.length > 0) {
+window.QUIZ_DB.microbiology = microData;
+}
 }
 
-if (!rawData || rawData.length === 0) {
+const rawData = QUIZ_DB[subId] || [];
+if (rawData.length === 0) {
 alert("選択された科目に問題が存在しません。");
 return;
 }
