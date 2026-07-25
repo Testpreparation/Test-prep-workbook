@@ -700,50 +700,60 @@
       });
     }
 
-    // ---------------------------------------------------------
-    // お知らせモーダル表示制御
-    // ---------------------------------------------------------
-    function openNoticeModal() {
-      document.getElementById('modal-notice').classList.remove('hidden');
-      const redDot = document.getElementById('notice-red-dot');
-      if (redDot) {
-        redDot.classList.add('hidden');
-      }
-    }
-    function closeNoticeModal() {
-      document.getElementById('modal-notice').classList.add('hidden');
-    }
+   // ---------------------------------------------------------
+// お知らせモーダル表示制御
+// ---------------------------------------------------------
+function openNoticeModal() {
+document.getElementById('modal-notice').classList.remove('hidden');
+const redDot = document.getElementById('notice-red-dot');
+if (redDot) {
+redDot.classList.add('hidden');
+}
+// 閲覧済みフラグを保存
+localStorage.setItem('hasReadNotice', 'true');
+}
+function closeNoticeModal() {
+document.getElementById('modal-notice').classList.add('hidden');
+}
 
-    // お知らせ投稿機能（管理者メニュー用）
-    function postAdminNotice() {
-      const titleInput = document.getElementById('admin-notice-title');
-      const contentInput = document.getElementById('admin-notice-content');
+// ページ読み込み時に既読チェックを行って赤丸を非表示にする処理
+document.addEventListener('DOMContentLoaded', () => {
+if (localStorage.getItem('hasReadNotice') === 'true') {
+const redDot = document.getElementById('notice-red-dot');
+if (redDot) {
+redDot.classList.add('hidden');
+}
+}
+});
 
-      const title = titleInput.value.trim();
-      const content = contentInput.value.trim();
+// お知らせ投稿機能（管理者メニュー用）
+function postAdminNotice() {
+const titleInput = document.getElementById('admin-notice-title');
+const contentInput = document.getElementById('admin-notice-content');
 
-      if (!title || !content) {
-        alert("お知らせのタイトルと本文を入力してください。");
-        return;
-      }
+const title = titleInput.value.trim();
+const content = contentInput.value.trim();
 
-      const noticeData = {
-        title: title,
-        content: content,
-        timestamp: Date.now()
-      };
+if (!title || !content) {
+alert("お知らせのタイトルと本文を入力してください。");
+return;
+}
 
-      db.ref('notices').push(noticeData).then(() => {
-        alert("お知らせを投稿しました。");
-        titleInput.value = '';
-        contentInput.value = '';
-      }).catch(err => {
-        console.error("お知らせの送信に失敗しました:", err);
-        alert("お知らせの送信に失敗しました。");
-      });
-    }
+const noticeData = {
+title: title,
+content: content,
+timestamp: Date.now()
+};
 
-    // お知らせ削除機能（管理者用）
+db.ref('notices').push(noticeData).then(() => {
+alert("お知らせを投稿しました。");
+titleInput.value = '';
+contentInput.value = '';
+}).catch(err => {
+console.error("お知らせの送信に失敗しました:", err);
+alert("お知らせの送信に失敗しました。");
+});
+}    // お知らせ削除機能（管理者用）
     function deleteAdminNotice(noticeId) {
       if (!confirm("このお知らせを消去しますか？")) return;
 
