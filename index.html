@@ -606,17 +606,31 @@
         opts = [];
       }
 
-      // 単一正解(answer) / 複数正解(answers) の自動判定処理
+      // 修正対応: correctAnswers (テキスト配列) / 複数選択 / 単一正解(answer) の自動判定処理
       let correctAnswers = [];
-      const rawAns = item.answers !== undefined ? item.answers : (item.answer !== undefined ? item.answer : (item.correct !== undefined ? item.correct : item.correctIndex));
+      const rawAns = item.correctAnswers !== undefined ? item.correctAnswers : (item.answers !== undefined ? item.answers : (item.answer !== undefined ? item.answer : (item.correct !== undefined ? item.correct : item.correctIndex)));
       
       if (Array.isArray(rawAns)) {
-        correctAnswers = rawAns.map(v => parseInt(v, 10)).filter(v => !isNaN(v));
+        // テキスト配列形式（例: ["家族歴"]）またはインデックス配列形式（例: [2]）の判定
+        if (rawAns.length > 0 && typeof rawAns[0] === 'string' && opts.length > 0) {
+          correctAnswers = rawAns.map(ansText => opts.indexOf(ansText)).filter(idx => idx !== -1);
+          if (correctAnswers.length === 0) {
+            // 万が一テキストマッチしない場合は数値変換を試みる
+            correctAnswers = rawAns.map(v => parseInt(v, 10)).filter(v => !isNaN(v));
+          }
+        } else {
+          correctAnswers = rawAns.map(v => parseInt(v, 10)).filter(v => !isNaN(v));
+        }
       } else if (typeof rawAns === 'number') {
         correctAnswers = [rawAns];
       } else if (typeof rawAns === 'string') {
         const parsed = parseInt(rawAns, 10);
-        if (!isNaN(parsed)) correctAnswers = [parsed];
+        if (!isNaN(parsed)) {
+          correctAnswers = [parsed];
+        } else if (opts.length > 0) {
+          const foundIdx = opts.indexOf(rawAns);
+          if (foundIdx !== -1) correctAnswers = [foundIdx];
+        }
       }
 
       // 語群・画像データの抽出
