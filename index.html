@@ -8,13 +8,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400&family=Noto+Serif+JP:wght@400;500;600&family=Noto+Sans+JP:wght@300;400;500;600&display=swap" rel="stylesheet">
-  
+ 
   <!-- Dragula (ドラッグ並べ替えライブラリ) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js"></script>
 
   <!-- Canvas Confetti (全問正解時の花火演出) -->
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
   <!-- Firebase SDK (リアルタイム同期用) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -183,12 +183,20 @@
     </header>
 
     <main class="glass-card rounded-2xl p-5 sm:p-8 shadow-2xl relative overflow-hidden">
-      
+     
       <!-- 画面1: 科目選択 (SOLO) -->
       <div id="screen-subjects" class="space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
           <h2 id="subjects-header-title" class="en-title text-xs text-slate-400 tracking-widest uppercase">Select Subject</h2>
-          <span id="subject-count-display" class="text-xs text-slate-500 font-light">全6科目</span>
+          <div class="flex items-center gap-3">
+            <span id="subject-count-display" class="text-xs text-slate-500 font-light">全6科目</span>
+            <!-- お知らせボタン -->
+            <button onclick="openNoticeModal()" class="relative px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition flex items-center gap-1.5">
+              <span>🔔</span>
+              <span>お知らせ</span>
+              <span id="notice-red-dot" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-slate-900"></span>
+            </button>
+          </div>
         </div>
         <div id="subject-list-container" class="grid gap-3 pt-1"></div>
       </div>
@@ -261,7 +269,7 @@
           <button id="start-back-btn" onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline">← 戻る</button>
           <span id="quiz-subject-title" class="serif-title text-sm text-slate-300">科目名</span>
         </div>
-        
+       
         <div class="py-2 space-y-2">
           <div class="en-title text-3xl text-amber-500/90 font-semibold">PRACTICE QUIZ</div>
           <h2 id="start-screen-heading" class="serif-title text-2xl text-slate-100">演習問題</h2>
@@ -314,7 +322,7 @@
         <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
           <div id="quiz-question-number" class="text-[11px] text-amber-500/80 font-medium">Q1</div>
           <div id="quiz-question-text" class="text-sm text-slate-100 leading-relaxed font-normal">---</div>
-          
+         
           <!-- 問題画像表示領域 -->
           <div id="quiz-image-container" class="hidden my-3">
             <img id="quiz-image" src="" alt="問題画像" class="max-h-64 rounded-lg mx-auto border border-slate-700/80 object-contain shadow">
@@ -490,6 +498,27 @@
     </main>
   </div>
 
+  <!-- お知らせ用モーダル -->
+  <div id="modal-notice" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div class="glass-card w-full max-w-sm rounded-2xl p-5 space-y-4 border border-slate-700/60 shadow-2xl">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-700/50">
+        <div class="flex items-center gap-1.5">
+          <span>🔔</span>
+          <h3 class="serif-title text-base font-medium text-slate-100">お知らせ</h3>
+        </div>
+        <button onclick="closeNoticeModal()" class="text-slate-400 text-xs hover:text-white p-1">✕</button>
+      </div>
+      <div id="notice-list-container" class="space-y-3 text-xs leading-relaxed text-slate-300 max-h-60 overflow-y-auto">
+        <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+          <div class="text-[10px] text-amber-400 font-mono">新機能アップデート</div>
+          <div class="font-semibold text-slate-100">演習機能が新しくなりました</div>
+          <p class="text-slate-400 text-[11px] font-light">画像の表示、複数選択問題、早押し対戦（2Pマルチ）に対応しました。</p>
+        </div>
+      </div>
+      <button onclick="closeNoticeModal()" class="w-full py-2 bg-slate-800 text-slate-300 rounded-lg text-xs hover:bg-slate-700 transition">閉じる</button>
+    </div>
+  </div>
+
   <!-- 管理者パスワードモーダル -->
   <div id="modal-auth" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
     <div class="glass-card w-full max-w-sm rounded-2xl p-5 space-y-4 border border-slate-700/60 shadow-2xl">
@@ -515,6 +544,32 @@
           <h3 class="serif-title text-lg text-slate-100">管理者設定・科目編集</h3>
         </div>
         <button onclick="closeAdminModal()" class="text-slate-400 text-sm p-1 transition hover:text-white">✕</button>
+      </div>
+
+      <!-- お知らせ送信エリア -->
+      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 space-y-3">
+        <div class="text-xs font-semibold text-amber-400 flex items-center gap-1.5 uppercase tracking-widest">
+          <span>📢</span> <span>お知らせを投稿する</span>
+        </div>
+        <div class="space-y-2">
+          <input type="text" id="admin-notice-title" placeholder="お知らせのタイトル" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
+          <textarea id="admin-notice-content" placeholder="お知らせの本文" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-20"></textarea>
+        </div>
+        <button onclick="postAdminNotice()" class="w-full py-2 bg-amber-700/90 hover:bg-amber-600 text-amber-50 text-xs font-medium rounded-lg transition shadow tracking-widest">
+          お知らせを送信する
+        </button>
+      </div>
+
+      <!-- 投稿済みお知らせ一覧・削除管理エリア（追加部分） -->
+      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 space-y-3">
+        <div class="text-xs font-semibold text-amber-400 flex items-center justify-between uppercase tracking-widest">
+          <div class="flex items-center gap-1.5">
+            <span>🗑️</span> <span>投稿済みお知らせの削除・管理</span>
+          </div>
+        </div>
+        <div id="admin-notice-manage-list" class="space-y-2 max-h-40 overflow-y-auto pt-1">
+          <div class="text-slate-500 text-[11px] text-center py-2">お知らせデータを読み込んでいます...</div>
+        </div>
       </div>
 
       <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 space-y-3">
@@ -594,6 +649,61 @@
     }
 
     // ---------------------------------------------------------
+    // お知らせモーダル表示制御
+    // ---------------------------------------------------------
+    function openNoticeModal() {
+      document.getElementById('modal-notice').classList.remove('hidden');
+      const redDot = document.getElementById('notice-red-dot');
+      if (redDot) {
+        redDot.classList.add('hidden');
+      }
+    }
+    function closeNoticeModal() {
+      document.getElementById('modal-notice').classList.add('hidden');
+    }
+
+    // お知らせ投稿機能（管理者メニュー用）
+    function postAdminNotice() {
+      const titleInput = document.getElementById('admin-notice-title');
+      const contentInput = document.getElementById('admin-notice-content');
+
+      const title = titleInput.value.trim();
+      const content = contentInput.value.trim();
+
+      if (!title || !content) {
+        alert("お知らせのタイトルと本文を入力してください。");
+        return;
+      }
+
+      const noticeData = {
+        title: title,
+        content: content,
+        timestamp: Date.now()
+      };
+
+      db.ref('notices').push(noticeData).then(() => {
+        alert("お知らせを投稿しました。");
+        titleInput.value = '';
+        contentInput.value = '';
+      }).catch(err => {
+        console.error("お知らせの送信に失敗しました:", err);
+        alert("お知らせの送信に失敗しました。");
+      });
+    }
+
+    // お知らせ削除機能（管理者用）
+    function deleteAdminNotice(noticeId) {
+      if (!confirm("このお知らせを消去しますか？")) return;
+
+      db.ref(`notices/${noticeId}`).remove().then(() => {
+        alert("お知らせを削除しました。");
+      }).catch(err => {
+        console.error("お知らせの削除に失敗しました:", err);
+        alert("削除に失敗しました。");
+      });
+    }
+
+    // ---------------------------------------------------------
     // データ形式の揺らぎ・複数選択・語群・画像の自動解決ヘルパー
     // ---------------------------------------------------------
     function normalizeQuestion(item) {
@@ -609,13 +719,11 @@
       // 修正対応: correctAnswers (テキスト配列) / 複数選択 / 単一正解(answer) の自動判定処理
       let correctAnswers = [];
       const rawAns = item.correctAnswers !== undefined ? item.correctAnswers : (item.answers !== undefined ? item.answers : (item.answer !== undefined ? item.answer : (item.correct !== undefined ? item.correct : item.correctIndex)));
-      
+     
       if (Array.isArray(rawAns)) {
-        // テキスト配列形式（例: ["家族歴"]）またはインデックス配列形式（例: [2]）の判定
         if (rawAns.length > 0 && typeof rawAns[0] === 'string' && opts.length > 0) {
           correctAnswers = rawAns.map(ansText => opts.indexOf(ansText)).filter(idx => idx !== -1);
           if (correctAnswers.length === 0) {
-            // 万が一テキストマッチしない場合は数値変換を試みる
             correctAnswers = rawAns.map(v => parseInt(v, 10)).filter(v => !isNaN(v));
           }
         } else {
@@ -633,7 +741,6 @@
         }
       }
 
-      // 語群・画像データの抽出
       let wordBoxData = item.wordBox || item.wordGroup || item.words || null;
       let imgData = item.image || item.img || null;
 
@@ -643,7 +750,7 @@
         ...item,
         q: qText,
         options: opts,
-        answers: correctAnswers, // 配列形式に統一
+        answers: correctAnswers,
         image: imgData,
         wordBox: wordBoxData,
         isMultiple: correctAnswers.length > 1,
@@ -663,30 +770,26 @@
     let subjects = [...defaultSubjects];
     let currentSubject = null;
     let currentRound = null;
-    let currentAnatomyMode = 'basic'; // 'basic'（練習問題） or 'applied'（応用問題）
+    let currentAnatomyMode = 'basic';
     let activeQuestions = [];
     let currentQIndex = 0;
     let score = 0;
     let isAnswered = false;
-    let selectedIndices = new Set(); // 複数選択時の選択インデックス管理
+    let selectedIndices = new Set();
     let dragulaInstance = null;
 
-    // 制限時間タイマー制御変数
     let quizTimer = null;
     let timeLeft = 30;
-    const QUIZ_LIMIT_TIME = 30; // 30秒
+    const QUIZ_LIMIT_TIME = 30;
 
-    // マルチプレイ用変数
     let currentRoomCode = null;
     let isHost = false;
     let roomRef = null;
     let roomData = null;
 
-    // 問題編集一時保持データ
     let editingSubjectId = null;
     let editingQuestionsList = [];
 
-    // 平均正答率計算用ヘルパー関数
     function getAverageAccuracy(subjectId) {
       const historyKey = `history_accuracy_${subjectId}`;
       const records = JSON.parse(localStorage.getItem(historyKey) || '[]');
@@ -732,13 +835,66 @@
         }
       });
 
-      // 問題データのリアルタイム同期
       db.ref('quiz_db').on('value', (snapshot) => {
         const val = snapshot.val();
         if (val) {
           Object.keys(val).forEach(subId => {
             window.QUIZ_DB[subId] = val[subId];
           });
+        }
+      });
+
+      // お知らせデータのリアルタイム同期（ユーザー用モーダル＆管理者用管理一覧）
+      db.ref('notices').on('value', (snapshot) => {
+        const val = snapshot.val();
+        const container = document.getElementById('notice-list-container');
+        const adminManageContainer = document.getElementById('admin-notice-manage-list');
+
+        if (val) {
+          const noticeArray = Object.keys(val).map(key => ({
+            id: key,
+            ...val[key]
+          })).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+          // ユーザーモーダル用の表示更新
+          if (container) {
+            container.innerHTML = noticeArray.map(item => `
+              <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+                <div class="text-[10px] text-amber-400 font-mono">${item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'お知らせ'}</div>
+                <div class="font-semibold text-slate-100">${item.title}</div>
+                <p class="text-slate-400 text-[11px] font-light whitespace-pre-wrap">${item.content}</p>
+              </div>
+            `).join('');
+          }
+
+          // 管理者メニュー内（削除管理一覧）の更新
+          if (adminManageContainer) {
+            adminManageContainer.innerHTML = noticeArray.map(item => `
+              <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between gap-2">
+                <div class="overflow-hidden pr-2">
+                  <div class="text-[10px] text-amber-400/80 font-mono">${item.timestamp ? new Date(item.timestamp).toLocaleDateString() : ''}</div>
+                  <div class="text-xs font-medium text-slate-200 truncate">${item.title}</div>
+                </div>
+                <button onclick="deleteAdminNotice('${item.id}')" class="px-2 py-1 bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/60 rounded text-[10px] font-medium shrink-0 transition">
+                  削除
+                </button>
+              </div>
+            `).join('');
+          }
+
+        } else {
+          if (container) {
+            container.innerHTML = `
+              <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+                <div class="text-[10px] text-amber-400 font-mono">新機能アップデート</div>
+                <div class="font-semibold text-slate-100">演習機能が新しくなりました</div>
+                <p class="text-slate-400 text-[11px] font-light">画像の表示、複数選択問題、早押し対戦（2Pマルチ）に対応しました。</p>
+              </div>
+            `;
+          }
+          if (adminManageContainer) {
+            adminManageContainer.innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">現在、投稿されたお知らせはありません。</div>`;
+          }
         }
       });
     }
@@ -760,9 +916,6 @@
       document.getElementById('nav-overlay').classList.add('hidden');
     }
 
-    // =========================================================
-    //  画面切り替えロジック
-    // =========================================================
     function hideAllScreens() {
       stopQuizTimer();
       document.getElementById('screen-subjects').classList.add('hidden');
@@ -791,7 +944,7 @@
         const isPrep = s.status === 'preparing';
         const isAnatomy = s.id === 'anatomy';
         const statusLabel = isPrep ? '【準備中】' : (s.hasAnatomyModes || isAnatomy ? '練習問題・応用問題対応' : (s.hasRounds ? '全13回 小テスト対応' : (s.fixedCount ? `過去問演習（${s.fixedCount}問固定）` : '過去問演習・問題数選択可')));
-        
+       
         const avgAcc = isPrep ? null : getAverageAccuracy(s.id);
         const avgDisplay = (avgAcc !== null) ? `${avgAcc}%` : '-- %';
 
@@ -883,7 +1036,7 @@
         backBtn.onclick = () => showSubjectScreen();
         titleEl.textContent = currentSubject.name;
         headingEl.textContent = `${currentSubject.name} 練習問題`;
-        
+       
         if (currentSubject.fixedCount) {
           descEl.textContent = `指定された問題が出題されます。`;
           countContainer.classList.add('hidden');
@@ -917,9 +1070,6 @@
       badge.textContent = (saved !== null) ? `${saved}%` : "未挑戦";
     }
 
-    // =========================================================
-    //  シングル クイズ実行ロジック (画像・語群・複数選択対応)
-    // =========================================================
     function startQuiz() {
       if (currentSubject.id === 'psychology' && typeof window.getQuestions === 'function') {
         const psychData = window.getQuestions(currentRound ? currentRound.toString() : 'all');
@@ -989,13 +1139,11 @@
         list = [...rawData];
       }
 
-      // データ構造の不一致を自動正規化（単一/複数選択/語群/画像）
       list = list.map(q => normalizeQuestion(q)).filter(Boolean);
 
-      // 選択肢のランダムシャッフル＆正解インデックス群の自動再計算
       list = list.map(q => {
         if (!q.options || q.options.length <= 1) return q;
-        
+       
         const correctOptTexts = q.answers.map(idx => q.options[idx]).filter(Boolean);
         const shuffledOpts = [...q.options].sort(() => Math.random() - 0.5);
         const newAnsIndices = correctOptTexts.map(text => shuffledOpts.indexOf(text)).filter(idx => idx !== -1);
@@ -1031,12 +1179,11 @@
 
       document.getElementById('quiz-progress-text').textContent = `QUESTION ${currentQIndex + 1} / ${total}`;
       document.getElementById('quiz-score-live').textContent = `正解: ${score}`;
-      
+     
       const qNumText = `Q${currentQIndex + 1}` + (q.isMultiple ? ` 【複数選択問題 (${q.answers.length}つ選択)】` : '');
       document.getElementById('quiz-question-number').textContent = qNumText;
       document.getElementById('quiz-question-text').textContent = q.q;
 
-      // 画像表示のハンドリング
       const imgContainer = document.getElementById('quiz-image-container');
       const imgEl = document.getElementById('quiz-image');
       if (q.image) {
@@ -1047,7 +1194,6 @@
         imgContainer.classList.add('hidden');
       }
 
-      // 語群 (wordBox) 表示領域のハンドリング
       const wbContainer = document.getElementById('quiz-wordbox-container');
       const wbContent = document.getElementById('quiz-wordbox-content');
       if (q.wordBox) {
@@ -1136,7 +1282,7 @@
     function updateTimerBarUI() {
       const bar = document.getElementById('quiz-timer-bar');
       if (!bar) return;
-      
+     
       const percentage = Math.max(0, (timeLeft / QUIZ_LIMIT_TIME) * 100);
       bar.style.width = `${percentage}%`;
 
@@ -1402,7 +1548,7 @@
 
     function setupRoomListener() {
       if (!roomRef) return;
-      
+     
       roomRef.on('value', (snapshot) => {
         roomData = snapshot.val();
         if (!roomData) {
@@ -1457,7 +1603,7 @@
       if (!isHost) return;
 
       const subId = roomData.subjectId;
-      
+     
       if (subId === 'psychology' && typeof window.getQuestions === 'function') {
         const psychData = window.getQuestions('all');
         if (Array.isArray(psychData) && psychData.length > 0) {
@@ -1552,7 +1698,6 @@
       document.getElementById('multi-q-num').textContent = `Q${qIndex + 1}`;
       document.getElementById('multi-q-text').textContent = q.q;
 
-      // 対戦画面での問題画像表示
       const mImgContainer = document.getElementById('multi-image-container');
       const mImgEl = document.getElementById('multi-image');
       if (q.image) {
@@ -1563,7 +1708,6 @@
         mImgContainer.classList.add('hidden');
       }
 
-      // スコア表示
       const myScore = roomData.scores ? (roomData.scores[myPlayerId] || 0) : 0;
       const oppId = isHost ? roomData.guest : roomData.host;
       const oppScore = roomData.scores ? (roomData.scores[oppId] || 0) : 0;
@@ -1747,7 +1891,7 @@
               <span class="text-slate-200 font-medium">${s.name}</span>
               ${s.isFixed ? '<span class="text-[10px] text-amber-500/70 border border-amber-500/30 px-1.5 py-0.2 rounded">固定</span>' : ''}
             </div>
-            
+           
             <div class="flex items-center gap-2 ml-auto flex-wrap sm:flex-nowrap">
               ${s.hasAnatomyModes || isAnatomy ? `
                 <button onclick="openQuestionsEditorModal('anatomy')" class="px-2 py-1 rounded text-[10px] bg-amber-700/80 hover:bg-amber-600 text-amber-50 font-medium transition">
@@ -1876,7 +2020,7 @@
     function openQuestionsEditorModal(subjectId) {
       editingSubjectId = subjectId;
       const sub = subjects.find(s => s.id === subjectId);
-      
+     
       let titleLabel = sub ? sub.name : subjectId;
       if (subjectId === 'anatomy') titleLabel = '解剖学（練習問題）';
       if (subjectId === 'anatomy_applied') titleLabel = '解剖学（応用問題）';
@@ -1972,13 +2116,12 @@
             <textarea onchange="updateEditingQuestionText(${qIdx}, this.value)" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-16">${q.q || ''}</textarea>
           </div>
 
-          <!-- 問題画像の指定・プレビュー表示機能 -->
           <div class="space-y-1.5 p-2.5 rounded-lg bg-slate-950/60 border border-slate-800">
             <div class="flex justify-between items-center">
               <label class="text-[11px] text-slate-400 font-medium">問題画像 (任意):</label>
               ${q.image ? `<button onclick="removeQuestionImage(${qIdx})" class="text-[10px] text-rose-400 hover:underline">画像を削除</button>` : ''}
             </div>
-            
+           
             ${q.image ? `
               <div class="my-2 text-center">
                 <img src="${q.image}" class="max-h-36 rounded border border-slate-700 mx-auto object-contain" alt="プレビュー">
@@ -2015,7 +2158,6 @@
       `).join('');
     }
 
-    // 画像ファイルをBase64文字列に変換してセット
     function handleQuestionImageUpload(qIdx, event) {
       const file = event.target.files[0];
       if (!file) return;
