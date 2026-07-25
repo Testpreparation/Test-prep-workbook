@@ -14,7 +14,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js"></script>
 
   <!-- Canvas Confetti (全問正解時の花火演出) -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
   <!-- Firebase SDK (リアルタイム同期用) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -353,8 +353,8 @@
           <div id="new-record-badge" class="hidden absolute top-2 right-2 bg-amber-500/20 border border-amber-500/50 text-amber-300 text-[10px] px-2 py-0.5 rounded-full font-bold animate-pulse flex items-center gap-1">
             <span>BEST RECORD</span>
           </div>
-          <div class="text-xs text-slate-400">あなたのスコア</div>
-          <div class="text-4xl font-bold text-amber-400"><span id="final-score-val">0</span> <span id="final-total-val" class="text-base font-normal text-slate-400">/ 10</span></div>
+          <div class="text-xs text-slate-400">正答率</div>
+          <div class="text-4xl font-bold text-amber-400"><span id="final-score-val">0</span><span class="text-2xl font-normal text-amber-400">%</span> <span id="final-total-val" class="text-base font-normal text-slate-400 hidden">/ 10</span></div>
           <div id="final-eval-text" class="text-xs text-amber-500/90 pt-2 font-light">素晴らしい集中力です！</div>
         </div>
 
@@ -914,7 +914,7 @@
       const key = getHighscoreKey();
       const saved = localStorage.getItem(key);
       const badge = document.getElementById('start-screen-highscore');
-      badge.textContent = (saved !== null) ? `${saved} 点` : "未挑戦";
+      badge.textContent = (saved !== null) ? `${saved}%` : "未挑戦";
     }
 
     // =========================================================
@@ -1239,11 +1239,11 @@
       document.getElementById('screen-quiz-result').classList.remove('hidden');
 
       const total = activeQuestions.length;
-      document.getElementById('final-score-val').textContent = score;
-      document.getElementById('final-total-val').textContent = `/ ${total}`;
+      const accuracyRate = total > 0 ? Math.round((score / total) * 100) : 0;
+      document.getElementById('final-score-val').textContent = accuracyRate;
 
       if (currentSubject && total > 0) {
-        const currentAccuracy = Math.round((score / total) * 100);
+        const currentAccuracy = accuracyRate;
         const historyKey = `history_accuracy_${currentSubject.id}`;
         const records = JSON.parse(localStorage.getItem(historyKey) || '[]');
         records.push(currentAccuracy);
@@ -1254,8 +1254,8 @@
       const prevMax = parseInt(localStorage.getItem(key) || '0', 10);
       const badge = document.getElementById('new-record-badge');
 
-      if (score > prevMax) {
-        localStorage.setItem(key, score.toString());
+      if (accuracyRate > prevMax) {
+        localStorage.setItem(key, accuracyRate.toString());
         badge.classList.remove('hidden');
       } else {
         badge.classList.add('hidden');
