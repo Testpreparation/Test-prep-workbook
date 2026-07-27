@@ -2161,26 +2161,7 @@
       if (subject) {
         subject.status = newStatus;
         saveSubjectsToStorage();
-        renderAdminDragList();
       }
-    }
-
-    function initDragula() {
-      if (typeof dragula !== 'function') return;
-      const container = document.getElementById('admin-drag-container');
-      if (dragulaInstance) {
-        dragulaInstance.destroy();
-      }
-      dragulaInstance = dragula([container], {
-        moves: (el, container, handle) => handle.classList.contains('drag-handle')
-      });
-
-      dragulaInstance.on('drop', () => {
-        const children = Array.from(container.children);
-        const newOrderIds = children.map(child => child.getAttribute('data-id'));
-        subjects.sort((a, b) => newOrderIds.indexOf(a.id) - newOrderIds.indexOf(b.id));
-        saveSubjectsToStorage();
-      });
     }
 
     function addNewSubject() {
@@ -2194,49 +2175,295 @@
         return;
       }
 
-      const newId = `sub_${Date.now()}`;
+      const id = 'custom_' + Date.now();
       subjects.push({
-        id: newId,
-        name: name,
-        code: code,
-        visible: true,
-        status: "available",
-        isFixed: false,
-        hasRounds: false,
-        fixedCount: null
+        id, name, code, visible: true, status: 'available', isFixed: false, hasRounds: false, fixedCount: null
       });
 
-      window.QUIZ_DB[newId] = [
-        { q: `${name}のサンプル問題1です。正しい選択肢はどれか？`, options: ["選択肢 A", "選択肢 B", "正解の選択肢 C", "選択肢 D"], answer: 2, exp: "サンプルの解説です。" }
-      ];
-
+      window.QUIZ_DB[id] = [];
       saveSubjectsToStorage();
-      db.ref(`quiz_db/${newId}`).set(window.QUIZ_DB[newId]);
+      renderAdminDragList();
 
       nameInput.value = '';
       codeInput.value = '';
-      renderAdminDragList();
     }
 
     function deleteSubject(id) {
-      if (confirm("この科目を削除してもよろしいですか？")) {
-        subjects = subjects.filter(s => s.id !== id);
-        saveSubjectsToStorage();
-        db.ref(`quiz_db/${id}`).remove();
-        renderAdminDragList();
-      }
+      if (!confirm("この科目を削除しますか？問題データも消去されます。")) return;
+      subjects = subjects.filter(s => s.id !== id);
+      delete window.QUIZ_DB[id];
+      db.ref(`quiz_db/${id}`).remove();
+      saveSubjectsToStorage();
+      renderAdminDragList();
     }
 
     function saveSubjectsToStorage() {
       db.ref('subjects').set(subjects);
     }
 
-    function resetAllDataToDefault() {
-      if (confirm("全データを初期状態にリセットしますか？")) {
-        db.ref().remove().then(() => {
-          location.reload();
+    function initDragula() {
+      const container = document.getElementById('admin-drag-container');
+      if (!container) return;
+
+      if (dragulaInstance) dragulaInstance.destroy();
+
+      dragulaInstance = dragula([container], {
+        moves: (el, container, handle) => handle.classList.contains('drag-handle')
+      });
+
+      dragulaInstance.on('drop', () => {
+        const newOrderIds = Array.from(container.children).map(child => child.dataset.id);
+        const reordered = [];
+        newOrderIds.forEach(id => {
+          const found = subjects.find(s => s.id === id);
+          if (found) reordered.push(found);
         });
+        subjects = reordered;
+        saveSubjectsToStorage();
+      });
+    }
+
+    function resetAllDataToDefault() {
+      if (!confirm("すべての科目・問題データを初期設定にリセットしますか？この操作は取り消せません。")) return;
+      db.ref('subjects').set(defaultSubjects);
+      db.ref('quiz_db').remove();
+      alert("データを初期リセットしました。ページを再読み込みします。");
+      location.reload();
+    }
+
+    // ---------------------------------------------------------
+    // 問題編集モーダルの制御機能（修正・完全版）
+    // ---------------------------------------------------------
+    function openQuestionsEditorModal(subjectId) {
+      editingSubjectId = subjectId;
+      const sub = subjects.find(s => s.id === subjectId) || { name: subjectId === 'anatomy_applied' ? '解剖学（応用）' : subjectId };
+      document.getElementById('editor-subject-title').textContent = `${sub.name} 問題編集`;
+
+      // JS初期データからQUIZ_DBへロード（未設定の場合）
+      if (subjectId === 'psychology' && typeof window.getQuestions === 'function') {
+        const psychData = window.getQuestions('all');
+        if (Array.isArray(psychData) && psychData.length > 0 && (!window.QUIZ_DB.psychology || window.QUIZ_DB.psychology.length === 0)) {
+          window.QUIZ_DB.psychology = psychData;
+        }
       }
+      if (subjectId === 'nursing_method' && typeof window.getNursingQuestions === 'function') {
+        const nursingData = window.getNursingQuestions('all');
+        if (Array.isArray(nursingData) && nursingData.length > 0 && (!window.QUIZ_DB.nursing_method || window.QUIZ_DB.nursing_method.length === 0)) {
+          window.QUIZ_DB.nursing_method = nursingData;
+        }
+      }
+      if (subjectId === 'microbiology' && typeof window.getMicrobiologyQuestions === 'function') {
+        const microData = window.getMicrobiologyQuestions();
+        if (Array.isArray(microData) && microData.length > 0 && (!window.QUIZ_DB.microbiology || window.QUIZ_DB.microbiology.length === 0)) {
+          window.QUIZ_DB.microbiology = microData;
+        }
+      }
+      if (subjectId === 'medical_intro' && typeof window.getMedicineQuestions === 'function') {
+        const medData = window.getMedicineQuestions();
+        if (Array.isArray(medData) && medData.length > 0 && (!window.QUIZ_DB.medical_intro || window.QUIZ_DB.medical_intro.length === 0)) {
+          window.QUIZ_DB.medical_intro = medData;
+        }
+      }
+      if (subjectId === 'mind_behavior' && typeof window.getMindBehaviorQuestions === 'function') {
+        const mindData = window.getMindBehaviorQuestions();
+        if (Array.isArray(mindData) && mindData.length > 0 && (!window.QUIZ_DB.mind_behavior || window.QUIZ_DB.mind_behavior.length === 0)) {
+          window.QUIZ_DB.mind_behavior = mindData;
+        }
+      }
+      if (subjectId === 'physiology' && typeof window.getPhysiologyQuestions === 'function') {
+        const physioData = window.getPhysiologyQuestions();
+        if (Array.isArray(physioData) && physioData.length > 0 && (!window.QUIZ_DB.physiology || window.QUIZ_DB.physiology.length === 0)) {
+          window.QUIZ_DB.physiology = physioData;
+        }
+      }
+      if (subjectId === 'anatomy' && typeof window.getAnatomyQuestions === 'function') {
+        const anatomyBasicData = window.getAnatomyQuestions();
+        if (Array.isArray(anatomyBasicData) && anatomyBasicData.length > 0 && (!window.QUIZ_DB.anatomy || window.QUIZ_DB.anatomy.length === 0)) {
+          window.QUIZ_DB.anatomy = anatomyBasicData;
+        }
+      }
+      if (subjectId === 'anatomy_applied' && typeof window.getAnatomyAppliedQuestions === 'function') {
+        const anatomyAppliedData = window.getAnatomyAppliedQuestions();
+        if (Array.isArray(anatomyAppliedData) && anatomyAppliedData.length > 0 && (!window.QUIZ_DB.anatomy_applied || window.QUIZ_DB.anatomy_applied.length === 0)) {
+          window.QUIZ_DB.anatomy_applied = anatomyAppliedData;
+        }
+      }
+
+      const raw = window.QUIZ_DB[subjectId] || [];
+      editingQuestionsList = raw.map(q => normalizeQuestion(q)).filter(Boolean);
+
+      const modeSelectorContainer = document.getElementById('editor-mode-selector-container');
+      const modeSelect = document.getElementById('editor-mode-select');
+
+      if (sub.hasRounds || sub.hasNursingModes) {
+        modeSelectorContainer.classList.remove('hidden');
+        let optionsHtml = '';
+        for (let i = 1; i <= 10; i++) {
+          optionsHtml += `<option value="${i}">第${i}回</option>`;
+        }
+        optionsHtml += `<option value="quiz">小テスト</option>`;
+        optionsHtml += `<option value="all">すべての問題表示</option>`;
+        modeSelect.innerHTML = optionsHtml;
+        editingSelectedRound = '1';
+        modeSelect.value = '1';
+      } else {
+        modeSelectorContainer.classList.add('hidden');
+        editingSelectedRound = 'all';
+      }
+
+      renderEditorQuestionsList();
+      document.getElementById('modal-questions-editor').classList.remove('hidden');
+    }
+
+    function closeQuestionsEditorModal() {
+      document.getElementById('modal-questions-editor').classList.add('hidden');
+    }
+
+    function changeEditorMode(roundVal) {
+      editingSelectedRound = roundVal;
+      renderEditorQuestionsList();
+    }
+
+    function renderEditorQuestionsList() {
+      const container = document.getElementById('editor-questions-list');
+      if (!editingQuestionsList) editingQuestionsList = [];
+
+      let filtered = editingQuestionsList;
+      if (editingSelectedRound !== 'all') {
+        filtered = editingQuestionsList.filter(q => q.round == editingSelectedRound);
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="p-8 text-center text-slate-500 text-xs rounded-xl bg-slate-900/60 border border-slate-800">
+            このモード・回には問題がまだ登録されていません。「＋ 問題を追加」から作成できます。
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map((q) => {
+        const globalIndex = editingQuestionsList.indexOf(q);
+        const optionsList = q.options || [];
+        const answersList = q.answers || [];
+
+        return `
+          <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3 relative group">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold font-mono text-amber-400">問題 #${globalIndex + 1} ${q.round ? `[第${q.round}回]` : ''}</span>
+              <button onclick="removeQuestionFromEditor(${globalIndex})" class="text-rose-400 hover:text-rose-300 text-xs font-medium px-2 py-1 rounded bg-rose-950/40 border border-rose-800/40 transition">
+                削除
+              </button>
+            </div>
+
+            <div class="space-y-1">
+              <label class="text-[10px] text-slate-400 block font-medium">問題文:</label>
+              <textarea onchange="updateEditorQuestionField(${globalIndex}, 'q', this.value)" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-16">${q.q || ''}</textarea>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div class="space-y-1">
+                <label class="text-[10px] text-slate-400 block font-medium">画像URL (任意):</label>
+                <input type="text" value="${q.image || ''}" onchange="updateEditorQuestionField(${globalIndex}, 'image', this.value)" placeholder="https://..." class="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
+              </div>
+              <div class="space-y-1">
+                <label class="text-[10px] text-slate-400 block font-medium">正解番号 (カンマ区切りで複数可例: 0, 2):</label>
+                <input type="text" value="${answersList.join(', ')}" onchange="updateEditorQuestionAnswers(${globalIndex}, this.value)" placeholder="0" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 font-mono">
+              </div>
+            </div>
+
+            <div class="space-y-1.5">
+              <div class="flex justify-between items-center">
+                <label class="text-[10px] text-slate-400 block font-medium">選択肢一覧:</label>
+                <button onclick="addOptionToEditorQuestion(${globalIndex})" class="text-[10px] text-amber-400 hover:underline">＋ 選択肢を追加</button>
+              </div>
+              <div class="space-y-1">
+                ${optionsList.map((opt, optIdx) => `
+                  <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-mono text-slate-500 w-4 text-right">${optIdx}:</span>
+                    <input type="text" value="${opt}" onchange="updateEditorQuestionOption(${globalIndex}, ${optIdx}, this.value)" class="w-full px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
+                    <button onclick="removeOptionFromEditorQuestion(${globalIndex}, ${optIdx})" class="text-rose-400 hover:text-rose-300 text-xs px-1.5">✕</button>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              <label class="text-[10px] text-slate-400 block font-medium">解説:</label>
+              <textarea onchange="updateEditorQuestionField(${globalIndex}, 'exp', this.value)" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-300 text-xs focus:outline-none focus:border-amber-500 h-14">${q.exp || ''}</textarea>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateEditorQuestionField(index, field, value) {
+      if (editingQuestionsList[index]) {
+        editingQuestionsList[index][field] = value;
+      }
+    }
+
+    function updateEditorQuestionAnswers(index, valueStr) {
+      if (!editingQuestionsList[index]) return;
+      const parsed = valueStr.split(',').map(v => parseInt(v.trim(), 10)).filter(v => !isNaN(v));
+      editingQuestionsList[index].answers = parsed;
+      editingQuestionsList[index].isMultiple = parsed.length > 1;
+    }
+
+    function updateEditorQuestionOption(qIdx, optIdx, val) {
+      if (editingQuestionsList[qIdx] && editingQuestionsList[qIdx].options) {
+        editingQuestionsList[qIdx].options[optIdx] = val;
+      }
+    }
+
+    function addOptionToEditorQuestion(qIdx) {
+      if (editingQuestionsList[qIdx]) {
+        if (!editingQuestionsList[qIdx].options) editingQuestionsList[qIdx].options = [];
+        editingQuestionsList[qIdx].options.push("新しい選択肢");
+        renderEditorQuestionsList();
+      }
+    }
+
+    function removeOptionFromEditorQuestion(qIdx, optIdx) {
+      if (editingQuestionsList[qIdx] && editingQuestionsList[qIdx].options) {
+        editingQuestionsList[qIdx].options.splice(optIdx, 1);
+        renderEditorQuestionsList();
+      }
+    }
+
+    function addNewQuestionToEditor() {
+      const newQ = {
+        q: "新しい問題文を入力してください",
+        options: ["選択肢 1", "選択肢 2", "選択肢 3", "選択肢 4"],
+        answers: [0],
+        exp: "解説をここに入力します。",
+        image: null,
+        wordBox: null,
+        round: (editingSelectedRound !== 'all') ? editingSelectedRound : null
+      };
+      editingQuestionsList.push(normalizeQuestion(newQ));
+      renderEditorQuestionsList();
+    }
+
+    function removeQuestionFromEditor(index) {
+      if (confirm("この問題を削除しますか？")) {
+        editingQuestionsList.splice(index, 1);
+        renderEditorQuestionsList();
+      }
+    }
+
+    function saveEditedQuestions() {
+      if (!editingSubjectId) return;
+
+      window.QUIZ_DB[editingSubjectId] = editingQuestionsList;
+
+      db.ref(`quiz_db/${editingSubjectId}`).set(editingQuestionsList).then(() => {
+        alert("問題データの変更を保存・リアルタイム同期しました！");
+        closeQuestionsEditorModal();
+      }).catch(err => {
+        console.error("保存失敗:", err);
+        alert("データの保存に失敗しました。");
+      });
     }
   </script>
 </body>
