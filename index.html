@@ -29,15 +29,15 @@
     window.QUIZ_DB.microbiology = [];
     window.QUIZ_DB.anatomy = [];
     window.QUIZ_DB.anatomy_applied = []; // 解剖学（応用問題）用
-    window.QUIZ_DB.physiology = [];
+    window.QUIZ_DB.nursing_method = [];
   </script>
 
   <!-- 各科目の外部問題データベースJSの読み込み -->
-  <script src="psychology.js"></script>
+  <script src=""nursing_method".js"></script>
   <script src="mindbehavior.js"></script>
   <script src="microbiology.js"></script>
   <script src="Medicine.js"></script>
-  <script src="physiology.js"></script>
+  <script src="physiolgy.js"></script>
   <script src="./anatomy.js"></script>
 
   <style>
@@ -233,7 +233,7 @@
         </div>
       </div>
 
-      <!-- 画面1.5: 心理学 小テスト選択 -->
+      <!-- 画面1.5: 看護学方法論Ⅰ -->
       <div id="screen-round-select" class="hidden space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
           <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline">← 戻る</button>
@@ -821,7 +821,7 @@ alert("お知らせの送信に失敗しました。");
     }
 
     const defaultSubjects = [
-      { id: "psychology", name: "心理学", code: "PSY", visible: true, status: "available", isFixed: true, hasRounds: true, fixedCount: null },
+      { id: "nursing_method", name: "看護学方法論Ⅰ", code: "PSY", visible: true, status: "available", isFixed: true, hasRounds: true, fixedCount: null },
       { id: "mind_behavior", name: "こころと行動", code: "MND", visible: true, status: "available", isFixed: true, hasRounds: false, fixedCount: null },
       { id: "medical_intro", name: "医療概論", code: "MED", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null },
       { id: "physiology", name: "生理学", code: "PHY", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null },
