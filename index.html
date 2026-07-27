@@ -28,17 +28,19 @@
     window.QUIZ_DB.medical_intro = [];
     window.QUIZ_DB.microbiology = [];
     window.QUIZ_DB.anatomy = [];
-    window.QUIZ_DB.anatomy_applied = []; // 解剖学（応用問題）用
-    window.QUIZ_DB.nursing_method = [];
+    window.QUIZ_DB.anatomy_applied = [];
+    window.QUIZ_DB.physiology = [];
+    window.QUIZ_DB.nursing_method = []; // 看護学方法論Ⅰ用
   </script>
 
   <!-- 各科目の外部問題データベースJSの読み込み -->
-  <script src=""nursing_method".js"></script>
+  <script src="psychology.js"></script>
   <script src="mindbehavior.js"></script>
   <script src="microbiology.js"></script>
   <script src="Medicine.js"></script>
-  <script src="physiolgy.js"></script>
+  <script src="physiology.js"></script>
   <script src="./anatomy.js"></script>
+  <script src="nursingmethod.js"></script>
 
   <style>
     body {
@@ -189,7 +191,7 @@
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
           <h2 id="subjects-header-title" class="en-title text-xs text-slate-400 tracking-widest uppercase">Select Subject</h2>
           <div class="flex items-center gap-3">
-            <span id="subject-count-display" class="text-xs text-slate-500 font-light">全6科目</span>
+            <span id="subject-count-display" class="text-xs text-slate-500 font-light">全7科目</span>
             <!-- お知らせボタン -->
             <button onclick="openNoticeModal()" class="relative px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition flex items-center gap-1.5">
               <span>🔔</span>
@@ -233,11 +235,70 @@
         </div>
       </div>
 
-      <!-- 画面1.5: 看護学方法論Ⅰ -->
+      <!-- 画面1.3: 看護学方法論Ⅰ コース選択（ドロップダウン不対応・12回別問題直接選択） -->
+      <div id="screen-nursing-mode-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline">← 科目選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">看護学方法論Ⅰ モード選択</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+          <button onclick="selectNursingRound('1')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第1回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('2')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第2回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('3')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第3回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('4')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第4回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('5')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第5回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('6')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第6回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('7')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第7回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('8')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第8回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('9')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第9回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('10')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第10回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('quiz')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-amber-400 group-hover:text-amber-300">小テスト演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('all')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-amber-400 group-hover:text-amber-300">総合練習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 画面1.5: モード選択 -->
       <div id="screen-round-select" class="hidden space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
-          <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline">← 戻る</button>
-          <span id="round-subject-title" class="serif-title text-sm text-slate-300">心理学 小テスト選択</span>
+          <button id="round-back-btn" onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline">← 戻る</button>
+          <span id="round-subject-title" class="serif-title text-sm text-slate-300">モード選択</span>
         </div>
 
         <div class="flex flex-col sm:flex-row items-center justify-center gap-3 py-4">
@@ -252,9 +313,7 @@
             <option value="8">第8回</option>
             <option value="9">第9回</option>
             <option value="10">第10回</option>
-            <option value="11">第11回</option>
-            <option value="12">第12回</option>
-            <option value="13">第13回</option>
+            <option value="quiz">小テスト</option>
             <option value="all">総合練習問題</option>
           </select>
           <button id="startButton" class="w-full sm:w-auto px-5 py-2.5 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-lg text-sm font-semibold transition">次へ進む</button>
@@ -477,18 +536,11 @@
 
         <!-- 早押し・判定状態表示エリア -->
         <div id="buzz-status-banner" class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center text-xs font-bold transition">
-          問題がスタートしました！早押しボタンを押してください！
+          正しい選択肢を先に押してください！
         </div>
 
-        <!-- 早押し（PUSH）ボタン -->
-        <div id="buzz-btn-container" class="py-2 text-center">
-          <button id="buzz-btn" onclick="pressBuzzButton()" class="buzz-btn w-32 h-32 rounded-full bg-amber-600 hover:bg-amber-500 text-amber-50 text-xl font-black tracking-widest border-4 border-amber-300 shadow-2xl active:scale-95 transition mx-auto flex items-center justify-center">
-            押す！
-          </button>
-        </div>
-
-        <!-- 選択肢群 (回答権取得者のみ押せる) -->
-        <div id="multi-options-container" class="space-y-2.5 opacity-50 pointer-events-none transition"></div>
+        <!-- 選択肢群 (先に押して正解した方が勝ち) -->
+        <div id="multi-options-container" class="space-y-2.5 transition"></div>
 
         <div id="multi-next-btn-wrap" class="hidden">
           <button id="multi-next-btn" onclick="nextMultiQuestionHost()" class="w-full py-2.5 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-lg text-xs font-medium transition">次の問題へ進む (部屋主操作) →</button>
@@ -546,7 +598,7 @@
         <button onclick="closeAdminModal()" class="text-slate-400 text-sm p-1 transition hover:text-white">✕</button>
       </div>
 
-      <!-- アクセス状況表示エリア（追加機能） -->
+      <!-- アクセス状況表示エリア -->
       <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 space-y-3">
         <div class="text-xs font-semibold text-amber-400 flex items-center gap-1.5 uppercase tracking-widest">
           <span>📊</span> <span>アクセス状況</span>
@@ -648,6 +700,40 @@
   </div>
 
   <script>
+    // ---------------------------------------------------------
+    // 看護学方法論Ⅰ (lessonData) 取得用ヘルパー関数
+    // ---------------------------------------------------------
+    window.getNursingQuestions = function(roundVal) {
+      if (typeof lessonData === 'undefined') return [];
+      let results = [];
+      if (roundVal === 'all' || !roundVal) {
+        Object.keys(lessonData).forEach(key => {
+          const roundNum = isNaN(parseInt(key, 10)) ? key : parseInt(key, 10);
+          const items = lessonData[key].map(q => ({ ...q, round: roundNum }));
+          results = results.concat(items);
+        });
+      } else {
+        const key = roundVal.toString();
+        if (lessonData[key]) {
+          const roundNum = isNaN(parseInt(key, 10)) ? key : parseInt(key, 10);
+          results = lessonData[key].map(q => ({ ...q, round: roundNum }));
+        }
+      }
+      return results;
+    };
+
+    // 看護学方法論Ⅰ 回選択用関数
+    function selectNursingRound(selectedValue) {
+      currentRound = (selectedValue === "all") ? null : selectedValue;
+      if (typeof window.getNursingQuestions === "function") {
+        const currentQuestions = window.getNursingQuestions(selectedValue);
+        if (Array.isArray(currentQuestions) && currentQuestions.length > 0) {
+          window.QUIZ_DB.nursing_method = currentQuestions;
+        }
+      }
+      showStartScreen();
+    }
+
     // =========================================================
     //  1. Firebase 設定
     // =========================================================
@@ -672,7 +758,6 @@
       const now = new Date();
       const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
-      // オンライン状態管理（リアルタイム閲覧人数）
       const onlineRef = db.ref(`presence/online/${myPlayerId}`);
       const connectedRef = db.ref('.info/connected');
 
@@ -683,10 +768,8 @@
         }
       });
 
-      // 今日のユニークアクセス記録
       db.ref(`presence/daily/${todayStr}/${myPlayerId}`).set(true);
 
-      // 管理者モーダル向けリアルタイム監視
       db.ref('presence/online').on('value', (snap) => {
         const count = snap.val() ? Object.keys(snap.val()).length : 0;
         const el = document.getElementById('admin-current-online-count');
@@ -700,60 +783,49 @@
       });
     }
 
-   // ---------------------------------------------------------
-// お知らせモーダル表示制御
-// ---------------------------------------------------------
-function openNoticeModal() {
-document.getElementById('modal-notice').classList.remove('hidden');
-const redDot = document.getElementById('notice-red-dot');
-if (redDot) {
-redDot.classList.add('hidden');
-}
-// 閲覧済みフラグを保存
-localStorage.setItem('hasReadNotice', 'true');
-}
-function closeNoticeModal() {
-document.getElementById('modal-notice').classList.add('hidden');
-}
+    // ---------------------------------------------------------
+    // お知らせモーダル表示制御・既読状態保持機能
+    // ---------------------------------------------------------
+    function openNoticeModal() {
+      document.getElementById('modal-notice').classList.remove('hidden');
+      const redDot = document.getElementById('notice-red-dot');
+      if (redDot) {
+        redDot.classList.add('hidden');
+      }
+      localStorage.setItem('notice_read_status', 'read');
+    }
+    function closeNoticeModal() {
+      document.getElementById('modal-notice').classList.add('hidden');
+    }
 
-// ページ読み込み時に既読チェックを行って赤丸を非表示にする処理
-document.addEventListener('DOMContentLoaded', () => {
-if (localStorage.getItem('hasReadNotice') === 'true') {
-const redDot = document.getElementById('notice-red-dot');
-if (redDot) {
-redDot.classList.add('hidden');
-}
-}
-});
+    function postAdminNotice() {
+      const titleInput = document.getElementById('admin-notice-title');
+      const contentInput = document.getElementById('admin-notice-content');
 
-// お知らせ投稿機能（管理者メニュー用）
-function postAdminNotice() {
-const titleInput = document.getElementById('admin-notice-title');
-const contentInput = document.getElementById('admin-notice-content');
+      const title = titleInput.value.trim();
+      const content = contentInput.value.trim();
 
-const title = titleInput.value.trim();
-const content = contentInput.value.trim();
+      if (!title || !content) {
+        alert("お知らせのタイトルと本文を入力してください。");
+        return;
+      }
 
-if (!title || !content) {
-alert("お知らせのタイトルと本文を入力してください。");
-return;
-}
+      const noticeData = {
+        title: title,
+        content: content,
+        timestamp: Date.now()
+      };
 
-const noticeData = {
-title: title,
-content: content,
-timestamp: Date.now()
-};
+      db.ref('notices').push(noticeData).then(() => {
+        alert("お知らせを投稿しました。");
+        titleInput.value = '';
+        contentInput.value = '';
+      }).catch(err => {
+        console.error("お知らせの送信に失敗しました:", err);
+        alert("お知らせの送信に失敗しました。");
+      });
+    }
 
-db.ref('notices').push(noticeData).then(() => {
-alert("お知らせを投稿しました。");
-titleInput.value = '';
-contentInput.value = '';
-}).catch(err => {
-console.error("お知らせの送信に失敗しました:", err);
-alert("お知らせの送信に失敗しました。");
-});
-}    // お知らせ削除機能（管理者用）
     function deleteAdminNotice(noticeId) {
       if (!confirm("このお知らせを消去しますか？")) return;
 
@@ -766,21 +838,20 @@ alert("お知らせの送信に失敗しました。");
     }
 
     // ---------------------------------------------------------
-    // データ形式の揺らぎ・複数選択・語群・画像の自動解決ヘルパー
+    // データ形式の自動補正ヘルパー
     // ---------------------------------------------------------
     function normalizeQuestion(item) {
       if (!item) return null;
 
       const qText = item.q || item.question || item.title || item.text || "問題文がありません";
 
-      let opts = item.options || item.choices || item.answers || [];
+      let opts = item.options || item.opts || item.choices || item.answers || [];
       if (!Array.isArray(opts)) {
         opts = [];
       }
 
-      // 修正対応: correctAnswers (テキスト配列) / 複数選択 / 単一正解(answer) の自動判定処理
       let correctAnswers = [];
-      const rawAns = item.correctAnswers !== undefined ? item.correctAnswers : (item.answers !== undefined ? item.answers : (item.answer !== undefined ? item.answer : (item.correct !== undefined ? item.correct : item.correctIndex)));
+      const rawAns = item.correctAnswers !== undefined ? item.correctAnswers : (item.answers !== undefined ? item.answers : (item.answer !== undefined ? item.answer : (item.correct !== undefined ? item.correct : (item.ans !== undefined ? item.ans : item.correctIndex))));
      
       if (Array.isArray(rawAns)) {
         if (rawAns.length > 0 && typeof rawAns[0] === 'string' && opts.length > 0) {
@@ -821,18 +892,20 @@ alert("お知らせの送信に失敗しました。");
     }
 
     const defaultSubjects = [
-      { id: "nursing_method", name: "看護学方法論Ⅰ", code: "PSY", visible: true, status: "available", isFixed: true, hasRounds: true, fixedCount: null },
+      { id: "psychology", name: "心理学", code: "PSY", visible: true, status: "available", isFixed: true, hasRounds: true, fixedCount: null },
       { id: "mind_behavior", name: "こころと行動", code: "MND", visible: true, status: "available", isFixed: true, hasRounds: false, fixedCount: null },
       { id: "medical_intro", name: "医療概論", code: "MED", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null },
       { id: "physiology", name: "生理学", code: "PHY", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null },
       { id: "microbiology", name: "微生物学", code: "MIC", visible: true, status: "available", isFixed: true, hasRounds: false, fixedCount: null },
-      { id: "anatomy", name: "解剖学", code: "ANA", visible: true, status: "available", isFixed: false, hasRounds: false, hasAnatomyModes: true, fixedCount: null }
+      { id: "anatomy", name: "解剖学", code: "ANA", visible: true, status: "available", isFixed: false, hasRounds: false, hasAnatomyModes: true, fixedCount: null },
+      { id: "nursing_method", name: "看護学方法論Ⅰ", code: "NUR Ⅰ", visible: true, status: "available", isFixed: true, hasRounds: false, hasNursingModes: true, fixedCount: null }
     ];
 
     let subjects = [...defaultSubjects];
     let currentSubject = null;
     let currentRound = null;
     let currentAnatomyMode = 'basic';
+    let currentNursingMode = 'rounds';
     let activeQuestions = [];
     let currentQIndex = 0;
     let score = 0;
@@ -861,22 +934,32 @@ alert("お知らせの送信に失敗しました。");
     }
 
     // =========================================================
-    //  初期化・リアルタイム監視
+    //  初期化・リアルタイム同期
     // =========================================================
     window.addEventListener('DOMContentLoaded', () => {
       initVisitorTracking();
       initRealtimeSync();
 
+      if (localStorage.getItem('notice_read_status') === 'read') {
+        const redDot = document.getElementById('notice-red-dot');
+        if (redDot) redDot.classList.add('hidden');
+      }
+
       const startBtn = document.getElementById("startButton");
       if (startBtn) {
         startBtn.addEventListener("click", () => {
           const selectedValue = document.getElementById("roundSelect").value;
-          currentRound = (selectedValue === "all") ? null : parseInt(selectedValue, 10);
+          currentRound = (selectedValue === "all") ? null : selectedValue;
 
-          if (typeof window.getQuestions === "function") {
+          if (currentSubject.id === 'psychology' && typeof window.getQuestions === "function") {
             const currentQuestions = window.getQuestions(selectedValue);
             if (Array.isArray(currentQuestions) && currentQuestions.length > 0) {
               window.QUIZ_DB.psychology = currentQuestions;
+            }
+          } else if (currentSubject.id === 'nursing_method' && typeof window.getNursingQuestions === "function") {
+            const currentQuestions = window.getNursingQuestions(selectedValue);
+            if (Array.isArray(currentQuestions) && currentQuestions.length > 0) {
+              window.QUIZ_DB.nursing_method = currentQuestions;
             }
           }
           showStartScreen();
@@ -887,7 +970,10 @@ alert("お知らせの送信に失敗しました。");
     function initRealtimeSync() {
       db.ref('subjects').on('value', (snapshot) => {
         const val = snapshot.val();
-        if (val) {
+        if (val && Array.isArray(val)) {
+          if (!val.find(s => s.id === 'nursing_method')) {
+            val.push(defaultSubjects.find(s => s.id === 'nursing_method'));
+          }
           subjects = val;
         } else {
           saveSubjectsToStorage();
@@ -907,7 +993,6 @@ alert("お知らせの送信に失敗しました。");
         }
       });
 
-      // お知らせデータのリアルタイム同期（ユーザー用モーダル＆管理者用管理一覧）
       db.ref('notices').on('value', (snapshot) => {
         const val = snapshot.val();
         const container = document.getElementById('notice-list-container');
@@ -919,7 +1004,6 @@ alert("お知らせの送信に失敗しました。");
             ...val[key]
           })).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
-          // ユーザーモーダル用の表示更新
           if (container) {
             container.innerHTML = noticeArray.map(item => `
               <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
@@ -930,7 +1014,6 @@ alert("お知らせの送信に失敗しました。");
             `).join('');
           }
 
-          // 管理者メニュー内（削除管理一覧）の更新
           if (adminManageContainer) {
             adminManageContainer.innerHTML = noticeArray.map(item => `
               <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between gap-2">
@@ -983,6 +1066,7 @@ alert("お知らせの送信に失敗しました。");
       stopQuizTimer();
       document.getElementById('screen-subjects').classList.add('hidden');
       document.getElementById('screen-anatomy-mode-select').classList.add('hidden');
+      document.getElementById('screen-nursing-mode-select').classList.add('hidden');
       document.getElementById('screen-round-select').classList.add('hidden');
       document.getElementById('screen-quiz-start').classList.add('hidden');
       document.getElementById('screen-quiz-play').classList.add('hidden');
@@ -1006,7 +1090,8 @@ alert("お知らせの送信に失敗しました。");
       container.innerHTML = visibleSubjects.map(s => {
         const isPrep = s.status === 'preparing';
         const isAnatomy = s.id === 'anatomy';
-        const statusLabel = isPrep ? '【準備中】' : (s.hasAnatomyModes || isAnatomy ? '練習問題・応用問題対応' : (s.hasRounds ? '全13回 小テスト対応' : (s.fixedCount ? `過去問演習（${s.fixedCount}問固定）` : '過去問演習・問題数選択可')));
+        const isNursing = s.id === 'nursing_method';
+        const statusLabel = isPrep ? '【準備中】' : (s.hasAnatomyModes || isAnatomy ? '練習問題・応用問題対応' : (s.hasNursingModes || isNursing ? '12回別問題・問題数選択可' : (s.hasRounds ? '全13回 小テスト対応' : (s.fixedCount ? `過去問演習（${s.fixedCount}問固定）` : '過去問演習・問題数選択可'))));
        
         const avgAcc = isPrep ? null : getAverageAccuracy(s.id);
         const avgDisplay = (avgAcc !== null) ? `${avgAcc}%` : '-- %';
@@ -1038,6 +1123,8 @@ alert("お知らせの送信に失敗しました。");
 
       if (subjectId === 'anatomy' || currentSubject.hasAnatomyModes) {
         showAnatomyModeSelectionScreen();
+      } else if (subjectId === 'nursing_method' || currentSubject.hasNursingModes) {
+        showNursingModeSelectionScreen();
       } else if (currentSubject.hasRounds) {
         showRoundSelectionScreen();
       } else {
@@ -1056,10 +1143,27 @@ alert("お知らせの送信に失敗しました。");
       showStartScreen();
     }
 
+    function showNursingModeSelectionScreen() {
+      hideAllScreens();
+      document.getElementById('screen-nursing-mode-select').classList.remove('hidden');
+    }
+
+    function selectNursingMode(mode) {
+      currentNursingMode = mode;
+      showRoundSelectionScreen();
+    }
+
     function showRoundSelectionScreen() {
-      currentSubject = subjects.find(s => s.id === "psychology") || currentSubject;
       hideAllScreens();
       document.getElementById('screen-round-select').classList.remove('hidden');
+      document.getElementById('round-subject-title').textContent = `${currentSubject.name} モード選択`;
+
+      const roundBackBtn = document.getElementById('round-back-btn');
+      if (currentSubject.id === 'nursing_method' || currentSubject.hasNursingModes) {
+        roundBackBtn.onclick = () => showNursingModeSelectionScreen();
+      } else {
+        roundBackBtn.onclick = () => showSubjectScreen();
+      }
     }
 
     function showStartScreen() {
@@ -1082,17 +1186,35 @@ alert("お知らせの送信に失敗しました。");
           : `解剖学の基礎・標準問題が出題されます。`;
         countContainer.classList.remove('hidden');
 
+      } else if (currentSubject.id === 'nursing_method' || currentSubject.hasNursingModes) {
+        backBtn.onclick = () => showNursingModeSelectionScreen();
+        if (currentRound === 'quiz') {
+          titleEl.textContent = `${currentSubject.name} - 小テスト`;
+          headingEl.textContent = `小テスト 演習`;
+          descEl.textContent = `小テストの問題が出題されます。出題数を選択して進めてください。`;
+          countContainer.classList.remove('hidden');
+        } else if (currentRound) {
+          titleEl.textContent = `${currentSubject.name} - 第${currentRound}回`;
+          headingEl.textContent = `第 ${currentRound} 回 演習`;
+          descEl.textContent = `第${currentRound}回の演習を開始します。出題数を選択して進めてください。`;
+          countContainer.classList.remove('hidden');
+        } else {
+          titleEl.textContent = `${currentSubject.name} - 総合練習問題`;
+          headingEl.textContent = `総合練習問題`;
+          descEl.textContent = `全範囲の中からランダムに問題が出題されます。出題数を選択して進めてください。`;
+          countContainer.classList.remove('hidden');
+        }
       } else if (currentSubject.hasRounds) {
         backBtn.onclick = () => showRoundSelectionScreen();
         if (currentRound) {
           titleEl.textContent = `${currentSubject.name} - 第${currentRound}回`;
-          headingEl.textContent = `第 ${currentRound} 回 小テスト演習`;
-          descEl.textContent = `第${currentRound}回の小テスト（10問）を開始します。正解率100%を目指しましょう。`;
-          countContainer.classList.add('hidden');
+          headingEl.textContent = `第 ${currentRound} 回 演習`;
+          descEl.textContent = `第${currentRound}回の演習を開始します。出題数を選択して進めてください。`;
+          countContainer.classList.remove('hidden');
         } else {
-          titleEl.textContent = `${currentSubject.name} - 総合演習`;
-          headingEl.textContent = `全範囲 総合演習`;
-          descEl.textContent = `全13回の中からランダムに問題が出題されます。`;
+          titleEl.textContent = `${currentSubject.name} - 総合練習問題`;
+          headingEl.textContent = `総合練習問題`;
+          descEl.textContent = `全範囲の中からランダムに問題が出題されます。出題数を選択して進めてください。`;
           countContainer.classList.remove('hidden');
         }
       } else {
@@ -1138,6 +1260,13 @@ alert("お知らせの送信に失敗しました。");
         const psychData = window.getQuestions(currentRound ? currentRound.toString() : 'all');
         if (Array.isArray(psychData) && psychData.length > 0) {
           window.QUIZ_DB.psychology = psychData;
+        }
+      }
+
+      if (currentSubject.id === 'nursing_method' && typeof window.getNursingQuestions === 'function') {
+        const nursingData = window.getNursingQuestions(currentRound ? currentRound.toString() : 'all');
+        if (Array.isArray(nursingData) && nursingData.length > 0) {
+          window.QUIZ_DB.nursing_method = nursingData;
         }
       }
 
@@ -1195,8 +1324,8 @@ alert("お知らせの送信に失敗しました。");
       }
 
       let list = [];
-      if (currentSubject.hasRounds && currentRound !== null) {
-        list = rawData.filter(q => q.round === currentRound);
+      if ((currentSubject.hasRounds || currentSubject.hasNursingModes) && currentRound !== null) {
+        list = rawData.filter(q => q.round == currentRound);
         if (list.length === 0) list = [...rawData];
       } else {
         list = [...rawData];
@@ -1220,10 +1349,8 @@ alert("お知らせの送信に失敗しました。");
 
       list = list.sort(() => Math.random() - 0.5);
 
-      if (!currentSubject.hasRounds || currentRound === null) {
-        let reqCount = currentSubject.fixedCount || (parseInt(document.getElementById('quiz-count-slider')?.value) || 10);
-        list = list.slice(0, Math.min(reqCount, list.length));
-      }
+      let reqCount = currentSubject.fixedCount || (parseInt(document.getElementById('quiz-count-slider')?.value) || 10);
+      list = list.slice(0, Math.min(reqCount, list.length));
 
       activeQuestions = list;
       currentQIndex = 0;
@@ -1674,6 +1801,13 @@ alert("お知らせの送信に失敗しました。");
         }
       }
 
+      if (subId === 'nursing_method' && typeof window.getNursingQuestions === 'function') {
+        const nursingData = window.getNursingQuestions('all');
+        if (Array.isArray(nursingData) && nursingData.length > 0) {
+          window.QUIZ_DB.nursing_method = nursingData;
+        }
+      }
+
       if (subId === 'microbiology' && typeof window.getMicrobiologyQuestions === 'function') {
         const microData = window.getMicrobiologyQuestions();
         if (Array.isArray(microData) && microData.length > 0 && (!window.QUIZ_DB.microbiology || window.QUIZ_DB.microbiology.length === 0)) {
@@ -1786,50 +1920,33 @@ alert("お知らせの送信に失敗しました。");
       }
 
       const buzzBanner = document.getElementById('buzz-status-banner');
-      const buzzBtn = document.getElementById('buzz-btn');
       const optionsContainer = document.getElementById('multi-options-container');
 
       optionsContainer.innerHTML = q.options.map((opt, idx) => `
-        <button onclick="submitMultiAnswer(${idx})" class="multi-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition">
+        <button onclick="submitMultiAnswerDirect(${idx})" class="multi-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition">
           ${opt}
         </button>
       `).join('');
 
-      if (!roomData.buzzedPlayer) {
-        buzzBanner.textContent = "⚡ 早押しボタンを押してください！";
+      if (!roomData.answerState) {
+        buzzBanner.textContent = "⚡ 正解の選択肢を先に押してください！";
         buzzBanner.className = "p-3 rounded-xl bg-slate-900/90 border border-amber-500/30 text-amber-300 text-xs font-bold";
-        buzzBtn.disabled = false;
+        optionsContainer.classList.remove('opacity-50', 'pointer-events-none');
+      } else {
         optionsContainer.classList.add('opacity-50', 'pointer-events-none');
-
-      } else if (roomData.buzzedPlayer === myPlayerId) {
-        buzzBtn.disabled = true;
-
-        if (!roomData.answerState) {
-          buzzBanner.textContent = "🎯 あなたが回答権を獲得！選択肢を選んでください！";
-          buzzBanner.className = "p-3 rounded-xl bg-amber-500/20 border border-amber-500/60 text-amber-300 text-xs font-bold animate-pulse";
-          optionsContainer.classList.remove('opacity-50', 'pointer-events-none');
-        } else {
-          if (roomData.answerState.isCorrect) {
-            buzzBanner.textContent = "✓ 正解！+1ポイント獲得！";
+        const isMe = (roomData.answerState.player === myPlayerId);
+        if (roomData.answerState.isCorrect) {
+          if (isMe) {
+            buzzBanner.textContent = "✓ あなたが先着正解！+1ポイント獲得！";
             buzzBanner.className = "p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/60 text-emerald-300 text-xs font-bold";
           } else {
+            buzzBanner.textContent = "相手が先着正解しました！";
+            buzzBanner.className = "p-3 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs font-bold";
+          }
+        } else {
+          if (isMe) {
             buzzBanner.textContent = "✕ 不正解...";
             buzzBanner.className = "p-3 rounded-xl bg-rose-950/60 border border-rose-500/60 text-rose-300 text-xs font-bold";
-          }
-          optionsContainer.classList.add('opacity-50', 'pointer-events-none');
-        }
-
-      } else {
-        buzzBtn.disabled = true;
-        optionsContainer.classList.add('opacity-50', 'pointer-events-none');
-
-        if (!roomData.answerState) {
-          buzzBanner.textContent = "相手が回答権を獲得！回答中...";
-          buzzBanner.className = "p-3 rounded-xl bg-slate-900/90 border border-slate-700 text-slate-400 text-xs font-bold";
-        } else {
-          if (roomData.answerState.isCorrect) {
-            buzzBanner.textContent = "相手が正解しました！";
-            buzzBanner.className = "p-3 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs font-bold";
           } else {
             buzzBanner.textContent = "相手が不正解でした！";
             buzzBanner.className = "p-3 rounded-xl bg-slate-900/90 border border-slate-700 text-slate-300 text-xs font-bold";
@@ -1838,38 +1955,27 @@ alert("お知らせの送信に失敗しました。");
       }
     }
 
-    function pressBuzzButton() {
-      if (!roomRef || roomData.buzzedPlayer) return;
-      document.getElementById('buzz-btn').disabled = true;
-
-      roomRef.child('buzzedPlayer').transaction((current) => {
-        if (current === null) {
-          return myPlayerId;
-        }
-        return undefined;
-      });
-    }
-
-    function submitMultiAnswer(optIndex) {
-      if (roomData.buzzedPlayer !== myPlayerId || roomData.answerState) return;
+    function submitMultiAnswerDirect(optIndex) {
+      if (!roomRef || (roomData && roomData.answerState)) return;
 
       const q = normalizeQuestion(roomData.questions[roomData.currentQIndex]);
       const isCorrect = q.answers.includes(optIndex);
 
-      const updates = {
-        'answerState': {
-          player: myPlayerId,
-          selected: optIndex,
-          isCorrect: isCorrect
+      roomRef.child('answerState').transaction((current) => {
+        if (current === null) {
+          return {
+            player: myPlayerId,
+            selected: optIndex,
+            isCorrect: isCorrect
+          };
         }
-      };
-
-      if (isCorrect) {
-        const currentScore = roomData.scores ? (roomData.scores[myPlayerId] || 0) : 0;
-        updates[`scores/${myPlayerId}`] = currentScore + 1;
-      }
-
-      roomRef.update(updates);
+        return undefined;
+      }, (error, committed, snapshot) => {
+        if (committed && isCorrect) {
+          const currentScore = roomData.scores ? (roomData.scores[myPlayerId] || 0) : 0;
+          roomRef.child(`scores/${myPlayerId}`).set(currentScore + 1);
+        }
+      });
     }
 
     function nextMultiQuestionHost() {
@@ -1907,7 +2013,7 @@ alert("お知らせの送信に失敗しました。");
     });
 
     // =========================================================
-    //  管理者機能・モーダル・リアルタイム同期保存
+    //  管理者機能・問題編集・保存
     // =========================================================
     function openAuthModal() {
       document.getElementById('modal-auth').classList.remove('hidden');
@@ -2078,7 +2184,7 @@ alert("お知らせの送信に失敗しました。");
     }
 
     // =========================================================
-    //  管理者用 問題編集モーダル制御 (画像アップロード機能付き)
+    //  問題編集モーダル制御
     // =========================================================
     function openQuestionsEditorModal(subjectId) {
       editingSubjectId = subjectId;
@@ -2090,52 +2196,10 @@ alert("お知らせの送信に失敗しました。");
 
       document.getElementById('editor-subject-title').textContent = `${titleLabel} - 問題編集`;
 
-      if (subjectId === 'microbiology' && typeof window.getMicrobiologyQuestions === 'function') {
-        const microData = window.getMicrobiologyQuestions();
-        if (Array.isArray(microData) && microData.length > 0 && (!window.QUIZ_DB.microbiology || window.QUIZ_DB.microbiology.length === 0)) {
-          window.QUIZ_DB.microbiology = microData;
-        }
-      }
-
-      if (subjectId === 'medical_intro' && typeof window.getMedicineQuestions === 'function') {
-        const medData = window.getMedicineQuestions();
-        if (Array.isArray(medData) && medData.length > 0 && (!window.QUIZ_DB.medical_intro || window.QUIZ_DB.medical_intro.length === 0)) {
-          window.QUIZ_DB.medical_intro = medData;
-        }
-      }
-
-      if (subjectId === 'mind_behavior' && typeof window.getMindBehaviorQuestions === 'function') {
-        const mindData = window.getMindBehaviorQuestions();
-        if (Array.isArray(mindData) && mindData.length > 0 && (!window.QUIZ_DB.mind_behavior || window.QUIZ_DB.mind_behavior.length === 0)) {
-          window.QUIZ_DB.mind_behavior = mindData;
-        }
-      }
-
-      if (subjectId === 'physiology' && typeof window.getPhysiologyQuestions === 'function') {
-        const physioData = window.getPhysiologyQuestions();
-        if (Array.isArray(physioData) && physioData.length > 0 && (!window.QUIZ_DB.physiology || window.QUIZ_DB.physiology.length === 0)) {
-          window.QUIZ_DB.physiology = physioData;
-        }
-      }
-
-      if (subjectId === 'anatomy' || subjectId === 'anatomy_applied') {
-        if (subjectId === 'anatomy_applied' && typeof window.getAnatomyAppliedQuestions === 'function') {
-          const anatomyAppliedData = window.getAnatomyAppliedQuestions();
-          if (Array.isArray(anatomyAppliedData) && anatomyAppliedData.length > 0 && (!window.QUIZ_DB.anatomy_applied || window.QUIZ_DB.anatomy_applied.length === 0)) {
-            window.QUIZ_DB.anatomy_applied = anatomyAppliedData;
-          }
-        } else if (typeof window.getAnatomyQuestions === 'function') {
-          const anatomyBasicData = window.getAnatomyQuestions();
-          if (Array.isArray(anatomyBasicData) && anatomyBasicData.length > 0 && (!window.QUIZ_DB.anatomy || window.QUIZ_DB.anatomy.length === 0)) {
-            window.QUIZ_DB.anatomy = anatomyBasicData;
-          }
-        }
-      }
-
-      if (subjectId === 'psychology' && typeof window.getQuestions === 'function') {
-        const psychData = window.getQuestions('all');
-        if (Array.isArray(psychData) && psychData.length > 0 && (!window.QUIZ_DB.psychology || window.QUIZ_DB.psychology.length === 0)) {
-          window.QUIZ_DB.psychology = psychData;
+      if (subjectId === 'nursing_method' && typeof window.getNursingQuestions === 'function') {
+        const nursingData = window.getNursingQuestions('all');
+        if (Array.isArray(nursingData) && nursingData.length > 0 && (!window.QUIZ_DB.nursing_method || window.QUIZ_DB.nursing_method.length === 0)) {
+          window.QUIZ_DB.nursing_method = nursingData;
         }
       }
 
@@ -2196,17 +2260,17 @@ alert("お知らせの送信に失敗しました。");
 
           <div class="space-y-2">
             <div class="flex justify-between items-center">
-              <label class="text-[11px] text-slate-400">選択肢 (チェックを入れて正解を指定):</label>
-              <button onclick="addOptionToEditorQuestion(${qIdx})" class="text-[10px] text-amber-400 hover:underline">＋ 選択肢を追加</button>
+              <label class="text-[11px] text-slate-400">選択肢 (正解にチェックを入れてください):</label>
+              <button onclick="addOptionToEditingQuestion(${qIdx})" class="text-[10px] text-amber-400 hover:underline">＋ 選択肢追加</button>
             </div>
             <div class="space-y-1.5">
-              ${(q.options || []).map((opt, optIdx) => {
-                const isCorrect = (q.answers || []).includes(optIdx);
+              ${q.options.map((opt, optIdx) => {
+                const isChecked = q.answers.includes(optIdx);
                 return `
                   <div class="flex items-center gap-2">
-                    <input type="checkbox" ${isCorrect ? 'checked' : ''} onchange="toggleEditingAnswer(${qIdx}, ${optIdx})" class="accent-amber-500 w-4 h-4 cursor-pointer shrink-0" title="正解として設定">
-                    <input type="text" value="${opt}" onchange="updateEditingOptionText(${qIdx}, ${optIdx}, this.value)" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
-                    ${q.options.length > 2 ? `<button onclick="removeOptionFromEditorQuestion(${qIdx}, ${optIdx})" class="text-slate-500 hover:text-rose-400 text-xs px-1">✕</button>` : ''}
+                    <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleEditingAnswerIndex(${qIdx}, ${optIdx})" class="w-4 h-4 rounded border-slate-700 text-amber-600 focus:ring-amber-500">
+                    <input type="text" value="${opt}" onchange="updateEditingOptionText(${qIdx}, ${optIdx}, this.value)" class="w-full px-2.5 py-1.5 rounded bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
+                    <button onclick="removeOptionFromEditingQuestion(${qIdx}, ${optIdx})" class="text-rose-400 hover:text-rose-300 text-xs px-1">✕</button>
                   </div>
                 `;
               }).join('')}
@@ -2214,19 +2278,64 @@ alert("お知らせの送信に失敗しました。");
           </div>
 
           <div class="space-y-1">
-            <label class="text-[11px] text-slate-400">解説:</label>
-            <input type="text" value="${q.exp || ''}" onchange="updateEditingExplanation(${qIdx}, this.value)" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500" placeholder="解説文を入力">
+            <label class="text-[11px] text-slate-400">解説文:</label>
+            <textarea onchange="updateEditingQuestionExp(${qIdx}, this.value)" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-14">${q.exp || ''}</textarea>
           </div>
         </div>
       `).join('');
+    }
+
+    function updateEditingQuestionText(qIdx, val) {
+      editingQuestionsList[qIdx].q = val;
+    }
+
+    function updateEditingQuestionExp(qIdx, val) {
+      editingQuestionsList[qIdx].exp = val;
+    }
+
+    function updateEditingOptionText(qIdx, optIdx, val) {
+      editingQuestionsList[qIdx].options[optIdx] = val;
+    }
+
+    function toggleEditingAnswerIndex(qIdx, optIdx) {
+      const q = editingQuestionsList[qIdx];
+      const foundPos = q.answers.indexOf(optIdx);
+      if (foundPos !== -1) {
+        q.answers.splice(foundPos, 1);
+      } else {
+        q.answers.push(optIdx);
+      }
+      q.answers.sort((a,b) => a-b);
+    }
+
+    function addOptionToEditingQuestion(qIdx) {
+      const q = editingQuestionsList[qIdx];
+      q.options.push(`新しい選択肢 ${q.options.length + 1}`);
+      renderEditorQuestionsList();
+    }
+
+    function removeOptionFromEditingQuestion(qIdx, optIdx) {
+      const q = editingQuestionsList[qIdx];
+      if (q.options.length <= 1) {
+        alert("選択肢は少なくとも1つ以上必要です。");
+        return;
+      }
+      q.options.splice(optIdx, 1);
+      q.answers = q.answers.filter(a => a !== optIdx).map(a => a > optIdx ? a - 1 : a);
+      renderEditorQuestionsList();
     }
 
     function handleQuestionImageUpload(qIdx, event) {
       const file = event.target.files[0];
       if (!file) return;
 
+      if (file.size > 2 * 1024 * 1024) {
+        alert("画像サイズは2MB以下にしてください。");
+        return;
+      }
+
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = (e) => {
         editingQuestionsList[qIdx].image = e.target.result;
         renderEditorQuestionsList();
       };
@@ -2238,49 +2347,13 @@ alert("お知らせの送信に失敗しました。");
       renderEditorQuestionsList();
     }
 
-    function updateEditingQuestionText(qIdx, val) {
-      editingQuestionsList[qIdx].q = val;
-    }
-
-    function updateEditingOptionText(qIdx, optIdx, val) {
-      editingQuestionsList[qIdx].options[optIdx] = val;
-    }
-
-    function toggleEditingAnswer(qIdx, optIdx) {
-      const ansSet = new Set(editingQuestionsList[qIdx].answers || []);
-      if (ansSet.has(optIdx)) {
-        ansSet.delete(optIdx);
-      } else {
-        ansSet.add(optIdx);
-      }
-      editingQuestionsList[qIdx].answers = Array.from(ansSet);
-    }
-
-    function updateEditingExplanation(qIdx, val) {
-      editingQuestionsList[qIdx].exp = val;
-    }
-
-    function addOptionToEditorQuestion(qIdx) {
-      if (!editingQuestionsList[qIdx].options) editingQuestionsList[qIdx].options = [];
-      editingQuestionsList[qIdx].options.push(`新しい選択肢 ${editingQuestionsList[qIdx].options.length + 1}`);
-      renderEditorQuestionsList();
-    }
-
-    function removeOptionFromEditorQuestion(qIdx, optIdx) {
-      editingQuestionsList[qIdx].options.splice(optIdx, 1);
-      editingQuestionsList[qIdx].answers = (editingQuestionsList[qIdx].answers || [])
-        .filter(a => a !== optIdx)
-        .map(a => a > optIdx ? a - 1 : a);
-      renderEditorQuestionsList();
-    }
-
     function addNewQuestionToEditor() {
-      editingQuestionsList.push({
-        q: "新しい問題文を入力してください",
-        image: null,
+      editingQuestionsList.unshift({
+        q: "新しい問題の本文を入力してください",
         options: ["選択肢 1", "選択肢 2", "選択肢 3", "選択肢 4"],
         answers: [0],
-        exp: "解説を入力してください"
+        image: null,
+        exp: "解説文を入力してください。"
       });
       renderEditorQuestionsList();
     }
@@ -2295,33 +2368,22 @@ alert("お知らせの送信に失敗しました。");
     function saveEditedQuestions() {
       if (!editingSubjectId) return;
 
-      const formatted = editingQuestionsList.map(q => {
-        const item = { ...q };
-        item.q = q.q;
-        if (q.image) item.image = q.image;
-        else delete item.image;
-
-        item.options = q.options;
-        item.exp = q.exp;
-
-        if (q.answers && q.answers.length === 1) {
-          item.answer = q.answers[0];
-          item.answers = [q.answers[0]];
-        } else {
-          item.answers = q.answers || [];
-          delete item.answer;
-        }
-        return item;
+      window.QUIZ_DB[editingSubjectId] = editingQuestionsList.map(q => {
+        return {
+          q: q.q,
+          options: q.options,
+          answers: q.answers,
+          image: q.image || null,
+          exp: q.exp || ""
+        };
       });
 
-      window.QUIZ_DB[editingSubjectId] = formatted;
-      db.ref(`quiz_db/${editingSubjectId}`).set(formatted).then(() => {
-        alert("問題（画像含む）の変更が保存され、全端末・ユーザーに即時反映されました。");
+      db.ref(`quiz_db/${editingSubjectId}`).set(window.QUIZ_DB[editingSubjectId]).then(() => {
+        alert("問題の変更を保存しました。");
         closeQuestionsEditorModal();
       }).catch(err => {
-        console.error("Firebase保存エラー:", err);
-        alert("変更を保存しました。");
-        closeQuestionsEditorModal();
+        console.error("問題保存エラー:", err);
+        alert("保存に失敗しました。");
       });
     }
   </script>
