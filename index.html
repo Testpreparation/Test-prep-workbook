@@ -31,6 +31,7 @@
     window.QUIZ_DB.anatomy_applied = [];
     window.QUIZ_DB.physiology = [];
     window.QUIZ_DB.nursing_method = []; // 看護学方法論Ⅰ用
+    window.QUIZ_DB.nursing_method2 = []; // 看護学方法論Ⅱ用
   </script>
 
   <!-- 各科目の外部問題データベースJSの読み込み -->
@@ -180,8 +181,8 @@
   <div class="w-full max-w-xl mx-auto py-6 sm:py-10 my-auto">
     <header class="text-center mb-8">
       <div class="en-title text-amber-500/90 text-xs font-semibold tracking-widest uppercase mb-2">Knowledge Assessment</div>
-      <h1 class="serif-title text-2xl sm:text-3xl font-medium text-slate-100 tracking-wide">テスト対策問題</h1>
-      <p class="text-xs text-slate-400 mt-2 font-light"> </p>
+      <h1 class="serif-title text-2xl sm:text-3xl font-medium text-slate-100 tracking-wide">過去問・小テスト演習</h1>
+      <p class="text-xs text-slate-400 mt-2 font-light">落ち着いた空間で深める知識と理解</p>
     </header>
 
     <main class="glass-card rounded-2xl p-5 sm:p-8 shadow-2xl relative overflow-hidden">
@@ -191,7 +192,7 @@
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
           <h2 id="subjects-header-title" class="en-title text-xs text-slate-400 tracking-widest uppercase">Select Subject</h2>
           <div class="flex items-center gap-3">
-            <span id="subject-count-display" class="text-xs text-slate-500 font-light">全7科目</span>
+            <span id="subject-count-display" class="text-xs text-slate-500 font-light">全8科目</span>
             <!-- お知らせボタン -->
             <button onclick="openNoticeModal()" class="relative px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition flex items-center gap-1.5">
               <span>🔔</span>
@@ -227,7 +228,7 @@
               <span class="px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 font-mono text-xs font-bold">ANA-2</span>
               <div>
                 <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">応用問題</div>
-                <div class="text-[11px] text-slate-400 font-light mt-0.5">小テスト・ちいかわの問題の応用(AIを使用してます。)</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">小テスト・ちいかわの問題の応用</div>
               </div>
             </div>
             <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
@@ -928,7 +929,8 @@
       { id: "physiology", name: "生理学", code: "PHY", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null },
       { id: "microbiology", name: "微生物学", code: "MIC", visible: true, status: "available", isFixed: true, hasRounds: false, fixedCount: null },
       { id: "anatomy", name: "解剖学", code: "ANA", visible: true, status: "available", isFixed: false, hasRounds: false, hasAnatomyModes: true, fixedCount: null },
-      { id: "nursing_method", name: "看護学方法論Ⅰ", code: "NUR Ⅰ", visible: true, status: "available", isFixed: true, hasRounds: false, hasNursingModes: true, fixedCount: null }
+      { id: "nursing_method", name: "看護学方法論Ⅰ", code: "NUR Ⅰ", visible: true, status: "available", isFixed: true, hasRounds: false, hasNursingModes: true, fixedCount: null },
+      { id: "nursing_method2", name: "看護学方法論Ⅱ", code: "NUR Ⅱ", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null }
     ];
 
     let subjects = [...defaultSubjects];
@@ -1004,6 +1006,9 @@
         if (val && Array.isArray(val)) {
           if (!val.find(s => s.id === 'nursing_method')) {
             val.push(defaultSubjects.find(s => s.id === 'nursing_method'));
+          }
+          if (!val.find(s => s.id === 'nursing_method2')) {
+            val.push(defaultSubjects.find(s => s.id === 'nursing_method2'));
           }
           subjects = val;
         } else {
@@ -2152,7 +2157,6 @@
       if (subject) {
         subject.visible = !(subject.visible !== false);
         saveSubjectsToStorage();
-        renderAdminDragList();
       }
     }
 
@@ -2160,6 +2164,13 @@
       const subject = subjects.find(s => s.id === id);
       if (subject) {
         subject.status = newStatus;
+        saveSubjectsToStorage();
+      }
+    }
+
+    function deleteSubject(id) {
+      if (confirm("この科目を削除しますか？")) {
+        subjects = subjects.filter(s => s.id !== id);
         saveSubjectsToStorage();
       }
     }
@@ -2177,24 +2188,21 @@
 
       const id = 'custom_' + Date.now();
       subjects.push({
-        id, name, code, visible: true, status: 'available', isFixed: false, hasRounds: false, fixedCount: null
+        id: id,
+        name: name,
+        code: code,
+        visible: true,
+        status: "available",
+        isFixed: false,
+        hasRounds: false,
+        fixedCount: null
       });
 
       window.QUIZ_DB[id] = [];
       saveSubjectsToStorage();
-      renderAdminDragList();
 
       nameInput.value = '';
       codeInput.value = '';
-    }
-
-    function deleteSubject(id) {
-      if (!confirm("この科目を削除しますか？問題データも消去されます。")) return;
-      subjects = subjects.filter(s => s.id !== id);
-      delete window.QUIZ_DB[id];
-      db.ref(`quiz_db/${id}`).remove();
-      saveSubjectsToStorage();
-      renderAdminDragList();
     }
 
     function saveSubjectsToStorage() {
@@ -2205,264 +2213,197 @@
       const container = document.getElementById('admin-drag-container');
       if (!container) return;
 
-      if (dragulaInstance) dragulaInstance.destroy();
+      if (dragulaInstance) {
+        dragulaInstance.destroy();
+      }
 
       dragulaInstance = dragula([container], {
         moves: (el, container, handle) => handle.classList.contains('drag-handle')
       });
 
       dragulaInstance.on('drop', () => {
-        const newOrderIds = Array.from(container.children).map(child => child.dataset.id);
-        const reordered = [];
-        newOrderIds.forEach(id => {
-          const found = subjects.find(s => s.id === id);
-          if (found) reordered.push(found);
-        });
-        subjects = reordered;
+        const newOrder = Array.from(container.children).map(child => child.getAttribute('data-id'));
+        subjects.sort((a, b) => newOrder.indexOf(a.id) - newOrder.indexOf(b.id));
         saveSubjectsToStorage();
       });
     }
 
     function resetAllDataToDefault() {
-      if (!confirm("すべての科目・問題データを初期設定にリセットしますか？この操作は取り消せません。")) return;
-      db.ref('subjects').set(defaultSubjects);
-      db.ref('quiz_db').remove();
-      alert("データを初期リセットしました。ページを再読み込みします。");
-      location.reload();
+      if (confirm("全てのデータを初期状態にリセットしますか？削除された科目や追加された問題が復元・初期化されます。")) {
+        db.ref().remove().then(() => {
+          localStorage.clear();
+          subjects = [...defaultSubjects];
+          saveSubjectsToStorage();
+          alert("初期化が完了しました。ページを再読み込みします。");
+          location.reload();
+        });
+      }
     }
 
     // ---------------------------------------------------------
-    // 問題編集モーダルの制御機能（修正・完全版）
+    // 問題編集モーダル処理
     // ---------------------------------------------------------
     function openQuestionsEditorModal(subjectId) {
       editingSubjectId = subjectId;
-      const sub = subjects.find(s => s.id === subjectId) || { name: subjectId === 'anatomy_applied' ? '解剖学（応用）' : subjectId };
-      document.getElementById('editor-subject-title').textContent = `${sub.name} 問題編集`;
+      document.getElementById('modal-questions-editor').classList.remove('hidden');
 
-      // JS初期データからQUIZ_DBへロード（未設定の場合）
-      if (subjectId === 'psychology' && typeof window.getQuestions === 'function') {
-        const psychData = window.getQuestions('all');
-        if (Array.isArray(psychData) && psychData.length > 0 && (!window.QUIZ_DB.psychology || window.QUIZ_DB.psychology.length === 0)) {
-          window.QUIZ_DB.psychology = psychData;
-        }
-      }
-      if (subjectId === 'nursing_method' && typeof window.getNursingQuestions === 'function') {
-        const nursingData = window.getNursingQuestions('all');
-        if (Array.isArray(nursingData) && nursingData.length > 0 && (!window.QUIZ_DB.nursing_method || window.QUIZ_DB.nursing_method.length === 0)) {
-          window.QUIZ_DB.nursing_method = nursingData;
-        }
-      }
-      if (subjectId === 'microbiology' && typeof window.getMicrobiologyQuestions === 'function') {
-        const microData = window.getMicrobiologyQuestions();
-        if (Array.isArray(microData) && microData.length > 0 && (!window.QUIZ_DB.microbiology || window.QUIZ_DB.microbiology.length === 0)) {
-          window.QUIZ_DB.microbiology = microData;
-        }
-      }
-      if (subjectId === 'medical_intro' && typeof window.getMedicineQuestions === 'function') {
-        const medData = window.getMedicineQuestions();
-        if (Array.isArray(medData) && medData.length > 0 && (!window.QUIZ_DB.medical_intro || window.QUIZ_DB.medical_intro.length === 0)) {
-          window.QUIZ_DB.medical_intro = medData;
-        }
-      }
-      if (subjectId === 'mind_behavior' && typeof window.getMindBehaviorQuestions === 'function') {
-        const mindData = window.getMindBehaviorQuestions();
-        if (Array.isArray(mindData) && mindData.length > 0 && (!window.QUIZ_DB.mind_behavior || window.QUIZ_DB.mind_behavior.length === 0)) {
-          window.QUIZ_DB.mind_behavior = mindData;
-        }
-      }
-      if (subjectId === 'physiology' && typeof window.getPhysiologyQuestions === 'function') {
-        const physioData = window.getPhysiologyQuestions();
-        if (Array.isArray(physioData) && physioData.length > 0 && (!window.QUIZ_DB.physiology || window.QUIZ_DB.physiology.length === 0)) {
-          window.QUIZ_DB.physiology = physioData;
-        }
-      }
-      if (subjectId === 'anatomy' && typeof window.getAnatomyQuestions === 'function') {
-        const anatomyBasicData = window.getAnatomyQuestions();
-        if (Array.isArray(anatomyBasicData) && anatomyBasicData.length > 0 && (!window.QUIZ_DB.anatomy || window.QUIZ_DB.anatomy.length === 0)) {
-          window.QUIZ_DB.anatomy = anatomyBasicData;
-        }
-      }
-      if (subjectId === 'anatomy_applied' && typeof window.getAnatomyAppliedQuestions === 'function') {
-        const anatomyAppliedData = window.getAnatomyAppliedQuestions();
-        if (Array.isArray(anatomyAppliedData) && anatomyAppliedData.length > 0 && (!window.QUIZ_DB.anatomy_applied || window.QUIZ_DB.anatomy_applied.length === 0)) {
-          window.QUIZ_DB.anatomy_applied = anatomyAppliedData;
-        }
+      let targetSubjectName = subjectId;
+      const sub = subjects.find(s => s.id === subjectId);
+      if (sub) {
+        targetSubjectName = sub.name;
+      } else if (subjectId === 'anatomy_applied') {
+        targetSubjectName = "解剖学 (応用問題)";
       }
 
-      const raw = window.QUIZ_DB[subjectId] || [];
-      editingQuestionsList = raw.map(q => normalizeQuestion(q)).filter(Boolean);
+      document.getElementById('editor-subject-title').textContent = `${targetSubjectName} - 問題編集`;
 
-      const modeSelectorContainer = document.getElementById('editor-mode-selector-container');
+      const modeSelector = document.getElementById('editor-mode-selector-container');
       const modeSelect = document.getElementById('editor-mode-select');
 
-      if (sub.hasRounds || sub.hasNursingModes) {
-        modeSelectorContainer.classList.remove('hidden');
-        let optionsHtml = '';
-        for (let i = 1; i <= 10; i++) {
-          optionsHtml += `<option value="${i}">第${i}回</option>`;
-        }
-        optionsHtml += `<option value="quiz">小テスト</option>`;
-        optionsHtml += `<option value="all">すべての問題表示</option>`;
-        modeSelect.innerHTML = optionsHtml;
+      if (subjectId === 'psychology') {
+        modeSelector.classList.remove('hidden');
+        modeSelect.innerHTML = Array.from({length: 13}, (_, i) => `<option value="${i+1}">第${i+1}回演習問題</option>`).join('') + `<option value="quiz">小テスト</option>`;
         editingSelectedRound = '1';
-        modeSelect.value = '1';
+        modeSelect.value = editingSelectedRound;
+      } else if (subjectId === 'nursing_method') {
+        modeSelector.classList.remove('hidden');
+        modeSelect.innerHTML = Array.from({length: 10}, (_, i) => `<option value="${i+1}">第${i+1}回演習問題</option>`).join('') + `<option value="quiz">小テスト演習問題</option>`;
+        editingSelectedRound = '1';
+        modeSelect.value = editingSelectedRound;
       } else {
-        modeSelectorContainer.classList.add('hidden');
-        editingSelectedRound = 'all';
+        modeSelector.classList.add('hidden');
       }
 
-      renderEditorQuestionsList();
-      document.getElementById('modal-questions-editor').classList.remove('hidden');
+      loadQuestionsToEditor();
+    }
+
+    function changeEditorMode(val) {
+      editingSelectedRound = val;
+      loadQuestionsToEditor();
     }
 
     function closeQuestionsEditorModal() {
       document.getElementById('modal-questions-editor').classList.add('hidden');
     }
 
-    function changeEditorMode(roundVal) {
-      editingSelectedRound = roundVal;
+    function loadQuestionsToEditor() {
+      const raw = window.QUIZ_DB[editingSubjectId] || [];
+
+      if (editingSubjectId === 'psychology' || editingSubjectId === 'nursing_method') {
+        editingQuestionsList = raw.filter(q => q.round == editingSelectedRound).map(q => normalizeQuestion(q));
+      } else {
+        editingQuestionsList = raw.map(q => normalizeQuestion(q));
+      }
+
       renderEditorQuestionsList();
     }
 
     function renderEditorQuestionsList() {
       const container = document.getElementById('editor-questions-list');
-      if (!editingQuestionsList) editingQuestionsList = [];
-
-      let filtered = editingQuestionsList;
-      if (editingSelectedRound !== 'all') {
-        filtered = editingQuestionsList.filter(q => q.round == editingSelectedRound);
-      }
-
-      if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="p-8 text-center text-slate-500 text-xs rounded-xl bg-slate-900/60 border border-slate-800">
-            このモード・回には問題がまだ登録されていません。「＋ 問題を追加」から作成できます。
-          </div>
-        `;
+      if (editingQuestionsList.length === 0) {
+        container.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">問題がありません。「＋ 問題を追加」から新規作成してください。</div>`;
         return;
       }
 
-      container.innerHTML = filtered.map((q) => {
-        const globalIndex = editingQuestionsList.indexOf(q);
-        const optionsList = q.options || [];
-        const answersList = q.answers || [];
-
-        return `
-          <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3 relative group">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold font-mono text-amber-400">問題 #${globalIndex + 1} ${q.round ? `[第${q.round}回]` : ''}</span>
-              <button onclick="removeQuestionFromEditor(${globalIndex})" class="text-rose-400 hover:text-rose-300 text-xs font-medium px-2 py-1 rounded bg-rose-950/40 border border-rose-800/40 transition">
-                削除
-              </button>
-            </div>
-
-            <div class="space-y-1">
-              <label class="text-[10px] text-slate-400 block font-medium">問題文:</label>
-              <textarea onchange="updateEditorQuestionField(${globalIndex}, 'q', this.value)" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-16">${q.q || ''}</textarea>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <div class="space-y-1">
-                <label class="text-[10px] text-slate-400 block font-medium">画像URL (任意):</label>
-                <input type="text" value="${q.image || ''}" onchange="updateEditorQuestionField(${globalIndex}, 'image', this.value)" placeholder="https://..." class="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
-              </div>
-              <div class="space-y-1">
-                <label class="text-[10px] text-slate-400 block font-medium">正解番号 (カンマ区切りで複数可例: 0, 2):</label>
-                <input type="text" value="${answersList.join(', ')}" onchange="updateEditorQuestionAnswers(${globalIndex}, this.value)" placeholder="0" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 font-mono">
-              </div>
-            </div>
-
-            <div class="space-y-1.5">
-              <div class="flex justify-between items-center">
-                <label class="text-[10px] text-slate-400 block font-medium">選択肢一覧:</label>
-                <button onclick="addOptionToEditorQuestion(${globalIndex})" class="text-[10px] text-amber-400 hover:underline">＋ 選択肢を追加</button>
-              </div>
-              <div class="space-y-1">
-                ${optionsList.map((opt, optIdx) => `
-                  <div class="flex items-center gap-2">
-                    <span class="text-[10px] font-mono text-slate-500 w-4 text-right">${optIdx}:</span>
-                    <input type="text" value="${opt}" onchange="updateEditorQuestionOption(${globalIndex}, ${optIdx}, this.value)" class="w-full px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
-                    <button onclick="removeOptionFromEditorQuestion(${globalIndex}, ${optIdx})" class="text-rose-400 hover:text-rose-300 text-xs px-1.5">✕</button>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-
-            <div class="space-y-1">
-              <label class="text-[10px] text-slate-400 block font-medium">解説:</label>
-              <textarea onchange="updateEditorQuestionField(${globalIndex}, 'exp', this.value)" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-300 text-xs focus:outline-none focus:border-amber-500 h-14">${q.exp || ''}</textarea>
-            </div>
+      container.innerHTML = editingQuestionsList.map((q, idx) => `
+        <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-3 relative text-xs">
+          <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+            <span class="font-bold text-amber-400 font-mono">Q${idx + 1}</span>
+            <button onclick="removeQuestionFromEditor(${idx})" class="text-rose-400 hover:text-rose-300 text-[11px]">削除</button>
           </div>
-        `;
-      }).join('');
-    }
 
-    function updateEditorQuestionField(index, field, value) {
-      if (editingQuestionsList[index]) {
-        editingQuestionsList[index][field] = value;
-      }
-    }
+          <div class="space-y-1">
+            <label class="text-[10px] text-slate-400">問題文:</label>
+            <textarea onchange="updateEditorQText(${idx}, this.value)" class="w-full p-2 bg-slate-900 border border-slate-700 rounded text-slate-200 text-xs focus:border-amber-500 h-16">${q.q}</textarea>
+          </div>
 
-    function updateEditorQuestionAnswers(index, valueStr) {
-      if (!editingQuestionsList[index]) return;
-      const parsed = valueStr.split(',').map(v => parseInt(v.trim(), 10)).filter(v => !isNaN(v));
-      editingQuestionsList[index].answers = parsed;
-      editingQuestionsList[index].isMultiple = parsed.length > 1;
-    }
+          <div class="space-y-1">
+            <label class="text-[10px] text-slate-400">画像URL (任意):</label>
+            <input type="text" value="${q.image || ''}" onchange="updateEditorImage(${idx}, this.value)" placeholder="https://..." class="w-full p-2 bg-slate-900 border border-slate-700 rounded text-slate-200 text-xs focus:border-amber-500">
+          </div>
 
-    function updateEditorQuestionOption(qIdx, optIdx, val) {
-      if (editingQuestionsList[qIdx] && editingQuestionsList[qIdx].options) {
-        editingQuestionsList[qIdx].options[optIdx] = val;
-      }
-    }
+          <div class="space-y-1.5">
+            <label class="text-[10px] text-slate-400">選択肢 (カンマ区切り、または改行区切り):</label>
+            <textarea onchange="updateEditorOptions(${idx}, this.value)" class="w-full p-2 bg-slate-900 border border-slate-700 rounded text-slate-200 text-xs focus:border-amber-500 h-16">${(q.options || []).join('\n')}</textarea>
+          </div>
 
-    function addOptionToEditorQuestion(qIdx) {
-      if (editingQuestionsList[qIdx]) {
-        if (!editingQuestionsList[qIdx].options) editingQuestionsList[qIdx].options = [];
-        editingQuestionsList[qIdx].options.push("新しい選択肢");
-        renderEditorQuestionsList();
-      }
-    }
+          <div class="space-y-1">
+            <label class="text-[10px] text-slate-400">正解番号 (1番目が1、複数正解はカンマ区切り 例: 1,3):</label>
+            <input type="text" value="${(q.answers || []).map(a => a + 1).join(',')}" onchange="updateEditorAnswers(${idx}, this.value)" class="w-full p-2 bg-slate-900 border border-slate-700 rounded text-slate-200 text-xs focus:border-amber-500 font-mono">
+          </div>
 
-    function removeOptionFromEditorQuestion(qIdx, optIdx) {
-      if (editingQuestionsList[qIdx] && editingQuestionsList[qIdx].options) {
-        editingQuestionsList[qIdx].options.splice(optIdx, 1);
-        renderEditorQuestionsList();
-      }
+          <div class="space-y-1">
+            <label class="text-[10px] text-slate-400">解説 (任意):</label>
+            <textarea onchange="updateEditorExp(${idx}, this.value)" class="w-full p-2 bg-slate-900 border border-slate-700 rounded text-slate-200 text-xs focus:border-amber-500 h-14">${q.exp || ''}</textarea>
+          </div>
+        </div>
+      `).join('');
     }
 
     function addNewQuestionToEditor() {
       const newQ = {
-        q: "新しい問題文を入力してください",
-        options: ["選択肢 1", "選択肢 2", "選択肢 3", "選択肢 4"],
+        q: "新規問題文を入力してください",
+        options: ["選択肢1", "選択肢2", "選択肢3", "選択肢4"],
         answers: [0],
-        exp: "解説をここに入力します。",
-        image: null,
-        wordBox: null,
-        round: (editingSelectedRound !== 'all') ? editingSelectedRound : null
+        exp: "解説を入力してください",
+        image: "",
+        round: editingSelectedRound
       };
-      editingQuestionsList.push(normalizeQuestion(newQ));
+      editingQuestionsList.push(newQ);
       renderEditorQuestionsList();
     }
 
-    function removeQuestionFromEditor(index) {
+    function removeQuestionFromEditor(idx) {
       if (confirm("この問題を削除しますか？")) {
-        editingQuestionsList.splice(index, 1);
+        editingQuestionsList.splice(idx, 1);
         renderEditorQuestionsList();
       }
     }
 
+    function updateEditorQText(idx, val) {
+      editingQuestionsList[idx].q = val;
+    }
+
+    function updateEditorImage(idx, val) {
+      editingQuestionsList[idx].image = val.trim();
+    }
+
+    function updateEditorOptions(idx, val) {
+      const lines = val.split(/[\n,]/).map(s => s.trim()).filter(Boolean);
+      editingQuestionsList[idx].options = lines;
+    }
+
+    function updateEditorAnswers(idx, val) {
+      const nums = val.split(',').map(s => parseInt(s.trim(), 10) - 1).filter(n => !isNaN(n) && n >= 0);
+      editingQuestionsList[idx].answers = nums;
+      editingQuestionsList[idx].isMultiple = nums.length > 1;
+    }
+
+    function updateEditorExp(idx, val) {
+      editingQuestionsList[idx].exp = val;
+    }
+
     function saveEditedQuestions() {
-      if (!editingSubjectId) return;
+      let fullDb = window.QUIZ_DB[editingSubjectId] || [];
 
-      window.QUIZ_DB[editingSubjectId] = editingQuestionsList;
+      if (editingSubjectId === 'psychology' || editingSubjectId === 'nursing_method') {
+        fullDb = fullDb.filter(q => q.round != editingSelectedRound);
+        const prepared = editingQuestionsList.map(q => ({
+          ...q,
+          round: editingSelectedRound
+        }));
+        fullDb = fullDb.concat(prepared);
+      } else {
+        fullDb = [...editingQuestionsList];
+      }
 
-      db.ref(`quiz_db/${editingSubjectId}`).set(editingQuestionsList).then(() => {
-        alert("問題データの変更を保存・リアルタイム同期しました！");
+      window.QUIZ_DB[editingSubjectId] = fullDb;
+      db.ref(`quiz_db/${editingSubjectId}`).set(fullDb).then(() => {
+        alert("問題データの保存が完了しました。");
         closeQuestionsEditorModal();
       }).catch(err => {
         console.error("保存失敗:", err);
-        alert("データの保存に失敗しました。");
+        alert("保存に失敗しました。");
       });
     }
   </script>
