@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400&family=Noto+Serif+JP:wght@400;500;600&family=Noto+Sans+JP:wght@300;400;500;600&display=swap" rel="stylesheet">
- 
+  
   <!-- Dragula (ドラッグ並べ替えライブラリ) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js"></script>
@@ -20,35 +20,16 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
-  <!-- データベース用の共通オブジェクトを先に初期化 -->
-  <script>
-    window.QUIZ_DB = window.QUIZ_DB || {};
-    window.QUIZ_DB.psychology = [];
-    window.QUIZ_DB.mind_behavior = [];
-    window.QUIZ_DB.medical_intro = [];
-    window.QUIZ_DB.microbiology = [];
-    window.QUIZ_DB.anatomy = [];
-    window.QUIZ_DB.anatomy_applied = [];
-    window.QUIZ_DB.physiology = [];
-    window.QUIZ_DB.nursing_method = []; // 看護学方法論Ⅰ用
-    window.QUIZ_DB.nursing_method2 = []; // 看護学方法論Ⅱ用
-  </script>
-
   <!-- 各科目の外部問題データベースJSの読み込み -->
   <script src="psychology.js"></script>
   <script src="mindbehavior.js"></script>
   <script src="microbiology.js"></script>
-  <script src="Medicine.js"></script>
-  <script src="physiology.js"></script>
-  <script src="./anatomy.js"></script>
-  <script src="nursingmethod.js"></script>
 
   <style>
     body {
       font-family: 'Noto Sans JP', sans-serif;
       background-color: #0F172A;
       color: #CBD5E1;
-      overflow-x: hidden;
     }
     .serif-title {
       font-family: 'Noto Serif JP', 'Cormorant Garamond', serif;
@@ -140,11 +121,11 @@
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative selection:bg-amber-500/30 selection:text-amber-200">
+<body class="min-h-screen flex flex-col items-center justify-between p-4 sm:p-6 md:p-8 relative selection:bg-amber-500/30 selection:text-amber-200">
 
   <!-- 左上 ハンバーガーボタン -->
-  <div class="fixed top-4 left-4 sm:top-6 sm:left-6 z-40">
-    <button onclick="toggleNavDrawer()" class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white transition backdrop-blur-md shadow-lg" aria-label="メニューを開く">
+  <div class="absolute top-4 left-4 sm:top-6 sm:left-6 z-40">
+    <button onclick="toggleNavDrawer()" class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white transition backdrop-blur-md shadow-lg">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
     </button>
   </div>
@@ -178,7 +159,7 @@
   </div>
 
   <!-- メイン領域 -->
-  <div class="w-full max-w-xl mx-auto py-6 sm:py-10 my-auto">
+  <div class="w-full max-w-xl mx-auto my-auto py-6 sm:py-10">
     <header class="text-center mb-8">
       <div class="en-title text-amber-500/90 text-xs font-semibold tracking-widest uppercase mb-2">Knowledge Assessment</div>
       <h1 class="serif-title text-2xl sm:text-3xl font-medium text-slate-100 tracking-wide">過去問・小テスト演習</h1>
@@ -186,143 +167,21 @@
     </header>
 
     <main class="glass-card rounded-2xl p-5 sm:p-8 shadow-2xl relative overflow-hidden">
-     
+      
       <!-- 画面1: 科目選択 (SOLO) -->
       <div id="screen-subjects" class="space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
           <h2 id="subjects-header-title" class="en-title text-xs text-slate-400 tracking-widest uppercase">Select Subject</h2>
-          <div class="flex items-center gap-3">
-            <span id="subject-count-display" class="text-xs text-slate-500 font-light">全8科目</span>
-            <!-- お知らせボタン -->
-            <button onclick="openNoticeModal()" class="relative px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition flex items-center gap-1.5">
-              <span>🔔</span>
-              <span>お知らせ</span>
-              <span id="notice-red-dot" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-slate-900"></span>
-            </button>
-          </div>
+          <span id="subject-count-display" class="text-xs text-slate-500 font-light">全6科目</span>
         </div>
         <div id="subject-list-container" class="grid gap-3 pt-1"></div>
       </div>
 
-      <!-- 画面1.2: 解剖学 コース選択（練習問題 / 応用問題） -->
-      <div id="screen-anatomy-mode-select" class="hidden space-y-4">
-        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
-          <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline">← 科目選択へ戻る</button>
-          <span class="serif-title text-sm text-slate-300">解剖学 モード選択</span>
-        </div>
-
-        <div class="space-y-3 pt-2">
-          <button onclick="selectAnatomyMode('basic')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
-            <div class="flex items-center gap-3">
-              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">ANA-1</span>
-              <div>
-                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">練習問題</div>
-                <div class="text-[11px] text-slate-400 font-light mt-0.5">小テスト・ちいかわの問題</div>
-              </div>
-            </div>
-            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
-          </button>
-
-          <button onclick="selectAnatomyMode('applied')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
-            <div class="flex items-center gap-3">
-              <span class="px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 font-mono text-xs font-bold">ANA-2</span>
-              <div>
-                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">応用問題</div>
-                <div class="text-[11px] text-slate-400 font-light mt-0.5">小テスト・ちいかわの問題の応用</div>
-              </div>
-            </div>
-            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- 画面1.3: 看護学方法論Ⅰ コース選択（ドロップダウン不対応・12回別問題直接選択） -->
-      <div id="screen-nursing-mode-select" class="hidden space-y-4">
-        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
-          <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline">← 科目選択へ戻る</button>
-          <span class="serif-title text-sm text-slate-300">看護学方法論Ⅰ モード選択</span>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
-          <button onclick="selectNursingRound('1')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
-            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第1回演習問題</span>
-            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
-          </button>
-          <button onclick="selectNursingRound('2')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
-            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第2回演習問題</span>
-            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
-          </button>
-          <button onclick="selectNursingRound('3')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
-            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第3回演習問題</span>
-            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
-          </button>
-          <button onclick="selectNursingRound('4')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
-            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第4回演習問題</span>
-            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
-          </button>
-          <button onclick="selectNursingRound('5')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
-            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第5回演習問題</span>
-            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
-          </button>
-          <button onclick="selectNursingRound('6')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
-            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第6回演習問題</span>
-            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
-          </button>
-          <button onclick="selectNursingRound('7')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
-            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第7回演習問題</span>
-            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
-          </button>
-          <button onclick="selectNursingRound('8')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
-            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第8回演習問題</span>
-            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
-          </button>
-          <button onclick="selectNursingRound('9')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
-            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第9回演習問題</span>
-            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
-          </button>
-          <button onclick="selectNursingRound('10')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
-            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第10回演習問題</span>
-            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
-          </button>
-          <button onclick="selectNursingRound('quiz')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
-            <span class="text-xs font-medium text-amber-400 group-hover:text-amber-300">小テスト演習問題</span>
-            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
-          </button>
-          <button onclick="selectNursingRound('all')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
-            <span class="text-xs font-medium text-amber-400 group-hover:text-amber-300">総合練習問題</span>
-            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- 画面1.4: 制限時間選択 -->
-      <div id="screen-time-select" class="hidden space-y-6 text-center">
-        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
-          <button id="time-back-btn" onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline">← 戻る</button>
-          <span id="time-subject-title" class="serif-title text-sm text-slate-300">制限時間選択</span>
-        </div>
-
-        <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-6">
-          <div class="space-y-2">
-            <div class="text-xs text-slate-400 uppercase tracking-widest font-medium">1問あたりの制限時間を選択</div>
-            <div class="text-4xl font-bold text-amber-500 font-mono"><span id="time-slider-display">30</span> <span class="text-sm font-normal text-slate-500">秒</span></div>
-          </div>
-          <div class="px-2">
-            <input type="range" id="time-select-slider" min="10" max="30" step="10" value="30" oninput="updateTimeSliderValue(this.value)" class="w-full">
-            <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
-              <span>10秒</span><span>20秒</span><span>30秒</span>
-            </div>
-          </div>
-        </div>
-
-        <button onclick="proceedToCountOrStart()" class="w-full py-3.5 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-xl text-xs font-semibold transition shadow-lg tracking-widest">次へ進む</button>
-      </div>
-
-      <!-- 画面1.5: モード選択 -->
+      <!-- 画面1.5: 心理学 小テスト選択 -->
       <div id="screen-round-select" class="hidden space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
-          <button id="round-back-btn" onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline">← 戻る</button>
-          <span id="round-subject-title" class="serif-title text-sm text-slate-300">モード選択</span>
+          <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline">← 戻る</button>
+          <span id="round-subject-title" class="serif-title text-sm text-slate-300">心理学 小テスト選択</span>
         </div>
 
         <div class="flex flex-col sm:flex-row items-center justify-center gap-3 py-4">
@@ -337,7 +196,9 @@
             <option value="8">第8回</option>
             <option value="9">第9回</option>
             <option value="10">第10回</option>
-            <option value="quiz">小テスト</option>
+            <option value="11">第11回</option>
+            <option value="12">第12回</option>
+            <option value="13">第13回</option>
             <option value="all">総合練習問題</option>
           </select>
           <button id="startButton" class="w-full sm:w-auto px-5 py-2.5 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-lg text-sm font-semibold transition">次へ進む</button>
@@ -352,7 +213,7 @@
           <button id="start-back-btn" onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline">← 戻る</button>
           <span id="quiz-subject-title" class="serif-title text-sm text-slate-300">科目名</span>
         </div>
-       
+        
         <div class="py-2 space-y-2">
           <div class="en-title text-3xl text-amber-500/90 font-semibold">PRACTICE QUIZ</div>
           <h2 id="start-screen-heading" class="serif-title text-2xl text-slate-100">演習問題</h2>
@@ -367,9 +228,9 @@
             <div class="text-4xl font-bold text-amber-500 font-mono"><span id="slider-count-display">10</span> <span class="text-sm font-normal text-slate-500">問</span></div>
           </div>
           <div class="px-2">
-            <input type="range" id="quiz-count-slider" min="10" max="30" step="10" value="10" oninput="updateSliderValue(this.value)" class="w-full">
+            <input type="range" id="quiz-count-slider" min="10" max="50" step="10" value="10" oninput="updateSliderValue(this.value)" class="w-full">
             <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
-              <span>10問</span><span>20問</span><span>30問</span>
+              <span>10</span><span>20</span><span>30</span><span>40</span><span>50</span>
             </div>
           </div>
         </div>
@@ -405,28 +266,9 @@
         <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
           <div id="quiz-question-number" class="text-[11px] text-amber-500/80 font-medium">Q1</div>
           <div id="quiz-question-text" class="text-sm text-slate-100 leading-relaxed font-normal">---</div>
-         
-          <!-- 問題画像表示領域 -->
-          <div id="quiz-image-container" class="hidden my-3">
-            <img id="quiz-image" src="" alt="問題画像" class="max-h-64 rounded-lg mx-auto border border-slate-700/80 object-contain shadow">
-          </div>
-
-          <!-- 語群 (wordBox) 表示領域 -->
-          <div id="quiz-wordbox-container" class="hidden mt-3 p-3 rounded-lg bg-slate-950/70 border border-slate-700/50 text-xs">
-            <div class="text-[11px] text-amber-400 font-medium mb-1.5 flex items-center gap-1">
-              <span>【語群】</span>
-            </div>
-            <div id="quiz-wordbox-content" class="text-slate-300 leading-relaxed space-y-1"></div>
-          </div>
         </div>
 
-        <!-- 選択肢コンテナ -->
         <div id="quiz-options-container" class="space-y-2.5"></div>
-
-        <!-- 複数選択用 回答確定ボタン -->
-        <button id="quiz-submit-multi-btn" onclick="submitMultipleAnswers()" class="hidden w-full py-3 bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold rounded-xl text-xs transition shadow-lg tracking-widest">
-          選択した内容で回答する
-        </button>
 
         <div id="quiz-feedback-box" class="hidden p-4 rounded-xl border text-xs leading-relaxed space-y-2">
           <div id="quiz-feedback-title" class="font-bold text-sm"></div>
@@ -444,8 +286,8 @@
           <div id="new-record-badge" class="hidden absolute top-2 right-2 bg-amber-500/20 border border-amber-500/50 text-amber-300 text-[10px] px-2 py-0.5 rounded-full font-bold animate-pulse flex items-center gap-1">
             <span>BEST RECORD</span>
           </div>
-          <div class="text-xs text-slate-400">正答率</div>
-          <div class="text-4xl font-bold text-amber-400"><span id="final-score-val">0</span><span class="text-2xl font-normal text-amber-400">%</span> <span id="final-total-val" class="text-base font-normal text-slate-400 hidden">/ 10</span></div>
+          <div class="text-xs text-slate-400">あなたのスコア</div>
+          <div class="text-4xl font-bold text-amber-400"><span id="final-score-val">0</span> <span id="final-total-val" class="text-base font-normal text-slate-400">/ 10</span></div>
           <div id="final-eval-text" class="text-xs text-amber-500/90 pt-2 font-light">素晴らしい集中力です！</div>
         </div>
 
@@ -551,20 +393,22 @@
         <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
           <div id="multi-q-num" class="text-[11px] text-amber-500/80 font-medium">Q1</div>
           <div id="multi-q-text" class="text-sm text-slate-100 leading-relaxed font-normal">---</div>
-
-          <!-- 対戦用 問題画像表示領域 -->
-          <div id="multi-image-container" class="hidden my-3">
-            <img id="multi-image" src="" alt="問題画像" class="max-h-56 rounded-lg mx-auto border border-slate-700/80 object-contain shadow">
-          </div>
         </div>
 
         <!-- 早押し・判定状態表示エリア -->
         <div id="buzz-status-banner" class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center text-xs font-bold transition">
-          正しい選択肢を先に押してください！
+          問題がスタートしました！早押しボタンを押してください！
         </div>
 
-        <!-- 選択肢群 (先に押して正解した方が勝ち) -->
-        <div id="multi-options-container" class="space-y-2.5 transition"></div>
+        <!-- 早押し（PUSH）ボタン -->
+        <div id="buzz-btn-container" class="py-2 text-center">
+          <button id="buzz-btn" onclick="pressBuzzButton()" class="buzz-btn w-32 h-32 rounded-full bg-amber-600 hover:bg-amber-500 text-amber-50 text-xl font-black tracking-widest border-4 border-amber-300 shadow-2xl active:scale-95 transition mx-auto flex items-center justify-center">
+            押す！
+          </button>
+        </div>
+
+        <!-- 選択肢群 (回答権取得者のみ押せる) -->
+        <div id="multi-options-container" class="space-y-2.5 opacity-50 pointer-events-none transition"></div>
 
         <div id="multi-next-btn-wrap" class="hidden">
           <button id="multi-next-btn" onclick="nextMultiQuestionHost()" class="w-full py-2.5 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-lg text-xs font-medium transition">次の問題へ進む (部屋主操作) →</button>
@@ -574,29 +418,8 @@
     </main>
   </div>
 
-  <!-- お知らせ用モーダル -->
-  <div id="modal-notice" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
-    <div class="glass-card w-full max-w-sm rounded-2xl p-5 space-y-4 border border-slate-700/60 shadow-2xl">
-      <div class="flex justify-between items-center pb-2 border-b border-slate-700/50">
-        <div class="flex items-center gap-1.5">
-          <span>🔔</span>
-          <h3 class="serif-title text-base font-medium text-slate-100">お知らせ</h3>
-        </div>
-        <button onclick="closeNoticeModal()" class="text-slate-400 text-xs hover:text-white p-1">✕</button>
-      </div>
-      <div id="notice-list-container" class="space-y-3 text-xs leading-relaxed text-slate-300 max-h-60 overflow-y-auto">
-        <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-          <div class="text-[10px] text-amber-400 font-mono">新機能アップデート</div>
-          <div class="font-semibold text-slate-100">演習機能が新しくなりました</div>
-          <p class="text-slate-400 text-[11px] font-light">画像の表示、複数選択問題、早押し対戦（2Pマルチ）に対応しました。</p>
-        </div>
-      </div>
-      <button onclick="closeNoticeModal()" class="w-full py-2 bg-slate-800 text-slate-300 rounded-lg text-xs hover:bg-slate-700 transition">閉じる</button>
-    </div>
-  </div>
-
   <!-- 管理者パスワードモーダル -->
-  <div id="modal-auth" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
+  <div id="modal-auth" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4">
     <div class="glass-card w-full max-w-sm rounded-2xl p-5 space-y-4 border border-slate-700/60 shadow-2xl">
       <div class="text-center space-y-1">
         <div class="en-title text-[10px] text-amber-500/80 tracking-widest uppercase font-semibold">AUTHENTICATION</div>
@@ -612,57 +435,14 @@
   </div>
 
   <!-- 管理者設定モーダル -->
-  <div id="modal-admin" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
-    <div class="glass-card w-full max-w-xl rounded-2xl p-5 sm:p-6 space-y-5 border border-slate-700/60 shadow-2xl max-h-[90vh] overflow-y-auto my-auto">
+  <div id="modal-admin" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4">
+    <div class="glass-card w-full max-w-xl rounded-2xl p-5 sm:p-6 space-y-5 border border-slate-700/60 shadow-2xl max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
         <div>
           <div class="en-title text-[10px] text-amber-500/80 tracking-widest uppercase font-semibold">ADMINISTRATION</div>
           <h3 class="serif-title text-lg text-slate-100">管理者設定・科目編集</h3>
         </div>
         <button onclick="closeAdminModal()" class="text-slate-400 text-sm p-1 transition hover:text-white">✕</button>
-      </div>
-
-      <!-- アクセス状況表示エリア -->
-      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 space-y-3">
-        <div class="text-xs font-semibold text-amber-400 flex items-center gap-1.5 uppercase tracking-widest">
-          <span>📊</span> <span>アクセス状況</span>
-        </div>
-        <div class="grid grid-cols-2 gap-3 text-center">
-          <div class="p-3 rounded-lg bg-slate-950 border border-slate-800">
-            <div class="text-[10px] text-slate-400">今閲覧している人数</div>
-            <div id="admin-current-online-count" class="text-xl font-bold font-mono text-amber-400 mt-0.5">--</div>
-          </div>
-          <div class="p-3 rounded-lg bg-slate-950 border border-slate-800">
-            <div class="text-[10px] text-slate-400">今日閲覧した人数</div>
-            <div id="admin-today-visitor-count" class="text-xl font-bold font-mono text-amber-400 mt-0.5">--</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- お知らせ送信エリア -->
-      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 space-y-3">
-        <div class="text-xs font-semibold text-amber-400 flex items-center gap-1.5 uppercase tracking-widest">
-          <span>📢</span> <span>お知らせを投稿する</span>
-        </div>
-        <div class="space-y-2">
-          <input type="text" id="admin-notice-title" placeholder="お知らせのタイトル" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
-          <textarea id="admin-notice-content" placeholder="お知らせの本文" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-20"></textarea>
-        </div>
-        <button onclick="postAdminNotice()" class="w-full py-2 bg-amber-700/90 hover:bg-amber-600 text-amber-50 text-xs font-medium rounded-lg transition shadow tracking-widest">
-          お知らせを送信する
-        </button>
-      </div>
-
-      <!-- 投稿済みお知らせ一覧・削除管理エリア -->
-      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 space-y-3">
-        <div class="text-xs font-semibold text-amber-400 flex items-center justify-between uppercase tracking-widest">
-          <div class="flex items-center gap-1.5">
-            <span>🗑️</span> <span>投稿済みお知らせの削除・管理</span>
-          </div>
-        </div>
-        <div id="admin-notice-manage-list" class="space-y-2 max-h-40 overflow-y-auto pt-1">
-          <div class="text-slate-500 text-[11px] text-center py-2">お知らせデータを読み込んでいます...</div>
-        </div>
       </div>
 
       <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 space-y-3">
@@ -697,74 +477,7 @@
     </div>
   </div>
 
-  <!-- 問題編集用モーダル -->
-  <div id="modal-questions-editor" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
-    <div class="glass-card w-full max-w-2xl rounded-2xl p-5 sm:p-6 space-y-5 border border-slate-700/60 shadow-2xl max-h-[90vh] overflow-y-auto my-auto">
-      <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
-        <div>
-          <div class="en-title text-[10px] text-amber-500/80 tracking-widest uppercase font-semibold">QUESTION EDITOR</div>
-          <h3 id="editor-subject-title" class="serif-title text-lg text-slate-100">問題の編集・画像追加</h3>
-        </div>
-        <button onclick="closeQuestionsEditorModal()" class="text-slate-400 text-sm p-1 transition hover:text-white">✕</button>
-      </div>
-
-      <div class="flex justify-between items-center">
-        <p class="text-[11px] text-slate-400 font-light">各問題の文言、画像、選択肢、正解番号、解説を変更できます。</p>
-        <button onclick="addNewQuestionToEditor()" class="px-3 py-1.5 bg-amber-700 hover:bg-amber-600 text-amber-50 text-xs rounded-lg transition font-medium">＋ 問題を追加</button>
-      </div>
-
-      <!-- モード切替（看護学方法論Ⅰなどの複数モード対応科目用） -->
-      <div id="editor-mode-selector-container" class="hidden p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1.5">
-        <label class="text-[11px] text-amber-400 font-medium block">編集する回・モードを選択:</label>
-        <select id="editor-mode-select" onchange="changeEditorMode(this.value)" class="w-full bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 focus:outline-none focus:border-amber-500">
-        </select>
-      </div>
-
-      <!-- 問題カード一覧 -->
-      <div id="editor-questions-list" class="space-y-4"></div>
-
-      <div class="pt-2 flex gap-3">
-        <button onclick="closeQuestionsEditorModal()" class="w-1/2 py-2.5 bg-slate-800 text-slate-300 rounded-lg text-xs hover:bg-slate-700 transition">キャンセル</button>
-        <button onclick="saveEditedQuestions()" class="w-1/2 py-2.5 bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold text-xs rounded-lg transition shadow tracking-widest">変更を全保存する</button>
-      </div>
-    </div>
-  </div>
-
   <script>
-    // ---------------------------------------------------------
-    // 看護学方法論Ⅰ (lessonData) 取得用ヘルパー関数
-    // ---------------------------------------------------------
-    window.getNursingQuestions = function(roundVal) {
-      if (typeof lessonData === 'undefined') return [];
-      let results = [];
-      if (roundVal === 'all' || !roundVal) {
-        Object.keys(lessonData).forEach(key => {
-          const roundNum = isNaN(parseInt(key, 10)) ? key : parseInt(key, 10);
-          const items = lessonData[key].map(q => ({ ...q, round: roundNum }));
-          results = results.concat(items);
-        });
-      } else {
-        const key = roundVal.toString();
-        if (lessonData[key]) {
-          const roundNum = isNaN(parseInt(key, 10)) ? key : parseInt(key, 10);
-          results = lessonData[key].map(q => ({ ...q, round: roundNum }));
-        }
-      }
-      return results;
-    };
-
-    // 看護学方法論Ⅰ 回選択用関数
-    function selectNursingRound(selectedValue) {
-      currentRound = (selectedValue === "all") ? null : selectedValue;
-      if (typeof window.getNursingQuestions === "function") {
-        const currentQuestions = window.getNursingQuestions(selectedValue);
-        if (Array.isArray(currentQuestions) && currentQuestions.length > 0) {
-          window.QUIZ_DB.nursing_method = currentQuestions;
-        }
-      }
-      showTimeSelectionScreen();
-    }
-
     // =========================================================
     //  1. Firebase 設定
     // =========================================================
@@ -782,131 +495,43 @@
       sessionStorage.setItem('my_player_id', myPlayerId);
     }
 
-    // ---------------------------------------------------------
-    // 閲覧人数（リアルタイム人数・今日の閲覧人数）管理機能
-    // ---------------------------------------------------------
-    function initVisitorTracking() {
-      const now = new Date();
-      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-
-      const onlineRef = db.ref(`presence/online/${myPlayerId}`);
-      const connectedRef = db.ref('.info/connected');
-
-      connectedRef.on('value', (snap) => {
-        if (snap.val() === true) {
-          onlineRef.onDisconnect().remove();
-          onlineRef.set(true);
-        }
-      });
-
-      db.ref(`presence/daily/${todayStr}/${myPlayerId}`).set(true);
-
-      db.ref('presence/online').on('value', (snap) => {
-        const count = snap.val() ? Object.keys(snap.val()).length : 0;
-        const el = document.getElementById('admin-current-online-count');
-        if (el) el.textContent = `${count} 人`;
-      });
-
-      db.ref(`presence/daily/${todayStr}`).on('value', (snap) => {
-        const count = snap.val() ? Object.keys(snap.val()).length : 0;
-        const el = document.getElementById('admin-today-visitor-count');
-        if (el) el.textContent = `${count} 人`;
-      });
-    }
+    // =========================================================
+    //  全問題データベース定義
+    // =========================================================
+    window.QUIZ_DB = window.QUIZ_DB || {};
+    window.QUIZ_DB.psychology = window.QUIZ_DB.psychology || [];
+    window.QUIZ_DB.mind_behavior = window.QUIZ_DB.mind_behavior || [];
+    window.QUIZ_DB.medical_intro = window.QUIZ_DB.medical_intro || [];
+    window.QUIZ_DB.microbiology = window.QUIZ_DB.microbiology || [];
+    window.QUIZ_DB.anatomy = window.QUIZ_DB.anatomy || [];
+    window.QUIZ_DB.physiology = window.QUIZ_DB.physiology || [];
 
     // ---------------------------------------------------------
-    // お知らせモーダル表示制御・既読状態保持機能
-    // ---------------------------------------------------------
-    function openNoticeModal() {
-      document.getElementById('modal-notice').classList.remove('hidden');
-      const redDot = document.getElementById('notice-red-dot');
-      if (redDot) {
-        redDot.classList.add('hidden');
-      }
-      localStorage.setItem('notice_read_status', 'read');
-    }
-    function closeNoticeModal() {
-      document.getElementById('modal-notice').classList.add('hidden');
-    }
-
-    function postAdminNotice() {
-      const titleInput = document.getElementById('admin-notice-title');
-      const contentInput = document.getElementById('admin-notice-content');
-
-      const title = titleInput.value.trim();
-      const content = contentInput.value.trim();
-
-      if (!title || !content) {
-        alert("お知らせのタイトルと本文を入力してください。");
-        return;
-      }
-
-      const noticeData = {
-        title: title,
-        content: content,
-        timestamp: Date.now()
-      };
-
-      db.ref('notices').push(noticeData).then(() => {
-        alert("お知らせを投稿しました。");
-        titleInput.value = '';
-        contentInput.value = '';
-      }).catch(err => {
-        console.error("お知らせの送信に失敗しました:", err);
-        alert("お知らせの送信に失敗しました。");
-      });
-    }
-
-    function deleteAdminNotice(noticeId) {
-      if (!confirm("このお知らせを消去しますか？")) return;
-
-      db.ref(`notices/${noticeId}`).remove().then(() => {
-        alert("お知らせを削除しました。");
-      }).catch(err => {
-        console.error("お知らせの削除に失敗しました:", err);
-        alert("削除に失敗しました。");
-      });
-    }
-
-    // ---------------------------------------------------------
-    // データ形式の自動補正ヘルパー
+    // データ形式の揺らぎを自動解決するヘルパー関数
     // ---------------------------------------------------------
     function normalizeQuestion(item) {
       if (!item) return null;
 
       const qText = item.q || item.question || item.title || item.text || "問題文がありません";
 
-      let opts = item.options || item.opts || item.choices || item.answers || [];
+      let opts = item.options || item.choices || item.answers || [];
       if (!Array.isArray(opts)) {
         opts = [];
       }
 
-      let correctAnswers = [];
-      const rawAns = item.correctAnswers !== undefined ? item.correctAnswers : (item.answers !== undefined ? item.answers : (item.answer !== undefined ? item.answer : (item.correct !== undefined ? item.correct : (item.ans !== undefined ? item.ans : item.correctIndex))));
-     
-      if (Array.isArray(rawAns)) {
-        if (rawAns.length > 0 && typeof rawAns[0] === 'string' && opts.length > 0) {
-          correctAnswers = rawAns.map(ansText => opts.indexOf(ansText)).filter(idx => idx !== -1);
-          if (correctAnswers.length === 0) {
-            correctAnswers = rawAns.map(v => parseInt(v, 10)).filter(v => !isNaN(v));
-          }
-        } else {
-          correctAnswers = rawAns.map(v => parseInt(v, 10)).filter(v => !isNaN(v));
-        }
-      } else if (typeof rawAns === 'number') {
-        correctAnswers = [rawAns];
-      } else if (typeof rawAns === 'string') {
-        const parsed = parseInt(rawAns, 10);
-        if (!isNaN(parsed)) {
-          correctAnswers = [parsed];
-        } else if (opts.length > 0) {
-          const foundIdx = opts.indexOf(rawAns);
-          if (foundIdx !== -1) correctAnswers = [foundIdx];
-        }
+      let ansIdx = 0;
+      if (typeof item.answer === 'number') {
+        ansIdx = item.answer;
+      } else if (typeof item.correct === 'number') {
+        ansIdx = item.correct;
+      } else if (typeof item.correctIndex === 'number') {
+        ansIdx = item.correctIndex;
+      } else if (typeof item.answerIndex === 'number') {
+        ansIdx = item.answerIndex;
+      } else if (typeof item.answer === 'string') {
+        const parsed = parseInt(item.answer, 10);
+        if (!isNaN(parsed)) ansIdx = parsed;
       }
-
-      let wordBoxData = item.wordBox || item.wordGroup || item.words || null;
-      let imgData = item.image || item.img || null;
 
       const expText = item.exp || item.explanation || item.desc || item.detail || "解説はありません。";
 
@@ -914,13 +539,28 @@
         ...item,
         q: qText,
         options: opts,
-        answers: correctAnswers,
-        image: imgData,
-        wordBox: wordBoxData,
-        isMultiple: correctAnswers.length > 1,
+        answer: ansIdx,
         exp: expText
       };
     }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const startBtn = document.getElementById("startButton");
+      if (startBtn) {
+        startBtn.addEventListener("click", () => {
+          const selectedValue = document.getElementById("roundSelect").value;
+          currentRound = (selectedValue === "all") ? null : parseInt(selectedValue, 10);
+
+          if (typeof window.getQuestions === "function") {
+            const currentQuestions = window.getQuestions(selectedValue);
+            if (Array.isArray(currentQuestions) && currentQuestions.length > 0) {
+              window.QUIZ_DB.psychology = currentQuestions;
+            }
+          }
+          showStartScreen();
+        });
+      }
+    });
 
     const defaultSubjects = [
       { id: "psychology", name: "心理学", code: "PSY", visible: true, status: "available", isFixed: true, hasRounds: true, fixedCount: null },
@@ -928,36 +568,30 @@
       { id: "medical_intro", name: "医療概論", code: "MED", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null },
       { id: "physiology", name: "生理学", code: "PHY", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null },
       { id: "microbiology", name: "微生物学", code: "MIC", visible: true, status: "available", isFixed: true, hasRounds: false, fixedCount: null },
-      { id: "anatomy", name: "解剖学", code: "ANA", visible: true, status: "available", isFixed: false, hasRounds: false, hasAnatomyModes: true, fixedCount: null },
-      { id: "nursing_method", name: "看護学方法論Ⅰ", code: "NUR Ⅰ", visible: true, status: "available", isFixed: true, hasRounds: false, hasNursingModes: true, fixedCount: null },
-      { id: "nursing_method2", name: "看護学方法論Ⅱ", code: "NUR Ⅱ", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null }
+      { id: "anatomy", name: "解剖学", code: "ANA", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null }
     ];
 
     let subjects = [...defaultSubjects];
     let currentSubject = null;
     let currentRound = null;
-    let currentAnatomyMode = 'basic';
-    let currentNursingMode = 'rounds';
     let activeQuestions = [];
     let currentQIndex = 0;
     let score = 0;
     let isAnswered = false;
-    let selectedIndices = new Set();
     let dragulaInstance = null;
 
+    // 制限時間タイマー制御変数
     let quizTimer = null;
     let timeLeft = 30;
-    let QUIZ_LIMIT_TIME = 30;
+    const QUIZ_LIMIT_TIME = 30; // 30秒
 
+    // マルチプレイ用変数
     let currentRoomCode = null;
     let isHost = false;
     let roomRef = null;
     let roomData = null;
 
-    let editingSubjectId = null;
-    let editingQuestionsList = [];
-    let editingSelectedRound = '1';
-
+    // 平均正答率計算用ヘルパー関数
     function getAverageAccuracy(subjectId) {
       const historyKey = `history_accuracy_${subjectId}`;
       const records = JSON.parse(localStorage.getItem(historyKey) || '[]');
@@ -967,49 +601,17 @@
     }
 
     // =========================================================
-    //  初期化・リアルタイム同期
+    //  初期化・リアルタイム監視
     // =========================================================
     window.addEventListener('DOMContentLoaded', () => {
-      initVisitorTracking();
       initRealtimeSync();
-
-      if (localStorage.getItem('notice_read_status') === 'read') {
-        const redDot = document.getElementById('notice-red-dot');
-        if (redDot) redDot.classList.add('hidden');
-      }
-
-      const startBtn = document.getElementById("startButton");
-      if (startBtn) {
-        startBtn.addEventListener("click", () => {
-          const selectedValue = document.getElementById("roundSelect").value;
-          currentRound = (selectedValue === "all") ? null : selectedValue;
-
-          if (currentSubject.id === 'psychology' && typeof window.getQuestions === "function") {
-            const currentQuestions = window.getQuestions(selectedValue);
-            if (Array.isArray(currentQuestions) && currentQuestions.length > 0) {
-              window.QUIZ_DB.psychology = currentQuestions;
-            }
-          } else if (currentSubject.id === 'nursing_method' && typeof window.getNursingQuestions === "function") {
-            const currentQuestions = window.getNursingQuestions(selectedValue);
-            if (Array.isArray(currentQuestions) && currentQuestions.length > 0) {
-              window.QUIZ_DB.nursing_method = currentQuestions;
-            }
-          }
-          showTimeSelectionScreen();
-        });
-      }
+      initDragula();
     });
 
     function initRealtimeSync() {
       db.ref('subjects').on('value', (snapshot) => {
         const val = snapshot.val();
-        if (val && Array.isArray(val)) {
-          if (!val.find(s => s.id === 'nursing_method')) {
-            val.push(defaultSubjects.find(s => s.id === 'nursing_method'));
-          }
-          if (!val.find(s => s.id === 'nursing_method2')) {
-            val.push(defaultSubjects.find(s => s.id === 'nursing_method2'));
-          }
+        if (val) {
           subjects = val;
         } else {
           saveSubjectsToStorage();
@@ -1017,66 +619,6 @@
         renderSubjectList();
         if (!document.getElementById('modal-admin').classList.contains('hidden')) {
           renderAdminDragList();
-        }
-      });
-
-      db.ref('quiz_db').on('value', (snapshot) => {
-        const val = snapshot.val();
-        if (val) {
-          Object.keys(val).forEach(subId => {
-            window.QUIZ_DB[subId] = val[subId];
-          });
-        }
-      });
-
-      db.ref('notices').on('value', (snapshot) => {
-        const val = snapshot.val();
-        const container = document.getElementById('notice-list-container');
-        const adminManageContainer = document.getElementById('admin-notice-manage-list');
-
-        if (val) {
-          const noticeArray = Object.keys(val).map(key => ({
-            id: key,
-            ...val[key]
-          })).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-          if (container) {
-            container.innerHTML = noticeArray.map(item => `
-              <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <div class="text-[10px] text-amber-400 font-mono">${item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'お知らせ'}</div>
-                <div class="font-semibold text-slate-100">${item.title}</div>
-                <p class="text-slate-400 text-[11px] font-light whitespace-pre-wrap">${item.content}</p>
-              </div>
-            `).join('');
-          }
-
-          if (adminManageContainer) {
-            adminManageContainer.innerHTML = noticeArray.map(item => `
-              <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between gap-2">
-                <div class="overflow-hidden pr-2">
-                  <div class="text-[10px] text-amber-400/80 font-mono">${item.timestamp ? new Date(item.timestamp).toLocaleDateString() : ''}</div>
-                  <div class="text-xs font-medium text-slate-200 truncate">${item.title}</div>
-                </div>
-                <button onclick="deleteAdminNotice('${item.id}')" class="px-2 py-1 bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/60 rounded text-[10px] font-medium shrink-0 transition">
-                  削除
-                </button>
-              </div>
-            `).join('');
-          }
-
-        } else {
-          if (container) {
-            container.innerHTML = `
-              <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <div class="text-[10px] text-amber-400 font-mono">新機能アップデート</div>
-                <div class="font-semibold text-slate-100">演習機能が新しくなりました</div>
-                <p class="text-slate-400 text-[11px] font-light">画像の表示、複数選択問題、早押し対戦（2Pマルチ）に対応しました。</p>
-              </div>
-            `;
-          }
-          if (adminManageContainer) {
-            adminManageContainer.innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">現在、投稿されたお知らせはありません。</div>`;
-          }
         }
       });
     }
@@ -1098,12 +640,12 @@
       document.getElementById('nav-overlay').classList.add('hidden');
     }
 
+    // =========================================================
+    //  画面切り替えロジック
+    // =========================================================
     function hideAllScreens() {
       stopQuizTimer();
       document.getElementById('screen-subjects').classList.add('hidden');
-      document.getElementById('screen-anatomy-mode-select').classList.add('hidden');
-      document.getElementById('screen-nursing-mode-select').classList.add('hidden');
-      document.getElementById('screen-time-select').classList.add('hidden');
       document.getElementById('screen-round-select').classList.add('hidden');
       document.getElementById('screen-quiz-start').classList.add('hidden');
       document.getElementById('screen-quiz-play').classList.add('hidden');
@@ -1126,10 +668,8 @@
 
       container.innerHTML = visibleSubjects.map(s => {
         const isPrep = s.status === 'preparing';
-        const isAnatomy = s.id === 'anatomy';
-        const isNursing = s.id === 'nursing_method';
-        const statusLabel = isPrep ? '【準備中】' : (s.hasAnatomyModes || isAnatomy ? '練習問題・応用問題対応' : (s.hasNursingModes || isNursing ? '12回別問題・問題数選択可' : (s.hasRounds ? '全13回 小テスト対応' : (s.fixedCount ? `過去問演習（${s.fixedCount}問固定）` : '過去問演習・問題数選択可'))));
-       
+        const statusLabel = isPrep ? '【準備中】' : (s.hasRounds ? '全13回 小テスト対応' : (s.fixedCount ? `過去問演習（${s.fixedCount}問固定）` : '過去問演習・問題数選択可'));
+        
         const avgAcc = isPrep ? null : getAverageAccuracy(s.id);
         const avgDisplay = (avgAcc !== null) ? `${avgAcc}%` : '-- %';
 
@@ -1158,75 +698,18 @@
       currentSubject = subjects.find(s => s.id === subjectId);
       if (!currentSubject || currentSubject.status === 'preparing') return;
 
-      if (subjectId === 'anatomy' || currentSubject.hasAnatomyModes) {
-        showAnatomyModeSelectionScreen();
-      } else if (subjectId === 'nursing_method' || currentSubject.hasNursingModes) {
-        showNursingModeSelectionScreen();
-      } else if (currentSubject.hasRounds) {
+      if (currentSubject.hasRounds) {
         showRoundSelectionScreen();
       } else {
         currentRound = null;
-        showTimeSelectionScreen();
+        showStartScreen();
       }
-    }
-
-    function showAnatomyModeSelectionScreen() {
-      hideAllScreens();
-      document.getElementById('screen-anatomy-mode-select').classList.remove('hidden');
-    }
-
-    function selectAnatomyMode(mode) {
-      currentAnatomyMode = mode;
-      showTimeSelectionScreen();
-    }
-
-    function showNursingModeSelectionScreen() {
-      hideAllScreens();
-      document.getElementById('screen-nursing-mode-select').classList.remove('hidden');
-    }
-
-    function selectNursingMode(mode) {
-      currentNursingMode = mode;
-      showRoundSelectionScreen();
     }
 
     function showRoundSelectionScreen() {
+      currentSubject = subjects.find(s => s.id === "psychology") || currentSubject;
       hideAllScreens();
       document.getElementById('screen-round-select').classList.remove('hidden');
-      document.getElementById('round-subject-title').textContent = `${currentSubject.name} モード選択`;
-
-      const roundBackBtn = document.getElementById('round-back-btn');
-      if (currentSubject.id === 'nursing_method' || currentSubject.hasNursingModes) {
-        roundBackBtn.onclick = () => showNursingModeSelectionScreen();
-      } else {
-        roundBackBtn.onclick = () => showSubjectScreen();
-      }
-    }
-
-    function showTimeSelectionScreen() {
-      hideAllScreens();
-      document.getElementById('screen-time-select').classList.remove('hidden');
-      document.getElementById('time-subject-title').textContent = `${currentSubject.name} 制限時間設定`;
-      
-      const backBtn = document.getElementById('time-back-btn');
-      if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) {
-        backBtn.onclick = () => showAnatomyModeSelectionScreen();
-      } else if (currentSubject.id === 'nursing_method' || currentSubject.hasNursingModes) {
-        backBtn.onclick = () => showNursingModeSelectionScreen();
-      } else if (currentSubject.hasRounds) {
-        backBtn.onclick = () => showRoundSelectionScreen();
-      } else {
-        backBtn.onclick = () => showSubjectScreen();
-      }
-    }
-
-    function updateTimeSliderValue(val) {
-      document.getElementById('time-slider-display').textContent = val;
-      QUIZ_LIMIT_TIME = parseInt(val, 10);
-    }
-
-    function proceedToCountOrStart() {
-      showStartScreen();
     }
 
     function showStartScreen() {
@@ -1239,50 +722,24 @@
       const countContainer = document.getElementById('count-selector-container');
       const backBtn = document.getElementById('start-back-btn');
 
-      backBtn.onclick = () => showTimeSelectionScreen();
-
-      if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) {
-        const modeTitle = currentAnatomyMode === 'applied' ? '応用問題' : '練習問題';
-        titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
-        headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
-        descEl.textContent = currentAnatomyMode === 'applied'
-          ? `解剖学の応用・発展レベルの問題が出題されます。`
-          : `解剖学の基礎・標準問題が出題されます。`;
-        countContainer.classList.remove('hidden');
-
-      } else if (currentSubject.id === 'nursing_method' || currentSubject.hasNursingModes) {
-        if (currentRound === 'quiz') {
-          titleEl.textContent = `${currentSubject.name} - 小テスト`;
-          headingEl.textContent = `小テスト 演習`;
-          descEl.textContent = `小テストの問題が出題されます。出題数を選択して進めてください。`;
-          countContainer.classList.remove('hidden');
-        } else if (currentRound) {
-          titleEl.textContent = `${currentSubject.name} - 第${currentRound}回`;
-          headingEl.textContent = `第 ${currentRound} 回 演習`;
-          descEl.textContent = `第${currentRound}回の演習を開始します。出題数を選択して進めてください。`;
-          countContainer.classList.remove('hidden');
-        } else {
-          titleEl.textContent = `${currentSubject.name} - 総合練習問題`;
-          headingEl.textContent = `総合練習問題`;
-          descEl.textContent = `全範囲の中からランダムに問題が出題されます。出題数を選択して進めてください。`;
-          countContainer.classList.remove('hidden');
-        }
-      } else if (currentSubject.hasRounds) {
+      if (currentSubject.hasRounds) {
+        backBtn.onclick = () => showRoundSelectionScreen();
         if (currentRound) {
           titleEl.textContent = `${currentSubject.name} - 第${currentRound}回`;
-          headingEl.textContent = `第 ${currentRound} 回 演習`;
-          descEl.textContent = `第${currentRound}回の演習を開始します。出題数を選択して進めてください。`;
-          countContainer.classList.remove('hidden');
+          headingEl.textContent = `第 ${currentRound} 回 小テスト演習`;
+          descEl.textContent = `第${currentRound}回の小テスト（10問）を開始します。正解率100%を目指しましょう。`;
+          countContainer.classList.add('hidden');
         } else {
-          titleEl.textContent = `${currentSubject.name} - 総合練習問題`;
-          headingEl.textContent = `総合練習問題`;
-          descEl.textContent = `全範囲の中からランダムに問題が出題されます。出題数を選択して進めてください。`;
+          titleEl.textContent = `${currentSubject.name} - 総合演習`;
+          headingEl.textContent = `全範囲 総合演習`;
+          descEl.textContent = `全13回の中からランダムに問題が出題されます。`;
           countContainer.classList.remove('hidden');
         }
       } else {
+        backBtn.onclick = () => showSubjectScreen();
         titleEl.textContent = currentSubject.name;
         headingEl.textContent = `${currentSubject.name} 練習問題`;
-       
+        
         if (currentSubject.fixedCount) {
           descEl.textContent = `指定された問題が出題されます。`;
           countContainer.classList.add('hidden');
@@ -1300,118 +757,66 @@
     }
 
     function getHighscoreKey() {
-      let modeSuffix = '';
-      if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) {
-        modeSuffix = `_${currentAnatomyMode}`;
-      } else if (currentRound) {
-        modeSuffix = `_r${currentRound}`;
-      }
-      return `highscore_${currentSubject.id}${modeSuffix}`;
+      const roundSuffix = currentRound ? `_r${currentRound}` : '';
+      return `highscore_${currentSubject.id}${roundSuffix}`;
     }
 
     function updateHighscoreDisplay() {
       const key = getHighscoreKey();
       const saved = localStorage.getItem(key);
       const badge = document.getElementById('start-screen-highscore');
-      badge.textContent = (saved !== null) ? `${saved}%` : "未挑戦";
+      badge.textContent = (saved !== null) ? `${saved} 点` : "未挑戦";
     }
 
+    // =========================================================
+    //  シングル クイズ実行ロジック
+    // =========================================================
     function startQuiz() {
-      if (currentSubject.id === 'psychology' && typeof window.getQuestions === 'function') {
-        const psychData = window.getQuestions(currentRound ? currentRound.toString() : 'all');
-        if (Array.isArray(psychData) && psychData.length > 0) {
-          window.QUIZ_DB.psychology = psychData;
-        }
-      }
-
-      if (currentSubject.id === 'nursing_method' && typeof window.getNursingQuestions === 'function') {
-        const nursingData = window.getNursingQuestions(currentRound ? currentRound.toString() : 'all');
-        if (Array.isArray(nursingData) && nursingData.length > 0) {
-          window.QUIZ_DB.nursing_method = nursingData;
-        }
-      }
-
+      // 外部JS関数経由での取得（定義されている場合）
       if (currentSubject.id === 'microbiology' && typeof window.getMicrobiologyQuestions === 'function') {
         const microData = window.getMicrobiologyQuestions();
-        if (Array.isArray(microData) && microData.length > 0 && (!window.QUIZ_DB.microbiology || window.QUIZ_DB.microbiology.length === 0)) {
+        if (Array.isArray(microData) && microData.length > 0) {
           window.QUIZ_DB.microbiology = microData;
         }
       }
 
-      if (currentSubject.id === 'medical_intro' && typeof window.getMedicineQuestions === 'function') {
-        const medData = window.getMedicineQuestions();
-        if (Array.isArray(medData) && medData.length > 0 && (!window.QUIZ_DB.medical_intro || window.QUIZ_DB.medical_intro.length === 0)) {
-          window.QUIZ_DB.medical_intro = medData;
-        }
-      }
-
-      if (currentSubject.id === 'mind_behavior' && typeof window.getMindBehaviorQuestions === 'function') {
-        const mindData = window.getMindBehaviorQuestions();
-        if (Array.isArray(mindData) && mindData.length > 0 && (!window.QUIZ_DB.mind_behavior || window.QUIZ_DB.mind_behavior.length === 0)) {
-          window.QUIZ_DB.mind_behavior = mindData;
-        }
-      }
-
-      if (currentSubject.id === 'physiology' && typeof window.getPhysiologyQuestions === 'function') {
-        const physioData = window.getPhysiologyQuestions();
-        if (Array.isArray(physioData) && physioData.length > 0 && (!window.QUIZ_DB.physiology || window.QUIZ_DB.physiology.length === 0)) {
-          window.QUIZ_DB.physiology = physioData;
-        }
-      }
-
-      if (currentSubject.id === 'anatomy') {
-        if (currentAnatomyMode === 'applied' && typeof window.getAnatomyAppliedQuestions === 'function') {
-          const anatomyAppliedData = window.getAnatomyAppliedQuestions();
-          if (Array.isArray(anatomyAppliedData) && anatomyAppliedData.length > 0) {
-            window.QUIZ_DB.anatomy_applied = anatomyAppliedData;
-          }
-        } else if (typeof window.getAnatomyQuestions === 'function') {
-          const anatomyBasicData = window.getAnatomyQuestions();
-          if (Array.isArray(anatomyBasicData) && anatomyBasicData.length > 0) {
-            window.QUIZ_DB.anatomy = anatomyBasicData;
-          }
-        }
-      }
-
-      let targetDbKey = currentSubject.id;
-      if (currentSubject.id === 'anatomy' && currentAnatomyMode === 'applied') {
-        targetDbKey = 'anatomy_applied';
-      }
-
-      let rawData = window.QUIZ_DB[targetDbKey] || [];
+      let rawData = QUIZ_DB[currentSubject.id] || [];
       if (rawData.length === 0) {
         alert("該当科目の問題が登録されていません。");
         return;
       }
 
       let list = [];
-      if ((currentSubject.hasRounds || currentSubject.hasNursingModes) && currentRound !== null) {
-        list = rawData.filter(q => q.round == currentRound);
+      if (currentSubject.hasRounds && currentRound !== null) {
+        list = rawData.filter(q => q.round === currentRound);
         if (list.length === 0) list = [...rawData];
       } else {
         list = [...rawData];
       }
 
+      // データ構造の不一致を自動正規化
       list = list.map(q => normalizeQuestion(q)).filter(Boolean);
 
+      // 選択肢のランダムシャッフル＆正解インデックスの自動再計算
       list = list.map(q => {
         if (!q.options || q.options.length <= 1) return q;
-       
-        const correctOptTexts = q.answers.map(idx => q.options[idx]).filter(Boolean);
+        const correctOptText = q.options[q.answer];
         const shuffledOpts = [...q.options].sort(() => Math.random() - 0.5);
-        const newAnsIndices = correctOptTexts.map(text => shuffledOpts.indexOf(text)).filter(idx => idx !== -1);
+        const newAnsIdx = shuffledOpts.findIndex(opt => opt === correctOptText);
 
         return {
           ...q,
           options: shuffledOpts,
-          answers: newAnsIndices
+          answer: newAnsIdx !== -1 ? newAnsIdx : 0
         };
       });
 
       list = list.sort(() => Math.random() - 0.5);
 
-      let reqCount = currentSubject.fixedCount || (parseInt(document.getElementById('quiz-count-slider')?.value) || 10);
-      list = list.slice(0, Math.min(reqCount, list.length));
+      if (!currentSubject.hasRounds || currentRound === null) {
+        let reqCount = currentSubject.fixedCount || (parseInt(document.getElementById('quiz-count-slider')?.value) || 10);
+        list = list.slice(0, Math.min(reqCount, list.length));
+      }
 
       activeQuestions = list;
       currentQIndex = 0;
@@ -1424,99 +829,43 @@
 
     function renderQuestion() {
       isAnswered = false;
-      selectedIndices.clear();
       const q = activeQuestions[currentQIndex];
       const total = activeQuestions.length;
 
       document.getElementById('quiz-progress-text').textContent = `QUESTION ${currentQIndex + 1} / ${total}`;
       document.getElementById('quiz-score-live').textContent = `正解: ${score}`;
-     
-      const qNumText = `Q${currentQIndex + 1}` + (q.isMultiple ? ` 【複数選択問題 (${q.answers.length}つ選択)】` : '');
-      document.getElementById('quiz-question-number').textContent = qNumText;
+      document.getElementById('quiz-question-number').textContent = `Q${currentQIndex + 1}`;
       document.getElementById('quiz-question-text').textContent = q.q;
-
-      const imgContainer = document.getElementById('quiz-image-container');
-      const imgEl = document.getElementById('quiz-image');
-      if (q.image) {
-        imgEl.src = q.image;
-        imgContainer.classList.remove('hidden');
-      } else {
-        imgEl.src = '';
-        imgContainer.classList.add('hidden');
-      }
-
-      const wbContainer = document.getElementById('quiz-wordbox-container');
-      const wbContent = document.getElementById('quiz-wordbox-content');
-      if (q.wordBox) {
-        wbContainer.classList.remove('hidden');
-        if (Array.isArray(q.wordBox)) {
-          wbContent.innerHTML = q.wordBox.map(w => `<span class="inline-block px-2 py-0.5 m-0.5 rounded bg-slate-900 border border-slate-700/80 font-mono">${w}</span>`).join(' ');
-        } else {
-          wbContent.textContent = q.wordBox;
-        }
-      } else {
-        wbContainer.classList.add('hidden');
-        wbContent.innerHTML = '';
-      }
 
       const fbBox = document.getElementById('quiz-feedback-box');
       fbBox.className = "hidden p-4 rounded-xl border text-xs leading-relaxed space-y-2";
 
-      const submitBtn = document.getElementById('quiz-submit-multi-btn');
       const container = document.getElementById('quiz-options-container');
+      container.innerHTML = q.options.map((opt, idx) => `
+        <button onclick="handleAnswer(${idx})" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center justify-between">
+          <span>${opt}</span>
+          <span class="opt-mark hidden font-bold"></span>
+        </button>
+      `).join('');
 
-      if (q.isMultiple) {
-        submitBtn.classList.remove('hidden');
-        container.innerHTML = q.options.map((opt, idx) => `
-          <button id="opt-btn-${idx}" onclick="toggleOptionSelect(${idx})" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center gap-3">
-            <span id="opt-check-${idx}" class="w-4 h-4 rounded border border-slate-600 bg-slate-950 flex items-center justify-center font-bold text-[10px] text-amber-400 shrink-0"></span>
-            <span>${opt}</span>
-          </button>
-        `).join('');
-      } else {
-        submitBtn.classList.add('hidden');
-        container.innerHTML = q.options.map((opt, idx) => `
-          <button onclick="handleSingleAnswer(${idx})" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center justify-between">
-            <span>${opt}</span>
-            <span class="opt-mark hidden font-bold"></span>
-          </button>
-        `).join('');
-      }
-
+      // 30秒タイマー開始
       startQuizTimer();
     }
 
-    function toggleOptionSelect(idx) {
-      if (isAnswered) return;
-      const btn = document.getElementById(`opt-btn-${idx}`);
-      const check = document.getElementById(`opt-check-${idx}`);
-
-      if (selectedIndices.has(idx)) {
-        selectedIndices.delete(idx);
-        btn.classList.remove('border-amber-500/80', 'bg-amber-950/30');
-        check.textContent = '';
-        check.classList.remove('border-amber-500');
-      } else {
-        selectedIndices.add(idx);
-        btn.classList.add('border-amber-500/80', 'bg-amber-950/30');
-        check.textContent = '✓';
-        check.classList.add('border-amber-500');
-      }
-    }
-
+    // 制限時間タイマー制御機能
     function startQuizTimer() {
       stopQuizTimer();
       timeLeft = QUIZ_LIMIT_TIME;
       updateTimerBarUI();
 
-      const intervalMs = 100;
+      const intervalMs = 100; // 0.1秒単位でバーを滑らかに動かす
       quizTimer = setInterval(() => {
         timeLeft -= intervalMs / 1000;
         if (timeLeft <= 0) {
           timeLeft = 0;
           updateTimerBarUI();
           stopQuizTimer();
-          handleTimeout();
+          handleAnswer(-1); // 時間切れ判定（選んでいないため不正解）
         } else {
           updateTimerBarUI();
         }
@@ -1533,68 +882,38 @@
     function updateTimerBarUI() {
       const bar = document.getElementById('quiz-timer-bar');
       if (!bar) return;
-     
+      
       const percentage = Math.max(0, (timeLeft / QUIZ_LIMIT_TIME) * 100);
       bar.style.width = `${percentage}%`;
 
-      if (percentage <= 16.6) {
+      // 残り時間による色変化
+      if (percentage <= 16.6) { // 約5秒以下
         bar.className = "h-full bg-rose-500 transition-all duration-100 ease-linear";
-      } else if (percentage <= 33.3) {
+      } else if (percentage <= 33.3) { // 約10秒以下
         bar.className = "h-full bg-amber-500 transition-all duration-100 ease-linear";
       } else {
         bar.className = "h-full bg-emerald-500 transition-all duration-100 ease-linear";
       }
     }
 
-    function handleTimeout() {
+    function handleAnswer(selectedIdx) {
       if (isAnswered) return;
-      const q = activeQuestions[currentQIndex];
-      if (q.isMultiple) {
-        evaluateAnswers([], true);
-      } else {
-        evaluateAnswers([-1], true);
-      }
-    }
-
-    function handleSingleAnswer(selectedIdx) {
-      if (isAnswered) return;
-      stopQuizTimer();
-      evaluateAnswers([selectedIdx], false);
-    }
-
-    function submitMultipleAnswers() {
-      if (isAnswered) return;
-      if (selectedIndices.size === 0) {
-        alert("1つ以上の選択肢を選んでください。");
-        return;
-      }
-      stopQuizTimer();
-      evaluateAnswers(Array.from(selectedIndices), false);
-    }
-
-    function evaluateAnswers(userSelectedArray, isTimeout) {
       isAnswered = true;
+      stopQuizTimer(); // 回答時点でタイマー停止
+
       const q = activeQuestions[currentQIndex];
       const buttons = document.querySelectorAll('.quiz-opt-btn');
-      const submitBtn = document.getElementById('quiz-submit-multi-btn');
       const fbBox = document.getElementById('quiz-feedback-box');
       const fbTitle = document.getElementById('quiz-feedback-title');
       const fbDesc = document.getElementById('quiz-feedback-desc');
-
-      submitBtn.classList.add('hidden');
-
-      const correctSorted = [...q.answers].sort((a,b) => a-b).join(',');
-      const userSorted = [...userSelectedArray].filter(v => v >= 0).sort((a,b) => a-b).join(',');
-      const isCorrect = (!isTimeout && userSorted.length > 0 && correctSorted === userSorted);
+      const isCorrect = (selectedIdx === q.answer);
+      const isTimeout = (selectedIdx === -1);
 
       buttons.forEach((btn, idx) => {
         btn.disabled = true;
-        const isTargetCorrect = q.answers.includes(idx);
-        const isUserChosen = userSelectedArray.includes(idx);
-
-        if (isTargetCorrect) {
+        if (idx === q.answer) {
           btn.classList.add('border-emerald-500/80', 'bg-emerald-950/40', 'text-emerald-300');
-        } else if (isUserChosen && !isTargetCorrect) {
+        } else if (idx === selectedIdx && !isCorrect) {
           btn.classList.add('border-rose-500/80', 'bg-rose-950/40', 'text-rose-300');
         }
       });
@@ -1636,11 +955,12 @@
       document.getElementById('screen-quiz-result').classList.remove('hidden');
 
       const total = activeQuestions.length;
-      const accuracyRate = total > 0 ? Math.round((score / total) * 100) : 0;
-      document.getElementById('final-score-val').textContent = accuracyRate;
+      document.getElementById('final-score-val').textContent = score;
+      document.getElementById('final-total-val').textContent = `/ ${total}`;
 
+      // 正答率の履歴保存
       if (currentSubject && total > 0) {
-        const currentAccuracy = accuracyRate;
+        const currentAccuracy = Math.round((score / total) * 100);
         const historyKey = `history_accuracy_${currentSubject.id}`;
         const records = JSON.parse(localStorage.getItem(historyKey) || '[]');
         records.push(currentAccuracy);
@@ -1651,15 +971,15 @@
       const prevMax = parseInt(localStorage.getItem(key) || '0', 10);
       const badge = document.getElementById('new-record-badge');
 
-      if (accuracyRate > prevMax) {
-        localStorage.setItem(key, accuracyRate.toString());
+      if (score > prevMax) {
+        localStorage.setItem(key, score.toString());
         badge.classList.remove('hidden');
       } else {
         badge.classList.add('hidden');
       }
 
       const evalEl = document.getElementById('final-eval-text');
-      const ratio = total > 0 ? score / total : 0;
+      const ratio = score / total;
 
       if (ratio === 1) {
         evalEl.textContent = "🎉 パーフェクト！素晴らしい全問正解です！";
@@ -1709,6 +1029,8 @@
       isHost = true;
 
       roomRef = db.ref('rooms/' + code);
+      
+      // 切断時の自動クリーンアップ
       roomRef.onDisconnect().remove();
 
       const initialRoomState = {
@@ -1753,8 +1075,10 @@
           return;
         }
 
+        // 切断時にゲストIDのみ消去
         roomRef.child('guest').onDisconnect().remove();
 
+        // ゲストとして入室
         const updates = {
           guest: myPlayerId,
           [`scores/${myPlayerId}`]: 0
@@ -1779,6 +1103,7 @@
         hostSettings.classList.remove('hidden');
         guestMsg.classList.add('hidden');
 
+        // ホスト用科目選択プルダウン構築
         const selectEl = document.getElementById('multi-subject-select');
         selectEl.innerHTML = subjects.filter(s => s.visible !== false && s.status !== 'preparing').map(s => `
           <option value="${s.id}">${s.name} (${s.code})</option>
@@ -1798,8 +1123,6 @@
     }
 
     function setupRoomListener() {
-      if (!roomRef) return;
-     
       roomRef.on('value', (snapshot) => {
         roomData = snapshot.val();
         if (!roomData) {
@@ -1808,6 +1131,7 @@
           return;
         }
 
+        // 待機画面のプレイヤー接続ステータス更新
         document.getElementById('p1-status').textContent = "接続中 (部屋主)";
         if (roomData.guest) {
           document.getElementById('p2-status').textContent = "接続済み (ゲスト)";
@@ -1827,10 +1151,12 @@
           }
         }
 
+        // ゲーム開始検知
         if (roomData.status === 'playing' && document.getElementById('screen-multi-play').classList.contains('hidden')) {
           startMultiPlayUI();
         }
 
+        // プレイ中の状態リアルタイム反映
         if (roomData.status === 'playing') {
           updateMultiPlayUI();
         }
@@ -1854,76 +1180,35 @@
       if (!isHost) return;
 
       const subId = roomData.subjectId;
-     
-      if (subId === 'psychology' && typeof window.getQuestions === 'function') {
-        const psychData = window.getQuestions('all');
-        if (Array.isArray(psychData) && psychData.length > 0) {
-          window.QUIZ_DB.psychology = psychData;
-        }
-      }
-
-      if (subId === 'nursing_method' && typeof window.getNursingQuestions === 'function') {
-        const nursingData = window.getNursingQuestions('all');
-        if (Array.isArray(nursingData) && nursingData.length > 0) {
-          window.QUIZ_DB.nursing_method = nursingData;
-        }
-      }
-
+      
+      // 微生物学の外部JSデータ取得チェック
       if (subId === 'microbiology' && typeof window.getMicrobiologyQuestions === 'function') {
         const microData = window.getMicrobiologyQuestions();
-        if (Array.isArray(microData) && microData.length > 0 && (!window.QUIZ_DB.microbiology || window.QUIZ_DB.microbiology.length === 0)) {
+        if (Array.isArray(microData) && microData.length > 0) {
           window.QUIZ_DB.microbiology = microData;
         }
       }
 
-      if (subId === 'medical_intro' && typeof window.getMedicineQuestions === 'function') {
-        const medData = window.getMedicineQuestions();
-        if (Array.isArray(medData) && medData.length > 0 && (!window.QUIZ_DB.medical_intro || window.QUIZ_DB.medical_intro.length === 0)) {
-          window.QUIZ_DB.medical_intro = medData;
-        }
-      }
-
-      if (subId === 'mind_behavior' && typeof window.getMindBehaviorQuestions === 'function') {
-        const mindData = window.getMindBehaviorQuestions();
-        if (Array.isArray(mindData) && mindData.length > 0 && (!window.QUIZ_DB.mind_behavior || window.QUIZ_DB.mind_behavior.length === 0)) {
-          window.QUIZ_DB.mind_behavior = mindData;
-        }
-      }
-
-      if (subId === 'physiology' && typeof window.getPhysiologyQuestions === 'function') {
-        const physioData = window.getPhysiologyQuestions();
-        if (Array.isArray(physioData) && physioData.length > 0 && (!window.QUIZ_DB.physiology || window.QUIZ_DB.physiology.length === 0)) {
-          window.QUIZ_DB.physiology = physioData;
-        }
-      }
-
-      if (subId === 'anatomy') {
-        if (typeof window.getAnatomyQuestions === 'function') {
-          const anatomyBasicData = window.getAnatomyQuestions();
-          if (Array.isArray(anatomyBasicData) && anatomyBasicData.length > 0) {
-            window.QUIZ_DB.anatomy = anatomyBasicData;
-          }
-        }
-      }
-
-      const rawData = window.QUIZ_DB[subId] || [];
+      const rawData = QUIZ_DB[subId] || [];
       if (rawData.length === 0) {
         alert("選択された科目に問題が存在しません。");
         return;
       }
 
+      // データ構造正規化
       let qList = rawData.map(q => normalizeQuestion(q)).filter(Boolean);
 
+      // 対戦用に選択肢のシャッフル処理を適用
       qList = qList.map(q => {
         if (!q.options || q.options.length <= 1) return q;
-        const correctOptTexts = q.answers.map(idx => q.options[idx]).filter(Boolean);
+        const correctOptText = q.options[q.answer];
         const shuffledOpts = [...q.options].sort(() => Math.random() - 0.5);
-        const newAnsIndices = correctOptTexts.map(text => shuffledOpts.indexOf(text)).filter(idx => idx !== -1);
+        const newAnsIdx = shuffledOpts.findIndex(opt => opt === correctOptText);
 
         return {
           ...q,
           options: shuffledOpts,
-          answers: newAnsIndices
+          answer: newAnsIdx !== -1 ? newAnsIdx : 0
         };
       });
 
@@ -1956,16 +1241,7 @@
       document.getElementById('multi-q-num').textContent = `Q${qIndex + 1}`;
       document.getElementById('multi-q-text').textContent = q.q;
 
-      const mImgContainer = document.getElementById('multi-image-container');
-      const mImgEl = document.getElementById('multi-image');
-      if (q.image) {
-        mImgEl.src = q.image;
-        mImgContainer.classList.remove('hidden');
-      } else {
-        mImgEl.src = '';
-        mImgContainer.classList.add('hidden');
-      }
-
+      // スコア表示
       const myScore = roomData.scores ? (roomData.scores[myPlayerId] || 0) : 0;
       const oppId = isHost ? roomData.guest : roomData.host;
       const oppScore = roomData.scores ? (roomData.scores[oppId] || 0) : 0;
@@ -1973,6 +1249,7 @@
       document.getElementById('multi-my-score').textContent = myScore;
       document.getElementById('multi-opp-score').textContent = oppScore;
 
+      // 部屋主用の次へ進むボタン制御
       const nextBtnWrap = document.getElementById('multi-next-btn-wrap');
       if (isHost && roomData.answerState) {
         nextBtnWrap.classList.remove('hidden');
@@ -1981,33 +1258,52 @@
       }
 
       const buzzBanner = document.getElementById('buzz-status-banner');
+      const buzzBtn = document.getElementById('buzz-btn');
       const optionsContainer = document.getElementById('multi-options-container');
 
+      // 選択肢描画
       optionsContainer.innerHTML = q.options.map((opt, idx) => `
-        <button onclick="submitMultiAnswerDirect(${idx})" class="multi-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition">
+        <button onclick="submitMultiAnswer(${idx})" class="multi-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition">
           ${opt}
         </button>
       `).join('');
 
-      if (!roomData.answerState) {
-        buzzBanner.textContent = "⚡ 正解の選択肢を先に押してください！";
+      // 早押し状態の分岐判定
+      if (!roomData.buzzedPlayer) {
+        buzzBanner.textContent = "⚡ 早押しボタンを押してください！";
         buzzBanner.className = "p-3 rounded-xl bg-slate-900/90 border border-amber-500/30 text-amber-300 text-xs font-bold";
-        optionsContainer.classList.remove('opacity-50', 'pointer-events-none');
-      } else {
+        buzzBtn.disabled = false;
         optionsContainer.classList.add('opacity-50', 'pointer-events-none');
-        const isMe = (roomData.answerState.player === myPlayerId);
-        if (roomData.answerState.isCorrect) {
-          if (isMe) {
-            buzzBanner.textContent = "✓ あなたが先着正解！+1ポイント獲得！";
+
+      } else if (roomData.buzzedPlayer === myPlayerId) {
+        buzzBtn.disabled = true;
+
+        if (!roomData.answerState) {
+          buzzBanner.textContent = "🎯 あなたが回答権を獲得！選択肢を選んでください！";
+          buzzBanner.className = "p-3 rounded-xl bg-amber-500/20 border border-amber-500/60 text-amber-300 text-xs font-bold animate-pulse";
+          optionsContainer.classList.remove('opacity-50', 'pointer-events-none');
+        } else {
+          if (roomData.answerState.isCorrect) {
+            buzzBanner.textContent = "✓ 正解！+1ポイント獲得！";
             buzzBanner.className = "p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/60 text-emerald-300 text-xs font-bold";
           } else {
-            buzzBanner.textContent = "相手が先着正解しました！";
-            buzzBanner.className = "p-3 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs font-bold";
-          }
-        } else {
-          if (isMe) {
             buzzBanner.textContent = "✕ 不正解...";
             buzzBanner.className = "p-3 rounded-xl bg-rose-950/60 border border-rose-500/60 text-rose-300 text-xs font-bold";
+          }
+          optionsContainer.classList.add('opacity-50', 'pointer-events-none');
+        }
+
+      } else {
+        buzzBtn.disabled = true;
+        optionsContainer.classList.add('opacity-50', 'pointer-events-none');
+
+        if (!roomData.answerState) {
+          buzzBanner.textContent = "相手が回答権を獲得！回答中...";
+          buzzBanner.className = "p-3 rounded-xl bg-slate-900/90 border border-slate-700 text-slate-400 text-xs font-bold";
+        } else {
+          if (roomData.answerState.isCorrect) {
+            buzzBanner.textContent = "相手が正解しました！";
+            buzzBanner.className = "p-3 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs font-bold";
           } else {
             buzzBanner.textContent = "相手が不正解でした！";
             buzzBanner.className = "p-3 rounded-xl bg-slate-900/90 border border-slate-700 text-slate-300 text-xs font-bold";
@@ -2016,27 +1312,40 @@
       }
     }
 
-    function submitMultiAnswerDirect(optIndex) {
-      if (!roomRef || (roomData && roomData.answerState)) return;
+    function pressBuzzButton() {
+      if (!roomRef || roomData.buzzedPlayer) return;
+
+      // ボタン連続押し防止のため、ローカルで即時無効化
+      document.getElementById('buzz-btn').disabled = true;
+
+      roomRef.child('buzzedPlayer').transaction((current) => {
+        if (current === null) {
+          return myPlayerId;
+        }
+        return undefined; // 既に獲得済みの場合はキャンセル
+      });
+    }
+
+    function submitMultiAnswer(optIndex) {
+      if (roomData.buzzedPlayer !== myPlayerId || roomData.answerState) return;
 
       const q = normalizeQuestion(roomData.questions[roomData.currentQIndex]);
-      const isCorrect = q.answers.includes(optIndex);
+      const isCorrect = (optIndex === q.answer);
 
-      roomRef.child('answerState').transaction((current) => {
-        if (current === null) {
-          return {
-            player: myPlayerId,
-            selected: optIndex,
-            isCorrect: isCorrect
-          };
+      const updates = {
+        'answerState': {
+          player: myPlayerId,
+          selected: optIndex,
+          isCorrect: isCorrect
         }
-        return undefined;
-      }, (error, committed, snapshot) => {
-        if (committed && isCorrect) {
-          const currentScore = roomData.scores ? (roomData.scores[myPlayerId] || 0) : 0;
-          roomRef.child(`scores/${myPlayerId}`).set(currentScore + 1);
-        }
-      });
+      };
+
+      if (isCorrect) {
+        const currentScore = roomData.scores ? (roomData.scores[myPlayerId] || 0) : 0;
+        updates[`scores/${myPlayerId}`] = currentScore + 1;
+      }
+
+      roomRef.update(updates);
     }
 
     function nextMultiQuestionHost() {
@@ -2074,7 +1383,7 @@
     });
 
     // =========================================================
-    //  管理者機能・問題編集・保存
+    //  管理者機能・モーダル・リアルタイム同期保存
     // =========================================================
     function openAuthModal() {
       document.getElementById('modal-auth').classList.remove('hidden');
@@ -2098,7 +1407,6 @@
     function openAdminModal() {
       document.getElementById('modal-admin').classList.remove('hidden');
       renderAdminDragList();
-      initDragula();
     }
 
     function closeAdminModal() {
@@ -2111,7 +1419,6 @@
       container.innerHTML = subjects.map((s) => {
         const isVisible = s.visible !== false;
         const status = s.status || "available";
-        const isAnatomy = s.id === 'anatomy';
 
         return `
           <div data-id="${s.id}" class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
@@ -2121,21 +1428,8 @@
               <span class="text-slate-200 font-medium">${s.name}</span>
               ${s.isFixed ? '<span class="text-[10px] text-amber-500/70 border border-amber-500/30 px-1.5 py-0.2 rounded">固定</span>' : ''}
             </div>
-           
-            <div class="flex items-center gap-2 ml-auto flex-wrap sm:flex-nowrap">
-              ${s.hasAnatomyModes || isAnatomy ? `
-                <button onclick="openQuestionsEditorModal('anatomy')" class="px-2 py-1 rounded text-[10px] bg-amber-700/80 hover:bg-amber-600 text-amber-50 font-medium transition">
-                  編集 (練習)
-                </button>
-                <button onclick="openQuestionsEditorModal('anatomy_applied')" class="px-2 py-1 rounded text-[10px] bg-rose-700/80 hover:bg-rose-600 text-rose-50 font-medium transition">
-                  編集 (応用)
-                </button>
-              ` : `
-                <button onclick="openQuestionsEditorModal('${s.id}')" class="px-2.5 py-1 rounded text-[11px] bg-amber-700/80 hover:bg-amber-600 text-amber-50 font-medium transition">
-                  問題編集
-                </button>
-              `}
-
+            
+            <div class="flex items-center gap-2 ml-auto">
               <select onchange="updateSubjectStatus('${s.id}', this.value)" class="bg-slate-900 border border-slate-700 text-[11px] text-slate-300 rounded px-2 py-1 focus:outline-none focus:border-amber-500">
                 <option value="available" ${status === 'available' ? 'selected' : ''}>公開</option>
                 <option value="preparing" ${status === 'preparing' ? 'selected' : ''}>準備中</option>
@@ -2157,6 +1451,7 @@
       if (subject) {
         subject.visible = !(subject.visible !== false);
         saveSubjectsToStorage();
+        renderAdminDragList();
       }
     }
 
@@ -2165,14 +1460,23 @@
       if (subject) {
         subject.status = newStatus;
         saveSubjectsToStorage();
+        renderAdminDragList();
       }
     }
 
-    function deleteSubject(id) {
-      if (confirm("この科目を削除しますか？")) {
-        subjects = subjects.filter(s => s.id !== id);
+    function initDragula() {
+      if (typeof dragula !== 'function') return;
+      const container = document.getElementById('admin-drag-container');
+      dragulaInstance = dragula([container], {
+        moves: (el, container, handle) => handle.classList.contains('drag-handle')
+      });
+
+      dragulaInstance.on('drop', () => {
+        const children = Array.from(container.children);
+        const newOrderIds = children.map(child => child.getAttribute('data-id'));
+        subjects.sort((a, b) => newOrderIds.indexOf(a.id) - newOrderIds.indexOf(b.id));
         saveSubjectsToStorage();
-      }
+      });
     }
 
     function addNewSubject() {
@@ -2186,9 +1490,9 @@
         return;
       }
 
-      const id = 'custom_' + Date.now();
+      const newId = `sub_${Date.now()}`;
       subjects.push({
-        id: id,
+        id: newId,
         name: name,
         code: code,
         visible: true,
@@ -2198,213 +1502,34 @@
         fixedCount: null
       });
 
-      window.QUIZ_DB[id] = [];
-      saveSubjectsToStorage();
+      QUIZ_DB[newId] = [
+        { q: `${name}のサンプル問題1です。正しい選択肢はどれか？`, options: ["1. 選択肢 A", "2. 選択肢 B", "3. 正解の選択肢 C", "4. 選択肢 D"], answer: 2, exp: "サンプルの解説です。" }
+      ];
 
+      saveSubjectsToStorage();
       nameInput.value = '';
       codeInput.value = '';
+      renderAdminDragList();
+    }
+
+    function deleteSubject(id) {
+      if (confirm("この科目を削除してもよろしいですか？")) {
+        subjects = subjects.filter(s => s.id !== id);
+        saveSubjectsToStorage();
+        renderAdminDragList();
+      }
     }
 
     function saveSubjectsToStorage() {
       db.ref('subjects').set(subjects);
     }
 
-    function initDragula() {
-      const container = document.getElementById('admin-drag-container');
-      if (!container) return;
-
-      if (dragulaInstance) {
-        dragulaInstance.destroy();
-      }
-
-      dragulaInstance = dragula([container], {
-        moves: (el, container, handle) => handle.classList.contains('drag-handle')
-      });
-
-      dragulaInstance.on('drop', () => {
-        const newOrder = Array.from(container.children).map(child => child.getAttribute('data-id'));
-        subjects.sort((a, b) => newOrder.indexOf(a.id) - newOrder.indexOf(b.id));
-        saveSubjectsToStorage();
-      });
-    }
-
     function resetAllDataToDefault() {
-      if (confirm("全てのデータを初期状態にリセットしますか？削除された科目や追加された問題が復元・初期化されます。")) {
-        db.ref().remove().then(() => {
-          localStorage.clear();
-          subjects = [...defaultSubjects];
-          saveSubjectsToStorage();
-          alert("初期化が完了しました。ページを再読み込みします。");
-          location.reload();
-        });
+      if (confirm("すべての初期化を行いますか？（設定や最高記録がリセットされます）")) {
+        localStorage.clear();
+        subjects = [...defaultSubjects];
+        saveSubjectsToStorage();
       }
-    }
-
-    // ---------------------------------------------------------
-    // 問題編集モーダル処理
-    // ---------------------------------------------------------
-    function openQuestionsEditorModal(subjectId) {
-      editingSubjectId = subjectId;
-      document.getElementById('modal-questions-editor').classList.remove('hidden');
-
-      let targetSubjectName = subjectId;
-      const sub = subjects.find(s => s.id === subjectId);
-      if (sub) {
-        targetSubjectName = sub.name;
-      } else if (subjectId === 'anatomy_applied') {
-        targetSubjectName = "解剖学 (応用問題)";
-      }
-
-      document.getElementById('editor-subject-title').textContent = `${targetSubjectName} - 問題編集`;
-
-      const modeSelector = document.getElementById('editor-mode-selector-container');
-      const modeSelect = document.getElementById('editor-mode-select');
-
-      if (subjectId === 'psychology') {
-        modeSelector.classList.remove('hidden');
-        modeSelect.innerHTML = Array.from({length: 13}, (_, i) => `<option value="${i+1}">第${i+1}回演習問題</option>`).join('') + `<option value="quiz">小テスト</option>`;
-        editingSelectedRound = '1';
-        modeSelect.value = editingSelectedRound;
-      } else if (subjectId === 'nursing_method') {
-        modeSelector.classList.remove('hidden');
-        modeSelect.innerHTML = Array.from({length: 10}, (_, i) => `<option value="${i+1}">第${i+1}回演習問題</option>`).join('') + `<option value="quiz">小テスト演習問題</option>`;
-        editingSelectedRound = '1';
-        modeSelect.value = editingSelectedRound;
-      } else {
-        modeSelector.classList.add('hidden');
-      }
-
-      loadQuestionsToEditor();
-    }
-
-    function changeEditorMode(val) {
-      editingSelectedRound = val;
-      loadQuestionsToEditor();
-    }
-
-    function closeQuestionsEditorModal() {
-      document.getElementById('modal-questions-editor').classList.add('hidden');
-    }
-
-    function loadQuestionsToEditor() {
-      const raw = window.QUIZ_DB[editingSubjectId] || [];
-
-      if (editingSubjectId === 'psychology' || editingSubjectId === 'nursing_method') {
-        editingQuestionsList = raw.filter(q => q.round == editingSelectedRound).map(q => normalizeQuestion(q));
-      } else {
-        editingQuestionsList = raw.map(q => normalizeQuestion(q));
-      }
-
-      renderEditorQuestionsList();
-    }
-
-    function renderEditorQuestionsList() {
-      const container = document.getElementById('editor-questions-list');
-      if (editingQuestionsList.length === 0) {
-        container.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">問題がありません。「＋ 問題を追加」から新規作成してください。</div>`;
-        return;
-      }
-
-      container.innerHTML = editingQuestionsList.map((q, idx) => `
-        <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-3 relative text-xs">
-          <div class="flex justify-between items-center pb-2 border-b border-slate-800">
-            <span class="font-bold text-amber-400 font-mono">Q${idx + 1}</span>
-            <button onclick="removeQuestionFromEditor(${idx})" class="text-rose-400 hover:text-rose-300 text-[11px]">削除</button>
-          </div>
-
-          <div class="space-y-1">
-            <label class="text-[10px] text-slate-400">問題文:</label>
-            <textarea onchange="updateEditorQText(${idx}, this.value)" class="w-full p-2 bg-slate-900 border border-slate-700 rounded text-slate-200 text-xs focus:border-amber-500 h-16">${q.q}</textarea>
-          </div>
-
-          <div class="space-y-1">
-            <label class="text-[10px] text-slate-400">画像URL (任意):</label>
-            <input type="text" value="${q.image || ''}" onchange="updateEditorImage(${idx}, this.value)" placeholder="https://..." class="w-full p-2 bg-slate-900 border border-slate-700 rounded text-slate-200 text-xs focus:border-amber-500">
-          </div>
-
-          <div class="space-y-1.5">
-            <label class="text-[10px] text-slate-400">選択肢 (カンマ区切り、または改行区切り):</label>
-            <textarea onchange="updateEditorOptions(${idx}, this.value)" class="w-full p-2 bg-slate-900 border border-slate-700 rounded text-slate-200 text-xs focus:border-amber-500 h-16">${(q.options || []).join('\n')}</textarea>
-          </div>
-
-          <div class="space-y-1">
-            <label class="text-[10px] text-slate-400">正解番号 (1番目が1、複数正解はカンマ区切り 例: 1,3):</label>
-            <input type="text" value="${(q.answers || []).map(a => a + 1).join(',')}" onchange="updateEditorAnswers(${idx}, this.value)" class="w-full p-2 bg-slate-900 border border-slate-700 rounded text-slate-200 text-xs focus:border-amber-500 font-mono">
-          </div>
-
-          <div class="space-y-1">
-            <label class="text-[10px] text-slate-400">解説 (任意):</label>
-            <textarea onchange="updateEditorExp(${idx}, this.value)" class="w-full p-2 bg-slate-900 border border-slate-700 rounded text-slate-200 text-xs focus:border-amber-500 h-14">${q.exp || ''}</textarea>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function addNewQuestionToEditor() {
-      const newQ = {
-        q: "新規問題文を入力してください",
-        options: ["選択肢1", "選択肢2", "選択肢3", "選択肢4"],
-        answers: [0],
-        exp: "解説を入力してください",
-        image: "",
-        round: editingSelectedRound
-      };
-      editingQuestionsList.push(newQ);
-      renderEditorQuestionsList();
-    }
-
-    function removeQuestionFromEditor(idx) {
-      if (confirm("この問題を削除しますか？")) {
-        editingQuestionsList.splice(idx, 1);
-        renderEditorQuestionsList();
-      }
-    }
-
-    function updateEditorQText(idx, val) {
-      editingQuestionsList[idx].q = val;
-    }
-
-    function updateEditorImage(idx, val) {
-      editingQuestionsList[idx].image = val.trim();
-    }
-
-    function updateEditorOptions(idx, val) {
-      const lines = val.split(/[\n,]/).map(s => s.trim()).filter(Boolean);
-      editingQuestionsList[idx].options = lines;
-    }
-
-    function updateEditorAnswers(idx, val) {
-      const nums = val.split(',').map(s => parseInt(s.trim(), 10) - 1).filter(n => !isNaN(n) && n >= 0);
-      editingQuestionsList[idx].answers = nums;
-      editingQuestionsList[idx].isMultiple = nums.length > 1;
-    }
-
-    function updateEditorExp(idx, val) {
-      editingQuestionsList[idx].exp = val;
-    }
-
-    function saveEditedQuestions() {
-      let fullDb = window.QUIZ_DB[editingSubjectId] || [];
-
-      if (editingSubjectId === 'psychology' || editingSubjectId === 'nursing_method') {
-        fullDb = fullDb.filter(q => q.round != editingSelectedRound);
-        const prepared = editingQuestionsList.map(q => ({
-          ...q,
-          round: editingSelectedRound
-        }));
-        fullDb = fullDb.concat(prepared);
-      } else {
-        fullDb = [...editingQuestionsList];
-      }
-
-      window.QUIZ_DB[editingSubjectId] = fullDb;
-      db.ref(`quiz_db/${editingSubjectId}`).set(fullDb).then(() => {
-        alert("問題データの保存が完了しました。");
-        closeQuestionsEditorModal();
-      }).catch(err => {
-        console.error("保存失敗:", err);
-        alert("保存に失敗しました。");
-      });
     }
   </script>
 </body>
