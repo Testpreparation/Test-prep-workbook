@@ -203,6 +203,38 @@
         <div id="subject-list-container" class="grid gap-3 pt-1"></div>
       </div>
 
+      <!-- 画面1.1: 生理学 モード選択（過去問 / 小テスト） -->
+      <div id="screen-physiology-mode-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline">← 科目選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">生理学 モード選択</span>
+        </div>
+
+        <div class="space-y-3 pt-2">
+          <button onclick="selectPhysiologyMode('past')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">PHY-1</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">過去問</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">生理学の過去問演習</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+
+          <button onclick="selectPhysiologyMode('quiz')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">PHY-2</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">小テスト</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">生理学の小テスト演習</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+        </div>
+      </div>
+
       <!-- 画面1.2: 解剖学 コース選択（練習問題 / 応用問題） -->
       <div id="screen-anatomy-mode-select" class="hidden space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
@@ -421,6 +453,17 @@
 
         <!-- 選択肢コンテナ -->
         <div id="quiz-options-container" class="space-y-2.5"></div>
+
+        <!-- キーボード入力用コンテナ -->
+        <div id="quiz-keyboard-input-container" class="hidden space-y-3">
+          <p class="text-xs text-amber-400 font-medium">正しい場合は「〇」、誤っている場合は正しい用語を入力してください。</p>
+          <div class="flex gap-2">
+            <input type="text" id="quiz-keyboard-input" placeholder="例: 〇 または 正しい用語" onkeydown="if(event.key==='Enter') submitKeyboardAnswer()" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-xs focus:outline-none focus:border-amber-500">
+            <button onclick="submitKeyboardAnswer()" class="px-5 py-2.5 bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold rounded-xl text-xs transition shadow-lg shrink-0">
+              解答
+            </button>
+          </div>
+        </div>
 
         <!-- 複数選択用 回答確定ボタン -->
         <button id="quiz-submit-multi-btn" onclick="submitMultipleAnswers()" class="hidden w-full py-3 bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold rounded-xl text-xs transition shadow-lg tracking-widest">
@@ -689,7 +732,7 @@
       </div>
 
       <button onclick="resetAllDataToDefault()" class="w-full py-2 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/50 text-[11px] rounded-lg transition flex items-center justify-center gap-1.5 font-light">
-        <span>データを初期状態にリセット</span>
+        <span>平均正答率データをリセット</span>
       </button>
 
       <button onclick="closeAdminModal()" class="w-full py-2.5 bg-slate-800 text-slate-300 rounded-lg text-xs hover:bg-slate-700 transition">閉じる</button>
@@ -917,7 +960,9 @@
         image: imgData,
         wordBox: wordBoxData,
         isMultiple: correctAnswers.length > 1,
-        exp: expText
+        exp: expText,
+        enableKeyboard: !!item.enableKeyboard,
+        keyword: item.keyword || ""
       };
     }
 
@@ -925,7 +970,7 @@
       { id: "psychology", name: "心理学", code: "PSY", visible: true, status: "available", isFixed: true, hasRounds: true, fixedCount: null },
       { id: "mind_behavior", name: "こころと行動", code: "MND", visible: true, status: "available", isFixed: true, hasRounds: false, fixedCount: null },
       { id: "medical_intro", name: "医療概論", code: "MED", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null },
-      { id: "physiology", name: "生理学", code: "PHY", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "physiology", name: "生理学", code: "PHY", visible: true, status: "available", isFixed: false, hasRounds: false, hasPhysiologyModes: true, fixedCount: null },
       { id: "microbiology", name: "微生物学", code: "MIC", visible: true, status: "available", isFixed: true, hasRounds: false, fixedCount: null },
       { id: "anatomy", name: "解剖学", code: "ANA", visible: true, status: "available", isFixed: false, hasRounds: false, hasAnatomyModes: true, fixedCount: null },
       { id: "nursing_method", name: "看護学方法論Ⅰ", code: "NUR Ⅰ", visible: true, status: "available", isFixed: true, hasRounds: false, hasNursingModes: true, fixedCount: null }
@@ -934,6 +979,7 @@
     let subjects = [...defaultSubjects];
     let currentSubject = null;
     let currentRound = null;
+    let currentPhysiologyMode = 'past';
     let currentAnatomyMode = 'basic';
     let currentNursingMode = 'rounds';
     let activeQuestions = [];
@@ -954,7 +1000,7 @@
 
     let editingSubjectId = null;
     let editingQuestionsList = [];
-    let editingSelectedRound = '1';
+    let editingSelectedRound = 'past';
 
     function getAverageAccuracy(subjectId) {
       const historyKey = `history_accuracy_${subjectId}`;
@@ -962,6 +1008,345 @@
       if (!records || records.length === 0) return null;
       const sum = records.reduce((acc, curr) => acc + curr, 0);
       return Math.round(sum / records.length);
+    }
+
+    // =========================================================
+    //  管理者モーダル制御機能
+    // =========================================================
+    function openAuthModal() {
+      document.getElementById('modal-auth').classList.remove('hidden');
+      document.getElementById('admin-password-input').value = '';
+      document.getElementById('auth-error-msg').classList.add('hidden');
+    }
+
+    function closeAuthModal() {
+      document.getElementById('modal-auth').classList.add('hidden');
+    }
+
+    function submitPassword() {
+      const pwd = document.getElementById('admin-password-input').value;
+      if (pwd === "2721") {
+        closeAuthModal();
+        openAdminModal();
+      } else {
+        document.getElementById('auth-error-msg').classList.remove('hidden');
+      }
+    }
+
+    function openAdminModal() {
+      document.getElementById('modal-admin').classList.remove('hidden');
+      renderAdminDragList();
+    }
+
+    function closeAdminModal() {
+      document.getElementById('modal-admin').classList.add('hidden');
+    }
+
+    function saveSubjectsToStorage() {
+      db.ref('subjects').set(subjects);
+    }
+
+    function renderAdminDragList() {
+      const container = document.getElementById('admin-drag-container');
+      if (!container) return;
+
+      container.innerHTML = subjects.map((s, idx) => `
+        <div data-id="${s.id}" class="drag-item p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <span class="drag-handle cursor-grab active:cursor-grabbing text-slate-500 hover:text-amber-400 text-base">☰</span>
+            <span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-[10px] font-bold">${s.code}</span>
+            <span class="text-xs font-medium text-slate-200">${s.name}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="openQuestionsEditorModal('${s.id}')" class="px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-[11px] transition">
+              問題編集
+            </button>
+            <button onclick="toggleSubjectVisibility(${idx})" class="px-2.5 py-1 ${s.visible !== false ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-slate-800 text-slate-500 border-slate-700'} border rounded-lg text-[11px] transition">
+              ${s.visible !== false ? '表示中' : '非表示'}
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      if (dragulaInstance) dragulaInstance.destroy();
+      dragulaInstance = dragula([container], {
+        moves: (el, container, handle) => handle.classList.contains('drag-handle')
+      });
+
+      dragulaInstance.on('drop', () => {
+        const newOrderIds = Array.from(container.children).map(child => child.getAttribute('data-id'));
+        subjects.sort((a, b) => newOrderIds.indexOf(a.id) - newOrderIds.indexOf(b.id));
+        saveSubjectsToStorage();
+      });
+    }
+
+    function toggleSubjectVisibility(idx) {
+      subjects[idx].visible = !(subjects[idx].visible !== false);
+      saveSubjectsToStorage();
+      renderAdminDragList();
+    }
+
+    function addNewSubject() {
+      const nameInput = document.getElementById('new-subject-name');
+      const codeInput = document.getElementById('new-subject-code');
+
+      const name = nameInput.value.trim();
+      const code = codeInput.value.trim().toUpperCase();
+
+      if (!name || !code) {
+        alert("科目名とコードを入力してください。");
+        return;
+      }
+
+      const id = "sub_" + Date.now();
+      subjects.push({
+        id: id,
+        name: name,
+        code: code,
+        visible: true,
+        status: "available",
+        isFixed: false,
+        hasRounds: false,
+        fixedCount: null
+      });
+
+      window.QUIZ_DB[id] = [];
+      saveSubjectsToStorage();
+
+      nameInput.value = '';
+      codeInput.value = '';
+      renderAdminDragList();
+      alert(`科目「${name}」を追加しました。`);
+    }
+
+    function resetAllDataToDefault() {
+      if (confirm("全ての科目の平均正答率履歴データを削除しますか？")) {
+        subjects.forEach(s => {
+          localStorage.removeItem(`history_accuracy_${s.id}`);
+        });
+        alert("平均正答率データをリセットしました。");
+        renderSubjectList();
+      }
+    }
+
+    // ---------------------------------------------------------
+    // 問題編集モーダル制御機能
+    // ---------------------------------------------------------
+    function openQuestionsEditorModal(subjectId) {
+      editingSubjectId = subjectId;
+      const sub = subjects.find(s => s.id === subjectId);
+      document.getElementById('editor-subject-title').textContent = `${sub ? sub.name : '科目'} - 問題編集`;
+
+      const modeSelector = document.getElementById('editor-mode-selector-container');
+      const modeSelect = document.getElementById('editor-mode-select');
+
+      if (subjectId === 'physiology' || (sub && sub.hasPhysiologyModes)) {
+        modeSelector.classList.remove('hidden');
+        modeSelect.innerHTML = `
+          <option value="past">過去問</option>
+          <option value="quiz">小テスト</option>
+        `;
+        editingSelectedRound = 'past';
+        modeSelect.value = 'past';
+      } else if (subjectId === 'nursing_method' || (sub && sub.hasNursingModes)) {
+        modeSelector.classList.remove('hidden');
+        modeSelect.innerHTML = `
+          <option value="1">第1回演習問題</option>
+          <option value="2">第2回演習問題</option>
+          <option value="3">第3回演習問題</option>
+          <option value="4">第4回演習問題</option>
+          <option value="5">第5回演習問題</option>
+          <option value="6">第6回演習問題</option>
+          <option value="7">第7回演習問題</option>
+          <option value="8">第8回演習問題</option>
+          <option value="9">第9回演習問題</option>
+          <option value="10">第10回演習問題</option>
+          <option value="quiz">小テスト演習問題</option>
+        `;
+        editingSelectedRound = '1';
+        modeSelect.value = '1';
+      } else if (subjectId === 'psychology' || (sub && sub.hasRounds)) {
+        modeSelector.classList.remove('hidden');
+        modeSelect.innerHTML = Array.from({length: 10}, (_, i) => `<option value="${i+1}">第${i+1}回</option>`).join('') + `<option value="quiz">小テスト</option>`;
+        editingSelectedRound = '1';
+        modeSelect.value = '1';
+      } else {
+        modeSelector.classList.add('hidden');
+        editingSelectedRound = null;
+      }
+
+      loadQuestionsForEditor();
+      document.getElementById('modal-questions-editor').classList.remove('hidden');
+    }
+
+    function changeEditorMode(roundVal) {
+      editingSelectedRound = roundVal;
+      loadQuestionsForEditor();
+    }
+
+    function loadQuestionsForEditor() {
+      let rawData = window.QUIZ_DB[editingSubjectId] || [];
+
+      if (editingSubjectId === 'physiology' && typeof window.getPhysiologyQuestions === 'function') {
+        const fetched = window.getPhysiologyQuestions(editingSelectedRound || 'past');
+        if (fetched && fetched.length > 0) rawData = fetched;
+      } else if (editingSubjectId === 'nursing_method' && typeof window.getNursingQuestions === 'function') {
+        const fetched = window.getNursingQuestions(editingSelectedRound || 'all');
+        if (fetched && fetched.length > 0) rawData = fetched;
+      } else if (editingSubjectId === 'psychology' && typeof window.getQuestions === 'function') {
+        const fetched = window.getQuestions(editingSelectedRound || 'all');
+        if (fetched && fetched.length > 0) rawData = fetched;
+      }
+
+      if (editingSubjectId === 'physiology') {
+        editingQuestionsList = [...rawData];
+      } else if (editingSelectedRound) {
+        editingQuestionsList = rawData.filter(q => q.round == editingSelectedRound);
+      } else {
+        editingQuestionsList = [...rawData];
+      }
+
+      editingQuestionsList = editingQuestionsList.map(q => normalizeQuestion(q)).filter(Boolean);
+      renderEditorQuestionsList();
+    }
+
+    function renderEditorQuestionsList() {
+      const container = document.getElementById('editor-questions-list');
+      if (editingQuestionsList.length === 0) {
+        container.innerHTML = `<div class="p-6 text-center text-slate-500 text-xs">問題が登録されていません。「＋ 問題を追加」ボタンから追加できます。</div>`;
+        return;
+      }
+
+      container.innerHTML = editingQuestionsList.map((q, idx) => `
+        <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3 relative">
+          <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+            <span class="text-xs font-bold text-amber-400 font-mono">第 ${idx + 1} 問</span>
+            <button onclick="removeQuestionFromEditor(${idx})" class="text-xs text-rose-400 hover:text-rose-300 transition">削除</button>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-[10px] text-slate-400 block">問題文:</label>
+            <textarea onchange="updateEditorQData(${idx}, 'q', this.value)" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-16">${q.q}</textarea>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-[10px] text-slate-400 block">画像:</label>
+            <input type="file" accept="image/*" onchange="handleImageFileUpload(${idx}, this)" class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-amber-500/10 file:text-amber-300 hover:file:bg-amber-500/20 cursor-pointer">
+            ${q.image ? `
+              <div class="mt-2 flex items-center gap-3">
+                <img src="${q.image}" class="max-h-20 rounded border border-slate-700 object-contain">
+                <button onclick="removeEditorImage(${idx})" class="px-2 py-1 bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/60 rounded text-[10px] transition">画像を削除</button>
+              </div>
+            ` : ''}
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-[10px] text-slate-400 block">選択肢 (カンマ区切り):</label>
+            <input type="text" value="${(q.options || []).join(', ')}" onchange="updateEditorQData(${idx}, 'options', this.value)" placeholder="選択肢1, 選択肢2, 選択肢3, 選択肢4" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] text-slate-400 block">正解の番号 (0始まり, 複数可):</label>
+              <input type="text" value="${(q.answers || []).join(', ')}" onchange="updateEditorQData(${idx}, 'answers', this.value)" placeholder="例: 0 または 0, 2" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 font-mono">
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-400 block">キーボード解答対応:</label>
+              <select onchange="updateEditorQData(${idx}, 'enableKeyboard', this.value === 'true')" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
+                <option value="false" ${!q.enableKeyboard ? 'selected' : ''}>無効 (選択肢)</option>
+                <option value="true" ${q.enableKeyboard ? 'selected' : ''}>有効 (記述入力)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-[10px] text-slate-400 block">解説:</label>
+            <textarea onchange="updateEditorQData(${idx}, 'exp', this.value)" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-14">${q.exp || ''}</textarea>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function handleImageFileUpload(idx, input) {
+      const file = input.files && input.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        updateEditorQData(idx, 'image', e.target.result);
+        renderEditorQuestionsList();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeEditorImage(idx) {
+      updateEditorQData(idx, 'image', '');
+      renderEditorQuestionsList();
+    }
+
+    function updateEditorQData(idx, field, value) {
+      if (!editingQuestionsList[idx]) return;
+
+      if (field === 'options') {
+        editingQuestionsList[idx].options = value.split(',').map(s => s.trim()).filter(Boolean);
+      } else if (field === 'answers') {
+        editingQuestionsList[idx].answers = value.split(',').map(s => parseInt(s.trim(), 10)).filter(v => !isNaN(v));
+      } else {
+        editingQuestionsList[idx][field] = value;
+      }
+    }
+
+    function addNewQuestionToEditor() {
+      editingQuestionsList.push({
+        q: "新しい問題文を入力してください",
+        options: ["選択肢1", "選択肢2", "選択肢3", "選択肢4"],
+        answers: [0],
+        exp: "解説を入力してください",
+        image: "",
+        enableKeyboard: false,
+        round: editingSelectedRound || null
+      });
+      renderEditorQuestionsList();
+    }
+
+    function removeQuestionFromEditor(idx) {
+      if (confirm("この問題を削除しますか？")) {
+        editingQuestionsList.splice(idx, 1);
+        renderEditorQuestionsList();
+      }
+    }
+
+    function saveEditedQuestions() {
+      if (!editingSubjectId) return;
+
+      let saveDbKey = editingSubjectId;
+      if (editingSubjectId === 'physiology' && editingSelectedRound) {
+        saveDbKey = `physiology_${editingSelectedRound}`;
+      }
+
+      let rawData = window.QUIZ_DB[saveDbKey] || [];
+
+      if (editingSubjectId === 'physiology') {
+        rawData = [...editingQuestionsList];
+      } else if (editingSelectedRound) {
+        rawData = rawData.filter(q => q.round != editingSelectedRound);
+        rawData = rawData.concat(editingQuestionsList);
+      } else {
+        rawData = [...editingQuestionsList];
+      }
+
+      window.QUIZ_DB[saveDbKey] = rawData;
+      db.ref(`quiz_db/${saveDbKey}`).set(rawData).then(() => {
+        alert("問題データをFirebaseに保存しました。");
+        closeQuestionsEditorModal();
+      }).catch(err => {
+        console.error("問題保存エラー:", err);
+        alert("問題データの保存に失敗しました。");
+      });
+    }
+
+    function closeQuestionsEditorModal() {
+      document.getElementById('modal-questions-editor').classList.add('hidden');
     }
 
     // =========================================================
@@ -1096,6 +1481,7 @@
     function hideAllScreens() {
       stopQuizTimer();
       document.getElementById('screen-subjects').classList.add('hidden');
+      document.getElementById('screen-physiology-mode-select').classList.add('hidden');
       document.getElementById('screen-anatomy-mode-select').classList.add('hidden');
       document.getElementById('screen-nursing-mode-select').classList.add('hidden');
       document.getElementById('screen-time-select').classList.add('hidden');
@@ -1121,9 +1507,10 @@
 
       container.innerHTML = visibleSubjects.map(s => {
         const isPrep = s.status === 'preparing';
+        const isPhysiology = s.id === 'physiology';
         const isAnatomy = s.id === 'anatomy';
         const isNursing = s.id === 'nursing_method';
-        const statusLabel = isPrep ? '【準備中】' : (s.hasAnatomyModes || isAnatomy ? '練習問題・応用問題対応' : (s.hasNursingModes || isNursing ? '12回別問題・問題数選択可' : (s.hasRounds ? '全13回 小テスト対応' : (s.fixedCount ? `過去問演習（${s.fixedCount}問固定）` : '過去問演習・問題数選択可'))));
+        const statusLabel = isPrep ? '【準備中】' : (s.hasPhysiologyModes || isPhysiology ? '過去問・小テスト対応' : (s.hasAnatomyModes || isAnatomy ? '練習問題・応用問題対応' : (s.hasNursingModes || isNursing ? '12回別問題・問題数選択可' : (s.hasRounds ? '全13回 小テスト対応' : (s.fixedCount ? `過去問演習（${s.fixedCount}問固定）` : '過去問演習・問題数選択可')))));
        
         const avgAcc = isPrep ? null : getAverageAccuracy(s.id);
         const avgDisplay = (avgAcc !== null) ? `${avgAcc}%` : '-- %';
@@ -1153,7 +1540,9 @@
       currentSubject = subjects.find(s => s.id === subjectId);
       if (!currentSubject || currentSubject.status === 'preparing') return;
 
-      if (subjectId === 'anatomy' || currentSubject.hasAnatomyModes) {
+      if (subjectId === 'physiology' || currentSubject.hasPhysiologyModes) {
+        showPhysiologyModeSelectionScreen();
+      } else if (subjectId === 'anatomy' || currentSubject.hasAnatomyModes) {
         showAnatomyModeSelectionScreen();
       } else if (subjectId === 'nursing_method' || currentSubject.hasNursingModes) {
         showNursingModeSelectionScreen();
@@ -1163,6 +1552,16 @@
         currentRound = null;
         showTimeSelectionScreen();
       }
+    }
+
+    function showPhysiologyModeSelectionScreen() {
+      hideAllScreens();
+      document.getElementById('screen-physiology-mode-select').classList.remove('hidden');
+    }
+
+    function selectPhysiologyMode(mode) {
+      currentPhysiologyMode = mode;
+      showTimeSelectionScreen();
     }
 
     function showAnatomyModeSelectionScreen() {
@@ -1204,7 +1603,9 @@
       document.getElementById('time-subject-title').textContent = `${currentSubject.name} 制限時間設定`;
       
       const backBtn = document.getElementById('time-back-btn');
-      if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) {
+      if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) {
+        backBtn.onclick = () => showPhysiologyModeSelectionScreen();
+      } else if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) {
         backBtn.onclick = () => showAnatomyModeSelectionScreen();
       } else if (currentSubject.id === 'nursing_method' || currentSubject.hasNursingModes) {
         backBtn.onclick = () => showNursingModeSelectionScreen();
@@ -1236,7 +1637,16 @@
 
       backBtn.onclick = () => showTimeSelectionScreen();
 
-      if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) {
+      if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) {
+        const modeTitle = currentPhysiologyMode === 'quiz' ? '小テスト' : '過去問';
+        titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
+        headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
+        descEl.textContent = currentPhysiologyMode === 'quiz'
+          ? `生理学の小テスト問題が出題されます。`
+          : `生理学の過去問演習問題が出題されます。`;
+        countContainer.classList.remove('hidden');
+
+      } else if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) {
         const modeTitle = currentAnatomyMode === 'applied' ? '応用問題' : '練習問題';
         titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
         headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
@@ -1296,7 +1706,9 @@
 
     function getHighscoreKey() {
       let modeSuffix = '';
-      if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) {
+      if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) {
+        modeSuffix = `_${currentPhysiologyMode}`;
+      } else if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) {
         modeSuffix = `_${currentAnatomyMode}`;
       } else if (currentRound) {
         modeSuffix = `_r${currentRound}`;
@@ -1348,8 +1760,8 @@
       }
 
       if (currentSubject.id === 'physiology' && typeof window.getPhysiologyQuestions === 'function') {
-        const physioData = window.getPhysiologyQuestions();
-        if (Array.isArray(physioData) && physioData.length > 0 && (!window.QUIZ_DB.physiology || window.QUIZ_DB.physiology.length === 0)) {
+        const physioData = window.getPhysiologyQuestions(currentPhysiologyMode);
+        if (Array.isArray(physioData) && physioData.length > 0) {
           window.QUIZ_DB.physiology = physioData;
         }
       }
@@ -1459,23 +1871,36 @@
 
       const submitBtn = document.getElementById('quiz-submit-multi-btn');
       const container = document.getElementById('quiz-options-container');
+      const kbContainer = document.getElementById('quiz-keyboard-input-container');
 
-      if (q.isMultiple) {
-        submitBtn.classList.remove('hidden');
-        container.innerHTML = q.options.map((opt, idx) => `
-          <button id="opt-btn-${idx}" onclick="toggleOptionSelect(${idx})" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center gap-3">
-            <span id="opt-check-${idx}" class="w-4 h-4 rounded border border-slate-600 bg-slate-950 flex items-center justify-center font-bold text-[10px] text-amber-400 shrink-0"></span>
-            <span>${opt}</span>
-          </button>
-        `).join('');
-      } else {
+      if (q.enableKeyboard) {
+        container.classList.add('hidden');
         submitBtn.classList.add('hidden');
-        container.innerHTML = q.options.map((opt, idx) => `
-          <button onclick="handleSingleAnswer(${idx})" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center justify-between">
-            <span>${opt}</span>
-            <span class="opt-mark hidden font-bold"></span>
-          </button>
-        `).join('');
+        kbContainer.classList.remove('hidden');
+        const kbInput = document.getElementById('quiz-keyboard-input');
+        kbInput.value = '';
+        kbInput.disabled = false;
+      } else {
+        container.classList.remove('hidden');
+        kbContainer.classList.add('hidden');
+
+        if (q.isMultiple) {
+          submitBtn.classList.remove('hidden');
+          container.innerHTML = q.options.map((opt, idx) => `
+            <button id="opt-btn-${idx}" onclick="toggleOptionSelect(${idx})" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center gap-3">
+              <span id="opt-check-${idx}" class="w-4 h-4 rounded border border-slate-600 bg-slate-950 flex items-center justify-center font-bold text-[10px] text-amber-400 shrink-0"></span>
+              <span>${opt}</span>
+            </button>
+          `).join('');
+        } else {
+          submitBtn.classList.add('hidden');
+          container.innerHTML = q.options.map((opt, idx) => `
+            <button onclick="handleSingleAnswer(${idx})" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center justify-between">
+              <span>${opt}</span>
+              <span class="opt-mark hidden font-bold"></span>
+            </button>
+          `).join('');
+        }
       }
 
       startQuizTimer();
@@ -1544,7 +1969,9 @@
     function handleTimeout() {
       if (isAnswered) return;
       const q = activeQuestions[currentQIndex];
-      if (q.isMultiple) {
+      if (q.enableKeyboard) {
+        evaluateKeyboardAnswer("", true);
+      } else if (q.isMultiple) {
         evaluateAnswers([], true);
       } else {
         evaluateAnswers([-1], true);
@@ -1565,6 +1992,80 @@
       }
       stopQuizTimer();
       evaluateAnswers(Array.from(selectedIndices), false);
+    }
+
+    function submitKeyboardAnswer() {
+      if (isAnswered) return;
+      const inputEl = document.getElementById('quiz-keyboard-input');
+      const val = inputEl.value.trim();
+      if (!val) {
+        alert("回答を入力してください。");
+        return;
+      }
+      stopQuizTimer();
+      evaluateKeyboardAnswer(val, false);
+    }
+
+    function evaluateKeyboardAnswer(userText, isTimeout) {
+      isAnswered = true;
+      const q = activeQuestions[currentQIndex];
+      const kbInput = document.getElementById('quiz-keyboard-input');
+      const fbBox = document.getElementById('quiz-feedback-box');
+      const fbTitle = document.getElementById('quiz-feedback-title');
+      const fbDesc = document.getElementById('quiz-feedback-desc');
+
+      if (kbInput) kbInput.disabled = true;
+
+      const normalizeStr = (str) => {
+        if (!str) return '';
+        return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0))
+                  .replace(/◯|〇|O|o/g, '〇')
+                  .toLowerCase()
+                  .replace(/\s+/g, '');
+      };
+
+      const normUser = normalizeStr(userText);
+      let isCorrect = false;
+
+      if (!isTimeout && normUser !== '') {
+        const isTrueStatement = (q.answers.includes(0) || (q.options[0] && q.options[0].includes('〇')));
+
+        if (normUser === '〇') {
+          if (isTrueStatement) isCorrect = true;
+        } else {
+          let targets = [];
+          if (q.keyword && q.keyword.trim()) {
+            targets.push(q.keyword);
+          }
+          if (q.options && q.options.length > 0) {
+            q.answers.forEach(idx => {
+              if (q.options[idx]) targets.push(q.options[idx]);
+            });
+          }
+          if (q.exp) targets.push(q.exp);
+
+          for (let target of targets) {
+            const normTarget = normalizeStr(target);
+            if (normTarget && (normUser === normTarget || normTarget.includes(normUser) || normUser.includes(normTarget))) {
+              isCorrect = true;
+              break;
+            }
+          }
+        }
+      }
+
+      if (isCorrect) {
+        score++;
+        fbBox.className = "p-4 rounded-xl border border-emerald-500/40 bg-emerald-950/30 text-emerald-200 text-xs leading-relaxed space-y-2 block";
+        fbTitle.textContent = "✓ 正解！";
+      } else {
+        fbBox.className = "p-4 rounded-xl border border-rose-500/40 bg-rose-950/30 text-rose-200 text-xs leading-relaxed space-y-2 block";
+        fbTitle.textContent = isTimeout ? "⌛ 時間切れ..." : "✕ 不正解...";
+      }
+
+      fbDesc.textContent = q.exp || "解説はありません。";
+      document.getElementById('quiz-score-live').textContent = `正解: ${score}`;
+      document.getElementById('quiz-next-btn').textContent = (currentQIndex + 1 >= activeQuestions.length) ? "結果を見る →" : "次へ進む →";
     }
 
     function evaluateAnswers(userSelectedArray, isTimeout) {
@@ -1588,9 +2089,11 @@
         const isUserChosen = userSelectedArray.includes(idx);
 
         if (isTargetCorrect) {
-          btn.classList.add('border-emerald-500/80', 'bg-emerald-950/40', 'text-emerald-300');
+          btn.classList.add('bg-emerald-950/60', 'border-emerald-500/80', 'text-emerald-200');
         } else if (isUserChosen && !isTargetCorrect) {
-          btn.classList.add('border-rose-500/80', 'bg-rose-950/40', 'text-rose-300');
+          btn.classList.add('bg-rose-950/60', 'border-rose-500/80', 'text-rose-200');
+        } else {
+          btn.classList.add('opacity-40');
         }
       });
 
@@ -1605,21 +2108,20 @@
 
       fbDesc.textContent = q.exp || "解説はありません。";
       document.getElementById('quiz-score-live').textContent = `正解: ${score}`;
-
       document.getElementById('quiz-next-btn').textContent = (currentQIndex + 1 >= activeQuestions.length) ? "結果を見る →" : "次へ進む →";
     }
 
     function nextQuestion() {
       currentQIndex++;
-      if (currentQIndex < activeQuestions.length) {
-        renderQuestion();
-      } else {
+      if (currentQIndex >= activeQuestions.length) {
         showResultScreen();
+      } else {
+        renderQuestion();
       }
     }
 
     function quitQuiz() {
-      if (confirm("演習を中断して科目選択に戻りますか？")) {
+      if (confirm("現在の演習を終了して科目選択画面へ戻りますか？")) {
         stopQuizTimer();
         showSubjectScreen();
       }
@@ -1631,67 +2133,44 @@
       document.getElementById('screen-quiz-result').classList.remove('hidden');
 
       const total = activeQuestions.length;
-      const accuracyRate = total > 0 ? Math.round((score / total) * 100) : 0;
-      document.getElementById('final-score-val').textContent = accuracyRate;
+      const accRate = Math.round((score / total) * 100);
 
-      if (currentSubject && total > 0) {
-        const currentAccuracy = accuracyRate;
-        const historyKey = `history_accuracy_${currentSubject.id}`;
-        const records = JSON.parse(localStorage.getItem(historyKey) || '[]');
-        records.push(currentAccuracy);
-        localStorage.setItem(historyKey, JSON.stringify(records));
+      document.getElementById('final-score-val').textContent = accRate;
+      
+      const evalText = document.getElementById('final-eval-text');
+      if (accRate === 100) {
+        evalText.textContent = "素晴らしい！満点達成です！";
+        if (typeof confetti === 'function') {
+          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        }
+      } else if (accRate >= 80) {
+        evalText.textContent = "合格ライン達成！大変優秀です。";
+      } else if (accRate >= 60) {
+        evalText.textContent = "あと一歩！間違えた箇所を復習しましょう。";
+      } else {
+        evalText.textContent = "繰り返し練習して基礎を固めましょう。";
       }
 
       const key = getHighscoreKey();
-      const prevMax = parseInt(localStorage.getItem(key) || '0', 10);
-      const badge = document.getElementById('new-record-badge');
+      const prevBest = localStorage.getItem(key);
+      const newRecordBadge = document.getElementById('new-record-badge');
 
-      if (accuracyRate > prevMax) {
-        localStorage.setItem(key, accuracyRate.toString());
-        badge.classList.remove('hidden');
+      if (prevBest === null || accRate > parseInt(prevBest, 10)) {
+        localStorage.setItem(key, accRate);
+        newRecordBadge.classList.remove('hidden');
       } else {
-        badge.classList.add('hidden');
+        newRecordBadge.classList.add('hidden');
       }
 
-      const evalEl = document.getElementById('final-eval-text');
-      const ratio = total > 0 ? score / total : 0;
-
-      if (ratio === 1) {
-        evalEl.textContent = "🎉 パーフェクト！素晴らしい全問正解です！";
-        evalEl.className = "text-xs font-bold text-amber-400 pt-2 tracking-wide animate-bounce";
-        launchFireworks();
-      } else if (ratio >= 0.8) {
-        evalEl.textContent = "素晴らしい集中力です！合格圏内です。";
-        evalEl.className = "text-xs text-amber-500/90 pt-2 font-light";
-      } else if (ratio >= 0.6) {
-        evalEl.textContent = "惜しい！間違えた部分を復習しましょう。";
-        evalEl.className = "text-xs text-amber-500/90 pt-2 font-light";
-      } else {
-        evalEl.textContent = "焦らずテキストを見直して再挑戦しましょう。";
-        evalEl.className = "text-xs text-amber-500/90 pt-2 font-light";
-      }
-    }
-
-    function launchFireworks() {
-      if (typeof confetti !== 'function') return;
-      const duration = 2.5 * 1000;
-      const animationEnd = Date.now() + duration;
-
-      const interval = setInterval(function() {
-        const timeLeft = animationEnd - Date.now();
-        if (timeLeft <= 0) return clearInterval(interval);
-        confetti({
-          particleCount: 50 * (timeLeft / duration),
-          startVelocity: 30,
-          spread: 360,
-          ticks: 60,
-          origin: { x: Math.random(), y: Math.random() - 0.2 }
-        });
-      }, 250);
+      const historyKey = `history_accuracy_${currentSubject.id}`;
+      const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+      history.push(accRate);
+      if (history.length > 20) history.shift();
+      localStorage.setItem(historyKey, JSON.stringify(history));
     }
 
     // =========================================================
-    //  2人早押しマルチプレイ機能
+    //  2人マルチプレイ (早押し対戦) ロジック
     // =========================================================
     function showMultiplayerLobby() {
       hideAllScreens();
@@ -1699,771 +2178,279 @@
     }
 
     function createMultiRoom() {
-      const code = Math.floor(1000 + Math.random() * 9000).toString();
-      currentRoomCode = code;
+      const roomCode = Math.floor(1000 + Math.random() * 9000).toString();
+      currentRoomCode = roomCode;
       isHost = true;
 
-      roomRef = db.ref('rooms/' + code);
-      roomRef.onDisconnect().remove();
-
-      const initialRoomState = {
-        host: myPlayerId,
-        guest: null,
-        status: "waiting",
-        subjectId: subjects.find(s => s.visible !== false)?.id || "psychology",
+      roomRef = db.ref(`multi_rooms/${roomCode}`);
+      roomRef.set({
+        hostId: myPlayerId,
+        status: 'waiting',
+        subjectId: subjects[0]?.id || 'psychology',
         questionCount: 10,
+        players: {
+          p1: { id: myPlayerId, score: 0 },
+          p2: null
+        },
         currentQIndex: 0,
-        buzzedPlayer: null,
-        scores: {
-          [myPlayerId]: 0
-        }
-      };
-
-      roomRef.set(initialRoomState).then(() => {
-        setupRoomListener();
-        showRoomWaitScreen();
+        questions: [],
+        buzzPlayer: null,
+        created: Date.now()
+      }).then(() => {
+        enterMultiRoomView();
       });
     }
 
     function joinMultiRoom() {
-      const inputCode = document.getElementById('join-code-input').value.trim();
-      if (inputCode.length !== 4) {
+      const code = document.getElementById('join-code-input').value.trim();
+      if (!code || code.length !== 4) {
         alert("4桁の部屋コードを入力してください。");
         return;
       }
 
-      currentRoomCode = inputCode;
-      isHost = false;
-      roomRef = db.ref('rooms/' + inputCode);
-
-      roomRef.get().then((snapshot) => {
-        if (!snapshot.exists()) {
-          alert("部屋が見つかりません。コードを確認してください。");
+      const targetRef = db.ref(`multi_rooms/${code}`);
+      targetRef.once('value', (snap) => {
+        const val = snap.val();
+        if (!val) {
+          alert("該当する部屋が見つかりません。コードを確認してください。");
+          return;
+        }
+        if (val.players && val.players.p2 && val.players.p2.id !== myPlayerId) {
+          alert("この部屋は既に満員です。");
           return;
         }
 
-        const data = snapshot.val();
-        if (data.guest && data.guest !== myPlayerId) {
-          alert("この部屋はすでに満員です。");
-          return;
-        }
+        currentRoomCode = code;
+        isHost = false;
+        roomRef = targetRef;
 
-        roomRef.child('guest').onDisconnect().remove();
-
-        const updates = {
-          guest: myPlayerId,
-          [`scores/${myPlayerId}`]: 0
-        };
-        roomRef.update(updates).then(() => {
-          setupRoomListener();
-          showRoomWaitScreen();
+        roomRef.child('players/p2').set({
+          id: myPlayerId,
+          score: 0
+        }).then(() => {
+          enterMultiRoomView();
         });
       });
     }
 
-    function showRoomWaitScreen() {
+    function enterMultiRoomView() {
       hideAllScreens();
       document.getElementById('screen-multi-room').classList.remove('hidden');
+
       document.getElementById('multi-room-code-display').textContent = currentRoomCode;
       document.getElementById('multi-room-code-large').textContent = currentRoomCode;
 
       const hostSettings = document.getElementById('host-settings-area');
       const guestMsg = document.getElementById('guest-waiting-msg');
-
+      
       if (isHost) {
         hostSettings.classList.remove('hidden');
         guestMsg.classList.add('hidden');
 
         const selectEl = document.getElementById('multi-subject-select');
-        selectEl.innerHTML = subjects.filter(s => s.visible !== false && s.status !== 'preparing').map(s => `
-          <option value="${s.id}">${s.name} (${s.code})</option>
+        selectEl.innerHTML = subjects.filter(s => s.status !== 'preparing' && s.visible !== false).map(s => `
+          <option value="${s.id}">${s.name}</option>
         `).join('');
-
-        selectEl.onchange = (e) => {
-          roomRef.update({ subjectId: e.target.value });
-        };
-        document.getElementById('multi-count-slider').onchange = (e) => {
-          roomRef.update({ questionCount: parseInt(e.target.value, 10) });
-        };
-
       } else {
         hostSettings.classList.add('hidden');
         guestMsg.classList.remove('hidden');
       }
+
+      listenToRoomUpdates();
     }
 
-    function setupRoomListener() {
+    function listenToRoomUpdates() {
       if (!roomRef) return;
-     
-      roomRef.on('value', (snapshot) => {
-        roomData = snapshot.val();
-        if (!roomData) {
-          alert("部屋が解散されました。");
-          leaveMultiRoom();
-          return;
+
+      roomRef.on('value', (snap) => {
+        roomData = snap.val();
+        if (!roomData) return;
+
+        const p1Status = document.getElementById('p1-status');
+        const p2Status = document.getElementById('p2-status');
+        const startBtn = document.getElementById('multi-start-btn');
+
+        if (roomData.players && roomData.players.p1) {
+          p1Status.textContent = roomData.players.p1.id === myPlayerId ? "あなた (接続完了)" : "接続中";
+        } else {
+          p1Status.textContent = "待機中...";
         }
 
-        document.getElementById('p1-status').textContent = "接続中 (部屋主)";
-        if (roomData.guest) {
-          document.getElementById('p2-status').textContent = "接続済み (ゲスト)";
-          document.getElementById('p2-status').className = "text-xs font-bold text-emerald-400";
-          if (isHost) {
-            const startBtn = document.getElementById('multi-start-btn');
+        if (roomData.players && roomData.players.p2) {
+          p2Status.textContent = roomData.players.p2.id === myPlayerId ? "あなた (接続完了)" : "対戦相手 (参加済)";
+        } else {
+          p2Status.textContent = "待機中...";
+        }
+
+        if (isHost) {
+          if (roomData.players && roomData.players.p1 && roomData.players.p2) {
             startBtn.disabled = false;
             startBtn.textContent = "対戦を開始する！";
-          }
-        } else {
-          document.getElementById('p2-status').textContent = "待機中...";
-          document.getElementById('p2-status').className = "text-xs font-bold text-slate-500";
-          if (isHost) {
-            const startBtn = document.getElementById('multi-start-btn');
+          } else {
             startBtn.disabled = true;
-            startBtn.textContent = "2人が揃うとスタートできます";
+            startBtn.textContent = "相手の参加を待っています...";
           }
-        }
-
-        if (roomData.status === 'playing' && document.getElementById('screen-multi-play').classList.contains('hidden')) {
-          startMultiPlayUI();
         }
 
         if (roomData.status === 'playing') {
-          updateMultiPlayUI();
+          if (document.getElementById('screen-multi-play').classList.contains('hidden')) {
+            hideAllScreens();
+            document.getElementById('screen-multi-play').classList.remove('hidden');
+          }
+          renderMultiPlayView();
         }
       });
+    }
+
+    function startMultiGame() {
+      if (!isHost || !roomRef) return;
+
+      const selectedSubId = document.getElementById('multi-subject-select').value;
+      const count = parseInt(document.getElementById('multi-count-slider').value, 10);
+
+      let rawData = window.QUIZ_DB[selectedSubId] || [];
+      if (rawData.length === 0) {
+        alert("選択された科目に問題がありません。");
+        return;
+      }
+
+      let qList = rawData.map(q => normalizeQuestion(q)).filter(Boolean);
+      qList = qList.sort(() => Math.random() - 0.5).slice(0, Math.min(count, qList.length));
+
+      roomRef.update({
+        status: 'playing',
+        subjectId: selectedSubId,
+        questionCount: qList.length,
+        questions: qList,
+        currentQIndex: 0,
+        buzzPlayer: null,
+        answeredChoice: null
+      });
+    }
+
+    function renderMultiPlayView() {
+      if (!roomData || !roomData.questions) return;
+
+      const qIndex = roomData.currentQIndex || 0;
+      const q = roomData.questions[qIndex];
+      const total = roomData.questions.length;
+
+      document.getElementById('multi-progress-text').textContent = `QUESTION ${qIndex + 1} / ${total}`;
+      
+      const isP1 = (roomData.players.p1.id === myPlayerId);
+      const myScore = isP1 ? roomData.players.p1.score : (roomData.players.p2 ? roomData.players.p2.score : 0);
+      const oppScore = isP1 ? (roomData.players.p2 ? roomData.players.p2.score : 0) : roomData.players.p1.score;
+
+      document.getElementById('multi-my-score').textContent = myScore;
+      document.getElementById('multi-opp-score').textContent = oppScore;
+
+      document.getElementById('multi-q-num').textContent = `Q${qIndex + 1}`;
+      document.getElementById('multi-q-text').textContent = q.q;
+
+      const imgContainer = document.getElementById('multi-image-container');
+      const imgEl = document.getElementById('multi-image');
+      if (q.image) {
+        imgEl.src = q.image;
+        imgContainer.classList.remove('hidden');
+      } else {
+        imgEl.src = '';
+        imgContainer.classList.add('hidden');
+      }
+
+      const banner = document.getElementById('buzz-status-banner');
+      const container = document.getElementById('multi-options-container');
+      const nextBtnWrap = document.getElementById('multi-next-btn-wrap');
+
+      if (roomData.buzzPlayer) {
+        const isMeBuzz = (roomData.buzzPlayer === myPlayerId);
+        const isCorrect = roomData.isBuzzCorrect;
+
+        if (isCorrect) {
+          banner.textContent = isMeBuzz ? "🎉 あなたが正解しました！ (+1pt)" : "相手が正解しました！";
+          banner.className = isMeBuzz ? "p-3 rounded-xl bg-emerald-900/90 border border-emerald-500 text-emerald-200 text-xs font-bold text-center" : "p-3 rounded-xl bg-rose-900/90 border border-rose-500 text-rose-200 text-xs font-bold text-center";
+        } else {
+          banner.textContent = isMeBuzz ? "❌ 残念！不正解です..." : "相手が不正解でした！";
+          banner.className = "p-3 rounded-xl bg-rose-900/90 border border-rose-500 text-rose-200 text-xs font-bold text-center";
+        }
+
+        if (isHost) {
+          nextBtnWrap.classList.remove('hidden');
+        }
+      } else {
+        banner.textContent = "正しい選択肢を先に押してください！";
+        banner.className = "p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center text-xs font-bold transition";
+        nextBtnWrap.classList.add('hidden');
+      }
+
+      container.innerHTML = (q.options || []).map((opt, idx) => {
+        const isChosen = (roomData.answeredChoice === idx);
+        const isTargetCorrect = q.answers.includes(idx);
+        let btnStyle = "bg-slate-900/80 border-slate-700/60 text-slate-200 hover:bg-slate-800";
+
+        if (roomData.buzzPlayer) {
+          if (isTargetCorrect) {
+            btnStyle = "bg-emerald-950/80 border-emerald-500/80 text-emerald-200";
+          } else if (isChosen && !isTargetCorrect) {
+            btnStyle = "bg-rose-950/80 border-rose-500/80 text-rose-200";
+          } else {
+            btnStyle = "bg-slate-950/40 border-slate-800 text-slate-600";
+          }
+        }
+
+        return `
+          <button onclick="handleMultiChoiceClick(${idx})" ${roomData.buzzPlayer ? 'disabled' : ''} class="w-full p-4 rounded-xl border ${btnStyle} text-xs font-medium text-left transition shadow flex justify-between items-center">
+            <span>${opt}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function handleMultiChoiceClick(choiceIdx) {
+      if (!roomRef || !roomData || roomData.buzzPlayer) return;
+
+      const qIndex = roomData.currentQIndex || 0;
+      const q = roomData.questions[qIndex];
+      const isCorrect = q.answers.includes(choiceIdx);
+
+      const isP1 = (roomData.players.p1.id === myPlayerId);
+      const playerKey = isP1 ? 'p1' : 'p2';
+      const currentScore = isP1 ? roomData.players.p1.score : roomData.players.p2.score;
+
+      const updates = {};
+      updates['buzzPlayer'] = myPlayerId;
+      updates['answeredChoice'] = choiceIdx;
+      updates['isBuzzCorrect'] = isCorrect;
+
+      if (isCorrect) {
+        updates[`players/${playerKey}/score`] = currentScore + 1;
+      }
+
+      roomRef.update(updates);
+    }
+
+    function nextMultiQuestionHost() {
+      if (!isHost || !roomRef || !roomData) return;
+
+      const nextIndex = (roomData.currentQIndex || 0) + 1;
+      if (nextIndex >= roomData.questions.length) {
+        alert("全問題が終了しました！ロビーに戻ります。");
+        roomRef.update({ status: 'finished' });
+        showSubjectScreen();
+      } else {
+        roomRef.update({
+          currentQIndex: nextIndex,
+          buzzPlayer: null,
+          answeredChoice: null,
+          isBuzzCorrect: null
+        });
+      }
     }
 
     function leaveMultiRoom() {
       if (roomRef) {
         roomRef.off();
-        if (isHost) {
-          roomRef.remove();
-        } else {
-          roomRef.child('guest').remove();
-        }
-        roomRef = null;
       }
-      showMultiplayerLobby();
-    }
-
-    function startMultiGame() {
-      if (!isHost) return;
-
-      const subId = roomData.subjectId;
-     
-      if (subId === 'psychology' && typeof window.getQuestions === 'function') {
-        const psychData = window.getQuestions('all');
-        if (Array.isArray(psychData) && psychData.length > 0) {
-          window.QUIZ_DB.psychology = psychData;
-        }
-      }
-
-      if (subId === 'nursing_method' && typeof window.getNursingQuestions === 'function') {
-        const nursingData = window.getNursingQuestions('all');
-        if (Array.isArray(nursingData) && nursingData.length > 0) {
-          window.QUIZ_DB.nursing_method = nursingData;
-        }
-      }
-
-      if (subId === 'microbiology' && typeof window.getMicrobiologyQuestions === 'function') {
-        const microData = window.getMicrobiologyQuestions();
-        if (Array.isArray(microData) && microData.length > 0 && (!window.QUIZ_DB.microbiology || window.QUIZ_DB.microbiology.length === 0)) {
-          window.QUIZ_DB.microbiology = microData;
-        }
-      }
-
-      if (subId === 'medical_intro' && typeof window.getMedicineQuestions === 'function') {
-        const medData = window.getMedicineQuestions();
-        if (Array.isArray(medData) && medData.length > 0 && (!window.QUIZ_DB.medical_intro || window.QUIZ_DB.medical_intro.length === 0)) {
-          window.QUIZ_DB.medical_intro = medData;
-        }
-      }
-
-      if (subId === 'mind_behavior' && typeof window.getMindBehaviorQuestions === 'function') {
-        const mindData = window.getMindBehaviorQuestions();
-        if (Array.isArray(mindData) && mindData.length > 0 && (!window.QUIZ_DB.mind_behavior || window.QUIZ_DB.mind_behavior.length === 0)) {
-          window.QUIZ_DB.mind_behavior = mindData;
-        }
-      }
-
-      if (subId === 'physiology' && typeof window.getPhysiologyQuestions === 'function') {
-        const physioData = window.getPhysiologyQuestions();
-        if (Array.isArray(physioData) && physioData.length > 0 && (!window.QUIZ_DB.physiology || window.QUIZ_DB.physiology.length === 0)) {
-          window.QUIZ_DB.physiology = physioData;
-        }
-      }
-
-      if (subId === 'anatomy') {
-        if (typeof window.getAnatomyQuestions === 'function') {
-          const anatomyBasicData = window.getAnatomyQuestions();
-          if (Array.isArray(anatomyBasicData) && anatomyBasicData.length > 0) {
-            window.QUIZ_DB.anatomy = anatomyBasicData;
-          }
-        }
-      }
-
-      const rawData = window.QUIZ_DB[subId] || [];
-      if (rawData.length === 0) {
-        alert("選択された科目に問題が存在しません。");
-        return;
-      }
-
-      let qList = rawData.map(q => normalizeQuestion(q)).filter(Boolean);
-
-      qList = qList.map(q => {
-        if (!q.options || q.options.length <= 1) return q;
-        const correctOptTexts = q.answers.map(idx => q.options[idx]).filter(Boolean);
-        const shuffledOpts = [...q.options].sort(() => Math.random() - 0.5);
-        const newAnsIndices = correctOptTexts.map(text => shuffledOpts.indexOf(text)).filter(idx => idx !== -1);
-
-        return {
-          ...q,
-          options: shuffledOpts,
-          answers: newAnsIndices
-        };
-      });
-
-      qList = qList.sort(() => Math.random() - 0.5);
-      qList = qList.slice(0, Math.min(roomData.questionCount || 10, qList.length));
-
-      roomRef.update({
-        status: 'playing',
-        questions: qList,
-        currentQIndex: 0,
-        buzzedPlayer: null,
-        answerState: null
-      });
-    }
-
-    function startMultiPlayUI() {
-      hideAllScreens();
-      document.getElementById('screen-multi-play').classList.remove('hidden');
-    }
-
-    function updateMultiPlayUI() {
-      if (!roomData || !roomData.questions) return;
-
-      const qIndex = roomData.currentQIndex || 0;
-      const rawQ = roomData.questions[qIndex];
-      const q = normalizeQuestion(rawQ);
-      const total = roomData.questions.length;
-
-      document.getElementById('multi-progress-text').textContent = `QUESTION ${qIndex + 1} / ${total}`;
-      document.getElementById('multi-q-num').textContent = `Q${qIndex + 1}`;
-      document.getElementById('multi-q-text').textContent = q.q;
-
-      const mImgContainer = document.getElementById('multi-image-container');
-      const mImgEl = document.getElementById('multi-image');
-      if (q.image) {
-        mImgEl.src = q.image;
-        mImgContainer.classList.remove('hidden');
-      } else {
-        mImgEl.src = '';
-        mImgContainer.classList.add('hidden');
-      }
-
-      const myScore = roomData.scores ? (roomData.scores[myPlayerId] || 0) : 0;
-      const oppId = isHost ? roomData.guest : roomData.host;
-      const oppScore = roomData.scores ? (roomData.scores[oppId] || 0) : 0;
-
-      document.getElementById('multi-my-score').textContent = myScore;
-      document.getElementById('multi-opp-score').textContent = oppScore;
-
-      const nextBtnWrap = document.getElementById('multi-next-btn-wrap');
-      if (isHost && roomData.answerState) {
-        nextBtnWrap.classList.remove('hidden');
-      } else {
-        nextBtnWrap.classList.add('hidden');
-      }
-
-      const buzzBanner = document.getElementById('buzz-status-banner');
-      const optionsContainer = document.getElementById('multi-options-container');
-
-      optionsContainer.innerHTML = q.options.map((opt, idx) => `
-        <button onclick="submitMultiAnswerDirect(${idx})" class="multi-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition">
-          ${opt}
-        </button>
-      `).join('');
-
-      if (!roomData.answerState) {
-        buzzBanner.textContent = "⚡ 正解の選択肢を先に押してください！";
-        buzzBanner.className = "p-3 rounded-xl bg-slate-900/90 border border-amber-500/30 text-amber-300 text-xs font-bold";
-        optionsContainer.classList.remove('opacity-50', 'pointer-events-none');
-      } else {
-        optionsContainer.classList.add('opacity-50', 'pointer-events-none');
-        const isMe = (roomData.answerState.player === myPlayerId);
-        if (roomData.answerState.isCorrect) {
-          if (isMe) {
-            buzzBanner.textContent = "✓ あなたが先着正解！+1ポイント獲得！";
-            buzzBanner.className = "p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/60 text-emerald-300 text-xs font-bold";
-          } else {
-            buzzBanner.textContent = "相手が先着正解しました！";
-            buzzBanner.className = "p-3 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs font-bold";
-          }
-        } else {
-          if (isMe) {
-            buzzBanner.textContent = "✕ 不正解...";
-            buzzBanner.className = "p-3 rounded-xl bg-rose-950/60 border border-rose-500/60 text-rose-300 text-xs font-bold";
-          } else {
-            buzzBanner.textContent = "相手が不正解でした！";
-            buzzBanner.className = "p-3 rounded-xl bg-slate-900/90 border border-slate-700 text-slate-300 text-xs font-bold";
-          }
-        }
-      }
-    }
-
-    function submitMultiAnswerDirect(optIndex) {
-      if (!roomRef || (roomData && roomData.answerState)) return;
-
-      const q = normalizeQuestion(roomData.questions[roomData.currentQIndex]);
-      const isCorrect = q.answers.includes(optIndex);
-
-      roomRef.child('answerState').transaction((current) => {
-        if (current === null) {
-          return {
-            player: myPlayerId,
-            selected: optIndex,
-            isCorrect: isCorrect
-          };
-        }
-        return undefined;
-      }, (error, committed, snapshot) => {
-        if (committed && isCorrect) {
-          const currentScore = roomData.scores ? (roomData.scores[myPlayerId] || 0) : 0;
-          roomRef.child(`scores/${myPlayerId}`).set(currentScore + 1);
-        }
-      });
-    }
-
-    function nextMultiQuestionHost() {
-      if (!isHost) return;
-
-      const nextIndex = roomData.currentQIndex + 1;
-      if (nextIndex >= roomData.questions.length) {
-        const myScore = roomData.scores[myPlayerId] || 0;
-        const oppId = roomData.guest;
-        const oppScore = roomData.scores[oppId] || 0;
-
-        let winMsg = "引き分け！";
-        if (myScore > oppScore) winMsg = "あなたの勝利！🎉";
-        if (myScore < oppScore) winMsg = "相手の勝利！";
-
-        alert(`【対戦終了】\nあなた: ${myScore}点\n相手: ${oppScore}点\n\n${winMsg}`);
-        leaveMultiRoom();
-      } else {
-        roomRef.update({
-          currentQIndex: nextIndex,
-          buzzedPlayer: null,
-          answerState: null
-        });
-      }
-    }
-
-    window.addEventListener('beforeunload', () => {
-      if (roomRef) {
-        if (isHost) {
-          roomRef.remove();
-        } else {
-          roomRef.child('guest').remove();
-        }
-      }
-    });
-
-    // =========================================================
-    //  管理者機能・問題編集・保存
-    // =========================================================
-    function openAuthModal() {
-      document.getElementById('modal-auth').classList.remove('hidden');
-      document.getElementById('admin-password-input').value = '';
-      document.getElementById('auth-error-msg').classList.add('hidden');
-    }
-
-    function closeAuthModal() {
-      document.getElementById('modal-auth').classList.add('hidden');
-    }
-
-    function submitPassword() {
-      if (document.getElementById('admin-password-input').value === "2721") {
-        closeAuthModal();
-        openAdminModal();
-      } else {
-        document.getElementById('auth-error-msg').classList.remove('hidden');
-      }
-    }
-
-    function openAdminModal() {
-      document.getElementById('modal-admin').classList.remove('hidden');
-      renderAdminDragList();
-      initDragula();
-    }
-
-    function closeAdminModal() {
-      document.getElementById('modal-admin').classList.add('hidden');
-      renderSubjectList();
-    }
-
-    function renderAdminDragList() {
-      const container = document.getElementById('admin-drag-container');
-      container.innerHTML = subjects.map((s) => {
-        const isVisible = s.visible !== false;
-        const status = s.status || "available";
-        const isAnatomy = s.id === 'anatomy';
-
-        return `
-          <div data-id="${s.id}" class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
-            <div class="flex items-center gap-2">
-              <span class="drag-handle cursor-grab text-slate-600 hover:text-amber-400 p-1 select-none">☰</span>
-              <span class="font-mono text-[10px] text-amber-500 font-bold">${s.code}</span>
-              <span class="text-slate-200 font-medium">${s.name}</span>
-              ${s.isFixed ? '<span class="text-[10px] text-amber-500/70 border border-amber-500/30 px-1.5 py-0.2 rounded">固定</span>' : ''}
-            </div>
-           
-            <div class="flex items-center gap-2 ml-auto flex-wrap sm:flex-nowrap">
-              ${s.hasAnatomyModes || isAnatomy ? `
-                <button onclick="openQuestionsEditorModal('anatomy')" class="px-2 py-1 rounded text-[10px] bg-amber-700/80 hover:bg-amber-600 text-amber-50 font-medium transition">
-                  編集 (練習)
-                </button>
-                <button onclick="openQuestionsEditorModal('anatomy_applied')" class="px-2 py-1 rounded text-[10px] bg-rose-700/80 hover:bg-rose-600 text-rose-50 font-medium transition">
-                  編集 (応用)
-                </button>
-              ` : `
-                <button onclick="openQuestionsEditorModal('${s.id}')" class="px-2.5 py-1 rounded text-[11px] bg-amber-700/80 hover:bg-amber-600 text-amber-50 font-medium transition">
-                  問題編集
-                </button>
-              `}
-
-              <select onchange="updateSubjectStatus('${s.id}', this.value)" class="bg-slate-900 border border-slate-700 text-[11px] text-slate-300 rounded px-2 py-1 focus:outline-none focus:border-amber-500">
-                <option value="available" ${status === 'available' ? 'selected' : ''}>公開</option>
-                <option value="preparing" ${status === 'preparing' ? 'selected' : ''}>準備中</option>
-              </select>
-
-              <button onclick="toggleSubjectVisibility('${s.id}')" class="px-2.5 py-1 rounded text-[11px] transition border ${isVisible ? 'bg-slate-800 text-amber-400 border-amber-500/30' : 'bg-slate-900 text-slate-500 border-slate-800'}">
-                ${isVisible ? '表示中' : '非表示'}
-              </button>
-
-              ${!s.isFixed ? `<button onclick="deleteSubject('${s.id}')" class="text-rose-400 hover:text-rose-300 text-[11px] p-1 ml-1">削除</button>` : ''}
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function toggleSubjectVisibility(id) {
-      const subject = subjects.find(s => s.id === id);
-      if (subject) {
-        subject.visible = !(subject.visible !== false);
-        saveSubjectsToStorage();
-        renderAdminDragList();
-      }
-    }
-
-    function updateSubjectStatus(id, newStatus) {
-      const subject = subjects.find(s => s.id === id);
-      if (subject) {
-        subject.status = newStatus;
-        saveSubjectsToStorage();
-      }
-    }
-
-    function addNewSubject() {
-      const nameInput = document.getElementById('new-subject-name');
-      const codeInput = document.getElementById('new-subject-code');
-      const name = nameInput.value.trim();
-      const code = codeInput.value.trim().toUpperCase();
-
-      if (!name || !code) {
-        alert("科目名とコードを入力してください。");
-        return;
-      }
-
-      const id = 'custom_' + Date.now();
-      subjects.push({
-        id, name, code, visible: true, status: 'available', isFixed: false, hasRounds: false, fixedCount: null
-      });
-
-      window.QUIZ_DB[id] = [];
-      saveSubjectsToStorage();
-      renderAdminDragList();
-
-      nameInput.value = '';
-      codeInput.value = '';
-    }
-
-    function deleteSubject(id) {
-      if (!confirm("この科目を削除しますか？問題データも消去されます。")) return;
-      subjects = subjects.filter(s => s.id !== id);
-      delete window.QUIZ_DB[id];
-      db.ref(`quiz_db/${id}`).remove();
-      saveSubjectsToStorage();
-      renderAdminDragList();
-    }
-
-    function saveSubjectsToStorage() {
-      db.ref('subjects').set(subjects);
-    }
-
-    function initDragula() {
-      const container = document.getElementById('admin-drag-container');
-      if (!container) return;
-
-      if (dragulaInstance) dragulaInstance.destroy();
-
-      dragulaInstance = dragula([container], {
-        moves: (el, container, handle) => handle.classList.contains('drag-handle')
-      });
-
-      dragulaInstance.on('drop', () => {
-        const newOrderIds = Array.from(container.children).map(child => child.dataset.id);
-        const reordered = [];
-        newOrderIds.forEach(id => {
-          const found = subjects.find(s => s.id === id);
-          if (found) reordered.push(found);
-        });
-        subjects = reordered;
-        saveSubjectsToStorage();
-      });
-    }
-
-    function resetAllDataToDefault() {
-      if (!confirm("すべての科目・問題データを初期設定にリセットしますか？この操作は取り消せません。")) return;
-      db.ref('subjects').set(defaultSubjects);
-      db.ref('quiz_db').remove();
-      alert("データを初期リセットしました。ページを再読み込みします。");
-      location.reload();
-    }
-
-    // ---------------------------------------------------------
-    // 問題編集モーダルの制御機能（修正・完全版）
-    // ---------------------------------------------------------
-    function openQuestionsEditorModal(subjectId) {
-      editingSubjectId = subjectId;
-      const sub = subjects.find(s => s.id === subjectId) || { name: subjectId === 'anatomy_applied' ? '解剖学（応用）' : subjectId };
-      document.getElementById('editor-subject-title').textContent = `${sub.name} 問題編集`;
-
-      // JS初期データからQUIZ_DBへロード（未設定の場合）
-      if (subjectId === 'psychology' && typeof window.getQuestions === 'function') {
-        const psychData = window.getQuestions('all');
-        if (Array.isArray(psychData) && psychData.length > 0 && (!window.QUIZ_DB.psychology || window.QUIZ_DB.psychology.length === 0)) {
-          window.QUIZ_DB.psychology = psychData;
-        }
-      }
-      if (subjectId === 'nursing_method' && typeof window.getNursingQuestions === 'function') {
-        const nursingData = window.getNursingQuestions('all');
-        if (Array.isArray(nursingData) && nursingData.length > 0 && (!window.QUIZ_DB.nursing_method || window.QUIZ_DB.nursing_method.length === 0)) {
-          window.QUIZ_DB.nursing_method = nursingData;
-        }
-      }
-      if (subjectId === 'microbiology' && typeof window.getMicrobiologyQuestions === 'function') {
-        const microData = window.getMicrobiologyQuestions();
-        if (Array.isArray(microData) && microData.length > 0 && (!window.QUIZ_DB.microbiology || window.QUIZ_DB.microbiology.length === 0)) {
-          window.QUIZ_DB.microbiology = microData;
-        }
-      }
-      if (subjectId === 'medical_intro' && typeof window.getMedicineQuestions === 'function') {
-        const medData = window.getMedicineQuestions();
-        if (Array.isArray(medData) && medData.length > 0 && (!window.QUIZ_DB.medical_intro || window.QUIZ_DB.medical_intro.length === 0)) {
-          window.QUIZ_DB.medical_intro = medData;
-        }
-      }
-      if (subjectId === 'mind_behavior' && typeof window.getMindBehaviorQuestions === 'function') {
-        const mindData = window.getMindBehaviorQuestions();
-        if (Array.isArray(mindData) && mindData.length > 0 && (!window.QUIZ_DB.mind_behavior || window.QUIZ_DB.mind_behavior.length === 0)) {
-          window.QUIZ_DB.mind_behavior = mindData;
-        }
-      }
-      if (subjectId === 'physiology' && typeof window.getPhysiologyQuestions === 'function') {
-        const physioData = window.getPhysiologyQuestions();
-        if (Array.isArray(physioData) && physioData.length > 0 && (!window.QUIZ_DB.physiology || window.QUIZ_DB.physiology.length === 0)) {
-          window.QUIZ_DB.physiology = physioData;
-        }
-      }
-      if (subjectId === 'anatomy' && typeof window.getAnatomyQuestions === 'function') {
-        const anatomyBasicData = window.getAnatomyQuestions();
-        if (Array.isArray(anatomyBasicData) && anatomyBasicData.length > 0 && (!window.QUIZ_DB.anatomy || window.QUIZ_DB.anatomy.length === 0)) {
-          window.QUIZ_DB.anatomy = anatomyBasicData;
-        }
-      }
-      if (subjectId === 'anatomy_applied' && typeof window.getAnatomyAppliedQuestions === 'function') {
-        const anatomyAppliedData = window.getAnatomyAppliedQuestions();
-        if (Array.isArray(anatomyAppliedData) && anatomyAppliedData.length > 0 && (!window.QUIZ_DB.anatomy_applied || window.QUIZ_DB.anatomy_applied.length === 0)) {
-          window.QUIZ_DB.anatomy_applied = anatomyAppliedData;
-        }
-      }
-
-      const raw = window.QUIZ_DB[subjectId] || [];
-      editingQuestionsList = raw.map(q => normalizeQuestion(q)).filter(Boolean);
-
-      const modeSelectorContainer = document.getElementById('editor-mode-selector-container');
-      const modeSelect = document.getElementById('editor-mode-select');
-
-      if (sub.hasRounds || sub.hasNursingModes) {
-        modeSelectorContainer.classList.remove('hidden');
-        let optionsHtml = '';
-        for (let i = 1; i <= 10; i++) {
-          optionsHtml += `<option value="${i}">第${i}回</option>`;
-        }
-        optionsHtml += `<option value="quiz">小テスト</option>`;
-        optionsHtml += `<option value="all">すべての問題表示</option>`;
-        modeSelect.innerHTML = optionsHtml;
-        editingSelectedRound = '1';
-        modeSelect.value = '1';
-      } else {
-        modeSelectorContainer.classList.add('hidden');
-        editingSelectedRound = 'all';
-      }
-
-      renderEditorQuestionsList();
-      document.getElementById('modal-questions-editor').classList.remove('hidden');
-    }
-
-    function closeQuestionsEditorModal() {
-      document.getElementById('modal-questions-editor').classList.add('hidden');
-    }
-
-    function changeEditorMode(roundVal) {
-      editingSelectedRound = roundVal;
-      renderEditorQuestionsList();
-    }
-
-    function renderEditorQuestionsList() {
-      const container = document.getElementById('editor-questions-list');
-      if (!editingQuestionsList) editingQuestionsList = [];
-
-      let filtered = editingQuestionsList;
-      if (editingSelectedRound !== 'all') {
-        filtered = editingQuestionsList.filter(q => q.round == editingSelectedRound);
-      }
-
-      if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="p-8 text-center text-slate-500 text-xs rounded-xl bg-slate-900/60 border border-slate-800">
-            このモード・回には問題がまだ登録されていません。「＋ 問題を追加」から作成できます。
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = filtered.map((q) => {
-        const globalIndex = editingQuestionsList.indexOf(q);
-        const optionsList = q.options || [];
-        const answersList = q.answers || [];
-
-        return `
-          <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3 relative group">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold font-mono text-amber-400">問題 #${globalIndex + 1} ${q.round ? `[第${q.round}回]` : ''}</span>
-              <button onclick="removeQuestionFromEditor(${globalIndex})" class="text-rose-400 hover:text-rose-300 text-xs font-medium px-2 py-1 rounded bg-rose-950/40 border border-rose-800/40 transition">
-                削除
-              </button>
-            </div>
-
-            <div class="space-y-1">
-              <label class="text-[10px] text-slate-400 block font-medium">問題文:</label>
-              <textarea onchange="updateEditorQuestionField(${globalIndex}, 'q', this.value)" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-16">${q.q || ''}</textarea>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <div class="space-y-1">
-                <label class="text-[10px] text-slate-400 block font-medium">画像URL (任意):</label>
-                <input type="text" value="${q.image || ''}" onchange="updateEditorQuestionField(${globalIndex}, 'image', this.value)" placeholder="https://..." class="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
-              </div>
-              <div class="space-y-1">
-                <label class="text-[10px] text-slate-400 block font-medium">正解番号 (カンマ区切りで複数可例: 0, 2):</label>
-                <input type="text" value="${answersList.join(', ')}" onchange="updateEditorQuestionAnswers(${globalIndex}, this.value)" placeholder="0" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 font-mono">
-              </div>
-            </div>
-
-            <div class="space-y-1.5">
-              <div class="flex justify-between items-center">
-                <label class="text-[10px] text-slate-400 block font-medium">選択肢一覧:</label>
-                <button onclick="addOptionToEditorQuestion(${globalIndex})" class="text-[10px] text-amber-400 hover:underline">＋ 選択肢を追加</button>
-              </div>
-              <div class="space-y-1">
-                ${optionsList.map((opt, optIdx) => `
-                  <div class="flex items-center gap-2">
-                    <span class="text-[10px] font-mono text-slate-500 w-4 text-right">${optIdx}:</span>
-                    <input type="text" value="${opt}" onchange="updateEditorQuestionOption(${globalIndex}, ${optIdx}, this.value)" class="w-full px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
-                    <button onclick="removeOptionFromEditorQuestion(${globalIndex}, ${optIdx})" class="text-rose-400 hover:text-rose-300 text-xs px-1.5">✕</button>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-
-            <div class="space-y-1">
-              <label class="text-[10px] text-slate-400 block font-medium">解説:</label>
-              <textarea onchange="updateEditorQuestionField(${globalIndex}, 'exp', this.value)" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-300 text-xs focus:outline-none focus:border-amber-500 h-14">${q.exp || ''}</textarea>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function updateEditorQuestionField(index, field, value) {
-      if (editingQuestionsList[index]) {
-        editingQuestionsList[index][field] = value;
-      }
-    }
-
-    function updateEditorQuestionAnswers(index, valueStr) {
-      if (!editingQuestionsList[index]) return;
-      const parsed = valueStr.split(',').map(v => parseInt(v.trim(), 10)).filter(v => !isNaN(v));
-      editingQuestionsList[index].answers = parsed;
-      editingQuestionsList[index].isMultiple = parsed.length > 1;
-    }
-
-    function updateEditorQuestionOption(qIdx, optIdx, val) {
-      if (editingQuestionsList[qIdx] && editingQuestionsList[qIdx].options) {
-        editingQuestionsList[qIdx].options[optIdx] = val;
-      }
-    }
-
-    function addOptionToEditorQuestion(qIdx) {
-      if (editingQuestionsList[qIdx]) {
-        if (!editingQuestionsList[qIdx].options) editingQuestionsList[qIdx].options = [];
-        editingQuestionsList[qIdx].options.push("新しい選択肢");
-        renderEditorQuestionsList();
-      }
-    }
-
-    function removeOptionFromEditorQuestion(qIdx, optIdx) {
-      if (editingQuestionsList[qIdx] && editingQuestionsList[qIdx].options) {
-        editingQuestionsList[qIdx].options.splice(optIdx, 1);
-        renderEditorQuestionsList();
-      }
-    }
-
-    function addNewQuestionToEditor() {
-      const newQ = {
-        q: "新しい問題文を入力してください",
-        options: ["選択肢 1", "選択肢 2", "選択肢 3", "選択肢 4"],
-        answers: [0],
-        exp: "解説をここに入力します。",
-        image: null,
-        wordBox: null,
-        round: (editingSelectedRound !== 'all') ? editingSelectedRound : null
-      };
-      editingQuestionsList.push(normalizeQuestion(newQ));
-      renderEditorQuestionsList();
-    }
-
-    function removeQuestionFromEditor(index) {
-      if (confirm("この問題を削除しますか？")) {
-        editingQuestionsList.splice(index, 1);
-        renderEditorQuestionsList();
-      }
-    }
-
-    function saveEditedQuestions() {
-      if (!editingSubjectId) return;
-
-      window.QUIZ_DB[editingSubjectId] = editingQuestionsList;
-
-      db.ref(`quiz_db/${editingSubjectId}`).set(editingQuestionsList).then(() => {
-        alert("問題データの変更を保存・リアルタイム同期しました！");
-        closeQuestionsEditorModal();
-      }).catch(err => {
-        console.error("保存失敗:", err);
-        alert("データの保存に失敗しました。");
-      });
+      showSubjectScreen();
     }
   </script>
 </body>
