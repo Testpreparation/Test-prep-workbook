@@ -30,6 +30,7 @@
     window.QUIZ_DB.anatomy = [];
     window.QUIZ_DB.anatomy_applied = [];
     window.QUIZ_DB.physiology = [];
+    window.QUIZ_DB.biochemistry = []; // 生化学用
     window.QUIZ_DB.nursing_method = []; // 看護学方法論Ⅰ用
   </script>
 
@@ -40,6 +41,7 @@
   <script src="Medicine.js"></script>
   <script src="physiology.js"></script>
   <script src="./anatomy.js"></script>
+  <script src="biochemistry.js"></script> <!-- 生化学用の外部JS読み込み -->
   <script src="nursingmethod.js"></script>
 
   <style>
@@ -191,7 +193,7 @@
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
           <h2 id="subjects-header-title" class="en-title text-xs text-slate-400 tracking-widest uppercase">Select Subject</h2>
           <div class="flex items-center gap-3">
-            <span id="subject-count-display" class="text-xs text-slate-500 font-light">全7科目</span>
+            <span id="subject-count-display" class="text-xs text-slate-500 font-light">全8科目</span>
             <!-- お知らせボタン -->
             <button onclick="openNoticeModal()" class="relative px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition flex items-center gap-1.5">
               <span>🔔</span>
@@ -377,6 +379,29 @@
         <div id="quizContainer"></div>
       </div>
 
+      <!-- 画面1.6: 問題数選択画面 -->
+      <div id="screen-count-select" class="hidden space-y-6 text-center">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button id="count-back-btn" onclick="showTimeSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 戻る</button>
+          <span id="count-subject-title" class="serif-title text-sm text-slate-300">問題数選択</span>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-6">
+          <div class="space-y-2">
+            <div class="text-xs text-slate-400 uppercase tracking-widest font-medium">出題数を選択</div>
+            <div class="text-4xl font-bold text-amber-500 font-mono"><span id="slider-count-display">10</span> <span class="text-sm font-normal text-slate-500">問</span></div>
+          </div>
+          <div class="px-2">
+            <input type="range" id="quiz-count-slider" min="10" max="30" step="10" value="10" oninput="updateSliderValue(this.value)" class="w-full">
+            <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
+              <span>10問</span><span>20問</span><span>30問</span>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="startQuiz()" class="w-full py-3.5 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-xl text-xs font-semibold transition shadow-lg tracking-widest">演習を開始する</button>
+      </div>
+
       <!-- 画面2: クイズ開始前設定 (SOLO) -->
       <div id="screen-quiz-start" class="hidden space-y-6 text-center">
         <div class="pb-3 border-b border-slate-700/50 flex items-center justify-between">
@@ -395,10 +420,10 @@
         <div id="count-selector-container" class="hidden space-y-6 p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
           <div class="space-y-2">
             <div class="text-xs text-slate-400 uppercase tracking-widest font-medium">出題数を選択</div>
-            <div class="text-4xl font-bold text-amber-500 font-mono"><span id="slider-count-display">10</span> <span class="text-sm font-normal text-slate-500">問</span></div>
+            <div class="text-4xl font-bold text-amber-500 font-mono"><span id="slider-count-display-deprecated">10</span> <span class="text-sm font-normal text-slate-500">問</span></div>
           </div>
           <div class="px-2">
-            <input type="range" id="quiz-count-slider" min="10" max="30" step="10" value="10" oninput="updateSliderValue(this.value)" class="w-full">
+            <input type="range" id="quiz-count-slider-deprecated" min="10" max="30" step="10" value="10" oninput="updateSliderValue(this.value)" class="w-full">
             <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
               <span>10問</span><span>20問</span><span>30問</span>
             </div>
@@ -413,8 +438,8 @@
           <span id="start-screen-highscore" class="font-bold text-amber-400">未挑戦</span>
         </div>
 
-        <button onclick="startQuiz()" class="w-full py-4 rounded-xl bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold text-sm transition shadow-lg tracking-widest">
-          演習を開始する
+        <button id="start-screen-submit-btn" onclick="handleStartScreenSubmit()" class="w-full py-4 rounded-xl bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold text-sm transition shadow-lg tracking-widest">
+          次へ進む
         </button>
       </div>
 
@@ -804,7 +829,7 @@
           window.QUIZ_DB.nursing_method = currentQuestions;
         }
       }
-      showTimeSelectionScreen();
+      showStartScreen();
     }
 
     // =========================================================
@@ -971,6 +996,7 @@
       { id: "mind_behavior", name: "こころと行動", code: "MND", visible: true, status: "available", isFixed: true, hasRounds: false, fixedCount: null },
       { id: "medical_intro", name: "医療概論", code: "MED", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null },
       { id: "physiology", name: "生理学", code: "PHY", visible: true, status: "available", isFixed: false, hasRounds: false, hasPhysiologyModes: true, fixedCount: null },
+      { id: "biochemistry", name: "生化学", code: "BIO", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null },
       { id: "microbiology", name: "微生物学", code: "MIC", visible: true, status: "available", isFixed: true, hasRounds: false, fixedCount: null },
       { id: "anatomy", name: "解剖学", code: "ANA", visible: true, status: "available", isFixed: false, hasRounds: false, hasAnatomyModes: true, fixedCount: null },
       { id: "nursing_method", name: "看護学方法論Ⅰ", code: "NUR Ⅰ", visible: true, status: "available", isFixed: true, hasRounds: false, hasNursingModes: true, fixedCount: null }
@@ -1196,6 +1222,9 @@
       } else if (editingSubjectId === 'psychology' && typeof window.getQuestions === 'function') {
         const fetched = window.getQuestions(editingSelectedRound || 'all');
         if (fetched && fetched.length > 0) rawData = fetched;
+      } else if (editingSubjectId === 'biochemistry' && typeof window.getBiochemistryQuestions === 'function') {
+        const fetched = window.getBiochemistryQuestions();
+        if (fetched && fetched.length > 0) rawData = fetched;
       }
 
       if (editingSubjectId === 'physiology') {
@@ -1378,7 +1407,7 @@
               window.QUIZ_DB.nursing_method = currentQuestions;
             }
           }
-          showTimeSelectionScreen();
+          showStartScreen();
         });
       }
     });
@@ -1389,6 +1418,9 @@
         if (val && Array.isArray(val)) {
           if (!val.find(s => s.id === 'nursing_method')) {
             val.push(defaultSubjects.find(s => s.id === 'nursing_method'));
+          }
+          if (!val.find(s => s.id === 'biochemistry')) {
+            val.push(defaultSubjects.find(s => s.id === 'biochemistry'));
           }
           subjects = val;
         } else {
@@ -1486,6 +1518,7 @@
       document.getElementById('screen-nursing-mode-select').classList.add('hidden');
       document.getElementById('screen-time-select').classList.add('hidden');
       document.getElementById('screen-round-select').classList.add('hidden');
+      document.getElementById('screen-count-select').classList.add('hidden');
       document.getElementById('screen-quiz-start').classList.add('hidden');
       document.getElementById('screen-quiz-play').classList.add('hidden');
       document.getElementById('screen-quiz-result').classList.add('hidden');
@@ -1550,7 +1583,7 @@
         showRoundSelectionScreen();
       } else {
         currentRound = null;
-        showTimeSelectionScreen();
+        showStartScreen();
       }
     }
 
@@ -1561,7 +1594,7 @@
 
     function selectPhysiologyMode(mode) {
       currentPhysiologyMode = mode;
-      showTimeSelectionScreen();
+      showStartScreen();
     }
 
     function showAnatomyModeSelectionScreen() {
@@ -1571,7 +1604,7 @@
 
     function selectAnatomyMode(mode) {
       currentAnatomyMode = mode;
-      showTimeSelectionScreen();
+      showStartScreen();
     }
 
     function showNursingModeSelectionScreen() {
@@ -1603,17 +1636,7 @@
       document.getElementById('time-subject-title').textContent = `${currentSubject.name} 制限時間設定`;
       
       const backBtn = document.getElementById('time-back-btn');
-      if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) {
-        backBtn.onclick = () => showPhysiologyModeSelectionScreen();
-      } else if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) {
-        backBtn.onclick = () => showAnatomyModeSelectionScreen();
-      } else if (currentSubject.id === 'nursing_method' || currentSubject.hasNursingModes) {
-        backBtn.onclick = () => showNursingModeSelectionScreen();
-      } else if (currentSubject.hasRounds) {
-        backBtn.onclick = () => showRoundSelectionScreen();
-      } else {
-        backBtn.onclick = () => showSubjectScreen();
-      }
+      backBtn.onclick = () => showStartScreen();
     }
 
     function updateTimeSliderValue(val) {
@@ -1622,7 +1645,17 @@
     }
 
     function proceedToCountOrStart() {
-      showStartScreen();
+      if (currentSubject.fixedCount) {
+        startQuiz();
+      } else {
+        showCountSelectionScreen();
+      }
+    }
+
+    function showCountSelectionScreen() {
+      hideAllScreens();
+      document.getElementById('screen-count-select').classList.remove('hidden');
+      document.getElementById('count-subject-title').textContent = `${currentSubject.name} 出題数設定`;
     }
 
     function showStartScreen() {
@@ -1635,69 +1668,71 @@
       const countContainer = document.getElementById('count-selector-container');
       const backBtn = document.getElementById('start-back-btn');
 
-      backBtn.onclick = () => showTimeSelectionScreen();
-
       if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) {
+        backBtn.onclick = () => showPhysiologyModeSelectionScreen();
         const modeTitle = currentPhysiologyMode === 'quiz' ? '小テスト' : '過去問';
         titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
         headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
         descEl.textContent = currentPhysiologyMode === 'quiz'
           ? `生理学の小テスト問題が出題されます。`
           : `生理学の過去問演習問題が出題されます。`;
-        countContainer.classList.remove('hidden');
+        countContainer.classList.add('hidden');
 
       } else if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) {
+        backBtn.onclick = () => showAnatomyModeSelectionScreen();
         const modeTitle = currentAnatomyMode === 'applied' ? '応用問題' : '練習問題';
         titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
         headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
         descEl.textContent = currentAnatomyMode === 'applied'
           ? `解剖学の応用・発展レベルの問題が出題されます。`
           : `解剖学の基礎・標準問題が出題されます。`;
-        countContainer.classList.remove('hidden');
+        countContainer.classList.add('hidden');
 
       } else if (currentSubject.id === 'nursing_method' || currentSubject.hasNursingModes) {
+        backBtn.onclick = () => showNursingModeSelectionScreen();
         if (currentRound === 'quiz') {
           titleEl.textContent = `${currentSubject.name} - 小テスト`;
           headingEl.textContent = `小テスト 演習`;
-          descEl.textContent = `小テストの問題が出題されます。出題数を選択して進めてください。`;
-          countContainer.classList.remove('hidden');
+          descEl.textContent = `小テストの問題が出題されます。次へ進んで時間と問題数を選択してください。`;
+          countContainer.classList.add('hidden');
         } else if (currentRound) {
           titleEl.textContent = `${currentSubject.name} - 第${currentRound}回`;
           headingEl.textContent = `第 ${currentRound} 回 演習`;
-          descEl.textContent = `第${currentRound}回の演習を開始します。出題数を選択して進めてください。`;
-          countContainer.classList.remove('hidden');
+          descEl.textContent = `第${currentRound}回の演習を開始します。次へ進んで時間と問題数を選択してください。`;
+          countContainer.classList.add('hidden');
         } else {
           titleEl.textContent = `${currentSubject.name} - 総合練習問題`;
           headingEl.textContent = `総合練習問題`;
-          descEl.textContent = `全範囲の中からランダムに問題が出題されます。出題数を選択して進めてください。`;
-          countContainer.classList.remove('hidden');
+          descEl.textContent = `全範囲の中からランダムに問題が出題されます。次へ進んで時間と問題数を選択してください。`;
+          countContainer.classList.add('hidden');
         }
       } else if (currentSubject.hasRounds) {
+        backBtn.onclick = () => showRoundSelectionScreen();
         if (currentRound) {
           titleEl.textContent = `${currentSubject.name} - 第${currentRound}回`;
           headingEl.textContent = `第 ${currentRound} 回 演習`;
-          descEl.textContent = `第${currentRound}回の演習を開始します。出題数を選択して進めてください。`;
-          countContainer.classList.remove('hidden');
+          descEl.textContent = `第${currentRound}回の演習を開始します。次へ進んで時間と問題数を選択してください。`;
+          countContainer.classList.add('hidden');
         } else {
           titleEl.textContent = `${currentSubject.name} - 総合練習問題`;
           headingEl.textContent = `総合練習問題`;
-          descEl.textContent = `全範囲の中からランダムに問題が出題されます。出題数を選択して進めてください。`;
-          countContainer.classList.remove('hidden');
+          descEl.textContent = `全範囲の中からランダムに問題が出題されます。次へ進んで時間と問題数を選択してください。`;
+          countContainer.classList.add('hidden');
         }
       } else {
+        backBtn.onclick = () => showSubjectScreen();
         titleEl.textContent = currentSubject.name;
-        headingEl.textContent = `${currentSubject.name} 練習問題`;
+        headingEl.textContent = `${currentSubject.name} 演習問題`;
        
-        if (currentSubject.fixedCount) {
-          descEl.textContent = `指定された問題が出題されます。`;
-          countContainer.classList.add('hidden');
-        } else {
-          descEl.textContent = `データベースから指定した問題数が出題されます。`;
-          countContainer.classList.remove('hidden');
-        }
+        descEl.textContent = `データベースから問題が出題されます。次へ進んで時間と問題数を選択してください。`;
+        countContainer.classList.add('hidden');
       }
 
       updateHighscoreDisplay();
+    }
+
+    function handleStartScreenSubmit() {
+      showTimeSelectionScreen();
     }
 
     function updateSliderValue(val) {
@@ -1763,6 +1798,13 @@
         const physioData = window.getPhysiologyQuestions(currentPhysiologyMode);
         if (Array.isArray(physioData) && physioData.length > 0) {
           window.QUIZ_DB.physiology = physioData;
+        }
+      }
+
+      if (currentSubject.id === 'biochemistry' && typeof window.getBiochemistryQuestions === 'function') {
+        const bioData = window.getBiochemistryQuestions();
+        if (Array.isArray(bioData) && bioData.length > 0) {
+          window.QUIZ_DB.biochemistry = bioData;
         }
       }
 
