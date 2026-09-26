@@ -2,7 +2,7 @@
 // 表面：単語 / 裏面：意味・解説
 (function() {
   window.QUIZ_DB = window.QUIZ_DB || {};
-  
+
   const flashcardData = [
     {
       id: "bio_fc_01",
