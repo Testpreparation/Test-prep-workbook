@@ -33,6 +33,8 @@
     window.QUIZ_DB.biochemistry = []; // 生化学（選択式）
     window.QUIZ_DB.biochemistry_keyboard = []; // 生化学（記述式）
     window.QUIZ_DB.biochemistry_flashcards = []; // 生化学（暗記カード専用）
+    window.QUIZ_DB.public_health = []; // 公衆衛生学（5択演習用）
+    window.QUIZ_DB.public_health_flashcards = []; // 公衆衛生学（暗記カード専用）
     window.QUIZ_DB.nursing_method = []; // 看護学方法論Ⅰ用
   </script>
 
@@ -45,6 +47,8 @@
   <script src="./anatomy.js"></script>
   <script src="biochemistry.js"></script>
   <script src="biochemistry_flashcard.js"></script>
+  <script src="publichealth.js"></script>
+  <script src="publichealth_flashcard.js"></script>
   <script src="nursingmethod.js"></script>
 
   <style>
@@ -213,7 +217,7 @@
           <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
             <h2 id="subjects-header-title" class="en-title text-xs text-amber-500/90 font-semibold tracking-widest uppercase">Select Subject</h2>
             <div class="flex items-center gap-3">
-              <span id="subject-count-display" class="text-xs text-slate-500 font-light">全8科目</span>
+              <span id="subject-count-display" class="text-xs text-slate-500 font-light">全9科目</span>
               <!-- お知らせボタン -->
               <button onclick="openNoticeModal()" class="relative px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition flex items-center gap-1.5">
                 <span>🔔</span>
@@ -229,7 +233,7 @@
         <div class="space-y-3 pt-4 border-t border-slate-700/50">
           <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
             <h2 class="en-title text-xs text-emerald-400 font-semibold tracking-widest uppercase">Select Flashcards</h2>
-            <span id="flashcard-count-display" class="text-xs text-slate-500 font-light">全8科目</span>
+            <span id="flashcard-count-display" class="text-xs text-slate-500 font-light">全9科目</span>
           </div>
           <div id="flashcard-list-container" class="grid gap-3 pt-1"></div>
         </div>
@@ -299,7 +303,7 @@
         </div>
       </div>
 
-      <!-- 画面1.3: 看護学方法論Ⅰ コース選択（ドロップダウン不対応・12回別問題直接選択） -->
+      <!-- 画面1.3: 看護学方法論Ⅰ コース選択 -->
       <div id="screen-nursing-mode-select" class="hidden space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
           <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline">← 科目選択へ戻る</button>
@@ -568,7 +572,7 @@
                 <img id="flashcard-front-img" src="" class="max-h-24 rounded border border-slate-700 object-contain">
               </div>
               <div class="text-[11px] text-emerald-400/80 font-light flex items-center gap-1">
-                <span>🔄 タップして意味・解説を確認</span>
+                <span>🔄 タップして意味を確認</span>
               </div>
             </div>
 
@@ -1186,6 +1190,7 @@
       { id: "medical_intro", name: "医療概論", code: "MED", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null },
       { id: "physiology", name: "生理学", code: "PHY", visible: true, status: "available", isFixed: false, hasRounds: false, hasPhysiologyModes: true, fixedCount: null },
       { id: "biochemistry", name: "生化学", code: "BIO", visible: true, status: "available", isFixed: false, hasRounds: false, hasBiochemistryFormats: true, fixedCount: null },
+      { id: "public_health", name: "公衆衛生学", code: "PUB", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null },
       { id: "microbiology", name: "微生物学", code: "MIC", visible: true, status: "available", isFixed: true, hasRounds: false, fixedCount: null },
       { id: "anatomy", name: "解剖学", code: "ANA", visible: true, status: "available", isFixed: false, hasRounds: false, hasAnatomyModes: true, fixedCount: null },
       { id: "nursing_method", name: "看護学方法論Ⅰ", code: "NUR Ⅰ", visible: true, status: "available", isFixed: true, hasRounds: false, hasNursingModes: true, fixedCount: null }
@@ -1473,6 +1478,7 @@
         }
 
         const isKeyboardMode = (editingSelectedRound === 'flashcard' || editingSelectedRound === 'keyboard');
+        const isPublicHealth = (editingSubjectId === 'public_health');
 
         const promptText = isKeyboardMode ? `
 以下の画像または提示内容を解析し、記述式（キーボード入力用）問題を1問作成してください。
@@ -1486,13 +1492,13 @@
 
 ユーザー指示/補足: ${text || "画像や内容から重要な単語と解説を1問自動作成してください。"}
 ` : `
-以下の画像または提示内容を解析し、四肢択一問題を1問作成してください。
+以下の画像または提示内容を解析し、${isPublicHealth ? '五肢択一(選択肢5つ)' : '四肢択一'}問題を1問作成してください。
 必ず以下のJSONフォーマットのみを返してください。余計な解説やマークダウン記法(例: \`\`\`json)は一切含めないでください。
 
 {
   "q": "問題文",
-  "options": ["選択肢1", "選択肢2", "選択肢3", "選択肢4"],
-  "answers": [正解のインデックス(0〜3の数値)],
+  "options": [${isPublicHealth ? '"選択肢1", "選択肢2", "選択肢3", "選択肢4", "選択肢5"' : '"選択肢1", "選択肢2", "選択肢3", "選択肢4"'}],
+  "answers": [正解のインデックス(0〜${isPublicHealth ? '4' : '3'}の数値)],
   "exp": "正解の理由や解説"
 }
 
@@ -1629,7 +1635,11 @@
         rawData = window.QUIZ_DB[fcKey] || [];
         if (rawData.length === 0 && editingSubjectId === 'biochemistry' && typeof window.getBiochemistryFlashcards === 'function') {
           rawData = window.getBiochemistryFlashcards();
+        } else if (rawData.length === 0 && editingSubjectId === 'public_health' && typeof window.getPublicHealthFlashcards === 'function') {
+          rawData = window.getPublicHealthFlashcards();
         }
+      } else if (editingSubjectId === 'public_health' && typeof window.getPublicHealthQuestions === 'function') {
+        rawData = window.getPublicHealthQuestions();
       } else if (editingSubjectId === 'biochemistry') {
         const dbKey = (editingSelectedRound === 'keyboard') ? 'biochemistry_keyboard' : 'biochemistry';
         rawData = window.QUIZ_DB[dbKey] || [];
@@ -1651,7 +1661,7 @@
 
       if (editingSelectedRound === 'flashcard') {
         editingQuestionsList = [...rawData];
-      } else if (editingSubjectId === 'physiology' || editingSubjectId === 'biochemistry') {
+      } else if (editingSubjectId === 'physiology' || editingSubjectId === 'biochemistry' || editingSubjectId === 'public_health') {
         editingQuestionsList = [...rawData];
       } else if (editingSelectedRound && editingSelectedRound !== 'normal') {
         editingQuestionsList = rawData.filter(q => q.round == editingSelectedRound);
@@ -1702,7 +1712,7 @@
           ${!isKeyboardMode ? `
             <div class="space-y-1">
               <label class="text-[10px] text-slate-400 block">選択肢 (カンマ区切り):</label>
-              <input type="text" value="${(q.options || []).join(', ')}" onchange="updateEditorQData(${idx}, 'options', this.value)" placeholder="選択肢1, 選択肢2, 選択肢3, 選択肢4" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
+              <input type="text" value="${(q.options || []).join(', ')}" onchange="updateEditorQData(${idx}, 'options', this.value)" placeholder="選択肢1, 選択肢2, 選択肢3, 選択肢4, 選択肢5" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
             </div>
 
             <div class="grid grid-cols-2 gap-2">
@@ -1765,9 +1775,11 @@
 
     function addNewQuestionToEditor() {
       const isKeyboard = (editingSelectedRound === 'flashcard' || editingSelectedRound === 'keyboard');
+      const isPublicHealth = (editingSubjectId === 'public_health');
+
       editingQuestionsList.push({
         q: editingSelectedRound === 'flashcard' ? "ミトコンドリア" : "新しい単語 / 質問文を入力してください",
-        options: isKeyboard ? [] : ["選択肢1", "選択肢2", "選択肢3", "選択肢4"],
+        options: isKeyboard ? [] : (isPublicHealth ? ["選択肢1", "選択肢2", "選択肢3", "選択肢4", "選択肢5"] : ["選択肢1", "選択肢2", "選択肢3", "選択肢4"]),
         answers: isKeyboard ? [] : [0],
         exp: editingSelectedRound === 'flashcard' ? "細胞の呼吸を行いATPを産生する細胞小器官。" : "解説 / 意味を入力してください",
         image: "",
@@ -1799,7 +1811,7 @@
 
       let rawData = window.QUIZ_DB[saveDbKey] || [];
 
-      if (editingSelectedRound === 'flashcard' || editingSubjectId === 'physiology' || editingSubjectId === 'biochemistry') {
+      if (editingSelectedRound === 'flashcard' || editingSubjectId === 'physiology' || editingSubjectId === 'biochemistry' || editingSubjectId === 'public_health') {
         rawData = [...editingQuestionsList];
       } else if (editingSelectedRound && editingSelectedRound !== 'normal') {
         rawData = rawData.filter(q => q.round != editingSelectedRound);
@@ -1865,6 +1877,9 @@
           }
           if (!val.find(s => s.id === 'biochemistry')) {
             val.push(defaultSubjects.find(s => s.id === 'biochemistry'));
+          }
+          if (!val.find(s => s.id === 'public_health')) {
+            val.push(defaultSubjects.find(s => s.id === 'public_health'));
           }
           subjects = val;
         } else {
@@ -1994,7 +2009,9 @@
         const isAnatomy = s.id === 'anatomy';
         const isNursing = s.id === 'nursing_method';
         const isBiochemistry = s.id === 'biochemistry';
-        const statusLabel = isPrep ? '【準備中】' : (s.hasPhysiologyModes || isPhysiology ? '過去問・小テスト対応' : (s.hasAnatomyModes || isAnatomy ? '練習問題・応用問題対応' : (s.hasBiochemistryFormats || isBiochemistry ? '選択式・記述式対応' : (s.hasNursingModes || isNursing ? '12回別問題・問題数選択可' : (s.hasRounds ? '全13回 小テスト対応' : (s.fixedCount ? `過去問演習（${s.fixedCount}問固定）` : '過去問演習・問題数選択可'))))));
+        const isPublicHealth = s.id === 'public_health';
+
+        const statusLabel = isPrep ? '【準備中】' : (s.hasPhysiologyModes || isPhysiology ? '過去問・小テスト対応' : (s.hasAnatomyModes || isAnatomy ? '練習問題・応用問題対応' : (s.hasBiochemistryFormats || isBiochemistry ? '選択式・記述式対応' : (isPublicHealth ? '5肢択一問題演習' : (s.hasNursingModes || isNursing ? '12回別問題・問題数選択可' : (s.hasRounds ? '全13回 小テスト対応' : (s.fixedCount ? `過去問演習（${s.fixedCount}問固定）` : '過去問演習・問題数選択可')))))));
        
         const avgAcc = isPrep ? null : getAverageAccuracy(s.id);
         const avgDisplay = (avgAcc !== null) ? `${avgAcc}%` : '-- %';
@@ -2322,6 +2339,21 @@
         }
       }
 
+      if (currentSubject.id === 'public_health') {
+        if (typeof window.getPublicHealthQuestions === 'function') {
+          const pubData = window.getPublicHealthQuestions();
+          if (Array.isArray(pubData) && pubData.length > 0 && (!window.QUIZ_DB.public_health || window.QUIZ_DB.public_health.length === 0)) {
+            window.QUIZ_DB.public_health = pubData;
+          }
+        }
+        if (typeof window.getPublicHealthFlashcards === 'function') {
+          const pubFcData = window.getPublicHealthFlashcards();
+          if (Array.isArray(pubFcData) && pubFcData.length > 0 && (!window.QUIZ_DB.public_health_flashcards || window.QUIZ_DB.public_health_flashcards.length === 0)) {
+            window.QUIZ_DB.public_health_flashcards = pubFcData;
+          }
+        }
+      }
+
       if (currentSubject.id === 'anatomy') {
         if (currentAnatomyMode === 'applied' && typeof window.getAnatomyAppliedQuestions === 'function') {
           const anatomyAppliedData = window.getAnatomyAppliedQuestions();
@@ -2428,7 +2460,7 @@
       const fbBox = document.getElementById('quiz-feedback-box');
       const fcActionBtns = document.getElementById('flashcard-action-btns');
 
-      // --- 暗記カードモード時の専用出題UI（表：単語 / 裏：意味・解説） ---
+      // --- 暗記カードモード時の専用出題UI（表：単語 / 裏：意味） ---
       if (isFlashcardMode) {
         timerWrap.classList.add('hidden');
         standardBox.classList.add('hidden');
@@ -2444,7 +2476,7 @@
         const flipInner = document.getElementById('flashcard-flip-inner');
         flipInner.classList.remove('rotate-y-180');
 
-        // 表面：単語（keywordを最優先し、なければqを表示）
+        // 表面：単語（keyword優先、なければq）
         const wordText = q.keyword || q.q || '単語';
         document.getElementById('flashcard-front-text').textContent = wordText;
 
@@ -2458,12 +2490,12 @@
           imgWrap.classList.add('hidden');
         }
 
-        // 裏面：その単語の意味・解説（expを優先し、なければoptions/answersから意味を生成）
+        // 裏面：意味（exp優先、なければoptions/answersから抽出）
         let descText = q.exp || '';
         if ((!descText || descText === "解説はありません。") && q.options && q.options.length > 0 && q.answers && q.answers.length > 0) {
           descText = q.answers.map(idx => q.options[idx]).join(' / ');
         }
-        document.getElementById('flashcard-back-desc').textContent = descText || '意味・解説はありません。';
+        document.getElementById('flashcard-back-desc').textContent = descText || '解説はありません。';
 
         return; // 暗記カード時はタイマー起動しない
       }
