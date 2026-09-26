@@ -32,6 +32,7 @@
     window.QUIZ_DB.physiology = [];
     window.QUIZ_DB.biochemistry = []; // 生化学（選択式）
     window.QUIZ_DB.biochemistry_keyboard = []; // 生化学（記述式）
+    window.QUIZ_DB.biochemistry_flashcards = []; // 生化学（暗記カード専用）
     window.QUIZ_DB.nursing_method = []; // 看護学方法論Ⅰ用
   </script>
 
@@ -43,6 +44,7 @@
   <script src="physiology.js"></script>
   <script src="./anatomy.js"></script>
   <script src="biochemistry.js"></script>
+  <script src="biochemistry_flashcard.js"></script>
   <script src="nursingmethod.js"></script>
 
   <style>
@@ -139,6 +141,21 @@
       cursor: not-allowed;
       box-shadow: none;
       transform: translateY(4px);
+    }
+
+    /* 3Dカード反転アニメーション */
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+    .transform-style-3d {
+      transform-style: preserve-3d;
+    }
+    .backface-hidden {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .rotate-y-180 {
+      transform: rotateY(180deg);
     }
   </style>
 </head>
@@ -512,11 +529,12 @@
         </div>
 
         <!-- 30秒制限時間タイマーバー -->
-        <div class="w-full bg-slate-800/80 h-2 rounded-full overflow-hidden border border-slate-700/50">
+        <div id="quiz-timer-bar-wrap" class="w-full bg-slate-800/80 h-2 rounded-full overflow-hidden border border-slate-700/50">
           <div id="quiz-timer-bar" class="h-full bg-amber-500 w-full transition-all duration-100 ease-linear"></div>
         </div>
 
-        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+        <!-- 通常演習用の問題テキスト・画像領域 -->
+        <div id="standard-question-box" class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
           <div id="quiz-question-number" class="text-[11px] text-amber-500/80 font-medium">Q1</div>
           <div id="quiz-question-text" class="text-sm text-slate-100 leading-relaxed font-normal">---</div>
          
@@ -531,6 +549,47 @@
               <span>【語群】</span>
             </div>
             <div id="quiz-wordbox-content" class="text-slate-300 leading-relaxed space-y-1"></div>
+          </div>
+        </div>
+
+        <!-- 暗記カード専用 3Dタップフリップカード表示領域 -->
+        <div id="flashcard-interactive-box" class="hidden w-full max-w-md mx-auto my-4 perspective-1000">
+          <div id="flashcard-flip-inner" onclick="flipFlashcard()" class="w-full h-64 relative transform-style-3d transition-transform duration-500 cursor-pointer rounded-2xl shadow-2xl">
+            <!-- 表面 (単語 / 質問) -->
+            <div class="absolute inset-0 w-full h-full backface-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-850 to-emerald-950 border-2 border-emerald-500/40 p-6 flex flex-col justify-between items-center text-center shadow-xl">
+              <div class="w-full flex justify-between items-center">
+                <span class="text-[10px] text-emerald-400 font-mono tracking-widest uppercase">FLASHCARD • FRONT</span>
+                <span class="text-[10px] text-slate-500">👆 タップで裏返す</span>
+              </div>
+              <div id="flashcard-front-text" class="text-base sm:text-lg font-semibold text-slate-100 my-auto leading-relaxed">
+                ---
+              </div>
+              <div id="flashcard-front-img-wrap" class="hidden max-h-24 my-1">
+                <img id="flashcard-front-img" src="" class="max-h-24 rounded border border-slate-700 object-contain">
+              </div>
+              <div class="text-[11px] text-emerald-400/80 font-light flex items-center gap-1">
+                <span>🔄 タップして意味・解説を確認</span>
+              </div>
+            </div>
+
+            <!-- 裏面 (意味 / 解説) -->
+            <div class="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-850 to-amber-950 border-2 border-amber-500/50 p-6 flex flex-col justify-between items-center text-center shadow-xl">
+              <div class="w-full flex justify-between items-center">
+                <span class="text-[10px] text-amber-400 font-mono tracking-widest uppercase">FLASHCARD • BACK</span>
+                <span class="text-[10px] text-slate-500">意味・解説</span>
+              </div>
+              <div class="my-auto space-y-2 overflow-y-auto max-h-40 px-1">
+                <div id="flashcard-back-keyword" class="text-base sm:text-lg font-bold text-amber-300">
+                  ---
+                </div>
+                <div id="flashcard-back-desc" class="text-xs text-slate-200 leading-relaxed font-light">
+                  ---
+                </div>
+              </div>
+              <div class="text-[10px] text-amber-400/80 font-light">
+                下のボタンで習得状況を選択してください
+              </div>
+            </div>
           </div>
         </div>
 
@@ -559,16 +618,16 @@
           
           <!-- 通常の「次へ進む」ボタン -->
           <button id="quiz-next-btn" onclick="nextQuestion()" class="w-full mt-2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition">次へ進む →</button>
-          
-          <!-- 暗記カード専用「覚えた！」・「次へ」ボタン群 -->
-          <div id="flashcard-action-btns" class="hidden flex gap-2.5 mt-2">
-            <button onclick="markCurrentAsLearned()" class="w-1/2 py-2.5 bg-emerald-700 hover:bg-emerald-600 text-emerald-50 rounded-lg text-xs font-medium transition shadow flex items-center justify-center gap-1">
-              <span>✓ 覚えた！</span>
-            </button>
-            <button onclick="nextQuestion()" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition">
-              次へ →
-            </button>
-          </div>
+        </div>
+
+        <!-- 暗記カード専用「覚えた！」・「次へ」ボタン群 -->
+        <div id="flashcard-action-btns" class="hidden flex gap-2.5 mt-2">
+          <button onclick="markCurrentAsLearned()" class="w-1/2 py-3 bg-emerald-700 hover:bg-emerald-600 text-emerald-50 rounded-xl text-xs font-semibold transition shadow-lg flex items-center justify-center gap-1.5">
+            <span>✓ 覚えた！</span>
+          </button>
+          <button onclick="nextQuestion()" class="w-1/2 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold transition border border-slate-700">
+            次へ →
+          </button>
         </div>
       </div>
 
@@ -1138,6 +1197,7 @@
     let subjects = [...defaultSubjects];
     let currentSubject = null;
     let isFlashcardMode = false; // 暗記カードモード判定フラグ
+    let isFlashcardFlipped = false; // カードフリップ状態保持
     let currentRound = null;
     let currentPhysiologyMode = 'past';
     let currentAnatomyMode = 'basic';
@@ -1570,6 +1630,9 @@
       if (editingSelectedRound === 'flashcard') {
         const fcKey = `${editingSubjectId}_flashcards`;
         rawData = window.QUIZ_DB[fcKey] || [];
+        if (rawData.length === 0 && editingSubjectId === 'biochemistry' && typeof window.getBiochemistryFlashcards === 'function') {
+          rawData = window.getBiochemistryFlashcards();
+        }
       } else if (editingSubjectId === 'biochemistry') {
         const dbKey = (editingSelectedRound === 'keyboard') ? 'biochemistry_keyboard' : 'biochemistry';
         rawData = window.QUIZ_DB[dbKey] || [];
@@ -1624,7 +1687,7 @@
           </div>
 
           <div class="space-y-1">
-            <label class="text-[10px] text-slate-400 block">問題文 / 語句:</label>
+            <label class="text-[10px] text-slate-400 block">問題文 / 語句 (表面):</label>
             <textarea onchange="updateEditorQData(${idx}, 'q', this.value)" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-16">${q.q}</textarea>
           </div>
 
@@ -1661,12 +1724,12 @@
           ` : ''}
 
           <div class="space-y-1">
-            <label class="text-[10px] text-slate-400 block">正解キーワード / 解答:</label>
+            <label class="text-[10px] text-slate-400 block">正解キーワード / 用語 (裏面見出し):</label>
             <input type="text" value="${q.keyword || ''}" onchange="updateEditorQData(${idx}, 'keyword', this.value)" placeholder="例: クエン酸回路" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
           </div>
 
           <div class="space-y-1">
-            <label class="text-[10px] text-slate-400 block">解説:</label>
+            <label class="text-[10px] text-slate-400 block">解説 / 意味 (裏面詳細):</label>
             <textarea onchange="updateEditorQData(${idx}, 'exp', this.value)" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-14">${q.exp || ''}</textarea>
           </div>
         </div>
@@ -1706,10 +1769,10 @@
     function addNewQuestionToEditor() {
       const isKeyboard = (editingSelectedRound === 'flashcard' || editingSelectedRound === 'keyboard');
       editingQuestionsList.push({
-        q: "新しい問題文を入力してください",
+        q: "新しい単語 / 質問文を入力してください",
         options: isKeyboard ? [] : ["選択肢1", "選択肢2", "選択肢3", "選択肢4"],
         answers: isKeyboard ? [] : [0],
-        exp: "解説を入力してください",
+        exp: "解説 / 意味を入力してください",
         image: "",
         enableKeyboard: isKeyboard,
         keyword: "",
@@ -2247,10 +2310,18 @@
         }
       }
 
-      if (currentSubject.id === 'biochemistry' && typeof window.getBiochemistryQuestions === 'function') {
-        const bioData = window.getBiochemistryQuestions();
-        if (Array.isArray(bioData) && bioData.length > 0 && (!window.QUIZ_DB.biochemistry || window.QUIZ_DB.biochemistry.length === 0)) {
-          window.QUIZ_DB.biochemistry = bioData;
+      if (currentSubject.id === 'biochemistry') {
+        if (typeof window.getBiochemistryQuestions === 'function') {
+          const bioData = window.getBiochemistryQuestions();
+          if (Array.isArray(bioData) && bioData.length > 0 && (!window.QUIZ_DB.biochemistry || window.QUIZ_DB.biochemistry.length === 0)) {
+            window.QUIZ_DB.biochemistry = bioData;
+          }
+        }
+        if (typeof window.getBiochemistryFlashcards === 'function') {
+          const fcData = window.getBiochemistryFlashcards();
+          if (Array.isArray(fcData) && fcData.length > 0 && (!window.QUIZ_DB.biochemistry_flashcards || window.QUIZ_DB.biochemistry_flashcards.length === 0)) {
+            window.QUIZ_DB.biochemistry_flashcards = fcData;
+          }
         }
       }
 
@@ -2271,9 +2342,7 @@
       let targetDbKey = currentSubject.id;
       if (isFlashcardMode) {
         const fcKey = `${currentSubject.id}_flashcards`;
-        if (window.QUIZ_DB[fcKey] && window.QUIZ_DB[fcKey].length > 0) {
-          targetDbKey = fcKey;
-        }
+        targetDbKey = (window.QUIZ_DB[fcKey] && window.QUIZ_DB[fcKey].length > 0) ? fcKey : currentSubject.id;
       } else if (currentSubject.id === 'anatomy' && currentAnatomyMode === 'applied') {
         targetDbKey = 'anatomy_applied';
       } else if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'keyboard') {
@@ -2345,13 +2414,68 @@
 
     function renderQuestion() {
       isAnswered = false;
+      isFlashcardFlipped = false;
       selectedIndices.clear();
       const q = activeQuestions[currentQIndex];
       const total = activeQuestions.length;
 
       document.getElementById('quiz-progress-text').textContent = `QUESTION ${currentQIndex + 1} / ${total}`;
       document.getElementById('quiz-score-live').textContent = `正解: ${score}`;
-     
+
+      const timerWrap = document.getElementById('quiz-timer-bar-wrap');
+      const standardBox = document.getElementById('standard-question-box');
+      const flashcardBox = document.getElementById('flashcard-interactive-box');
+      const container = document.getElementById('quiz-options-container');
+      const kbContainer = document.getElementById('quiz-keyboard-input-container');
+      const submitBtn = document.getElementById('quiz-submit-multi-btn');
+      const fbBox = document.getElementById('quiz-feedback-box');
+      const fcActionBtns = document.getElementById('flashcard-action-btns');
+
+      // --- 暗記カードモード時の専用出題UI（カードタップで裏返る形式） ---
+      if (isFlashcardMode) {
+        timerWrap.classList.add('hidden');
+        standardBox.classList.add('hidden');
+        container.classList.add('hidden');
+        kbContainer.classList.add('hidden');
+        submitBtn.classList.add('hidden');
+        fbBox.classList.add('hidden');
+
+        flashcardBox.classList.remove('hidden');
+        fcActionBtns.classList.remove('hidden');
+
+        // カード初期状態（表）に戻す
+        const flipInner = document.getElementById('flashcard-flip-inner');
+        flipInner.classList.remove('rotate-y-180');
+
+        // カード情報の設定
+        document.getElementById('flashcard-front-text').textContent = q.q || '単語・質問';
+        const imgWrap = document.getElementById('flashcard-front-img-wrap');
+        const imgEl = document.getElementById('flashcard-front-img');
+        if (q.image) {
+          imgEl.src = q.image;
+          imgWrap.classList.remove('hidden');
+        } else {
+          imgEl.src = '';
+          imgWrap.classList.add('hidden');
+        }
+
+        // 裏面情報の設定（正解キーワード / 解説 / 選択肢テキスト）
+        let backKeywordText = q.keyword || '';
+        if (!backKeywordText && q.options && q.options.length > 0 && q.answers && q.answers.length > 0) {
+          backKeywordText = q.answers.map(idx => q.options[idx]).join(' / ');
+        }
+        document.getElementById('flashcard-back-keyword').textContent = backKeywordText || '解答・解説';
+        document.getElementById('flashcard-back-desc').textContent = q.exp || '解説はありません。';
+
+        return; // 暗記カード時はタイマー起動しない
+      }
+
+      // --- 通常演習問題モード時のUI ---
+      timerWrap.classList.remove('hidden');
+      standardBox.classList.remove('hidden');
+      flashcardBox.classList.add('hidden');
+      fcActionBtns.classList.add('hidden');
+
       const qNumText = `Q${currentQIndex + 1}` + (q.isMultiple ? ` 【複数選択問題 (${q.answers.length}つ選択)】` : '');
       document.getElementById('quiz-question-number').textContent = qNumText;
       document.getElementById('quiz-question-text').textContent = q.q;
@@ -2380,12 +2504,7 @@
         wbContent.innerHTML = '';
       }
 
-      const fbBox = document.getElementById('quiz-feedback-box');
       fbBox.className = "hidden p-4 rounded-xl border text-xs leading-relaxed space-y-2";
-
-      const submitBtn = document.getElementById('quiz-submit-multi-btn');
-      const container = document.getElementById('quiz-options-container');
-      const kbContainer = document.getElementById('quiz-keyboard-input-container');
 
       if (q.enableKeyboard) {
         container.classList.add('hidden');
@@ -2418,6 +2537,18 @@
       }
 
       startQuizTimer();
+    }
+
+    // 暗記カード用タップ反転関数
+    function flipFlashcard() {
+      if (!isFlashcardMode) return;
+      const flipInner = document.getElementById('flashcard-flip-inner');
+      isFlashcardFlipped = !isFlashcardFlipped;
+      if (isFlashcardFlipped) {
+        flipInner.classList.add('rotate-y-180');
+      } else {
+        flipInner.classList.remove('rotate-y-180');
+      }
     }
 
     function toggleOptionSelect(idx) {
@@ -2579,18 +2710,9 @@
       fbDesc.textContent = q.exp || "解説はありません。";
       document.getElementById('quiz-score-live').textContent = `正解: ${score}`;
 
-      // ボタンの切替（暗記カードモード時は「覚えた！」と「次へ」を表示）
       const normalNextBtn = document.getElementById('quiz-next-btn');
-      const fcActionBtns = document.getElementById('flashcard-action-btns');
-
-      if (isFlashcardMode) {
-        normalNextBtn.classList.add('hidden');
-        fcActionBtns.classList.remove('hidden');
-      } else {
-        normalNextBtn.classList.remove('hidden');
-        fcActionBtns.classList.add('hidden');
-        normalNextBtn.textContent = (currentQIndex + 1 >= activeQuestions.length) ? "結果を見る →" : "次へ進む →";
-      }
+      normalNextBtn.classList.remove('hidden');
+      normalNextBtn.textContent = (currentQIndex + 1 >= activeQuestions.length) ? "結果を見る →" : "次へ進む →";
     }
 
     function evaluateAnswers(userSelectedArray, isTimeout) {
@@ -2634,18 +2756,9 @@
       fbDesc.textContent = q.exp || "解説はありません。";
       document.getElementById('quiz-score-live').textContent = `正解: ${score}`;
 
-      // ボタンの切替（暗記カードモード時は「覚えた！」と「次へ」を表示）
       const normalNextBtn = document.getElementById('quiz-next-btn');
-      const fcActionBtns = document.getElementById('flashcard-action-btns');
-
-      if (isFlashcardMode) {
-        normalNextBtn.classList.add('hidden');
-        fcActionBtns.classList.remove('hidden');
-      } else {
-        normalNextBtn.classList.remove('hidden');
-        fcActionBtns.classList.add('hidden');
-        normalNextBtn.textContent = (currentQIndex + 1 >= activeQuestions.length) ? "結果を見る →" : "次へ進む →";
-      }
+      normalNextBtn.classList.remove('hidden');
+      normalNextBtn.textContent = (currentQIndex + 1 >= activeQuestions.length) ? "結果を見る →" : "次へ進む →";
     }
 
     function nextQuestion() {
