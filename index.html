@@ -190,20 +190,32 @@
     <main class="glass-card rounded-2xl p-5 sm:p-8 shadow-2xl relative overflow-hidden">
      
       <!-- 画面1: 科目選択 (SOLO) -->
-      <div id="screen-subjects" class="space-y-4">
-        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
-          <h2 id="subjects-header-title" class="en-title text-xs text-slate-400 tracking-widest uppercase">Select Subject</h2>
-          <div class="flex items-center gap-3">
-            <span id="subject-count-display" class="text-xs text-slate-500 font-light">全8科目</span>
-            <!-- お知らせボタン -->
-            <button onclick="openNoticeModal()" class="relative px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition flex items-center gap-1.5">
-              <span>🔔</span>
-              <span>お知らせ</span>
-              <span id="notice-red-dot" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-slate-900"></span>
-            </button>
+      <div id="screen-subjects" class="space-y-6">
+        <!-- テスト対策問題 セクション -->
+        <div class="space-y-3">
+          <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+            <h2 id="subjects-header-title" class="en-title text-xs text-amber-500/90 font-semibold tracking-widest uppercase">Select Subject</h2>
+            <div class="flex items-center gap-3">
+              <span id="subject-count-display" class="text-xs text-slate-500 font-light">全8科目</span>
+              <!-- お知らせボタン -->
+              <button onclick="openNoticeModal()" class="relative px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition flex items-center gap-1.5">
+                <span>🔔</span>
+                <span>お知らせ</span>
+                <span id="notice-red-dot" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-slate-900"></span>
+              </button>
+            </div>
           </div>
+          <div id="subject-list-container" class="grid gap-3 pt-1"></div>
         </div>
-        <div id="subject-list-container" class="grid gap-3 pt-1"></div>
+
+        <!-- 暗記カード セクション -->
+        <div class="space-y-3 pt-4 border-t border-slate-700/50">
+          <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+            <h2 class="en-title text-xs text-emerald-400 font-semibold tracking-widest uppercase">Select Flashcards</h2>
+            <span id="flashcard-count-display" class="text-xs text-slate-500 font-light">全8科目</span>
+          </div>
+          <div id="flashcard-list-container" class="grid gap-3 pt-1"></div>
+        </div>
       </div>
 
       <!-- 画面1.1: 生理学 モード選択（過去問 / 小テスト） -->
@@ -450,6 +462,19 @@
           </p>
         </div>
 
+        <!-- 暗記カード専用操作エリア（覚えた単語の確認・リセット） -->
+        <div id="flashcard-mgmt-area" class="hidden p-4 rounded-xl bg-slate-900/80 border border-emerald-500/30 space-y-3">
+          <div class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">暗記カード 管理メニュー</div>
+          <div class="flex gap-2">
+            <button onclick="showLearnedWordsModal()" class="w-1/2 py-2 bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-300 border border-emerald-800/60 text-xs rounded-lg transition">
+              覚えた単語を確認
+            </button>
+            <button onclick="resetLearnedWords()" class="w-1/2 py-2 bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 border border-rose-800/60 text-xs rounded-lg transition">
+              覚えた単語をリセット
+            </button>
+          </div>
+        </div>
+
         <div id="count-selector-container" class="hidden space-y-6 p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
           <div class="space-y-2">
             <div class="text-xs text-slate-400 uppercase tracking-widest font-medium">出題数を選択</div>
@@ -531,7 +556,19 @@
         <div id="quiz-feedback-box" class="hidden p-4 rounded-xl border text-xs leading-relaxed space-y-2">
           <div id="quiz-feedback-title" class="font-bold text-sm"></div>
           <div id="quiz-feedback-desc" class="text-slate-300"></div>
+          
+          <!-- 通常の「次へ進む」ボタン -->
           <button id="quiz-next-btn" onclick="nextQuestion()" class="w-full mt-2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition">次へ進む →</button>
+          
+          <!-- 暗記カード専用「覚えた！」・「次へ」ボタン群 -->
+          <div id="flashcard-action-btns" class="hidden flex gap-2.5 mt-2">
+            <button onclick="markCurrentAsLearned()" class="w-1/2 py-2.5 bg-emerald-700 hover:bg-emerald-600 text-emerald-50 rounded-lg text-xs font-medium transition shadow flex items-center justify-center gap-1">
+              <span>✓ 覚えた！</span>
+            </button>
+            <button onclick="nextQuestion()" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition">
+              次へ →
+            </button>
+          </div>
         </div>
       </div>
 
@@ -672,6 +709,19 @@
       </div>
 
     </main>
+  </div>
+
+  <!-- 覚えた単語一覧確認モーダル -->
+  <div id="modal-learned-words" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div class="glass-card w-full max-w-md rounded-2xl p-5 space-y-4 border border-slate-700/60 shadow-2xl">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-700/50">
+        <h3 class="serif-title text-base font-medium text-slate-100">覚えた単語・問題一覧</h3>
+        <button onclick="closeLearnedWordsModal()" class="text-slate-400 text-xs hover:text-white p-1">✕</button>
+      </div>
+      <div id="learned-words-list-container" class="space-y-2 text-xs text-slate-300 max-h-60 overflow-y-auto pt-1">
+      </div>
+      <button onclick="closeLearnedWordsModal()" class="w-full py-2 bg-slate-800 text-slate-300 rounded-lg text-xs hover:bg-slate-700 transition">閉じる</button>
+    </div>
   </div>
 
   <!-- お知らせ用モーダル -->
@@ -847,9 +897,9 @@
         <button onclick="addNewQuestionToEditor()" class="px-3 py-1.5 bg-amber-700 hover:bg-amber-600 text-amber-50 text-xs rounded-lg transition font-medium">＋ 問題を追加</button>
       </div>
 
-      <!-- モード切替（看護学方法論Ⅰ・生化学などの複数モード対応科目用） -->
-      <div id="editor-mode-selector-container" class="hidden p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1.5">
-        <label class="text-[11px] text-amber-400 font-medium block">編集する形式・モードを選択:</label>
+      <!-- モード切替（演習問題 vs 暗記カード / 各種サブモード） -->
+      <div id="editor-mode-selector-container" class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1.5">
+        <label class="text-[11px] text-amber-400 font-medium block">編集対象を選択:</label>
         <select id="editor-mode-select" onchange="changeEditorMode(this.value)" class="w-full bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 focus:outline-none focus:border-amber-500">
         </select>
       </div>
@@ -1052,6 +1102,7 @@
 
       return {
         ...item,
+        id: item.id || `q_${Math.abs(hashCode(qText))}`,
         q: qText,
         options: opts,
         answers: correctAnswers,
@@ -1062,6 +1113,15 @@
         enableKeyboard: !!item.enableKeyboard,
         keyword: item.keyword || (typeof rawAns === 'string' && isNaN(parseInt(rawAns, 10)) ? rawAns : "")
       };
+    }
+
+    function hashCode(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+      }
+      return hash;
     }
 
     const defaultSubjects = [
@@ -1077,6 +1137,7 @@
 
     let subjects = [...defaultSubjects];
     let currentSubject = null;
+    let isFlashcardMode = false; // 暗記カードモード判定フラグ
     let currentRound = null;
     let currentPhysiologyMode = 'past';
     let currentAnatomyMode = 'basic';
@@ -1100,7 +1161,7 @@
 
     let editingSubjectId = null;
     let editingQuestionsList = [];
-    let editingSelectedRound = 'choice';
+    let editingSelectedRound = 'normal';
 
     function getAverageAccuracy(subjectId) {
       const historyKey = `history_accuracy_${subjectId}`;
@@ -1108,6 +1169,76 @@
       if (!records || records.length === 0) return null;
       const sum = records.reduce((acc, curr) => acc + curr, 0);
       return Math.round(sum / records.length);
+    }
+
+    // =========================================================
+    //  暗記カード専用：覚えた単語管理機能
+    // =========================================================
+    function getLearnedWordsKey(subjectId) {
+      return `learned_words_${subjectId}`;
+    }
+
+    function getLearnedWords(subjectId) {
+      const key = getLearnedWordsKey(subjectId);
+      return JSON.parse(localStorage.getItem(key) || '[]');
+    }
+
+    function markCurrentAsLearned() {
+      if (!currentSubject) return;
+      const q = activeQuestions[currentQIndex];
+      if (!q) return;
+
+      const key = getLearnedWordsKey(currentSubject.id);
+      let learnedList = getLearnedWords(currentSubject.id);
+
+      if (!learnedList.includes(q.id)) {
+        learnedList.push(q.id);
+        localStorage.setItem(key, JSON.stringify(learnedList));
+      }
+
+      nextQuestion();
+    }
+
+    function resetLearnedWords() {
+      if (!currentSubject) return;
+      if (confirm(`「${currentSubject.name}」で覚えた単語の記録をすべてリセットしますか？`)) {
+        const key = getLearnedWordsKey(currentSubject.id);
+        localStorage.removeItem(key);
+        alert("覚えた単語をリセットしました。次回から全問題が出題されます。");
+      }
+    }
+
+    function showLearnedWordsModal() {
+      if (!currentSubject) return;
+      const modal = document.getElementById('modal-learned-words');
+      const container = document.getElementById('learned-words-list-container');
+      const learnedIds = getLearnedWords(currentSubject.id);
+
+      if (learnedIds.length === 0) {
+        container.innerHTML = `<div class="p-4 text-center text-slate-500 text-xs">まだ覚えた単語・問題はありません。</div>`;
+      } else {
+        // 現在のデータベースから該当IDの問題を取得（暗記カード用キーを優先）
+        let rawData = window.QUIZ_DB[`${currentSubject.id}_flashcards`] || window.QUIZ_DB[currentSubject.id] || [];
+        let items = rawData.map(q => normalizeQuestion(q)).filter(q => q && learnedIds.includes(q.id));
+
+        if (items.length === 0) {
+          container.innerHTML = `<div class="p-4 text-center text-slate-500 text-xs">${learnedIds.length} 件記録されています。</div>`;
+        } else {
+          container.innerHTML = items.map((q, idx) => `
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+              <div class="text-[10px] text-emerald-400 font-mono">語句 / 問題 ${idx + 1}</div>
+              <div class="text-xs text-slate-200 font-medium">${q.q}</div>
+              ${q.keyword ? `<div class="text-[11px] text-amber-300 font-mono">正解: ${q.keyword}</div>` : ''}
+            </div>
+          `).join('');
+        }
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeLearnedWordsModal() {
+      document.getElementById('modal-learned-words').classList.add('hidden');
     }
 
     // =========================================================
@@ -1284,7 +1415,7 @@
           });
         }
 
-        const isKeyboardMode = (editingSubjectId === 'biochemistry' && editingSelectedRound === 'keyboard');
+        const isKeyboardMode = (editingSelectedRound === 'flashcard' || editingSelectedRound === 'keyboard');
 
         const promptText = isKeyboardMode ? `
 以下の画像または提示内容を解析し、記述式（キーボード入力用）問題を1問作成してください。
@@ -1377,51 +1508,52 @@
       const sub = subjects.find(s => s.id === subjectId);
       document.getElementById('editor-subject-title').textContent = `${sub ? sub.name : '科目'} - 問題編集`;
 
-      const modeSelector = document.getElementById('editor-mode-selector-container');
       const modeSelect = document.getElementById('editor-mode-select');
 
+      let optionsHtml = `
+        <option value="normal">📝 演習問題（通常）</option>
+        <option value="flashcard">🎴 暗記カード</option>
+      `;
+
       if (subjectId === 'biochemistry' || (sub && sub.hasBiochemistryFormats)) {
-        modeSelector.classList.remove('hidden');
-        modeSelect.innerHTML = `
-          <option value="choice">選択式問題</option>
-          <option value="keyboard">記述式 (キーボード入力) 問題</option>
+        optionsHtml = `
+          <option value="choice">📝 演習問題（選択式）</option>
+          <option value="keyboard">📝 演習問題（記述式キーボード）</option>
+          <option value="flashcard">🎴 暗記カード</option>
         `;
         editingSelectedRound = 'choice';
-        modeSelect.value = 'choice';
       } else if (subjectId === 'physiology' || (sub && sub.hasPhysiologyModes)) {
-        modeSelector.classList.remove('hidden');
-        modeSelect.innerHTML = `
-          <option value="past">過去問</option>
-          <option value="quiz">小テスト</option>
+        optionsHtml = `
+          <option value="past">📝 演習問題（過去問）</option>
+          <option value="quiz">📝 演習問題（小テスト）</option>
+          <option value="flashcard">🎴 暗記カード</option>
         `;
         editingSelectedRound = 'past';
-        modeSelect.value = 'past';
       } else if (subjectId === 'nursing_method' || (sub && sub.hasNursingModes)) {
-        modeSelector.classList.remove('hidden');
-        modeSelect.innerHTML = `
-          <option value="1">第1回演習問題</option>
-          <option value="2">第2回演習問題</option>
-          <option value="3">第3回演習問題</option>
-          <option value="4">第4回演習問題</option>
-          <option value="5">第5回演習問題</option>
-          <option value="6">第6回演習問題</option>
-          <option value="7">第7回演習問題</option>
-          <option value="8">第8回演習問題</option>
-          <option value="9">第9回演習問題</option>
-          <option value="10">第10回演習問題</option>
-          <option value="quiz">小テスト演習問題</option>
+        optionsHtml = `
+          <option value="1">📝 演習問題（第1回）</option>
+          <option value="2">📝 演習問題（第2回）</option>
+          <option value="3">📝 演習問題（第3回）</option>
+          <option value="4">📝 演習問題（第4回）</option>
+          <option value="5">📝 演習問題（第5回）</option>
+          <option value="6">📝 演習問題（第6回）</option>
+          <option value="7">📝 演習問題（第7回）</option>
+          <option value="8">📝 演習問題（第8回）</option>
+          <option value="9">📝 演習問題（第9回）</option>
+          <option value="10">📝 演習問題（第10回）</option>
+          <option value="quiz">📝 演習問題（小テスト）</option>
+          <option value="flashcard">🎴 暗記カード</option>
         `;
         editingSelectedRound = '1';
-        modeSelect.value = '1';
       } else if (subjectId === 'psychology' || (sub && sub.hasRounds)) {
-        modeSelector.classList.remove('hidden');
-        modeSelect.innerHTML = Array.from({length: 10}, (_, i) => `<option value="${i+1}">第${i+1}回</option>`).join('') + `<option value="quiz">小テスト</option>`;
+        optionsHtml = Array.from({length: 10}, (_, i) => `<option value="${i+1}">📝 演習問題（第${i+1}回）</option>`).join('') + `<option value="quiz">📝 演習問題（小テスト）</option><option value="flashcard">🎴 暗記カード</option>`;
         editingSelectedRound = '1';
-        modeSelect.value = '1';
       } else {
-        modeSelector.classList.add('hidden');
-        editingSelectedRound = null;
+        editingSelectedRound = 'normal';
       }
+
+      modeSelect.innerHTML = optionsHtml;
+      modeSelect.value = editingSelectedRound;
 
       loadQuestionsForEditor();
       document.getElementById('modal-questions-editor').classList.remove('hidden');
@@ -1435,7 +1567,10 @@
     function loadQuestionsForEditor() {
       let rawData = [];
 
-      if (editingSubjectId === 'biochemistry') {
+      if (editingSelectedRound === 'flashcard') {
+        const fcKey = `${editingSubjectId}_flashcards`;
+        rawData = window.QUIZ_DB[fcKey] || [];
+      } else if (editingSubjectId === 'biochemistry') {
         const dbKey = (editingSelectedRound === 'keyboard') ? 'biochemistry_keyboard' : 'biochemistry';
         rawData = window.QUIZ_DB[dbKey] || [];
         if (rawData.length === 0 && typeof window.getBiochemistryQuestions === 'function') {
@@ -1454,9 +1589,11 @@
         rawData = window.QUIZ_DB[editingSubjectId] || [];
       }
 
-      if (editingSubjectId === 'physiology' || editingSubjectId === 'biochemistry') {
+      if (editingSelectedRound === 'flashcard') {
         editingQuestionsList = [...rawData];
-      } else if (editingSelectedRound) {
+      } else if (editingSubjectId === 'physiology' || editingSubjectId === 'biochemistry') {
+        editingQuestionsList = [...rawData];
+      } else if (editingSelectedRound && editingSelectedRound !== 'normal') {
         editingQuestionsList = rawData.filter(q => q.round == editingSelectedRound);
       } else {
         editingQuestionsList = [...rawData];
@@ -1474,19 +1611,20 @@
       }
 
       const isBiochemistryKeyboard = (editingSubjectId === 'biochemistry' && editingSelectedRound === 'keyboard');
+      const isFlashcard = (editingSelectedRound === 'flashcard');
 
       container.innerHTML = editingQuestionsList.map((q, idx) => {
-        const isKeyboardMode = isBiochemistryKeyboard || q.enableKeyboard;
+        const isKeyboardMode = isFlashcard || isBiochemistryKeyboard || q.enableKeyboard;
 
         return `
         <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3 relative">
           <div class="flex justify-between items-center pb-2 border-b border-slate-800">
-            <span class="text-xs font-bold text-amber-400 font-mono">第 ${idx + 1} 問</span>
+            <span class="text-xs font-bold text-amber-400 font-mono">第 ${idx + 1} 問 ${isFlashcard ? '(暗記カード)' : ''}</span>
             <button onclick="removeQuestionFromEditor(${idx})" class="text-xs text-rose-400 hover:text-rose-300 transition">削除</button>
           </div>
 
           <div class="space-y-1">
-            <label class="text-[10px] text-slate-400 block">問題文:</label>
+            <label class="text-[10px] text-slate-400 block">問題文 / 語句:</label>
             <textarea onchange="updateEditorQData(${idx}, 'q', this.value)" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-16">${q.q}</textarea>
           </div>
 
@@ -1523,7 +1661,7 @@
           ` : ''}
 
           <div class="space-y-1">
-            <label class="text-[10px] text-slate-400 block">記述用正解キーワード (省略時は正解選択肢を判定):</label>
+            <label class="text-[10px] text-slate-400 block">正解キーワード / 解答:</label>
             <input type="text" value="${q.keyword || ''}" onchange="updateEditorQData(${idx}, 'keyword', this.value)" placeholder="例: クエン酸回路" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
           </div>
 
@@ -1566,7 +1704,7 @@
     }
 
     function addNewQuestionToEditor() {
-      const isKeyboard = (editingSubjectId === 'biochemistry' && editingSelectedRound === 'keyboard');
+      const isKeyboard = (editingSelectedRound === 'flashcard' || editingSelectedRound === 'keyboard');
       editingQuestionsList.push({
         q: "新しい問題文を入力してください",
         options: isKeyboard ? [] : ["選択肢1", "選択肢2", "選択肢3", "選択肢4"],
@@ -1575,7 +1713,7 @@
         image: "",
         enableKeyboard: isKeyboard,
         keyword: "",
-        round: editingSelectedRound || null
+        round: (editingSelectedRound !== 'normal' && editingSelectedRound !== 'flashcard') ? editingSelectedRound : null
       });
       renderEditorQuestionsList();
     }
@@ -1591,17 +1729,19 @@
       if (!editingSubjectId) return;
 
       let saveDbKey = editingSubjectId;
-      if (editingSubjectId === 'biochemistry') {
+      if (editingSelectedRound === 'flashcard') {
+        saveDbKey = `${editingSubjectId}_flashcards`;
+      } else if (editingSubjectId === 'biochemistry') {
         saveDbKey = (editingSelectedRound === 'keyboard') ? 'biochemistry_keyboard' : 'biochemistry';
-      } else if (editingSubjectId === 'physiology' && editingSelectedRound) {
+      } else if (editingSubjectId === 'physiology' && editingSelectedRound && editingSelectedRound !== 'normal') {
         saveDbKey = `physiology_${editingSelectedRound}`;
       }
 
       let rawData = window.QUIZ_DB[saveDbKey] || [];
 
-      if (editingSubjectId === 'physiology' || editingSubjectId === 'biochemistry') {
+      if (editingSelectedRound === 'flashcard' || editingSubjectId === 'physiology' || editingSubjectId === 'biochemistry') {
         rawData = [...editingQuestionsList];
-      } else if (editingSelectedRound) {
+      } else if (editingSelectedRound && editingSelectedRound !== 'normal') {
         rawData = rawData.filter(q => q.round != editingSelectedRound);
         rawData = rawData.concat(editingQuestionsList);
       } else {
@@ -1780,9 +1920,14 @@
 
     function renderSubjectList() {
       const container = document.getElementById('subject-list-container');
+      const flashcardContainer = document.getElementById('flashcard-list-container');
       const visibleSubjects = subjects.filter(s => s.visible !== false);
+      
       document.getElementById('subject-count-display').textContent = `全${visibleSubjects.length}科目`;
+      const fcCountEl = document.getElementById('flashcard-count-display');
+      if (fcCountEl) fcCountEl.textContent = `全${visibleSubjects.length}科目`;
 
+      // 1. テスト対策問題のリスト生成
       container.innerHTML = visibleSubjects.map(s => {
         const isPrep = s.status === 'preparing';
         const isPhysiology = s.id === 'physiology';
@@ -1795,7 +1940,7 @@
         const avgDisplay = (avgAcc !== null) ? `${avgAcc}%` : '-- %';
 
         return `
-          <button onclick="selectSubject('${s.id}')" ${isPrep ? 'disabled' : ''} class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+          <button onclick="selectSubject('${s.id}', false)" ${isPrep ? 'disabled' : ''} class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
             <div class="flex items-center gap-3">
               <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">${s.code}</span>
               <div>
@@ -1813,21 +1958,40 @@
           </button>
         `;
       }).join('');
+
+      // 2. 暗記カードのリスト生成（シンプル化）
+      if (flashcardContainer) {
+        flashcardContainer.innerHTML = visibleSubjects.map(s => {
+          const isPrep = s.status === 'preparing';
+
+          return `
+            <button onclick="selectSubject('${s.id}', true)" ${isPrep ? 'disabled' : ''} class="card-item w-full p-3.5 rounded-xl text-left flex items-center justify-between group">
+              <div class="flex items-center gap-3">
+                <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-bold">${s.code}</span>
+                <span class="text-xs font-medium text-slate-100 group-hover:text-emerald-300 transition">${s.name}</span>
+              </div>
+              <span class="text-slate-500 group-hover:text-emerald-400 transition text-xs">${isPrep ? '🔒' : '→'}</span>
+            </button>
+          `;
+        }).join('');
+      }
     }
 
-    function selectSubject(subjectId) {
+    function selectSubject(subjectId, flashcard = false) {
       currentSubject = subjects.find(s => s.id === subjectId);
       if (!currentSubject || currentSubject.status === 'preparing') return;
 
-      if (subjectId === 'physiology' || currentSubject.hasPhysiologyModes) {
+      isFlashcardMode = !!flashcard;
+
+      if (!isFlashcardMode && (subjectId === 'physiology' || currentSubject.hasPhysiologyModes)) {
         showPhysiologyModeSelectionScreen();
-      } else if (subjectId === 'anatomy' || currentSubject.hasAnatomyModes) {
+      } else if (!isFlashcardMode && (subjectId === 'anatomy' || currentSubject.hasAnatomyModes)) {
         showAnatomyModeSelectionScreen();
-      } else if (subjectId === 'biochemistry' || currentSubject.hasBiochemistryFormats) {
+      } else if (!isFlashcardMode && (subjectId === 'biochemistry' || currentSubject.hasBiochemistryFormats)) {
         showBiochemistryFormatSelectionScreen();
-      } else if (subjectId === 'nursing_method' || currentSubject.hasNursingModes) {
+      } else if (!isFlashcardMode && (subjectId === 'nursing_method' || currentSubject.hasNursingModes)) {
         showNursingModeSelectionScreen();
-      } else if (currentSubject.hasRounds) {
+      } else if (!isFlashcardMode && currentSubject.hasRounds) {
         showRoundSelectionScreen();
       } else {
         currentRound = null;
@@ -1886,10 +2050,10 @@
     function showTimeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-time-select').classList.remove('hidden');
-      document.getElementById('time-subject-title').textContent = `${currentSubject.name} 制限時間設定`;
+      document.getElementById('time-subject-title').textContent = `${currentSubject.name} ${isFlashcardMode ? '暗記カード ' : ''}制限時間設定`;
       
       const backBtn = document.getElementById('time-back-btn');
-      if (currentSubject.id === 'biochemistry' || currentSubject.hasBiochemistryFormats) {
+      if (!isFlashcardMode && (currentSubject.id === 'biochemistry' || currentSubject.hasBiochemistryFormats)) {
         backBtn.onclick = () => showBiochemistryFormatSelectionScreen();
       } else {
         backBtn.onclick = () => showStartScreen();
@@ -1902,7 +2066,7 @@
     }
 
     function proceedToCountOrStart() {
-      if (currentSubject.fixedCount) {
+      if (!isFlashcardMode && currentSubject.fixedCount) {
         startQuiz();
       } else {
         showCountSelectionScreen();
@@ -1912,7 +2076,7 @@
     function showCountSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-count-select').classList.remove('hidden');
-      document.getElementById('count-subject-title').textContent = `${currentSubject.name} 出題数設定`;
+      document.getElementById('count-subject-title').textContent = `${currentSubject.name} ${isFlashcardMode ? '暗記カード ' : ''}出題数設定`;
     }
 
     function showStartScreen() {
@@ -1924,75 +2088,86 @@
       const descEl = document.getElementById('start-screen-desc');
       const countContainer = document.getElementById('count-selector-container');
       const backBtn = document.getElementById('start-back-btn');
+      const flashcardMgmt = document.getElementById('flashcard-mgmt-area');
 
-      if (currentSubject.id === 'biochemistry' || currentSubject.hasBiochemistryFormats) {
-        backBtn.onclick = () => showBiochemistryFormatSelectionScreen();
-        const fmtTitle = currentBiochemistryFormat === 'keyboard' ? '記述式' : '選択式';
-        titleEl.textContent = `${currentSubject.name} - ${fmtTitle}`;
-        headingEl.textContent = `${currentSubject.name}（${fmtTitle}）`;
-        descEl.textContent = currentBiochemistryFormat === 'keyboard'
-          ? `生化学のキーボード入力（記述式）問題が出題されます。`
-          : `生化学の選択式問題が出題されます。`;
-        countContainer.classList.add('hidden');
-
-      } else if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) {
-        backBtn.onclick = () => showPhysiologyModeSelectionScreen();
-        const modeTitle = currentPhysiologyMode === 'quiz' ? '小テスト' : '過去問';
-        titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
-        headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
-        descEl.textContent = currentPhysiologyMode === 'quiz'
-          ? `生理学の小テスト問題が出題されます。`
-          : `生理学の過去問演習問題が出題されます。`;
-        countContainer.classList.add('hidden');
-
-      } else if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) {
-        backBtn.onclick = () => showAnatomyModeSelectionScreen();
-        const modeTitle = currentAnatomyMode === 'applied' ? '応用問題' : '練習問題';
-        titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
-        headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
-        descEl.textContent = currentAnatomyMode === 'applied'
-          ? `解剖学の応用・発展レベルの問題が出題されます。`
-          : `解剖学の基礎・標準問題が出題されます。`;
-        countContainer.classList.add('hidden');
-
-      } else if (currentSubject.id === 'nursing_method' || currentSubject.hasNursingModes) {
-        backBtn.onclick = () => showNursingModeSelectionScreen();
-        if (currentRound === 'quiz') {
-          titleEl.textContent = `${currentSubject.name} - 小テスト`;
-          headingEl.textContent = `小テスト 演習`;
-          descEl.textContent = `小テストの問題が出題されます。次へ進んで時間と問題数を選択してください。`;
-          countContainer.classList.add('hidden');
-        } else if (currentRound) {
-          titleEl.textContent = `${currentSubject.name} - 第${currentRound}回`;
-          headingEl.textContent = `第 ${currentRound} 回 演習`;
-          descEl.textContent = `第${currentRound}回の演習を開始します。次へ進んで時間と問題数を選択してください。`;
-          countContainer.classList.add('hidden');
-        } else {
-          titleEl.textContent = `${currentSubject.name} - 総合練習問題`;
-          headingEl.textContent = `総合練習問題`;
-          descEl.textContent = `全範囲の中からランダムに問題が出題されます。次へ進んで時間と問題数を選択してください。`;
-          countContainer.classList.add('hidden');
-        }
-      } else if (currentSubject.hasRounds) {
-        backBtn.onclick = () => showRoundSelectionScreen();
-        if (currentRound) {
-          titleEl.textContent = `${currentSubject.name} - 第${currentRound}回`;
-          headingEl.textContent = `第 ${currentRound} 回 演習`;
-          descEl.textContent = `第${currentRound}回の演習を開始します。次へ進んで時間と問題数を選択してください。`;
-          countContainer.classList.add('hidden');
-        } else {
-          titleEl.textContent = `${currentSubject.name} - 総合練習問題`;
-          headingEl.textContent = `総合練習問題`;
-          descEl.textContent = `全範囲の中からランダムに問題が出題されます。次へ進んで時間と問題数を選択してください。`;
-          countContainer.classList.add('hidden');
-        }
-      } else {
+      if (isFlashcardMode) {
         backBtn.onclick = () => showSubjectScreen();
-        titleEl.textContent = currentSubject.name;
-        headingEl.textContent = `${currentSubject.name} 演習問題`;
-       
-        descEl.textContent = `データベースから問題が出題されます。次へ進んで時間と問題数を選択してください。`;
+        titleEl.textContent = `${currentSubject.name} - 暗記カード`;
+        headingEl.textContent = `${currentSubject.name} 暗記カード`;
+        descEl.textContent = `覚えた単語・問題を除外しながら要点を効率よく記憶できます。`;
         countContainer.classList.add('hidden');
+        flashcardMgmt.classList.remove('hidden');
+      } else {
+        flashcardMgmt.classList.add('hidden');
+        if (currentSubject.id === 'biochemistry' || currentSubject.hasBiochemistryFormats) {
+          backBtn.onclick = () => showBiochemistryFormatSelectionScreen();
+          const fmtTitle = currentBiochemistryFormat === 'keyboard' ? '記述式' : '選択式';
+          titleEl.textContent = `${currentSubject.name} - ${fmtTitle}`;
+          headingEl.textContent = `${currentSubject.name}（${fmtTitle}）`;
+          descEl.textContent = currentBiochemistryFormat === 'keyboard'
+            ? `生化学のキーボード入力（記述式）問題が出題されます。`
+            : `生化学の選択式問題が出題されます。`;
+          countContainer.classList.add('hidden');
+
+        } else if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) {
+          backBtn.onclick = () => showPhysiologyModeSelectionScreen();
+          const modeTitle = currentPhysiologyMode === 'quiz' ? '小テスト' : '過去問';
+          titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
+          headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
+          descEl.textContent = currentPhysiologyMode === 'quiz'
+            ? `生理学の小テスト問題が出題されます。`
+            : `生理学の過去問演習問題が出題されます。`;
+          countContainer.classList.add('hidden');
+
+        } else if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) {
+          backBtn.onclick = () => showAnatomyModeSelectionScreen();
+          const modeTitle = currentAnatomyMode === 'applied' ? '応用問題' : '練習問題';
+          titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
+          headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
+          descEl.textContent = currentAnatomyMode === 'applied'
+            ? `解剖学の応用・発展レベルの問題が出題されます。`
+            : `解剖学の基礎・標準問題が出題されます。`;
+          countContainer.classList.add('hidden');
+
+        } else if (currentSubject.id === 'nursing_method' || currentSubject.hasNursingModes) {
+          backBtn.onclick = () => showNursingModeSelectionScreen();
+          if (currentRound === 'quiz') {
+            titleEl.textContent = `${currentSubject.name} - 小テスト`;
+            headingEl.textContent = `小テスト 演習`;
+            descEl.textContent = `小テストの問題が出題されます。次へ進んで時間と問題数を選択してください。`;
+            countContainer.classList.add('hidden');
+          } else if (currentRound) {
+            titleEl.textContent = `${currentSubject.name} - 第${currentRound}回`;
+            headingEl.textContent = `第 ${currentRound} 回 演習`;
+            descEl.textContent = `第${currentRound}回の演習を開始します。次へ進んで時間と問題数を選択してください。`;
+            countContainer.classList.add('hidden');
+          } else {
+            titleEl.textContent = `${currentSubject.name} - 総合練習問題`;
+            headingEl.textContent = `総合練習問題`;
+            descEl.textContent = `全範囲の中からランダムに問題が出題されます。次へ進んで時間と問題数を選択してください。`;
+            countContainer.classList.add('hidden');
+          }
+        } else if (currentSubject.hasRounds) {
+          backBtn.onclick = () => showRoundSelectionScreen();
+          if (currentRound) {
+            titleEl.textContent = `${currentSubject.name} - 第${currentRound}回`;
+            headingEl.textContent = `第 ${currentRound} 回 演習`;
+            descEl.textContent = `第${currentRound}回の演習を開始します。次へ進んで時間と問題数を選択してください。`;
+            countContainer.classList.add('hidden');
+          } else {
+            titleEl.textContent = `${currentSubject.name} - 総合練習問題`;
+            headingEl.textContent = `総合練習問題`;
+            descEl.textContent = `全範囲の中からランダムに問題が出題されます。次へ進んで時間と問題数を選択してください。`;
+            countContainer.classList.add('hidden');
+          }
+        } else {
+          backBtn.onclick = () => showSubjectScreen();
+          titleEl.textContent = currentSubject.name;
+          headingEl.textContent = `${currentSubject.name} 演習問題`;
+         
+          descEl.textContent = `データベースから問題が出題されます。次へ進んで時間と問題数を選択してください。`;
+          countContainer.classList.add('hidden');
+        }
       }
 
       updateHighscoreDisplay();
@@ -2008,7 +2183,9 @@
 
     function getHighscoreKey() {
       let modeSuffix = '';
-      if (currentSubject.id === 'biochemistry' || currentSubject.hasBiochemistryFormats) {
+      if (isFlashcardMode) {
+        modeSuffix = '_flashcard';
+      } else if (currentSubject.id === 'biochemistry' || currentSubject.hasBiochemistryFormats) {
         modeSuffix = `_${currentBiochemistryFormat}`;
       } else if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) {
         modeSuffix = `_${currentPhysiologyMode}`;
@@ -2092,7 +2269,12 @@
       }
 
       let targetDbKey = currentSubject.id;
-      if (currentSubject.id === 'anatomy' && currentAnatomyMode === 'applied') {
+      if (isFlashcardMode) {
+        const fcKey = `${currentSubject.id}_flashcards`;
+        if (window.QUIZ_DB[fcKey] && window.QUIZ_DB[fcKey].length > 0) {
+          targetDbKey = fcKey;
+        }
+      } else if (currentSubject.id === 'anatomy' && currentAnatomyMode === 'applied') {
         targetDbKey = 'anatomy_applied';
       } else if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'keyboard') {
         targetDbKey = (window.QUIZ_DB.biochemistry_keyboard && window.QUIZ_DB.biochemistry_keyboard.length > 0) ? 'biochemistry_keyboard' : 'biochemistry';
@@ -2113,6 +2295,18 @@
       }
 
       list = list.map(q => normalizeQuestion(q)).filter(Boolean);
+
+      // 暗記カードモード時：すでに覚えた単語・問題を除外
+      if (isFlashcardMode) {
+        const learnedList = getLearnedWords(currentSubject.id);
+        const unlearnedList = list.filter(q => !learnedList.includes(q.id));
+
+        if (unlearnedList.length === 0 && list.length > 0) {
+          alert("この科目の単語・問題はすべて「覚えた！」に登録されています。「覚えた単語をリセット」するか確認してください。");
+          return;
+        }
+        list = unlearnedList;
+      }
 
       if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'keyboard') {
         list = list.map(q => ({
@@ -2384,7 +2578,19 @@
 
       fbDesc.textContent = q.exp || "解説はありません。";
       document.getElementById('quiz-score-live').textContent = `正解: ${score}`;
-      document.getElementById('quiz-next-btn').textContent = (currentQIndex + 1 >= activeQuestions.length) ? "結果を見る →" : "次へ進む →";
+
+      // ボタンの切替（暗記カードモード時は「覚えた！」と「次へ」を表示）
+      const normalNextBtn = document.getElementById('quiz-next-btn');
+      const fcActionBtns = document.getElementById('flashcard-action-btns');
+
+      if (isFlashcardMode) {
+        normalNextBtn.classList.add('hidden');
+        fcActionBtns.classList.remove('hidden');
+      } else {
+        normalNextBtn.classList.remove('hidden');
+        fcActionBtns.classList.add('hidden');
+        normalNextBtn.textContent = (currentQIndex + 1 >= activeQuestions.length) ? "結果を見る →" : "次へ進む →";
+      }
     }
 
     function evaluateAnswers(userSelectedArray, isTimeout) {
@@ -2427,7 +2633,19 @@
 
       fbDesc.textContent = q.exp || "解説はありません。";
       document.getElementById('quiz-score-live').textContent = `正解: ${score}`;
-      document.getElementById('quiz-next-btn').textContent = (currentQIndex + 1 >= activeQuestions.length) ? "結果を見る →" : "次へ進む →";
+
+      // ボタンの切替（暗記カードモード時は「覚えた！」と「次へ」を表示）
+      const normalNextBtn = document.getElementById('quiz-next-btn');
+      const fcActionBtns = document.getElementById('flashcard-action-btns');
+
+      if (isFlashcardMode) {
+        normalNextBtn.classList.add('hidden');
+        fcActionBtns.classList.remove('hidden');
+      } else {
+        normalNextBtn.classList.remove('hidden');
+        fcActionBtns.classList.add('hidden');
+        normalNextBtn.textContent = (currentQIndex + 1 >= activeQuestions.length) ? "結果を見る →" : "次へ進む →";
+      }
     }
 
     function nextQuestion() {
