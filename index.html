@@ -555,13 +555,13 @@
         <!-- 暗記カード専用 3Dタップフリップカード表示領域 -->
         <div id="flashcard-interactive-box" class="hidden w-full max-w-md mx-auto my-4 perspective-1000">
           <div id="flashcard-flip-inner" onclick="flipFlashcard()" class="w-full h-64 relative transform-style-3d transition-transform duration-500 cursor-pointer rounded-2xl shadow-2xl">
-            <!-- 表面 (単語 / 質問) -->
+            <!-- 表面 (単語) -->
             <div class="absolute inset-0 w-full h-full backface-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-850 to-emerald-950 border-2 border-emerald-500/40 p-6 flex flex-col justify-between items-center text-center shadow-xl">
               <div class="w-full flex justify-between items-center">
                 <span class="text-[10px] text-emerald-400 font-mono tracking-widest uppercase">FLASHCARD • FRONT</span>
                 <span class="text-[10px] text-slate-500">👆 タップで裏返す</span>
               </div>
-              <div id="flashcard-front-text" class="text-base sm:text-lg font-semibold text-slate-100 my-auto leading-relaxed">
+              <div id="flashcard-front-text" class="text-lg sm:text-xl font-bold text-slate-100 my-auto leading-relaxed">
                 ---
               </div>
               <div id="flashcard-front-img-wrap" class="hidden max-h-24 my-1">
@@ -572,17 +572,14 @@
               </div>
             </div>
 
-            <!-- 裏面 (意味 / 解説) -->
+            <!-- 裏面 (意味・解説) -->
             <div class="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-850 to-amber-950 border-2 border-amber-500/50 p-6 flex flex-col justify-between items-center text-center shadow-xl">
               <div class="w-full flex justify-between items-center">
                 <span class="text-[10px] text-amber-400 font-mono tracking-widest uppercase">FLASHCARD • BACK</span>
                 <span class="text-[10px] text-slate-500">意味・解説</span>
               </div>
-              <div class="my-auto space-y-2 overflow-y-auto max-h-40 px-1">
-                <div id="flashcard-back-keyword" class="text-base sm:text-lg font-bold text-amber-300">
-                  ---
-                </div>
-                <div id="flashcard-back-desc" class="text-xs text-slate-200 leading-relaxed font-light">
+              <div class="my-auto space-y-2 overflow-y-auto max-h-40 px-1 w-full">
+                <div id="flashcard-back-desc" class="text-xs sm:text-sm text-slate-200 leading-relaxed font-light">
                   ---
                 </div>
               </div>
@@ -1286,9 +1283,9 @@
         } else {
           container.innerHTML = items.map((q, idx) => `
             <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
-              <div class="text-[10px] text-emerald-400 font-mono">語句 / 問題 ${idx + 1}</div>
-              <div class="text-xs text-slate-200 font-medium">${q.q}</div>
-              ${q.keyword ? `<div class="text-[11px] text-amber-300 font-mono">正解: ${q.keyword}</div>` : ''}
+              <div class="text-[10px] text-emerald-400 font-mono">単語 ${idx + 1}</div>
+              <div class="text-xs text-slate-200 font-medium">${q.keyword || q.q}</div>
+              <div class="text-[11px] text-slate-400 font-light">${q.exp || '解説なし'}</div>
             </div>
           `).join('');
         }
@@ -1482,12 +1479,12 @@
 必ず以下のJSONフォーマットのみを返してください。余計な解説やマークダウン記法(例: \`\`\`json)は一切含めないでください。
 
 {
-  "q": "問題文",
-  "keyword": "正解となるキーワード・用語",
-  "exp": "正解の理由や解説"
+  "q": "単語（例: ミトコンドリア）",
+  "keyword": "単語（例: ミトコンドリア）",
+  "exp": "その単語の詳細な解説や意味"
 }
 
-ユーザー指示/補足: ${text || "画像や内容から重要な問題を1問自動作成してください。"}
+ユーザー指示/補足: ${text || "画像や内容から重要な単語と解説を1問自動作成してください。"}
 ` : `
 以下の画像または提示内容を解析し、四肢択一問題を1問作成してください。
 必ず以下のJSONフォーマットのみを返してください。余計な解説やマークダウン記法(例: \`\`\`json)は一切含めないでください。
@@ -1526,8 +1523,8 @@
         if (isKeyboardMode) {
           editingQuestionsList.unshift({
             q: parsedQ.q,
-            keyword: parsedQ.keyword || "",
-            exp: parsedQ.exp || "Gemini AIによって生成された記述問題です。",
+            keyword: parsedQ.keyword || parsedQ.q || "",
+            exp: parsedQ.exp || "Gemini AIによって生成された解説です。",
             image: base64Img || "",
             enableKeyboard: true,
             options: [],
@@ -1687,7 +1684,7 @@
           </div>
 
           <div class="space-y-1">
-            <label class="text-[10px] text-slate-400 block">問題文 / 語句 (表面):</label>
+            <label class="text-[10px] text-slate-400 block">${isFlashcard ? '単語 (表面):' : '問題文 / 語句 (表面):'}</label>
             <textarea onchange="updateEditorQData(${idx}, 'q', this.value)" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-16">${q.q}</textarea>
           </div>
 
@@ -1724,12 +1721,12 @@
           ` : ''}
 
           <div class="space-y-1">
-            <label class="text-[10px] text-slate-400 block">正解キーワード / 用語 (裏面見出し):</label>
+            <label class="text-[10px] text-slate-400 block">${isFlashcard ? '解説 (裏面):' : '正解キーワード / 用語 (裏面見出し):'}</label>
             <input type="text" value="${q.keyword || ''}" onchange="updateEditorQData(${idx}, 'keyword', this.value)" placeholder="例: クエン酸回路" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
           </div>
 
           <div class="space-y-1">
-            <label class="text-[10px] text-slate-400 block">解説 / 意味 (裏面詳細):</label>
+            <label class="text-[10px] text-slate-400 block">${isFlashcard ? '詳細解説 (裏面):' : '解説 / 意味 (裏面詳細):'}</label>
             <textarea onchange="updateEditorQData(${idx}, 'exp', this.value)" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-14">${q.exp || ''}</textarea>
           </div>
         </div>
@@ -1769,13 +1766,13 @@
     function addNewQuestionToEditor() {
       const isKeyboard = (editingSelectedRound === 'flashcard' || editingSelectedRound === 'keyboard');
       editingQuestionsList.push({
-        q: "新しい単語 / 質問文を入力してください",
+        q: editingSelectedRound === 'flashcard' ? "ミトコンドリア" : "新しい単語 / 質問文を入力してください",
         options: isKeyboard ? [] : ["選択肢1", "選択肢2", "選択肢3", "選択肢4"],
         answers: isKeyboard ? [] : [0],
-        exp: "解説 / 意味を入力してください",
+        exp: editingSelectedRound === 'flashcard' ? "細胞の呼吸を行いATPを産生する細胞小器官。" : "解説 / 意味を入力してください",
         image: "",
         enableKeyboard: isKeyboard,
-        keyword: "",
+        keyword: editingSelectedRound === 'flashcard' ? "ミトコンドリア" : "",
         round: (editingSelectedRound !== 'normal' && editingSelectedRound !== 'flashcard') ? editingSelectedRound : null
       });
       renderEditorQuestionsList();
@@ -2022,7 +2019,7 @@
         `;
       }).join('');
 
-      // 2. 暗記カードのリスト生成（シンプル化）
+      // 2. 暗記カードのリスト生成
       if (flashcardContainer) {
         flashcardContainer.innerHTML = visibleSubjects.map(s => {
           const isPrep = s.status === 'preparing';
@@ -2431,7 +2428,7 @@
       const fbBox = document.getElementById('quiz-feedback-box');
       const fcActionBtns = document.getElementById('flashcard-action-btns');
 
-      // --- 暗記カードモード時の専用出題UI（カードタップで裏返る形式） ---
+      // --- 暗記カードモード時の専用出題UI（表：単語 / 裏：意味・解説） ---
       if (isFlashcardMode) {
         timerWrap.classList.add('hidden');
         standardBox.classList.add('hidden');
@@ -2447,8 +2444,10 @@
         const flipInner = document.getElementById('flashcard-flip-inner');
         flipInner.classList.remove('rotate-y-180');
 
-        // カード情報の設定
-        document.getElementById('flashcard-front-text').textContent = q.q || '単語・質問';
+        // 表面：単語（keywordを最優先し、なければqを表示）
+        const wordText = q.keyword || q.q || '単語';
+        document.getElementById('flashcard-front-text').textContent = wordText;
+
         const imgWrap = document.getElementById('flashcard-front-img-wrap');
         const imgEl = document.getElementById('flashcard-front-img');
         if (q.image) {
@@ -2459,13 +2458,12 @@
           imgWrap.classList.add('hidden');
         }
 
-        // 裏面情報の設定（正解キーワード / 解説 / 選択肢テキスト）
-        let backKeywordText = q.keyword || '';
-        if (!backKeywordText && q.options && q.options.length > 0 && q.answers && q.answers.length > 0) {
-          backKeywordText = q.answers.map(idx => q.options[idx]).join(' / ');
+        // 裏面：その単語の意味・解説（expを優先し、なければoptions/answersから意味を生成）
+        let descText = q.exp || '';
+        if ((!descText || descText === "解説はありません。") && q.options && q.options.length > 0 && q.answers && q.answers.length > 0) {
+          descText = q.answers.map(idx => q.options[idx]).join(' / ');
         }
-        document.getElementById('flashcard-back-keyword').textContent = backKeywordText || '解答・解説';
-        document.getElementById('flashcard-back-desc').textContent = q.exp || '解説はありません。';
+        document.getElementById('flashcard-back-desc').textContent = descText || '意味・解説はありません。';
 
         return; // 暗記カード時はタイマー起動しない
       }
