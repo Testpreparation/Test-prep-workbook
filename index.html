@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -2476,7 +2476,7 @@
         const flipInner = document.getElementById('flashcard-flip-inner');
         flipInner.classList.remove('rotate-y-180');
 
-        // 表面：単語（keyword優先、なければq）
+        // 表面：単語（keyword最優先、なければq）
         const wordText = q.keyword || q.q || '単語';
         document.getElementById('flashcard-front-text').textContent = wordText;
 
