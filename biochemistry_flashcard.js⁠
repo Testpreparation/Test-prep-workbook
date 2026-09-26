@@ -1,79 +1,89 @@
-[source: 3]// 生化学 暗記カード用データベース (プリント B-3 第1回より作成)
+// 生化学 暗記カード用データベース (プリント B-3 第1回より作成)
 (function() {
-window.QUIZ_DB = window.QUIZ_DB || {};
+  window.QUIZ_DB = window.QUIZ_DB || {};
+  
+  const flashcardData = [
+    {
+      id: "bio_fc_01",
+      q: "ミトコンドリア",
+      a: "ミトコンドリア",
+      keyword: "ミトコンドリア",
+      exp: "細胞内で最も効率よくATPをつくる細胞小器官は（  ）である。"
+    },
+    {
+      id: "bio_fc_02",
+      q: "リソソーム",
+      a: "リソソーム",
+      keyword: "リソソーム",
+      exp: "多くの加水分解酵素を含み、異物を分解するのは（  ）である。"
+    },
+    {
+      id: "bio_fc_03",
+      q: "リボソーム",
+      a: "リボソーム",
+      keyword: "リボソーム",
+      exp: "たんぱく質の合成に重要な役割をもつ微粒子を（  ）という。"
+    },
+    {
+      id: "bio_fc_04",
+      q: "リン脂質",
+      a: "リン脂質",
+      keyword: "リン脂質",
+      exp: "細胞膜は（  ）の二重膜層である。"
+    },
+    {
+      id: "bio_fc_05",
+      q: "同化",
+      a: "同化",
+      keyword: "同化",
+      exp: "生体内に取り入れた物質をもとに生体成分を合成する反応を（  ）という。"
+    },
+    {
+      id: "bio_fc_06",
+      q: "異化",
+      a: "異化",
+      keyword: "異化",
+      exp: "生体成分を分解する反応を（  ）という。"
+    },
+    {
+      id: "bio_fc_07",
+      q: "7.40",
+      a: "7.40",
+      keyword: "7.40",
+      exp: "細胞外液のpHは、（ {7.40} ） ± 0.05 である。"
+    },
+    {
+      id: "bio_fc_08",
+      q: "K",
+      a: "K",
+      keyword: "K",
+      exp: "細胞内液の陽イオンで最も多いのは（  ）イオンである。"
+    },
+    {
+      id: "bio_fc_09",
+      q: "Na",
+      a: "Na",
+      keyword: "Na",
+      exp: "細胞外液の陽イオンで最も多いのは（  ）イオンである。"
+    },
+    {
+      id: "bio_fc_10",
+      q: "リンパ管",
+      a: "リンパ管",
+      keyword: "リンパ管",
+      exp: "食事由来の脂質のほとんどは、小腸絨毛突起にある（  ）から吸収される。"
+    }
+  ];
 
-const flashcardData = [
-{
-id: "bio_fc_01",
-q: "ミトコンドリア",
-keyword: "ミトコンドリア",
-exp: "細胞内で最も効率よくATPをつくる細胞小器官は（  ）である。"
-},
-{
-id: "bio_fc_02",
-q: "リソソーム",
-keyword: "リソソーム",
-exp: "多くの加水分解酵素を含み、異物を分解するのは（  ）である。"
-},
-{
-id: "bio_fc_03",
-q: "リボソーム",
-keyword: "リボソーム",
-exp: "たんぱく質の合成に重要な役割をもつ微粒子を（  ）という。"
-},
-{
-id: "bio_fc_04",
-q: "リン脂質",
-keyword: "リン脂質",
-exp: "細胞膜は（  ）の二重膜層である。"
-},
-{
-id: "bio_fc_05",
-q: "同化",
-keyword: "同化",
-exp: "生体内に取り入れた物質をもとに生体成分を合成する反応を（  ）という。"
-},
-{
-id: "bio_fc_06",
-q: "異化",
-keyword: "異化",
-exp: "生体成分を分解する反応を（  ）という。"
-},
-{
-id: "bio_fc_07",
-q: "7.40",
-keyword: "7.40",
-exp: "細胞外液のpHは、（  ） ± 0.05 である。"
-},
-{
-id: "bio_fc_08",
-q: "K",
-keyword: "K",
-exp: "細胞内液の陽イオンで最も多いのは（  ）イオンである。"
-},
-{
-id: "bio_fc_09",
-q: "Na",
-keyword: "Na",
-exp: "細胞外液の陽イオンで最も多いのは（  ）イオンである。"
-},
-{
-id: "bio_fc_10",
-q: "リンパ管",
-keyword: "リンパ管",
-exp: "食事由来の脂質のほとんどは、小腸絨毛突起にある（  ）から吸収される。"
-}
-];
+  window.QUIZ_DB.biochemistry_flashcards = flashcardData;
 
-window.QUIZ_DB.biochemistry_flashcards = flashcardData;
+  // データ取得用関数
+  window.getBiochemistryFlashcards = function() {
+    return window.QUIZ_DB.biochemistry_flashcards;
+  };
 
-// データ取得用関数
-window.getBiochemistryFlashcards = function() {
-return window.QUIZ_DB.biochemistry_flashcards;
-};
-
-// HTMLの描画処理実行後にデータが読み込まれた場合の同期処理
-if (typeof renderSubjectList === 'function') {
-renderSubjectList();
-}
+  // HTMLの描画処理実行後にデータが読み込まれた場合の同期処理
+  if (typeof renderSubjectList === 'function') {
+    renderSubjectList();
+  }
 })();
