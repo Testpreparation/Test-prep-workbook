@@ -500,7 +500,7 @@
           <div class="px-2">
             <input type="range" id="quiz-count-slider-deprecated" min="10" max="30" step="10" value="10" oninput="updateSliderValue(this.value)" class="w-full">
             <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
-              <span>10問</span><span>20問</span><span>30问</span>
+              <span>10問</span><span>20問</span><span>30問</span>
             </div>
           </div>
         </div>
@@ -637,8 +637,8 @@
           <div id="new-record-badge" class="hidden absolute top-2 right-2 bg-amber-500/20 border border-amber-500/50 text-amber-300 text-[10px] px-2 py-0.5 rounded-full font-bold animate-pulse flex items-center gap-1">
             <span>BEST RECORD</span>
           </div>
-          <div id="result-label-text" class="text-xs text-slate-400">正答率</div>
-          <div class="text-4xl font-bold text-amber-400"><span id="final-score-val">0</span><span id="final-unit-val" class="text-2xl font-normal text-amber-400">%</span> <span id="final-total-val" class="text-base font-normal text-slate-400 hidden">/ 10</span></div>
+          <div id="result-score-label" class="text-xs text-slate-400">正答率</div>
+          <div class="text-4xl font-bold text-amber-400"><span id="final-score-val">0</span><span id="final-score-unit" class="text-2xl font-normal text-amber-400">%</span> <span id="final-total-val" class="text-base font-normal text-slate-400 hidden">/ 10</span></div>
           <div id="final-eval-text" class="text-xs text-amber-500/90 pt-2 font-light">素晴らしい集中力です！</div>
         </div>
 
@@ -896,7 +896,7 @@
       </div>
 
       <button onclick="resetAllDataToDefault()" class="w-full py-2 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/50 text-[11px] rounded-lg transition flex items-center justify-center gap-1.5 font-light">
-        <span>平均正答率データをリセット</span>
+        <span>平均習得率データをリセット</span>
       </button>
 
       <button onclick="closeAdminModal()" class="w-full py-2.5 bg-slate-800 text-slate-300 rounded-lg text-xs hover:bg-slate-700 transition">閉じる</button>
@@ -1422,11 +1422,11 @@
     }
 
     function resetAllDataToDefault() {
-      if (confirm("全ての科目の平均正答率履歴データを削除しますか？")) {
+      if (confirm("全ての科目の平均正答率・習得率履歴データを削除しますか？")) {
         subjects.forEach(s => {
           localStorage.removeItem(`history_accuracy_${s.id}`);
         });
-        alert("平均正答率データをリセットしました。");
+        alert("履歴データをリセットしました。");
         renderSubjectList();
       }
     }
@@ -1501,7 +1501,7 @@
 ユーザー指示/補足: ${text || "画像や内容から重要な単語と解説を1問自動作成してください。"}
 ` : `
 以下の画像または提示内容を解析し、四肢択一問題を1問作成してください。
-必ず以下のJSONフォーフォーマットのみを返してください。余計な解説やマークダウン記法(例: \`\`\`json)は一切含めないでください。
+必ず以下のJSONフォーマットのみを返してください。余計な解説やマークダウン記法(例: \`\`\`json)は一切含めないでください。
 
 {
   "q": "問題文",
@@ -1875,66 +1875,157 @@
         const val = snapshot.val();
         if (val && Array.isArray(val)) {
           subjects = val;
+          renderSubjectList();
+        } else {
+          renderSubjectList();
         }
-        renderSubjectList();
+      });
+
+      db.ref('quiz_db').on('value', (snapshot) => {
+        const val = snapshot.val();
+        if (val) {
+          Object.keys(val).forEach(key => {
+            window.QUIZ_DB[key] = val[key];
+          });
+        }
       });
 
       db.ref('notices').on('value', (snapshot) => {
-        const notices = snapshot.val();
-        renderNoticeList(notices);
-      });
-
-      ['psychology', 'mind_behavior', 'medical_intro', 'microbiology', 'anatomy', 'anatomy_applied', 'physiology', 'biochemistry', 'biochemistry_keyboard', 'biochemistry_flashcards', 'nursing_method'].forEach(key => {
-        db.ref(`quiz_db/${key}`).on('value', (snap) => {
-          const val = snap.val();
-          if (val && Array.isArray(val)) {
-            window.QUIZ_DB[key] = val;
-          }
-        });
+        const val = snapshot.val();
+        renderNoticeList(val);
       });
     }
 
-    function renderNoticeList(notices) {
+    function renderNoticeList(noticesData) {
       const container = document.getElementById('notice-list-container');
       const manageContainer = document.getElementById('admin-notice-manage-list');
-      if (!container) return;
 
-      if (!notices) {
-        container.innerHTML = `
-          <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-            <div class="text-[10px] text-amber-400 font-mono">お知らせ</div>
-            <div class="font-semibold text-slate-100">現在新しいお知らせはありません</div>
-          </div>
-        `;
-        if (manageContainer) manageContainer.innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">お知らせはありません</div>`;
-        return;
-      }
+      let html = '';
+      let manageHtml = '';
 
-      const noticeArray = Object.keys(notices).map(key => ({ id: key, ...notices[key] })).sort((a, b) => b.timestamp - a.timestamp);
+      if (!noticesData) {
+        html = `<div class="p-4 text-center text-slate-500 text-xs">現在お知らせはありません。</div>`;
+        manageHtml = `<div class="p-2 text-center text-slate-500 text-[11px]">投稿済みのお知らせはありません。</div>`;
+      } else {
+        const entries = Object.entries(noticesData).reverse();
 
-      container.innerHTML = noticeArray.map(n => `
-        <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-          <div class="text-[10px] text-amber-400 font-mono">${new Date(n.timestamp).toLocaleDateString('ja-JP')}</div>
-          <div class="font-semibold text-slate-100">${n.title}</div>
-          <p class="text-slate-400 text-[11px] font-light leading-relaxed">${n.content}</p>
-        </div>
-      `).join('');
-
-      if (manageContainer) {
-        manageContainer.innerHTML = noticeArray.map(n => `
-          <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between gap-2 text-xs">
-            <div class="truncate">
-              <div class="font-medium text-slate-200 truncate">${n.title}</div>
-              <div class="text-[10px] text-slate-500 font-mono">${new Date(n.timestamp).toLocaleDateString('ja-JP')}</div>
+        html = entries.map(([id, n]) => {
+          const dateStr = n.timestamp ? new Date(n.timestamp).toLocaleDateString('ja-JP') : '';
+          return `
+            <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+              <div class="flex justify-between items-center">
+                <span class="text-[10px] text-amber-400 font-mono">${dateStr}</span>
+              </div>
+              <div class="font-semibold text-slate-100 text-xs">${n.title}</div>
+              <p class="text-slate-400 text-[11px] font-light leading-relaxed whitespace-pre-wrap">${n.content}</p>
             </div>
-            <button onclick="deleteAdminNotice('${n.id}')" class="px-2 py-1 bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/60 rounded text-[10px] shrink-0 transition">削除</button>
-          </div>
-        `).join('');
+          `;
+        }).join('');
+
+        manageHtml = entries.map(([id, n]) => {
+          return `
+            <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 flex justify-between items-center gap-2">
+              <div class="truncate">
+                <div class="text-xs font-medium text-slate-200 truncate">${n.title}</div>
+                <div class="text-[10px] text-slate-500 truncate">${n.content}</div>
+              </div>
+              <button onclick="deleteAdminNotice('${id}')" class="px-2 py-1 bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/60 rounded text-[10px] transition shrink-0">
+                削除
+              </button>
+            </div>
+          `;
+        }).join('');
       }
+
+      if (container) container.innerHTML = html;
+      if (manageContainer) manageContainer.innerHTML = manageHtml;
+    }
+
+    function toggleNavDrawer() {
+      const drawer = document.getElementById('nav-drawer');
+      const overlay = document.getElementById('nav-overlay');
+      if (drawer.classList.contains('-translate-x-full')) {
+        drawer.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+      } else {
+        drawer.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+      }
+    }
+
+    function closeNavDrawer() {
+      document.getElementById('nav-drawer').classList.add('-translate-x-full');
+      document.getElementById('nav-overlay').classList.add('hidden');
+    }
+
+    function renderSubjectList() {
+      const quizContainer = document.getElementById('subject-list-container');
+      const flashcardContainer = document.getElementById('flashcard-list-container');
+
+      if (!quizContainer || !flashcardContainer) return;
+
+      const visibleQuizSubjects = subjects.filter(s => s.visible !== false);
+      const visibleFlashcardSubjects = subjects.filter(s => s.flashcardVisible !== false);
+
+      document.getElementById('subject-count-display').textContent = `全${visibleQuizSubjects.length}科目`;
+      document.getElementById('flashcard-count-display').textContent = `全${visibleFlashcardSubjects.length}科目`;
+
+      quizContainer.innerHTML = visibleQuizSubjects.map(s => {
+        const avgAcc = getAverageAccuracy(s.id);
+        const badgeClass = avgAcc !== null ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' : 'bg-slate-800 border-slate-700 text-slate-400';
+        const badgeText = avgAcc !== null ? `平均正答率: ${avgAcc}%` : '未挑戦';
+
+        return `
+          <button onclick="selectSubject('${s.id}', false)" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">${s.code}</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">${s.name}</div>
+                <div class="text-[10px] text-slate-400 font-light mt-0.5">演習トレーニング問題</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="px-2 py-0.5 rounded-full border text-[10px] font-mono ${badgeClass}">${badgeText}</span>
+              <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      flashcardContainer.innerHTML = visibleFlashcardSubjects.map(s => {
+        const learnedList = getLearnedWords(s.id);
+        const learnedCount = learnedList.length;
+
+        let totalCount = 0;
+        let fcData = window.QUIZ_DB[`${s.id}_flashcards`] || window.QUIZ_DB[s.id] || [];
+        if (s.id === 'biochemistry' && typeof window.getBiochemistryFlashcards === 'function') {
+          fcData = window.getBiochemistryFlashcards();
+        }
+        totalCount = fcData.length;
+
+        const fcBadgeClass = learnedCount > 0 ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-slate-800 border-slate-700 text-slate-400';
+        const fcBadgeText = totalCount > 0 ? `覚えた数: ${learnedCount}/${totalCount}問` : `覚えた数: ${learnedCount}問`;
+
+        return `
+          <button onclick="selectSubject('${s.id}', true)" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-bold">${s.code}</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-emerald-300 transition">${s.name} 暗記カード</div>
+                <div class="text-[10px] text-slate-400 font-light mt-0.5">タップでめくる暗記学習</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="px-2 py-0.5 rounded-full border text-[10px] font-mono ${fcBadgeClass}">${fcBadgeText}</span>
+              <span class="text-slate-500 group-hover:text-emerald-400 transition text-sm">→</span>
+            </div>
+          </button>
+        `;
+      }).join('');
     }
 
     function hideAllScreens() {
-      const screens = [
+      const screenIds = [
         'screen-subjects',
         'screen-physiology-mode-select',
         'screen-anatomy-mode-select',
@@ -1950,7 +2041,7 @@
         'screen-multi-room',
         'screen-multi-play'
       ];
-      screens.forEach(id => {
+      screenIds.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
       });
@@ -1958,101 +2049,34 @@
 
     function showSubjectScreen() {
       hideAllScreens();
-      currentSubject = null;
-      isFlashcardMode = false;
       document.getElementById('screen-subjects').classList.remove('hidden');
       renderSubjectList();
     }
 
-    function renderSubjectList() {
-      const mainContainer = document.getElementById('subject-list-container');
-      const flashcardContainer = document.getElementById('flashcard-list-container');
-      if (!mainContainer || !flashcardContainer) return;
-
-      const visibleQuizSubjects = subjects.filter(s => s.visible !== false);
-      const visibleFlashcardSubjects = subjects.filter(s => s.flashcardVisible !== false);
-
-      document.getElementById('subject-count-display').textContent = `全${visibleQuizSubjects.length}科目`;
-      document.getElementById('flashcard-count-display').textContent = `全${visibleFlashcardSubjects.length}科目`;
-
-      // 通常演習リスト
-      mainContainer.innerHTML = visibleQuizSubjects.map(s => {
-        const avgAcc = getAverageAccuracy(s.id);
-        const accuracyText = avgAcc !== null ? `${avgAcc}%` : '未挑戦';
-
-        return `
-          <button onclick="selectSubject('${s.id}', false)" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
-            <div class="flex items-center gap-3">
-              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">${s.code}</span>
-              <div>
-                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">${s.name}</div>
-                <div class="text-[11px] text-slate-400 font-light mt-0.5">平均正答率: <span class="text-amber-400 font-bold">${accuracyText}</span></div>
-              </div>
-            </div>
-            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
-          </button>
-        `;
-      }).join('');
-
-      // 暗記カードリスト
-      flashcardContainer.innerHTML = visibleFlashcardSubjects.map(s => {
-        const learnedList = getLearnedWords(s.id);
-        const learnedCount = learnedList.length;
-
-        // 対象科目の暗記カードの総数を取得
-        let totalCards = 0;
-        let fcKey = `${s.id}_flashcards`;
-        if (window.QUIZ_DB[fcKey] && window.QUIZ_DB[fcKey].length > 0) {
-          totalCards = window.QUIZ_DB[fcKey].length;
-        } else if (s.id === 'biochemistry' && typeof window.getBiochemistryFlashcards === 'function') {
-          totalCards = window.getBiochemistryFlashcards().length;
-        } else if (window.QUIZ_DB[s.id] && window.QUIZ_DB[s.id].length > 0) {
-          totalCards = window.QUIZ_DB[s.id].length;
-        }
-        
-        const progressPercent = totalCards > 0 ? Math.min(100, Math.round((learnedCount / totalCards) * 100)) : 0;
-
-        return `
-          <button onclick="selectSubject('${s.id}', true)" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group border-emerald-500/20 hover:border-emerald-500/50">
-            <div class="flex items-center gap-3">
-              <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-bold">${s.code}</span>
-              <div>
-                <div class="text-sm font-medium text-slate-100 group-hover:text-emerald-300 transition">${s.name} <span class="text-[10px] text-emerald-400 font-normal">🎴 暗記</span></div>
-                <div class="text-[11px] text-slate-400 font-light mt-0.5">習得率: <span class="text-emerald-400 font-bold">${learnedCount} / ${totalCards} (${progressPercent}%)</span></div>
-              </div>
-            </div>
-            <span class="text-slate-500 group-hover:text-emerald-400 transition text-sm">→</span>
-          </button>
-        `;
-      }).join('');
-    }
-
     function selectSubject(subjectId, isFlashcard = false) {
-      currentSubject = subjects.find(s => s.id === subjectId);
+      currentSubject = subjects.find(s => s.id === subjectId) || { id: subjectId, name: subjectId, code: "SUB" };
       isFlashcardMode = isFlashcard;
-
-      if (!currentSubject) return;
 
       if (isFlashcardMode) {
         showStartScreen();
         return;
       }
 
-      if (currentSubject.hasPhysiologyModes) {
+      if (subjectId === 'physiology') {
         hideAllScreens();
         document.getElementById('screen-physiology-mode-select').classList.remove('hidden');
-      } else if (currentSubject.hasAnatomyModes) {
+      } else if (subjectId === 'anatomy') {
         hideAllScreens();
         document.getElementById('screen-anatomy-mode-select').classList.remove('hidden');
-      } else if (currentSubject.hasNursingModes) {
+      } else if (subjectId === 'nursing_method') {
         hideAllScreens();
         document.getElementById('screen-nursing-mode-select').classList.remove('hidden');
-      } else if (currentSubject.hasBiochemistryFormats) {
+      } else if (subjectId === 'biochemistry') {
         hideAllScreens();
         document.getElementById('screen-biochemistry-format-select').classList.remove('hidden');
       } else if (currentSubject.hasRounds) {
         hideAllScreens();
-        document.getElementById('round-subject-title').textContent = currentSubject.name;
+        document.getElementById('round-subject-title').textContent = `${currentSubject.name} モード選択`;
         document.getElementById('screen-round-select').classList.remove('hidden');
       } else {
         showTimeSelectionScreen();
@@ -2071,7 +2095,7 @@
 
     function showTimeSelectionScreen() {
       hideAllScreens();
-      document.getElementById('time-subject-title').textContent = `${currentSubject.name} - 制限時間`;
+      document.getElementById('time-subject-title').textContent = `${currentSubject.name} - 制限時間設定`;
       document.getElementById('screen-time-select').classList.remove('hidden');
     }
 
@@ -2081,13 +2105,13 @@
     }
 
     function proceedToCountOrStart() {
-      showCountSelectionScreen();
-    }
-
-    function showCountSelectionScreen() {
       hideAllScreens();
-      document.getElementById('count-subject-title').textContent = `${currentSubject.name} - 出題数`;
-      document.getElementById('screen-count-select').classList.remove('hidden');
+      if (currentSubject.isFixed) {
+        showStartScreen();
+      } else {
+        document.getElementById('count-subject-title').textContent = `${currentSubject.name} - 出題数設定`;
+        document.getElementById('screen-count-select').classList.remove('hidden');
+      }
     }
 
     function updateSliderValue(val) {
@@ -2096,66 +2120,64 @@
 
     function showStartScreen() {
       hideAllScreens();
-      document.getElementById('quiz-subject-title').textContent = currentSubject ? currentSubject.name : '';
-      
+      document.getElementById('quiz-subject-title').textContent = `${currentSubject.name} ${isFlashcardMode ? '(暗記カード)' : ''}`;
+
       const heading = document.getElementById('start-screen-heading');
       const desc = document.getElementById('start-screen-desc');
-      const mgmtArea = document.getElementById('flashcard-mgmt-area');
+      const highscoreLabel = document.getElementById('highscore-badge');
+      const flashcardMgmt = document.getElementById('flashcard-mgmt-area');
 
       if (isFlashcardMode) {
-        heading.textContent = "🎴 暗記カード";
-        desc.textContent = "タップで裏返して単語の意味を確認できます。覚えた単語は習得率に反映されます。";
-        mgmtArea.classList.remove('hidden');
+        heading.textContent = "暗記カード モード";
+        desc.textContent = "問題カードをタップして反転させ、意味や解説を確認して暗記学習を行いましょう。";
+        highscoreLabel.classList.add('hidden');
+        flashcardMgmt.classList.remove('hidden');
       } else {
-        heading.textContent = "演習問題";
-        desc.textContent = "過去問・トレーニング問題から出題されます。制限時間内に回答してください。";
-        mgmtArea.classList.add('hidden');
-      }
+        heading.textContent = "演習問題 モード";
+        desc.textContent = "制限時間内に正しい選択肢を選択、またはキーワードを入力して回答してください。";
+        highscoreLabel.classList.remove('hidden');
+        flashcardMgmt.classList.add('hidden');
 
-      const highscoreVal = localStorage.getItem(`highscore_${currentSubject.id}`);
-      document.getElementById('start-screen-highscore').textContent = highscoreVal !== null ? `${highscoreVal}%` : '未挑戦';
+        const key = `history_accuracy_${currentSubject.id}`;
+        const records = JSON.parse(localStorage.getItem(key) || '[]');
+        const displayScore = records.length > 0 ? `${Math.max(...records)}%` : "未挑戦";
+        document.getElementById('start-screen-highscore').textContent = displayScore;
+      }
 
       document.getElementById('screen-quiz-start').classList.remove('hidden');
     }
 
     function handleStartScreenSubmit() {
-      if (isFlashcardMode) {
-        startQuiz();
-      } else {
-        showTimeSelectionScreen();
-      }
+      startQuiz();
     }
 
     function startQuiz() {
       hideAllScreens();
-      score = 0;
       currentQIndex = 0;
+      score = 0;
+      isAnswered = false;
 
       let rawData = [];
-
       if (isFlashcardMode) {
         const fcKey = `${currentSubject.id}_flashcards`;
         rawData = window.QUIZ_DB[fcKey] || [];
         if (rawData.length === 0 && currentSubject.id === 'biochemistry' && typeof window.getBiochemistryFlashcards === 'function') {
           rawData = window.getBiochemistryFlashcards();
-        } else if (rawData.length === 0) {
+        }
+        if (rawData.length === 0) {
           rawData = window.QUIZ_DB[currentSubject.id] || [];
         }
 
-        // 覚えた単語は除外して未暗記のみ出題（全問覚えきっている場合は全問）
         const learnedIds = getLearnedWords(currentSubject.id);
-        let unlearned = rawData.filter(q => !learnedIds.includes(q.id || `q_${Math.abs(hashCode(q.q || q.question || ''))}`));
-        if (unlearned.length > 0) {
-          rawData = unlearned;
-        }
-      } else if (currentSubject.id === 'biochemistry') {
-        if (currentBiochemistryFormat === 'keyboard') {
-          rawData = window.QUIZ_DB.biochemistry_keyboard || [];
-        } else {
-          rawData = window.QUIZ_DB.biochemistry || [];
-        }
-        if (rawData.length === 0 && typeof window.getBiochemistryQuestions === 'function') {
-          rawData = window.getBiochemistryQuestions();
+        const unlearnedItems = rawData.filter(q => {
+          const norm = normalizeQuestion(q);
+          return norm && !learnedIds.includes(norm.id);
+        });
+
+        if (unlearnedItems.length > 0) {
+          rawData = unlearnedItems;
+        } else if (rawData.length > 0) {
+          alert("すべての単語を「覚えた！」に登録済みです。全問題から再出題します。");
         }
       } else if (currentSubject.id === 'physiology') {
         if (typeof window.getPhysiologyQuestions === 'function') {
@@ -2165,73 +2187,94 @@
         }
       } else if (currentSubject.id === 'anatomy') {
         if (currentAnatomyMode === 'applied') {
-          rawData = window.QUIZ_DB.anatomy_applied || window.QUIZ_DB.anatomy || [];
+          rawData = window.QUIZ_DB.anatomy_applied || [];
         } else {
           rawData = window.QUIZ_DB.anatomy || [];
         }
+      } else if (currentSubject.id === 'biochemistry') {
+        if (currentBiochemistryFormat === 'keyboard') {
+          rawData = window.QUIZ_DB.biochemistry_keyboard || [];
+        } else {
+          rawData = window.QUIZ_DB.biochemistry || [];
+        }
       } else if (currentSubject.id === 'nursing_method') {
-        rawData = window.QUIZ_DB.nursing_method || [];
+        if (typeof window.getNursingQuestions === 'function') {
+          rawData = window.getNursingQuestions(currentRound || 'all');
+        } else {
+          rawData = window.QUIZ_DB.nursing_method || [];
+        }
       } else if (currentSubject.id === 'psychology') {
-        rawData = window.QUIZ_DB.psychology || [];
+        if (typeof window.getQuestions === 'function') {
+          rawData = window.getQuestions(currentRound || 'all');
+        } else {
+          rawData = window.QUIZ_DB.psychology || [];
+        }
       } else {
         rawData = window.QUIZ_DB[currentSubject.id] || [];
       }
 
-      activeQuestions = rawData.map(q => normalizeQuestion(q)).filter(Boolean);
+      let parsedQuestions = rawData.map(q => normalizeQuestion(q)).filter(Boolean);
 
-      if (activeQuestions.length === 0) {
-        alert("該当する問題データが見つかりませんでした。");
+      if (parsedQuestions.length === 0) {
+        alert("該当する問題データが登録されていません。");
         showSubjectScreen();
         return;
       }
 
-      // ランダムシャッフル
-      activeQuestions.sort(() => Math.random() - 0.5);
+      parsedQuestions.sort(() => Math.random() - 0.5);
 
-      if (!isFlashcardMode) {
-        const sliderCount = parseInt(document.getElementById('quiz-count-slider').value, 10);
-        activeQuestions = activeQuestions.slice(0, Math.min(sliderCount, activeQuestions.length));
+      if (!isFlashcardMode && !currentSubject.isFixed) {
+        const sliderVal = parseInt(document.getElementById('quiz-count-slider').value, 10) || 10;
+        activeQuestions = parsedQuestions.slice(0, sliderVal);
+      } else {
+        activeQuestions = parsedQuestions;
       }
 
       document.getElementById('screen-quiz-play').classList.remove('hidden');
-      loadQuestion();
+      renderQuestion();
     }
 
-    function loadQuestion() {
+    function renderQuestion() {
       isAnswered = false;
       selectedIndices.clear();
       isFlashcardFlipped = false;
 
       const q = activeQuestions[currentQIndex];
-      const totalQ = activeQuestions.length;
+      const total = activeQuestions.length;
 
-      document.getElementById('quiz-progress-text').textContent = `QUESTION ${currentQIndex + 1} / ${totalQ}`;
-      document.getElementById('quiz-score-live').textContent = isFlashcardMode ? `進行: ${currentQIndex}/${totalQ}` : `正解: ${score}`;
-
-      const feedbackBox = document.getElementById('quiz-feedback-box');
-      feedbackBox.classList.add('hidden');
+      document.getElementById('quiz-progress-text').textContent = `QUESTION ${currentQIndex + 1} / ${total}`;
+      
+      if (isFlashcardMode) {
+        document.getElementById('quiz-score-live').textContent = `習得率進行: ${currentQIndex + 1}/${total}`;
+      } else {
+        document.getElementById('quiz-score-live').textContent = `正解: ${score}`;
+      }
 
       const standardBox = document.getElementById('standard-question-box');
       const flashcardBox = document.getElementById('flashcard-interactive-box');
-      const flashcardActionBtns = document.getElementById('flashcard-action-btns');
       const optionsContainer = document.getElementById('quiz-options-container');
       const keyboardContainer = document.getElementById('quiz-keyboard-input-container');
       const submitMultiBtn = document.getElementById('quiz-submit-multi-btn');
+      const feedbackBox = document.getElementById('quiz-feedback-box');
+      const flashcardBtns = document.getElementById('flashcard-action-btns');
       const timerBarWrap = document.getElementById('quiz-timer-bar-wrap');
 
-      // UI初期設定（暗記カード vs 通常演習）
+      feedbackBox.classList.add('hidden');
+
       if (isFlashcardMode) {
         standardBox.classList.add('hidden');
         flashcardBox.classList.remove('hidden');
-        flashcardActionBtns.classList.remove('hidden');
         optionsContainer.classList.add('hidden');
         keyboardContainer.classList.add('hidden');
         submitMultiBtn.classList.add('hidden');
         timerBarWrap.classList.add('hidden');
+        flashcardBtns.classList.remove('hidden');
 
-        document.getElementById('flashcard-front-text').textContent = q.q;
-        document.getElementById('flashcard-back-desc').textContent = q.exp || q.keyword || '解説はありません。';
+        const flipInner = document.getElementById('flashcard-flip-inner');
+        flipInner.classList.remove('rotate-y-180');
 
+        document.getElementById('flashcard-front-text').textContent = q.keyword || q.q;
+        
         const frontImgWrap = document.getElementById('flashcard-front-img-wrap');
         const frontImg = document.getElementById('flashcard-front-img');
         if (q.image) {
@@ -2241,50 +2284,48 @@
           frontImgWrap.classList.add('hidden');
         }
 
-        // カードを表面に戻す
-        const inner = document.getElementById('flashcard-flip-inner');
-        inner.style.transform = 'rotateY(0deg)';
+        document.getElementById('flashcard-back-desc').textContent = q.exp || q.q || '解説はありません';
 
       } else {
         standardBox.classList.remove('hidden');
         flashcardBox.classList.add('hidden');
-        flashcardActionBtns.classList.add('hidden');
+        flashcardBtns.classList.add('hidden');
         timerBarWrap.classList.remove('hidden');
 
         document.getElementById('quiz-question-number').textContent = `Q${currentQIndex + 1}`;
         document.getElementById('quiz-question-text').textContent = q.q;
 
-        // 問題画像
         const imgContainer = document.getElementById('quiz-image-container');
-        const quizImg = document.getElementById('quiz-image');
+        const imgEl = document.getElementById('quiz-image');
         if (q.image) {
-          quizImg.src = q.image;
+          imgEl.src = q.image;
           imgContainer.classList.remove('hidden');
         } else {
           imgContainer.classList.add('hidden');
         }
 
-        // 語群表示
-        const wordboxContainer = document.getElementById('quiz-wordbox-container');
-        const wordboxContent = document.getElementById('quiz-wordbox-content');
+        const wordBoxContainer = document.getElementById('quiz-wordbox-container');
+        const wordBoxContent = document.getElementById('quiz-wordbox-content');
         if (q.wordBox) {
           if (Array.isArray(q.wordBox)) {
-            wordboxContent.innerHTML = q.wordBox.map((w, idx) => `<div>(${idx + 1}) ${w}</div>`).join('');
+            wordBoxContent.innerHTML = q.wordBox.map(w => `<div>• ${w}</div>`).join('');
           } else {
-            wordboxContent.textContent = q.wordBox;
+            wordBoxContent.textContent = q.wordBox;
           }
-          wordboxContainer.classList.remove('hidden');
+          wordBoxContainer.classList.remove('hidden');
         } else {
-          wordboxContainer.classList.add('hidden');
+          wordBoxContainer.classList.add('hidden');
         }
 
-        // 解答コントロール切り替え（キーボード入力 vs 単一/複数選択肢）
-        if (q.enableKeyboard || (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'keyboard')) {
+        const isKeyboard = (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'keyboard') || q.enableKeyboard;
+
+        if (isKeyboard) {
           optionsContainer.classList.add('hidden');
           submitMultiBtn.classList.add('hidden');
           keyboardContainer.classList.remove('hidden');
-          document.getElementById('quiz-keyboard-input').value = '';
-          document.getElementById('quiz-keyboard-input').focus();
+          const inputEl = document.getElementById('quiz-keyboard-input');
+          inputEl.value = '';
+          inputEl.focus();
         } else {
           keyboardContainer.classList.add('hidden');
           optionsContainer.classList.remove('hidden');
@@ -2295,38 +2336,68 @@
             submitMultiBtn.classList.add('hidden');
           }
 
-          renderOptions(q);
+          optionsContainer.innerHTML = (q.options || []).map((opt, idx) => `
+            <button onclick="handleOptionSelect(${idx})" id="opt-btn-${idx}" class="w-full p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-200 text-xs text-left hover:border-amber-500/50 transition flex items-center justify-between group">
+              <span>${opt}</span>
+              <span id="opt-check-${idx}" class="w-4 h-4 rounded-full border border-slate-700 flex items-center justify-center text-[10px] text-transparent font-bold">✓</span>
+            </button>
+          `).join('');
         }
 
-        // タイマースタート
-        startQuizTimer();
+        startTimer();
       }
     }
 
     function flipFlashcard() {
-      const inner = document.getElementById('flashcard-flip-inner');
+      const flipInner = document.getElementById('flashcard-flip-inner');
       isFlashcardFlipped = !isFlashcardFlipped;
-      inner.style.transform = isFlashcardFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
+      if (isFlashcardFlipped) {
+        flipInner.classList.add('rotate-y-180');
+      } else {
+        flipInner.classList.remove('rotate-y-180');
+      }
     }
 
-    function renderOptions(q) {
-      const container = document.getElementById('quiz-options-container');
-      const isMulti = q.isMultiple;
+    function startTimer() {
+      stopTimer();
+      timeLeft = QUIZ_LIMIT_TIME;
+      const bar = document.getElementById('quiz-timer-bar');
+      if (bar) {
+        bar.style.width = '100%';
+        bar.style.transition = 'none';
+        bar.offsetHeight;
+        bar.style.transition = `width ${QUIZ_LIMIT_TIME}s linear`;
+        bar.style.width = '0%';
+      }
 
-      container.innerHTML = q.options.map((opt, idx) => `
-        <button onclick="handleOptionClick(${idx})" id="opt-btn-${idx}" class="w-full p-3.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-left text-xs text-slate-200 transition flex items-center justify-between group">
-          <div class="flex items-center gap-3">
-            <span class="w-6 h-6 rounded-lg ${isMulti ? 'rounded-md' : 'rounded-full'} bg-slate-800 border border-slate-700 flex items-center justify-center text-[10px] font-mono text-slate-400 group-hover:border-amber-500 group-hover:text-amber-400 shrink-0 font-bold">
-              ${String.fromCharCode(65 + idx)}
-            </span>
-            <span class="leading-relaxed">${opt}</span>
-          </div>
-          <div id="opt-check-${idx}" class="w-4 h-4 rounded ${isMulti ? 'rounded-md' : 'rounded-full'} border border-slate-700 flex items-center justify-center text-[10px] text-amber-400"></div>
-        </button>
-      `).join('');
+      quizTimer = setTimeout(() => {
+        if (!isAnswered) {
+          handleTimeOut();
+        }
+      }, QUIZ_LIMIT_TIME * 1000);
     }
 
-    function handleOptionClick(idx) {
+    function stopTimer() {
+      if (quizTimer) {
+        clearTimeout(quizTimer);
+        quizTimer = null;
+      }
+      const bar = document.getElementById('quiz-timer-bar');
+      if (bar) {
+        const computedWidth = window.getComputedStyle(bar).width;
+        bar.style.transition = 'none';
+        bar.style.width = computedWidth;
+      }
+    }
+
+    function handleTimeOut() {
+      isAnswered = true;
+      const q = activeQuestions[currentQIndex];
+
+      showFeedback(false, `⏰ 時間切れです！ (正解: ${q.answers.map(i => q.options[i]).join(', ') || q.keyword || ''})`);
+    }
+
+    function handleOptionSelect(idx) {
       if (isAnswered) return;
       const q = activeQuestions[currentQIndex];
 
@@ -2337,250 +2408,163 @@
           selectedIndices.add(idx);
         }
 
-        q.options.forEach((_, i) => {
-          const checkEl = document.getElementById(`opt-check-${i}`);
-          const btnEl = document.getElementById(`opt-btn-${i}`);
+        (q.options || []).forEach((_, i) => {
+          const btn = document.getElementById(`opt-btn-${i}`);
+          const check = document.getElementById(`opt-check-${i}`);
           if (selectedIndices.has(i)) {
-            checkEl.innerHTML = '✓';
-            checkEl.classList.add('bg-amber-500/20', 'border-amber-500');
-            btnEl.classList.add('border-amber-500/60', 'bg-slate-800/90');
+            btn.classList.add('border-amber-500', 'bg-amber-500/10');
+            check.classList.add('bg-amber-500', 'text-slate-950', 'border-amber-500');
+            check.classList.remove('text-transparent');
           } else {
-            checkEl.innerHTML = '';
-            checkEl.classList.remove('bg-amber-500/20', 'border-amber-500');
-            btnEl.classList.remove('border-amber-500/60', 'bg-slate-800/90');
+            btn.classList.remove('border-amber-500', 'bg-amber-500/10');
+            check.classList.remove('bg-amber-500', 'text-slate-950', 'border-amber-500');
+            check.classList.add('text-transparent');
           }
         });
       } else {
-        clearInterval(quizTimer);
+        stopTimer();
         isAnswered = true;
-        checkSingleAnswer(idx);
+        const isCorrect = q.answers.includes(idx);
+
+        if (isCorrect) score++;
+
+        (q.options || []).forEach((_, i) => {
+          const btn = document.getElementById(`opt-btn-${i}`);
+          if (q.answers.includes(i)) {
+            btn.classList.add('border-emerald-500', 'bg-emerald-500/20', 'text-emerald-300');
+          } else if (i === idx) {
+            btn.classList.add('border-rose-500', 'bg-rose-500/20', 'text-rose-300');
+          }
+        });
+
+        showFeedback(isCorrect);
       }
     }
 
     function submitMultipleAnswers() {
       if (isAnswered) return;
-      if (selectedIndices.size === 0) {
-        alert("1つ以上の選択肢を選んでください。");
-        return;
-      }
-
-      clearInterval(quizTimer);
+      stopTimer();
       isAnswered = true;
 
       const q = activeQuestions[currentQIndex];
       const userSelected = Array.from(selectedIndices).sort();
-      const correctList = [...q.answers].sort();
+      const correctSorted = [...q.answers].sort();
 
-      const isCorrect = userSelected.length === correctList.length && userSelected.every((val, index) => val === correctList[index]);
-
-      if (isCorrect) score++;
-
-      highlightAnswerResults(userSelected, correctList);
-      showAnswerFeedback(isCorrect, q);
-    }
-
-    function checkSingleAnswer(userIdx) {
-      const q = activeQuestions[currentQIndex];
-      const correctIdx = q.answers[0];
-      const isCorrect = (userIdx === correctIdx);
+      const isCorrect = userSelected.length === correctSorted.length && userSelected.every((val, index) => val === correctSorted[index]);
 
       if (isCorrect) score++;
 
-      highlightAnswerResults([userIdx], [correctIdx]);
-      showAnswerFeedback(isCorrect, q);
+      (q.options || []).forEach((_, i) => {
+        const btn = document.getElementById(`opt-btn-${i}`);
+        if (q.answers.includes(i)) {
+          btn.classList.add('border-emerald-500', 'bg-emerald-500/20', 'text-emerald-300');
+        } else if (selectedIndices.has(i)) {
+          btn.classList.add('border-rose-500', 'bg-rose-500/20', 'text-rose-300');
+        }
+      });
+
+      showFeedback(isCorrect);
     }
 
     function submitKeyboardAnswer() {
       if (isAnswered) return;
-      const inputEl = document.getElementById('quiz-keyboard-input');
-      const userAns = inputEl.value.trim();
-
-      if (!userAns) {
-        alert("解答を入力してください。");
-        return;
-      }
-
-      clearInterval(quizTimer);
+      stopTimer();
       isAnswered = true;
 
       const q = activeQuestions[currentQIndex];
-      const targetAns = (q.keyword || q.q || "").trim();
+      const inputVal = document.getElementById('quiz-keyboard-input').value.trim();
+      const targetKeyword = (q.keyword || q.q || "").trim();
 
-      const isCorrect = userAns.toLowerCase() === targetAns.toLowerCase() || (q.options && q.options.includes(userAns));
+      const isCorrect = (inputVal.toLowerCase() === targetKeyword.toLowerCase()) || (targetKeyword.includes(inputVal) && inputVal.length > 0);
 
       if (isCorrect) score++;
 
-      showAnswerFeedback(isCorrect, q, targetAns);
+      showFeedback(isCorrect, isCorrect ? `正解です！ (${targetKeyword})` : `不正解です (模範解答: ${targetKeyword})`);
     }
 
-    function startQuizTimer() {
-      clearInterval(quizTimer);
-      timeLeft = QUIZ_LIMIT_TIME;
-      const timerBar = document.getElementById('quiz-timer-bar');
-      timerBar.style.width = '100%';
-
-      const intervalMs = 100;
-      const totalTicks = (QUIZ_LIMIT_TIME * 1000) / intervalMs;
-      let tick = 0;
-
-      quizTimer = setInterval(() => {
-        tick++;
-        const percent = Math.max(0, 100 - (tick / totalTicks) * 100);
-        timerBar.style.width = `${percent}%`;
-
-        if (percent <= 0) {
-          clearInterval(quizTimer);
-          handleTimeUp();
-        }
-      }, intervalMs);
-    }
-
-    function handleTimeUp() {
-      if (isAnswered) return;
-      isAnswered = true;
+    function showFeedback(isCorrect, customMsg = null) {
       const q = activeQuestions[currentQIndex];
+      const box = document.getElementById('quiz-feedback-box');
+      const title = document.getElementById('quiz-feedback-title');
+      const desc = document.getElementById('quiz-feedback-desc');
 
-      highlightAnswerResults([], q.answers || []);
-      showAnswerFeedback(false, q, null, true);
-    }
+      box.classList.remove('hidden', 'bg-emerald-950/40', 'border-emerald-500/40', 'bg-rose-950/40', 'border-rose-500/40');
 
-    function highlightAnswerResults(selected, correct) {
-      const q = activeQuestions[currentQIndex];
-      if (!q.options || q.options.length === 0) return;
-
-      q.options.forEach((_, idx) => {
-        const btn = document.getElementById(`opt-btn-${idx}`);
-        if (!btn) return;
-
-        btn.disabled = true;
-
-        if (correct.includes(idx)) {
-          btn.classList.remove('bg-slate-900/80', 'border-slate-800');
-          btn.classList.add('bg-emerald-950/80', 'border-emerald-500', 'text-emerald-200');
-        } else if (selected.includes(idx)) {
-          btn.classList.remove('bg-slate-900/80', 'border-slate-800');
-          btn.classList.add('bg-rose-950/80', 'border-rose-500', 'text-rose-200');
-        }
-      });
-    }
-
-    function showAnswerFeedback(isCorrect, q, targetKeyword = null, isTimeUp = false) {
-      const feedbackBox = document.getElementById('quiz-feedback-box');
-      const titleEl = document.getElementById('quiz-feedback-title');
-      const descEl = document.getElementById('quiz-feedback-desc');
-
-      feedbackBox.classList.remove('hidden', 'bg-emerald-950/80', 'border-emerald-500/50', 'bg-rose-950/80', 'border-rose-500/50', 'bg-amber-950/80', 'border-amber-500/50');
-
-      if (isTimeUp) {
-        feedbackBox.classList.add('bg-amber-950/80', 'border-amber-500/50');
-        titleEl.textContent = '⏰ 制限時間切れ！';
-        titleEl.className = 'font-bold text-sm text-amber-400';
-      } else if (isCorrect) {
-        feedbackBox.classList.add('bg-emerald-950/80', 'border-emerald-500/50');
-        titleEl.textContent = '⭕ 正解！';
-        titleEl.className = 'font-bold text-sm text-emerald-400';
+      if (isCorrect) {
+        box.classList.add('bg-emerald-950/40', 'border-emerald-500/40');
+        title.textContent = '⭕ 正解！';
+        title.className = 'font-bold text-sm text-emerald-400';
       } else {
-        feedbackBox.classList.add('bg-rose-950/80', 'border-rose-500/50');
-        titleEl.textContent = '❌ 不正解...';
-        titleEl.className = 'font-bold text-sm text-rose-400';
+        box.classList.add('bg-rose-950/40', 'border-rose-500/40');
+        title.textContent = '❌ 不正解...';
+        title.className = 'font-bold text-sm text-rose-400';
       }
 
-      let correctAnsText = "";
-      if (targetKeyword) {
-        correctAnsText = `正解: ${targetKeyword}`;
-      } else if (q.answers && q.answers.length > 0 && q.options.length > 0) {
-        correctAnsText = `正解: ${q.answers.map(i => q.options[i]).join(', ')}`;
-      }
-
-      descEl.innerHTML = `
-        ${correctAnsText ? `<div class="font-semibold text-slate-200 mb-1">${correctAnsText}</div>` : ''}
-        <div class="text-slate-300 font-light">${q.exp || '解説はありません。'}</div>
-      `;
+      desc.textContent = customMsg || q.exp || '解説はありません。';
     }
 
     function nextQuestion() {
       currentQIndex++;
       if (currentQIndex < activeQuestions.length) {
-        loadQuestion();
+        renderQuestion();
       } else {
         finishQuiz();
       }
     }
 
     function quitQuiz() {
-      if (confirm("演習を中断して科目選択画面へ戻りますか？")) {
-        clearInterval(quizTimer);
-        showSubjectScreen();
-      }
+      stopTimer();
+      showSubjectScreen();
     }
 
     function finishQuiz() {
-      clearInterval(quizTimer);
+      stopTimer();
       hideAllScreens();
 
-      const totalQ = activeQuestions.length;
-
+      const total = activeQuestions.length;
+      
       if (isFlashcardMode) {
-        // 暗記カードの場合：正答率ではなく習得率を表示
         const learnedList = getLearnedWords(currentSubject.id);
         const learnedCount = learnedList.length;
-
-        let totalCards = 0;
-        let fcKey = `${currentSubject.id}_flashcards`;
-        if (window.QUIZ_DB[fcKey] && window.QUIZ_DB[fcKey].length > 0) {
-          totalCards = window.QUIZ_DB[fcKey].length;
-        } else if (currentSubject.id === 'biochemistry' && typeof window.getBiochemistryFlashcards === 'function') {
-          totalCards = window.getBiochemistryFlashcards().length;
-        } else if (window.QUIZ_DB[currentSubject.id] && window.QUIZ_DB[currentSubject.id].length > 0) {
-          totalCards = window.QUIZ_DB[currentSubject.id].length;
+        let totalCount = 0;
+        let fcData = window.QUIZ_DB[`${currentSubject.id}_flashcards`] || window.QUIZ_DB[currentSubject.id] || [];
+        if (currentSubject.id === 'biochemistry' && typeof window.getBiochemistryFlashcards === 'function') {
+          fcData = window.getBiochemistryFlashcards();
         }
+        totalCount = fcData.length || total;
 
-        const progressPercent = totalCards > 0 ? Math.min(100, Math.round((learnedCount / totalCards) * 100)) : 0;
+        const masteryRate = Math.round((learnedCount / totalCount) * 100);
 
-        document.getElementById('result-label-text').textContent = '全体習得率';
-        document.getElementById('final-score-val').textContent = `${learnedCount} / ${totalCards}`;
-        document.getElementById('final-unit-val').textContent = ` (${progressPercent}%)`;
+        document.getElementById('result-score-label').textContent = "覚えた数 (習得率)";
+        document.getElementById('final-score-val').textContent = learnedCount;
+        document.getElementById('final-score-unit').textContent = ` / ${totalCount}問 (${masteryRate}%)`;
         document.getElementById('final-total-val').classList.add('hidden');
 
-        document.getElementById('final-eval-text').textContent = `覚えた単語: ${learnedCount}件 / 全${totalCards}件`;
-
-        if (learnedCount === totalCards && totalCards > 0) {
-          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-        }
-      } else {
-        // 通常演習の場合：従来通り正答率計算
-        const accuracyPct = Math.round((score / totalQ) * 100);
-
-        document.getElementById('result-label-text').textContent = '正答率';
-        document.getElementById('final-score-val').textContent = accuracyPct;
-        document.getElementById('final-unit-val').textContent = '%';
-        document.getElementById('final-total-val').textContent = `/ ${totalQ}問中${score}問正解`;
-        document.getElementById('final-total-val').classList.remove('hidden');
+        document.getElementById('final-eval-text').textContent = masteryRate === 100 ? "すべての単語をマスターしました！" : "着実に暗記が進んでいます！";
 
         const historyKey = `history_accuracy_${currentSubject.id}`;
         let records = JSON.parse(localStorage.getItem(historyKey) || '[]');
-        records.push(accuracyPct);
-        if (records.length > 10) records.shift();
+        records.push(masteryRate);
+        if (records.length > 20) records.shift();
         localStorage.setItem(historyKey, JSON.stringify(records));
 
-        const highscoreKey = `highscore_${currentSubject.id}`;
-        const prevHigh = localStorage.getItem(highscoreKey);
-        const newRecordBadge = document.getElementById('new-record-badge');
+      } else {
+        const percentage = Math.round((score / total) * 100);
 
-        if (prevHigh === null || accuracyPct > parseInt(prevHigh, 10)) {
-          localStorage.setItem(highscoreKey, accuracyPct);
-          newRecordBadge.classList.remove('hidden');
-        } else {
-          newRecordBadge.classList.add('hidden');
-        }
+        document.getElementById('result-score-label').textContent = "正答率";
+        document.getElementById('final-score-val').textContent = percentage;
+        document.getElementById('final-score-unit').textContent = "%";
+        document.getElementById('final-total-val').classList.remove('hidden');
+        document.getElementById('final-total-val').textContent = `/ ${total}問`;
 
-        if (accuracyPct === 100) {
+        const historyKey = `history_accuracy_${currentSubject.id}`;
+        let records = JSON.parse(localStorage.getItem(historyKey) || '[]');
+        records.push(percentage);
+        if (records.length > 20) records.shift();
+        localStorage.setItem(historyKey, JSON.stringify(records));
+
+        if (percentage === 100 && typeof confetti === 'function') {
           confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-          document.getElementById('final-eval-text').textContent = '🎉 全問正解！素晴らしい理解度です！';
-        } else if (accuracyPct >= 80) {
-          document.getElementById('final-eval-text').textContent = '👍 合格ラインクリア！この調子で維持しましょう！';
-        } else {
-          document.getElementById('final-eval-text').textContent = '💪 もう一度復習して高得点を目指しましょう！';
         }
       }
 
@@ -2588,7 +2572,7 @@
     }
 
     // =========================================================
-    //  マルチプレイ (2P早押し対戦) 機能
+    //  2P マルチ対戦（早押し）機能
     // =========================================================
     function showMultiplayerLobby() {
       hideAllScreens();
@@ -2596,75 +2580,60 @@
     }
 
     function createMultiRoom() {
-      const code = Math.floor(1000 + Math.random() * 9000).toString();
-      currentRoomCode = code;
+      currentRoomCode = Math.floor(1000 + Math.random() * 9000).toString();
       isHost = true;
 
-      roomRef = db.ref(`rooms/${code}`);
-      roomRef.set({
-        createdAt: Date.now(),
-        status: 'waiting',
+      roomRef = db.ref(`rooms/${currentRoomCode}`);
+      
+      const initialRoomState = {
+        code: currentRoomCode,
         hostId: myPlayerId,
-        guestId: null,
+        p1: { id: myPlayerId, score: 0 },
+        p2: null,
+        status: 'waiting',
         subjectId: subjects[0] ? subjects[0].id : 'psychology',
         questionCount: 10,
         currentQIndex: 0,
-        scores: {
-          host: 0,
-          guest: 0
-        },
-        buzzPlayer: null,
-        buzzCorrect: null
-      });
+        buzzer: null
+      };
 
-      listenToRoomChanges();
-      showMultiRoomScreen();
+      roomRef.set(initialRoomState).then(() => {
+        enterRoomUI();
+      });
     }
 
     function joinMultiRoom() {
-      const inputCode = document.getElementById('join-code-input').value.trim();
-      if (!inputCode || inputCode.length !== 4) {
+      const codeInput = document.getElementById('join-code-input').value.trim();
+      if (!codeInput || codeInput.length !== 4) {
         alert("4桁の部屋コードを入力してください。");
         return;
       }
 
-      currentRoomCode = inputCode;
+      currentRoomCode = codeInput;
       isHost = false;
-      roomRef = db.ref(`rooms/${inputCode}`);
+      roomRef = db.ref(`rooms/${currentRoomCode}`);
 
-      roomRef.once('value').then(snap => {
-        if (!snap.exists()) {
-          alert("指定された部屋が存在しません。");
-          return;
-        }
+      roomRef.once('value', (snap) => {
         const data = snap.val();
-        if (data.status !== 'waiting' && data.guestId !== myPlayerId) {
-          alert("この部屋は既に満員または対戦中です。");
+        if (!data) {
+          alert("該当する部屋が見つかりません。");
           return;
         }
 
-        roomRef.update({
-          guestId: myPlayerId
-        });
+        if (data.p2 && data.p2.id !== myPlayerId) {
+          alert("この部屋は既に満員です。");
+          return;
+        }
 
-        listenToRoomChanges();
-        showMultiRoomScreen();
+        roomRef.child('p2').set({ id: myPlayerId, score: 0 }).then(() => {
+          enterRoomUI();
+        });
       });
     }
 
-    function leaveMultiRoom() {
-      if (roomRef) {
-        if (isHost) {
-          roomRef.remove();
-        } else {
-          roomRef.update({ guestId: null });
-        }
-      }
-      showMultiplayerLobby();
-    }
-
-    function showMultiRoomScreen() {
+    function enterRoomUI() {
       hideAllScreens();
+      document.getElementById('screen-multi-room').classList.remove('hidden');
       document.getElementById('multi-room-code-display').textContent = currentRoomCode;
       document.getElementById('multi-room-code-large').textContent = currentRoomCode;
 
@@ -2677,14 +2646,14 @@
 
         const select = document.getElementById('multi-subject-select');
         select.innerHTML = subjects.filter(s => s.visible !== false).map(s => `
-          <option value="${s.id}">${s.name} (${s.code})</option>
+          <option value="${s.id}">${s.name}</option>
         `).join('');
       } else {
         hostSettings.classList.add('hidden');
         guestMsg.classList.remove('hidden');
       }
 
-      document.getElementById('screen-multi-room').classList.remove('hidden');
+      listenToRoomChanges();
     }
 
     function listenToRoomChanges() {
@@ -2692,29 +2661,17 @@
 
       roomRef.on('value', (snap) => {
         roomData = snap.val();
-        if (!roomData) {
-          alert("部屋が解散されました。");
-          showMultiplayerLobby();
-          return;
-        }
+        if (!roomData) return;
 
         const p1Status = document.getElementById('p1-status');
         const p2Status = document.getElementById('p2-status');
         const startBtn = document.getElementById('multi-start-btn');
 
-        if (p1Status) p1Status.textContent = roomData.hostId ? "接続完了 (ホスト)" : "待機中...";
-        if (p2Status) {
-          if (roomData.guestId) {
-            p2Status.textContent = "接続完了 (ゲスト)";
-            p2Status.className = "text-xs font-bold text-amber-400";
-          } else {
-            p2Status.textContent = "待機中...";
-            p2Status.className = "text-xs font-bold text-slate-500";
-          }
-        }
+        p1Status.textContent = roomData.p1 ? "接続中 (OK)" : "待機中...";
+        p2Status.textContent = roomData.p2 ? "接続中 (OK)" : "対戦相手を待っています...";
 
-        if (startBtn && isHost) {
-          if (roomData.hostId && roomData.guestId) {
+        if (isHost) {
+          if (roomData.p1 && roomData.p2) {
             startBtn.disabled = false;
             startBtn.textContent = "対戦を開始する！";
           } else {
@@ -2724,7 +2681,7 @@
         }
 
         if (roomData.status === 'playing' && document.getElementById('screen-multi-play').classList.contains('hidden')) {
-          startMultiGameScreen();
+          startMultiGameClient();
         }
 
         if (roomData.status === 'playing') {
@@ -2733,34 +2690,42 @@
       });
     }
 
-    function startMultiGame() {
-      if (!isHost) return;
-      const subId = document.getElementById('multi-subject-select').value;
-      const count = parseInt(document.getElementById('multi-count-slider').value, 10);
-
-      let rawData = window.QUIZ_DB[subId] || [];
-      let qList = rawData.map(q => normalizeQuestion(q)).filter(Boolean).sort(() => Math.random() - 0.5).slice(0, count);
-
-      if (qList.length === 0) {
-        alert("選択された科目に問題データがありません。");
-        return;
+    function leaveMultiRoom() {
+      if (roomRef) {
+        roomRef.off();
+        if (isHost) {
+          roomRef.remove();
+        } else {
+          roomRef.child('p2').remove();
+        }
       }
+      showSubjectScreen();
+    }
+
+    function startMultiGame() {
+      if (!isHost || !roomData || !roomData.p2) return;
+
+      const selectedSubId = document.getElementById('multi-subject-select').value;
+      const countVal = parseInt(document.getElementById('multi-count-slider').value, 10);
+
+      let rawData = window.QUIZ_DB[selectedSubId] || [];
+      let parsed = rawData.map(q => normalizeQuestion(q)).filter(Boolean);
+      parsed.sort(() => Math.random() - 0.5);
+
+      const gameQuestions = parsed.slice(0, countVal);
 
       roomRef.update({
         status: 'playing',
-        subjectId: subId,
-        questions: qList,
+        subjectId: selectedSubId,
+        questions: gameQuestions,
         currentQIndex: 0,
-        scores: {
-          host: 0,
-          guest: 0
-        },
-        buzzPlayer: null,
-        buzzCorrect: null
+        buzzer: null,
+        'p1/score': 0,
+        'p2/score': 0
       });
     }
 
-    function startMultiGameScreen() {
+    function startMultiGameClient() {
       hideAllScreens();
       document.getElementById('screen-multi-play').classList.remove('hidden');
     }
@@ -2769,21 +2734,18 @@
       if (!roomData || !roomData.questions) return;
 
       const qIndex = roomData.currentQIndex || 0;
-      const qList = roomData.questions;
-      const q = qList[qIndex];
+      const q = roomData.questions[qIndex];
+      const total = roomData.questions.length;
 
-      if (!q) {
-        finishMultiGame();
-        return;
-      }
+      document.getElementById('multi-progress-text').textContent = `QUESTION ${qIndex + 1} / ${total}`;
 
-      document.getElementById('multi-progress-text').textContent = `QUESTION ${qIndex + 1} / ${qList.length}`;
+      const myScore = isHost ? (roomData.p1 ? roomData.p1.score : 0) : (roomData.p2 ? roomData.p2.score : 0);
+      const oppScore = isHost ? (roomData.p2 ? roomData.p2.score : 0) : (roomData.p1 ? roomData.p1.score : 0);
 
-      const myRole = isHost ? 'host' : 'guest';
-      const oppRole = isHost ? 'guest' : 'host';
+      document.getElementById('multi-my-score').textContent = myScore;
+      document.getElementById('multi-opp-score').textContent = oppScore;
 
-      document.getElementById('multi-my-score').textContent = roomData.scores ? roomData.scores[myRole] : 0;
-      document.getElementById('multi-opp-score').textContent = roomData.scores ? roomData.scores[oppRole] : 0;
+      if (!q) return;
 
       document.getElementById('multi-q-num').textContent = `Q${qIndex + 1}`;
       document.getElementById('multi-q-text').textContent = q.q;
@@ -2797,126 +2759,93 @@
         imgContainer.classList.add('hidden');
       }
 
+      const banner = document.getElementById('buzz-status-banner');
       const optionsContainer = document.getElementById('multi-options-container');
-      const buzzBanner = document.getElementById('buzz-status-banner');
       const nextBtnWrap = document.getElementById('multi-next-btn-wrap');
 
-      if (!roomData.buzzPlayer) {
-        buzzBanner.textContent = "正しい選択肢を先に押してください！";
-        buzzBanner.className = "p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center text-xs font-bold text-amber-400";
+      if (!roomData.buzzer) {
+        banner.textContent = "正しい選択肢を先に押してください！";
+        banner.className = "p-3 rounded-xl bg-slate-900/90 border border-amber-500/30 text-center text-xs font-bold text-amber-400";
+        if (nextBtnWrap) nextBtnWrap.classList.add('hidden');
 
-        if (isHost) nextBtnWrap.classList.add('hidden');
-
-        optionsContainer.innerHTML = q.options.map((opt, idx) => `
-          <button onclick="buzzMultiAnswer(${idx})" class="buzz-btn w-full p-3.5 rounded-xl bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold text-xs transition flex items-center justify-between">
-            <span>${String.fromCharCode(65 + idx)}. ${opt}</span>
-            <span class="text-[10px] bg-amber-900/60 px-2 py-0.5 rounded">早押し</span>
+        optionsContainer.innerHTML = (q.options || []).map((opt, idx) => `
+          <button onclick="pressMultiOption(${idx})" class="w-full p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-200 text-xs text-left hover:border-amber-500/50 transition">
+            ${opt}
           </button>
         `).join('');
-      } else {
-        const isMeBuzz = roomData.buzzPlayer === myPlayerId;
-        const isCorrect = roomData.buzzCorrect;
 
-        if (isCorrect) {
-          buzzBanner.textContent = isMeBuzz ? "🎉 あなたが素早く正解しました！ (+1点)" : "❌ 相手が先に正解しました！";
-          buzzBanner.className = isMeBuzz ? "p-3 rounded-xl bg-emerald-950/90 border border-emerald-500 text-center text-xs font-bold text-emerald-300" : "p-3 rounded-xl bg-rose-950/90 border border-rose-500 text-center text-xs font-bold text-rose-300";
+      } else {
+        const buzzer = roomData.buzzer;
+        const isMyBuzz = buzzer.playerId === myPlayerId;
+
+        if (buzzer.isCorrect) {
+          banner.textContent = isMyBuzz ? "⭕ あなたが先押しで正解しました！" : "❌ 相手が先に正解しました！";
+          banner.className = isMyBuzz ? "p-3 rounded-xl bg-emerald-950/80 border border-emerald-500 text-center text-xs font-bold text-emerald-300" : "p-3 rounded-xl bg-rose-950/80 border border-rose-500 text-center text-xs font-bold text-rose-300";
         } else {
-          buzzBanner.textContent = isMeBuzz ? "❌ あなたのお手つき・不正解です..." : "⭕ 相手がお手つき！あなたのチャンス！";
-          buzzBanner.className = "p-3 rounded-xl bg-amber-950/90 border border-amber-500 text-center text-xs font-bold text-amber-300";
+          banner.textContent = isMyBuzz ? "❌ 残念！不正解です" : "⭕ 相手が解答を間違えました！";
+          banner.className = "p-3 rounded-xl bg-rose-950/80 border border-rose-500 text-center text-xs font-bold text-rose-300";
         }
 
-        optionsContainer.innerHTML = q.options.map((opt, idx) => {
-          const isTargetAns = q.answers.includes(idx);
-          let btnStyle = "bg-slate-900 border-slate-800 text-slate-400";
-          if (isTargetAns) {
-            btnStyle = "bg-emerald-950 border-emerald-500 text-emerald-200 font-bold";
+        optionsContainer.innerHTML = (q.options || []).map((opt, idx) => {
+          let extraClass = "bg-slate-900/40 border-slate-800 text-slate-500";
+          if (q.answers.includes(idx)) {
+            extraClass = "bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold";
+          } else if (idx === buzzer.selectedOpt) {
+            extraClass = "bg-rose-500/20 border-rose-500 text-rose-300";
           }
           return `
-            <div class="w-full p-3.5 rounded-xl border ${btnStyle} text-xs flex justify-between items-center">
-              <span>${String.fromCharCode(65 + idx)}. ${opt}</span>
-              ${isTargetAns ? '<span class="text-[10px] text-emerald-400 font-bold">正解</span>' : ''}
+            <div class="w-full p-3.5 rounded-xl border text-xs text-left ${extraClass}">
+              ${opt}
             </div>
           `;
         }).join('');
 
-        if (isHost) {
+        if (isHost && nextBtnWrap) {
           nextBtnWrap.classList.remove('hidden');
         }
       }
     }
 
-    function buzzMultiAnswer(optIdx) {
-      if (!roomRef || (roomData && roomData.buzzPlayer)) return;
+    function pressMultiOption(optIdx) {
+      if (!roomRef || (roomData && roomData.buzzer)) return;
 
       const qIndex = roomData.currentQIndex || 0;
       const q = roomData.questions[qIndex];
       const isCorrect = q.answers.includes(optIdx);
-      const role = isHost ? 'host' : 'guest';
 
-      let newScores = { ...roomData.scores };
+      const updateData = {
+        buzzer: {
+          playerId: myPlayerId,
+          selectedOpt: optIdx,
+          isCorrect: isCorrect
+        }
+      };
+
       if (isCorrect) {
-        newScores[role] = (newScores[role] || 0) + 1;
+        if (isHost) {
+          updateData['p1/score'] = (roomData.p1 ? roomData.p1.score : 0) + 1;
+        } else {
+          updateData['p2/score'] = (roomData.p2 ? roomData.p2.score : 0) + 1;
+        }
       }
 
-      roomRef.update({
-        buzzPlayer: myPlayerId,
-        buzzCorrect: isCorrect,
-        scores: newScores
-      });
+      roomRef.update(updateData);
     }
 
     function nextMultiQuestionHost() {
       if (!isHost || !roomRef) return;
-      const nextIdx = (roomData.currentQIndex || 0) + 1;
 
+      const nextIdx = (roomData.currentQIndex || 0) + 1;
       if (nextIdx < roomData.questions.length) {
         roomRef.update({
           currentQIndex: nextIdx,
-          buzzPlayer: null,
-          buzzCorrect: null
+          buzzer: null
         });
       } else {
-        finishMultiGame();
+        alert("対戦が終了しました！");
+        roomRef.update({ status: 'finished' });
+        showSubjectScreen();
       }
-    }
-
-    function finishMultiGame() {
-      if (!roomData) return;
-      const myRole = isHost ? 'host' : 'guest';
-      const oppRole = isHost ? 'guest' : 'host';
-      const myScore = roomData.scores ? roomData.scores[myRole] : 0;
-      const oppScore = roomData.scores ? roomData.scores[oppRole] : 0;
-
-      let msg = "";
-      if (myScore > oppScore) {
-        msg = `🎉 あなたの勝利！ (${myScore} 対 ${oppScore})`;
-      } else if (myScore < oppScore) {
-        msg = `😭 相手の勝利... (${myScore} 対 ${oppScore})`;
-      } else {
-        msg = `🤝 引き分け！ (${myScore} 対 ${oppScore})`;
-      }
-
-      alert(`対戦終了！\n\n${msg}`);
-      leaveMultiRoom();
-    }
-
-    // ---------------------------------------------------------
-    // ナビゲーションドロワー制御
-    // ---------------------------------------------------------
-    function toggleNavDrawer() {
-      const drawer = document.getElementById('nav-drawer');
-      const overlay = document.getElementById('nav-overlay');
-      if (drawer.classList.contains('-translate-x-full')) {
-        drawer.classList.remove('-translate-x-full');
-        overlay.classList.remove('hidden');
-      } else {
-        closeNavDrawer();
-      }
-    }
-
-    function closeNavDrawer() {
-      document.getElementById('nav-drawer').classList.add('-translate-x-full');
-      document.getElementById('nav-overlay').classList.add('hidden');
     }
   </script>
 </body>
