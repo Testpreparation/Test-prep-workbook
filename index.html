@@ -33,25 +33,36 @@
     window.QUIZ_DB.biochemistry = []; // 生化学（選択式）
     window.QUIZ_DB.biochemistry_keyboard = []; // 生化学（記述式）
     window.QUIZ_DB.nursing_method = []; // 看護学方法論Ⅰ用
-    window.QUIZ_DB.public_health_nursing = [];
-    window.QUIZ_DB.nutrition = [];
-    window.QUIZ_DB.pathology = [];
-    window.QUIZ_DB.medical_welfare = [];
-    window.QUIZ_DB.constitution = [];
-    window.QUIZ_DB.pharmacology = [];
-    window.QUIZ_DB.statistics = [];
-    window.QUIZ_DB.nursing_method_3 = [];
-    window.QUIZ_DB.nursing_method_4 = [];
+    window.QUIZ_DB.public_health_nursing = []; // 公衆衛生看護学概論
+    window.QUIZ_DB.public_health = []; // 公衆衛生学
+    window.QUIZ_DB.nutrition = []; // 栄養学
+    window.QUIZ_DB.pathology = []; // 病理学
+    window.QUIZ_DB.medical_welfare = []; // 医療福祉概論
+    window.QUIZ_DB.constitution = []; // 日本国憲法
+    window.QUIZ_DB.pharmacology = []; // 薬理学
+    window.QUIZ_DB.statistics = []; // 統計学
+    window.QUIZ_DB.nursing_method_3 = []; // 看護学方法論Ⅲ
+    window.QUIZ_DB.nursing_method_4 = []; // 看護学方法論Ⅳ
   </script>
 
-  <!-- 各科目の外部問題データベースJSの読み込み -->
+  <!-- 各科目の外部問題データベースJSの読み込み（春学期） -->
+  <script src="psychology2026harugakki.js"></script>
+  <script src="mindbehavior2026harugakki.js"></script>
+  <script src="microbiology2026harugakki.js"></script>
+  <script src="Medicine2026harugakki.js"></script>
+  <script src="physiology2026harugakki.js"></script>
+  <script src="anatomy2026harugakki.js"></script>
+  <script src="biochemistry2026harugakki.js"></script>
+  <script src="nursingmethod2026harugakki.js"></script>
+
+  <!-- 各科目の外部問題データベースJSの読み込み（秋学期） -->
   <script src="psychology2026akigakki.js"></script>
   <script src="mindbehavior2026akigakki.js"></script>
   <script src="microbiology2026akigakki.js"></script>
   <script src="Medicine2026akigakki.js"></script>
   <script src="physiology2026akigakki.js"></script>
-  <script src="./anatomy2026akigakki.js"></script>
-  <script src="biochemistry2026harugakki.js"></script>
+  <script src="anatomy2026akigakki.js"></script>
+  <script src="biochemistry2026akigakki.js"></script>
   <script src="nursingmethod2026akigakki.js"></script>
 
   <style>
@@ -203,7 +214,7 @@
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
           <h2 id="subjects-header-title" class="en-title text-xs text-slate-400 tracking-widest uppercase">Select Subject</h2>
           <div class="flex items-center gap-3">
-            <span id="subject-count-display" class="text-xs text-slate-500 font-light">全17科目</span>
+            <span id="subject-count-display" class="text-xs text-slate-500 font-light">全18科目</span>
             <!-- お知らせボタン -->
             <button onclick="openNoticeModal()" class="relative px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition flex items-center gap-1.5">
               <span>🔔</span>
@@ -215,34 +226,22 @@
         <div id="subject-list-container" class="grid gap-3 pt-1"></div>
       </div>
 
-      <!-- 画面1.05: 学期選択画面 (科目選択の直後に表示) -->
+      <!-- 画面1.0: 学期選択画面 (シンプルデザイン) -->
       <div id="screen-semester-select" class="hidden space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
           <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline">← 科目選択へ戻る</button>
-          <span id="semester-subject-title" class="serif-title text-sm text-slate-300">学期選択</span>
+          <span id="semester-subject-title" class="serif-title text-sm text-slate-300">学期を選択</span>
         </div>
 
-        <div class="space-y-3 pt-2">
-          <button onclick="selectSemester('harugakki')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
-            <div class="flex items-center gap-3">
-              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">HARU</span>
-              <div>
-                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">2026春学期</div>
-                <div class="text-[11px] text-slate-400 font-light mt-0.5">2026春学期の演習問題</div>
-              </div>
-            </div>
-            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+        <div class="grid grid-cols-1 gap-3 pt-2">
+          <button id="semester-spring-btn" onclick="selectSemester('2026_spring')" class="p-4 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-500/50 text-slate-100 font-medium text-sm transition flex items-center justify-between group shadow">
+            <span>2026春学期</span>
+            <span class="text-xs text-slate-500 group-hover:text-amber-400 transition">選択 →</span>
           </button>
 
-          <button onclick="selectSemester('akigakki')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
-            <div class="flex items-center gap-3">
-              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">AKI</span>
-              <div>
-                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">2026秋学期</div>
-                <div class="text-[11px] text-slate-400 font-light mt-0.5">2026秋学期の演習問題</div>
-              </div>
-            </div>
-            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          <button id="semester-autumn-btn" onclick="selectSemester('2026_autumn')" class="p-4 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-500/50 text-slate-100 font-medium text-sm transition flex items-center justify-between group shadow">
+            <span>2026秋学期</span>
+            <span class="text-xs text-slate-500 group-hover:text-amber-400 transition">選択 →</span>
           </button>
         </div>
       </div>
@@ -825,7 +824,7 @@
           <span class="text-[10px] text-emerald-400 font-light flex items-center gap-1">● リアルタイム同期中</span>
         </div>
         <p class="text-[11px] text-slate-400 font-light leading-relaxed">
-          左側の「☰」をドラッグして順番を変更できます。設定変更は全利用者に即時反映されます。
+          左側の「☰」をドラッグして順番を変更できます。各科目の表示学期（春学期/秋学期/すべて）もここで選択できます。
         </p>
         <div id="admin-drag-container" class="space-y-2 pt-1"></div>
       </div>
@@ -1106,23 +1105,24 @@
     }
 
     const defaultSubjects = [
-      { id: "psychology", name: "心理学", code: "PSY", visible: true, status: "available", isFixed: true, hasRounds: true, fixedCount: null, semester: "akigakki" },
-      { id: "mind_behavior", name: "こころと行動", code: "MND", visible: true, status: "available", isFixed: true, hasRounds: false, fixedCount: null, semester: "akigakki" },
-      { id: "medical_intro", name: "医療概論", code: "MED", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null, semester: "akigakki" },
-      { id: "physiology", name: "生理学", code: "PHY", visible: true, status: "available", isFixed: false, hasRounds: false, hasPhysiologyModes: true, fixedCount: null, semester: "akigakki" },
-      { id: "biochemistry", name: "生化学", code: "BIO", visible: true, status: "available", isFixed: false, hasRounds: false, hasBiochemistryFormats: true, fixedCount: null, semester: "harugakki" },
-      { id: "microbiology", name: "微生物学", code: "MIC", visible: true, status: "available", isFixed: true, hasRounds: false, fixedCount: null, semester: "akigakki" },
-      { id: "anatomy", name: "解剖学", code: "ANA", visible: true, status: "available", isFixed: false, hasRounds: false, hasAnatomyModes: true, fixedCount: null, semester: "akigakki" },
-      { id: "nursing_method", name: "看護学方法論Ⅰ", code: "NUR Ⅰ", visible: true, status: "available", isFixed: true, hasRounds: false, hasNursingModes: true, fixedCount: null, semester: "akigakki" },
-      { id: "public_health_nursing", name: "公衆衛生看護学概論", code: "PHN", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null, semester: "akigakki" },
-      { id: "nutrition", name: "栄養学", code: "NUT", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null, semester: "akigakki" },
-      { id: "pathology", name: "病理学", code: "PAT", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null, semester: "akigakki" },
-      { id: "medical_welfare", name: "医療福祉概論", code: "MWL", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null, semester: "akigakki" },
-      { id: "constitution", name: "日本国憲法", code: "CON", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null, semester: "akigakki" },
-      { id: "pharmacology", name: "薬理学", code: "PHA", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null, semester: "akigakki" },
-      { id: "statistics", name: "統計学", code: "STA", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null, semester: "akigakki" },
-      { id: "nursing_method_3", name: "看護学方法論Ⅲ", code: "NUR Ⅲ", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null, semester: "akigakki" },
-      { id: "nursing_method_4", name: "看護学方法論Ⅳ", code: "NUR Ⅳ", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null, semester: "akigakki" }
+      { id: "psychology", name: "心理学", code: "PSY", visible: true, semesterSetting: "all", status: "available", isFixed: true, hasRounds: true, fixedCount: null },
+      { id: "mind_behavior", name: "こころと行動", code: "MND", visible: true, semesterSetting: "all", status: "available", isFixed: true, hasRounds: false, fixedCount: null },
+      { id: "medical_intro", name: "医療概論", code: "MED", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "physiology", name: "生理学", code: "PHY", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, hasPhysiologyModes: true, fixedCount: null },
+      { id: "biochemistry", name: "生化学", code: "BIO", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, hasBiochemistryFormats: true, fixedCount: null },
+      { id: "microbiology", name: "微生物学", code: "MIC", visible: true, semesterSetting: "all", status: "available", isFixed: true, hasRounds: false, fixedCount: null },
+      { id: "anatomy", name: "解剖学", code: "ANA", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, hasAnatomyModes: true, fixedCount: null },
+      { id: "nursing_method", name: "看護学方法論Ⅰ", code: "NUR Ⅰ", visible: true, semesterSetting: "all", status: "available", isFixed: true, hasRounds: false, hasNursingModes: true, fixedCount: null },
+      { id: "public_health_nursing", name: "公衆衛生看護学概論", code: "PHN", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "public_health", name: "公衆衛生学", code: "PUB", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "nutrition", name: "栄養学", code: "NUT", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "pathology", name: "病理学", code: "PAT", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "medical_welfare", name: "医療福祉概論", code: "MWL", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "constitution", name: "日本国憲法", code: "CON", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "pharmacology", name: "薬理学", code: "PHA", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "statistics", name: "統計学", code: "STA", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "nursing_method_3", name: "看護学方法論Ⅲ", code: "NUR Ⅲ", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "nursing_method_4", name: "看護学方法論Ⅳ", code: "NUR Ⅳ", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null }
     ];
 
     let subjects = [...defaultSubjects];
@@ -1201,23 +1201,35 @@
       const container = document.getElementById('admin-drag-container');
       if (!container) return;
 
-      container.innerHTML = subjects.map((s, idx) => `
-        <div data-id="${s.id}" class="drag-item p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-3">
+      container.innerHTML = subjects.map((s, idx) => {
+        const semSetting = s.semesterSetting || 'all';
+        return `
+        <div data-id="${s.id}" class="drag-item p-3 rounded-xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div class="flex items-center gap-3">
             <span class="drag-handle cursor-grab active:cursor-grabbing text-slate-500 hover:text-amber-400 text-base">☰</span>
             <span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-[10px] font-bold">${s.code}</span>
             <span class="text-xs font-medium text-slate-200">${s.name}</span>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <!-- 学期表示設定ドロップダウン -->
+            <select onchange="updateSubjectSemesterSetting(${idx}, this.value)" class="bg-slate-900 border border-slate-700 text-slate-300 text-[11px] rounded-lg px-2 py-1 focus:outline-none focus:border-amber-500">
+              <option value="all" ${semSetting === 'all' ? 'selected' : ''}>学期: 両方表示</option>
+              <option value="spring" ${semSetting === 'spring' ? 'selected' : ''}>学期: 春のみ</option>
+              <option value="autumn" ${semSetting === 'autumn' ? 'selected' : ''}>学期: 秋のみ</option>
+            </select>
             <button onclick="openQuestionsEditorModal('${s.id}')" class="px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-[11px] transition">
               問題編集
             </button>
             <button onclick="toggleSubjectVisibility(${idx})" class="px-2.5 py-1 ${s.visible !== false ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-slate-800 text-slate-500 border-slate-700'} border rounded-lg text-[11px] transition">
               ${s.visible !== false ? '表示中' : '非表示'}
             </button>
+            <button onclick="deleteSubject(${idx})" class="px-2 py-1 bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/60 rounded-lg text-[11px] transition">
+              削除
+            </button>
           </div>
         </div>
-      `).join('');
+      `;
+      }).join('');
 
       if (dragulaInstance) dragulaInstance.destroy();
       dragulaInstance = dragula([container], {
@@ -1231,10 +1243,35 @@
       });
     }
 
+    function updateSubjectSemesterSetting(idx, value) {
+      subjects[idx].semesterSetting = value;
+      saveSubjectsToStorage();
+    }
+
     function toggleSubjectVisibility(idx) {
       subjects[idx].visible = !(subjects[idx].visible !== false);
       saveSubjectsToStorage();
       renderAdminDragList();
+    }
+
+    function deleteSubject(idx) {
+      const targetSubject = subjects[idx];
+      if (!targetSubject) return;
+
+      if (confirm(`科目「${targetSubject.name}」を削除しますか？\n（問題データおよび履歴も削除されます）`)) {
+        const subId = targetSubject.id;
+        subjects.splice(idx, 1);
+        saveSubjectsToStorage();
+
+        // 該当科目の問題データベースも同時に削除
+        db.ref(`quiz_db/${subId}`).remove();
+        if (window.QUIZ_DB[subId]) {
+          delete window.QUIZ_DB[subId];
+        }
+
+        renderAdminDragList();
+        renderSubjectList();
+      }
     }
 
     function addNewSubject() {
@@ -1255,11 +1292,11 @@
         name: name,
         code: code,
         visible: true,
+        semesterSetting: "all",
         status: "available",
         isFixed: false,
         hasRounds: false,
-        fixedCount: null,
-        semester: "akigakki"
+        fixedCount: null
       });
 
       window.QUIZ_DB[id] = [];
@@ -1693,12 +1730,12 @@
           currentRound = (selectedValue === "all") ? null : selectedValue;
 
           if (currentSubject.id === 'psychology' && typeof window.getQuestions === "function") {
-            const currentQuestions = window.getQuestions(selectedValue);
+            const currentQuestions = window.getQuestions(selectedValue, currentSemester);
             if (Array.isArray(currentQuestions) && currentQuestions.length > 0) {
               window.QUIZ_DB.psychology = currentQuestions;
             }
           } else if (currentSubject.id === 'nursing_method' && typeof window.getNursingQuestions === "function") {
-            const currentQuestions = window.getNursingQuestions(selectedValue);
+            const currentQuestions = window.getNursingQuestions(selectedValue, currentSemester);
             if (Array.isArray(currentQuestions) && currentQuestions.length > 0) {
               window.QUIZ_DB.nursing_method = currentQuestions;
             }
@@ -1712,12 +1749,6 @@
       db.ref('subjects').on('value', (snapshot) => {
         const val = snapshot.val();
         if (val && Array.isArray(val)) {
-          // デフォルト科目が不足している場合に補完
-          defaultSubjects.forEach(defSub => {
-            if (!val.find(s => s.id === defSub.id)) {
-              val.push(defSub);
-            }
-          });
           subjects = val;
         } else {
           saveSubjectsToStorage();
@@ -1879,23 +1910,34 @@
       hideAllScreens();
       document.getElementById('screen-semester-select').classList.remove('hidden');
       document.getElementById('semester-subject-title').textContent = `${currentSubject.name} - 学期選択`;
+
+      const springBtn = document.getElementById('semester-spring-btn');
+      const autumnBtn = document.getElementById('semester-autumn-btn');
+
+      const setting = currentSubject.semesterSetting || 'all';
+
+      if (setting === 'spring') {
+        springBtn.classList.remove('hidden');
+        autumnBtn.classList.add('hidden');
+      } else if (setting === 'autumn') {
+        springBtn.classList.add('hidden');
+        autumnBtn.classList.remove('hidden');
+      } else {
+        springBtn.classList.remove('hidden');
+        autumnBtn.classList.remove('hidden');
+      }
     }
 
     function selectSemester(semester) {
       currentSemester = semester;
-      proceedSubjectNextStep();
-    }
 
-    function proceedSubjectNextStep() {
-      const subjectId = currentSubject.id;
-
-      if (subjectId === 'physiology' || currentSubject.hasPhysiologyModes) {
+      if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) {
         showPhysiologyModeSelectionScreen();
-      } else if (subjectId === 'anatomy' || currentSubject.hasAnatomyModes) {
+      } else if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) {
         showAnatomyModeSelectionScreen();
-      } else if (subjectId === 'biochemistry' || currentSubject.hasBiochemistryFormats) {
+      } else if (currentSubject.id === 'biochemistry' || currentSubject.hasBiochemistryFormats) {
         showBiochemistryFormatSelectionScreen();
-      } else if (subjectId === 'nursing_method' || currentSubject.hasNursingModes) {
+      } else if (currentSubject.id === 'nursing_method' || currentSubject.hasNursingModes) {
         showNursingModeSelectionScreen();
       } else if (currentSubject.hasRounds) {
         showRoundSelectionScreen();
@@ -2078,14 +2120,17 @@
 
     function getHighscoreKey() {
       let modeSuffix = '';
+      if (currentSemester) {
+        modeSuffix += `_${currentSemester}`;
+      }
       if (currentSubject.id === 'biochemistry' || currentSubject.hasBiochemistryFormats) {
-        modeSuffix = `_${currentBiochemistryFormat}`;
+        modeSuffix += `_${currentBiochemistryFormat}`;
       } else if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) {
-        modeSuffix = `_${currentPhysiologyMode}`;
+        modeSuffix += `_${currentPhysiologyMode}`;
       } else if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) {
-        modeSuffix = `_${currentAnatomyMode}`;
+        modeSuffix += `_${currentAnatomyMode}`;
       } else if (currentRound) {
-        modeSuffix = `_r${currentRound}`;
+        modeSuffix += `_r${currentRound}`;
       }
       return `highscore_${currentSubject.id}${modeSuffix}`;
     }
@@ -2098,71 +2143,90 @@
     }
 
     function startQuiz() {
-      const subjectSemester = currentSubject.semester || 'akigakki';
-      if (currentSemester && currentSemester !== subjectSemester) {
-        alert(`選択した学期（2026${currentSemester === 'harugakki' ? '春' : '秋'}学期）にはこの科目の問題データが存在しません。`);
-        return;
-      }
+      const isAutumn = (currentSemester === '2026_autumn');
 
-      if (currentSubject.id === 'psychology' && typeof window.getQuestions === 'function') {
-        const psychData = window.getQuestions(currentRound ? currentRound.toString() : 'all');
-        if (Array.isArray(psychData) && psychData.length > 0) {
-          window.QUIZ_DB.psychology = psychData;
+      if (currentSubject.id === 'psychology') {
+        const fnName = isAutumn ? 'getQuestionsAutumn' : 'getQuestions';
+        if (typeof window[fnName] === 'function') {
+          const psychData = window[fnName](currentRound ? currentRound.toString() : 'all');
+          if (Array.isArray(psychData) && psychData.length > 0) {
+            window.QUIZ_DB.psychology = psychData;
+          }
+        } else if (typeof window.getQuestions === 'function') {
+          const psychData = window.getQuestions(currentRound ? currentRound.toString() : 'all', currentSemester);
+          if (Array.isArray(psychData) && psychData.length > 0) window.QUIZ_DB.psychology = psychData;
         }
       }
 
-      if (currentSubject.id === 'nursing_method' && typeof window.getNursingQuestions === 'function') {
-        const nursingData = window.getNursingQuestions(currentRound ? currentRound.toString() : 'all');
-        if (Array.isArray(nursingData) && nursingData.length > 0) {
-          window.QUIZ_DB.nursing_method = nursingData;
+      if (currentSubject.id === 'nursing_method') {
+        const fnName = isAutumn ? 'getNursingQuestionsAutumn' : 'getNursingQuestions';
+        if (typeof window[fnName] === 'function') {
+          const nursingData = window[fnName](currentRound ? currentRound.toString() : 'all');
+          if (Array.isArray(nursingData) && nursingData.length > 0) {
+            window.QUIZ_DB.nursing_method = nursingData;
+          }
+        } else if (typeof window.getNursingQuestions === 'function') {
+          const nursingData = window.getNursingQuestions(currentRound ? currentRound.toString() : 'all', currentSemester);
+          if (Array.isArray(nursingData) && nursingData.length > 0) window.QUIZ_DB.nursing_method = nursingData;
         }
       }
 
-      if (currentSubject.id === 'microbiology' && typeof window.getMicrobiologyQuestions === 'function') {
-        const microData = window.getMicrobiologyQuestions();
-        if (Array.isArray(microData) && microData.length > 0 && (!window.QUIZ_DB.microbiology || window.QUIZ_DB.microbiology.length === 0)) {
-          window.QUIZ_DB.microbiology = microData;
+      if (currentSubject.id === 'microbiology') {
+        const fnName = isAutumn ? 'getMicrobiologyQuestionsAutumn' : 'getMicrobiologyQuestions';
+        if (typeof window[fnName] === 'function') {
+          const microData = window[fnName]();
+          if (Array.isArray(microData) && microData.length > 0) window.QUIZ_DB.microbiology = microData;
         }
       }
 
-      if (currentSubject.id === 'medical_intro' && typeof window.getMedicineQuestions === 'function') {
-        const medData = window.getMedicineQuestions();
-        if (Array.isArray(medData) && medData.length > 0 && (!window.QUIZ_DB.medical_intro || window.QUIZ_DB.medical_intro.length === 0)) {
-          window.QUIZ_DB.medical_intro = medData;
+      if (currentSubject.id === 'medical_intro') {
+        const fnName = isAutumn ? 'getMedicineQuestionsAutumn' : 'getMedicineQuestions';
+        if (typeof window[fnName] === 'function') {
+          const medData = window[fnName]();
+          if (Array.isArray(medData) && medData.length > 0) window.QUIZ_DB.medical_intro = medData;
         }
       }
 
-      if (currentSubject.id === 'mind_behavior' && typeof window.getMindBehaviorQuestions === 'function') {
-        const mindData = window.getMindBehaviorQuestions();
-        if (Array.isArray(mindData) && mindData.length > 0 && (!window.QUIZ_DB.mind_behavior || window.QUIZ_DB.mind_behavior.length === 0)) {
-          window.QUIZ_DB.mind_behavior = mindData;
+      if (currentSubject.id === 'mind_behavior') {
+        const fnName = isAutumn ? 'getMindBehaviorQuestionsAutumn' : 'getMindBehaviorQuestions';
+        if (typeof window[fnName] === 'function') {
+          const mindData = window[fnName]();
+          if (Array.isArray(mindData) && mindData.length > 0) window.QUIZ_DB.mind_behavior = mindData;
         }
       }
 
-      if (currentSubject.id === 'physiology' && typeof window.getPhysiologyQuestions === 'function') {
-        const physioData = window.getPhysiologyQuestions(currentPhysiologyMode);
-        if (Array.isArray(physioData) && physioData.length > 0) {
-          window.QUIZ_DB.physiology = physioData;
+      if (currentSubject.id === 'physiology') {
+        const fnName = isAutumn ? 'getPhysiologyQuestionsAutumn' : 'getPhysiologyQuestions';
+        if (typeof window[fnName] === 'function') {
+          const physioData = window[fnName](currentPhysiologyMode);
+          if (Array.isArray(physioData) && physioData.length > 0) window.QUIZ_DB.physiology = physioData;
         }
       }
 
-      if (currentSubject.id === 'biochemistry' && typeof window.getBiochemistryQuestions === 'function') {
-        const bioData = window.getBiochemistryQuestions();
-        if (Array.isArray(bioData) && bioData.length > 0 && (!window.QUIZ_DB.biochemistry || window.QUIZ_DB.biochemistry.length === 0)) {
-          window.QUIZ_DB.biochemistry = bioData;
+      if (currentSubject.id === 'biochemistry') {
+        const fnName = isAutumn ? 'getBiochemistryQuestionsAutumn' : 'getBiochemistryQuestions';
+        if (typeof window[fnName] === 'function') {
+          const bioData = window[fnName]();
+          if (Array.isArray(bioData) && bioData.length > 0) window.QUIZ_DB.biochemistry = bioData;
         }
       }
 
       if (currentSubject.id === 'anatomy') {
-        if (currentAnatomyMode === 'applied' && typeof window.getAnatomyAppliedQuestions === 'function') {
-          const anatomyAppliedData = window.getAnatomyAppliedQuestions();
-          if (Array.isArray(anatomyAppliedData) && anatomyAppliedData.length > 0) {
-            window.QUIZ_DB.anatomy_applied = anatomyAppliedData;
+        if (currentAnatomyMode === 'applied') {
+          const fnName = isAutumn ? 'getAnatomyAppliedQuestionsAutumn' : 'getAnatomyAppliedQuestions';
+          if (typeof window[fnName] === 'function') {
+            const anatomyAppliedData = window[fnName]();
+            if (Array.isArray(anatomyAppliedData) && anatomyAppliedData.length > 0) {
+              window.QUIZ_DB.anatomy_applied = anatomyAppliedData;
+            }
           }
-        } else if (typeof window.getAnatomyQuestions === 'function') {
-          const anatomyBasicData = window.getAnatomyQuestions();
-          if (Array.isArray(anatomyBasicData) && anatomyBasicData.length > 0) {
-            window.QUIZ_DB.anatomy = anatomyBasicData;
+        } else {
+          const fnName = isAutumn ? 'getAnatomyQuestionsAutumn' : 'getAnatomyQuestions';
+          if (typeof window[fnName] === 'function') {
+            const anatomyBasicData = window[fnName]();
+            if (Array.isArray(anatomyBasicData) && anatomyBasicData.length > 0) {
+              window.QUIZ_DB.anatomy = anatomyBasicData;
+            }
           }
         }
       }
