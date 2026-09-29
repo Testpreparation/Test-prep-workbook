@@ -1,2153 +1,2852 @@
-/**
-* anatomy.js - 解剖生理学 問題データ（全問統合・練習問題および応用問題統合版）
-*/
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>演習トレーニング | Classy Learning</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400&family=Noto+Serif+JP:wght@400;500;600&family=Noto+Sans+JP:wght@300;400;500;600&display=swap" rel="stylesheet">
+ 
+  <!-- Dragula (ドラッグ並べ替えライブラリ) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js"></script>
 
-// ==========================================
-// 練習問題データ（全145問：小テスト116問 + 応用問題29問）
-// ==========================================
-var basicQuestions = [
-// --- 第1回 細胞組織学1 上皮組織 ---
-{
-id: 1,
-category: "第1回 細胞組織学1",
-question: "線毛のモーター蛋白の名称はダイソンである。○か×（誤り）か。",
-options: ["1. ○（正しい）", "2. ×（ダイニンである）"],
-correctIndex: 1,
-explanation: "誤り。線毛運動に関わるモータータンパク質は「ダイニン（dynein）」です。"
-},
-{
-id: 2,
-category: "第1回 細胞組織学1",
-question: "膀胱の壁（上皮組織）は移行上皮でできている。○か×か。",
-options: ["1. ○（正しい）", "2. ×（誤り）"],
-correctIndex: 0,
-explanation: "正しい。膀胱や尿管の上皮は伸縮に対応できる「移行上皮（変形上皮）」で覆われています。"
-},
-{
-id: 3,
-category: "第1回 細胞組織学1",
-question: "肺胞の壁（上皮組織）はガス交換に適した単層円柱上皮でできている。○か×（誤り）か。",
-options: ["1. ○（正しい）", "2. ×（単層扁平上皮である）"],
-correctIndex: 1,
-explanation: "誤り。ガス交換を効率よく行うため、肺胞壁は極めて薄い「単層扁平上皮」でできています。"
-},
-{
-id: 4,
-category: "第1回 細胞組織学1",
-question: "ヘモグロビンは（ ）を肺から全身へ運ぶ役割を担う。",
-options: ["1. 酸素", "2. 二酸化炭素", "3. 窒素", "4. 栄養素"],
-correctIndex: 0,
-explanation: "ヘモグロビンは赤血球に含まれるタンパク質で、酸素と結合して全身へ運搬します。"
-},
+  <!-- Canvas Confetti (全問正解時の花火演出) -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
-// --- 第2回 細胞組織学2 支持組織 ---
-{
-id: 5,
-category: "第2回 細胞組織学2",
-question: "肥満細胞は免疫細胞の一種である。○か×か。",
-options: ["1. ○（正しい）", "2. ×（誤り）"],
-correctIndex: 0,
-explanation: "正しい。肥満細胞（マスト細胞）はアレルギー反応や免疫に関与する細胞です。"
-},
-{
-id: 6,
-category: "第2回 細胞組織学2",
-question: "軟骨をつくるコラーゲン線維は、主にⅠ型である。○か×（誤り）か。",
-options: ["1. ○（正しい）", "2. ×（Ⅱ型である）"],
-correctIndex: 1,
-explanation: "誤り。軟骨（特に硝子軟骨）の主成分は「Ⅱ型コラーゲン」です。（Ⅰ型は骨や皮膚に多く存在します）"
-},
-{
-id: 7,
-category: "第2回 細胞組織学2",
-question: "造血機能の停止した骨髄を赤色骨髄と呼ぶ。○か×（誤り）か。",
-options: ["1. ○（正しい）", "2. ×（黄色骨髄と呼ぶ）"],
-correctIndex: 1,
-explanation: "誤り。造血機能を持つ骨髄が「赤色骨髄」、脂肪化して造血機能を失った骨髄が「黄色骨髄」です。"
-},
-{
-id: 8,
-category: "第2回 細胞組織学2",
-question: "耳介の軟骨は線維軟骨である。○か×（誤り）か。",
-options: ["1. ○（正しい）", "2. ×（弾性軟骨である）"],
-correctIndex: 1,
-explanation: "誤り。耳介や耳管、喉頭蓋の軟骨は柔軟性に富む「弾性軟骨」です。"
-},
-{
-id: 9,
-category: "第2回 細胞組織学2",
-question: "固有心筋には横紋がある。○か×か。",
-options: ["1. ○（正しい）", "2. ×（誤り）"],
-correctIndex: 0,
-explanation: "正しい。心筋は不随意筋ですが、構造的には横紋構造を持つ「横紋筋」です。"
-},
+  <!-- Firebase SDK (リアルタイム同期用) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
-// --- 第3回 細胞組織学3 筋組織・神経組織 ---
-{
-id: 10,
-category: "第3回 筋・神経組織",
-question: "脊髄神経はどちらに分類されるか。",
-options: ["1. 中枢神経系", "2. 末梢神経系"],
-correctIndex: 1,
-explanation: "脊髄自体は中枢神経系ですが、そこから分岐する「脊髄神経」は末梢神経系に分類されます。"
-},
-{
-id: 11,
-category: "第3回 筋・神経組織",
-question: "プレシナプスとポストシナプスの間のすき間をシナプス（ ）と呼ぶ。",
-options: ["1. 間隙（かんげき）", "2. 小体", "3. 節", "4. 溝"],
-correctIndex: 0,
-explanation: "神経伝達物質が放出されるシナプス間の隙間を「シナプス間隙」と呼びます。"
-},
-{
-id: 12,
-category: "第3回 筋・神経組織",
-question: "横紋筋に分類されるものを2つ選べ。（※正解選択肢を選択）",
-options: ["1. 骨格筋・固有心筋", "2. 骨格筋・平滑筋", "3. 固有心筋・平滑筋"],
-correctIndex: 0,
-explanation: "横紋筋には「骨格筋」と「固有心筋」が含まれます。内臓の平滑筋には横紋がありません。"
-},
-{
-id: 13,
-category: "第3回 筋・神経組織",
-question: "固有心筋細胞同士は（ ）で結合する。",
-options: ["1. 終末槽", "2. T細管", "3. 介在板（光輝線）"],
-correctIndex: 2,
-explanation: "心筋細胞同士の結合部には「介在板（かいざいばん）」が存在し、電気信号を急速に伝達します。"
-},
-{
-id: 14,
-category: "第3回 筋・神経組織",
-question: "血液脳関門を構成する細胞を1つ選べ。",
-options: ["1. 周皮細胞（ペリサイト）", "2. 赤血球", "3. 神経細胞", "4. オリゴデンドロサイト"],
-correctIndex: 0,
-explanation: "血液脳関門（BBB）は脳毛細血管内皮細胞、足突起を伸ばすアストロサイト、および「周皮細胞（ペリサイト）」などで構成されます。"
-},
+  <!-- データベース用の共通オブジェクトを先に初期化 -->
+  <script>
+    window.QUIZ_DB = window.QUIZ_DB || {};
+    window.QUIZ_DB.psychology = [];
+    window.QUIZ_DB.mind_behavior = [];
+    window.QUIZ_DB.medical_intro = [];
+    window.QUIZ_DB.microbiology = [];
+    window.QUIZ_DB.anatomy = [];
+    window.QUIZ_DB.anatomy_applied = [];
+    window.QUIZ_DB.physiology = [];
+    window.QUIZ_DB.biochemistry = []; // 生化学（選択式）
+    window.QUIZ_DB.biochemistry_keyboard = []; // 生化学（記述式）
+    window.QUIZ_DB.nursing_method = []; // 看護学方法論Ⅰ用
+    window.QUIZ_DB.public_health_nursing = [];
+    window.QUIZ_DB.nutrition = [];
+    window.QUIZ_DB.pathology = [];
+    window.QUIZ_DB.medical_welfare = [];
+    window.QUIZ_DB.constitution = [];
+    window.QUIZ_DB.pharmacology = [];
+    window.QUIZ_DB.statistics = [];
+    window.QUIZ_DB.nursing_method_3 = [];
+    window.QUIZ_DB.nursing_method_4 = [];
+  </script>
 
-// --- 第4回 循環器系1 ---
-{
-id: 15,
-category: "第4回 循環器系1",
-question: "肺静脈の中を流れる血液はどれか。",
-options: ["1. 静脈血", "2. リンパ液", "3. 動脈血"],
-correctIndex: 2,
-explanation: "肺で酸素を受け取った直後の血液が流れるため、肺静脈内には「動脈血」が流れています。"
-},
-{
-id: 16,
-category: "第4回 循環器系1",
-question: "脳に向かう血液の酸素分圧をモニタリングする生体センサーはどれか？",
-options: ["1. 頚動脈洞", "2. 頚動脈小体", "3. 弁", "4. 血液脳関門"],
-correctIndex: 1,
-explanation: "頚動脈小体は化学受容器として血中の酸素分圧などをモニターします。（頚動脈洞は血圧をモニターする圧受容器です）"
-},
-{
-id: 17,
-category: "第4回 循環器系1",
-question: "(a)細動脈 / (b)弾性型動脈 / (c)筋型動脈 を太い順（丈夫な順）に並べた正しい順序はどれか。",
-options: ["1. (b) → (c) → (a)", "2. (a) → (b) → (c)", "3. (c) → (b) → (a)"],
-correctIndex: 0,
-explanation: "大動脈などの「弾性型動脈(b)」が最も太く、次いで「筋型動脈(c)」、末端の「細動脈(a)」の順になります。"
-},
-{
-id: 18,
-category: "第4回 循環器系1",
-question: "採血によく用いられる「肘正中皮静脈」の正しい読み方はどれか。",
-options: ["1. ひじせいちゅうひじょうみゃく", "2. ちゅうせいちゅうひじょうみゃく", "3. ひじしょうちゅうひじょうみゃく"],
-correctIndex: 1,
-explanation: "「肘正中皮静脈」は「ちゅうせいちゅうひじょうみゃく」と読みます。"
-},
-{
-id: 19,
-category: "第4回 循環器系1",
-question: "心臓の冠動脈の枝の名称を1つ選べ。",
-options: ["1. 前下行枝（ぜんかこうし）", "2. 脊髄神経後枝", "3. プルキンエ線維", "4. 小枝"],
-correctIndex: 0,
-explanation: "左冠動脈は「前室間支（前下行枝）」と「回旋枝」に分かれます。"
-},
+  <!-- 各科目の外部問題データベースJSの読み込み -->
+  <script src="psychology2026akigakki.js"></script>
+  <script src="mindbehavior2026akigakki.js"></script>
+  <script src="microbiology2026akigakki.js"></script>
+  <script src="Medicine2026akigakki.js"></script>
+  <script src="physiology2026akigakki.js"></script>
+  <script src="./anatomy2026akigakki.js"></script>
+  <script src="biochemistry2026harugakki.js"></script>
+  <script src="nursingmethod2026akigakki.js"></script>
 
-// --- 第5回 循環器系2 ---
-{
-id: 20,
-category: "第5回 循環器系2",
-question: "静脈血は右心房から（ ）を経て、右心室に流れる。",
-options: ["1. 三尖弁", "2. 僧帽弁", "3. 大動脈弁"],
-correctIndex: 0,
-explanation: "右心房と右心室の間にある弁は「三尖弁（右房室弁）」です。"
-},
-{
-id: 21,
-category: "第5回 循環器系2",
-question: "心臓の弁と乳頭筋をつなげている紐状のものを何と呼ぶか。",
-options: ["1. 腱索（けんさく）", "2. 健作", "3. 検索", "4. 建策"],
-correctIndex: 0,
-explanation: "房室弁のめくれ上がりを防ぐ紐状の構造は「腱索（けんさく）」です。"
-},
-{
-id: 22,
-category: "第5回 循環器系2",
-question: "左冠動脈は大動脈の根元から出たのち、左前下行枝と左（ ）枝に分かれる。",
-options: ["1. 回旋（かいせん）", "2. 直行", "3. 旋回", "4. 後行"],
-correctIndex: 0,
-explanation: "左冠動脈は「左前下行枝」と「左回旋枝」の2本に分かれます。"
-},
-{
-id: 23,
-category: "第5回 循環器系2",
-question: "心臓前壁で生じる心筋梗塞は、どの血管の梗塞によって主に生じるか。",
-options: ["1. 左前下行枝", "2. 左回旋枝", "3. 右冠動脈"],
-correctIndex: 0,
-explanation: "左前下行枝は心室中隔や左心室前壁に栄養を送るため、ここが詰まると前壁の心筋梗塞が起こります。"
-},
-{
-id: 24,
-category: "第5回 循環器系2",
-question: "乳び槽とは、身体の各所からきた（ ）が合流する場所である。",
-options: ["1. リンパ管", "2. 動脈", "3. 静脈", "4. 神経軸索"],
-correctIndex: 0,
-explanation: "乳び槽は下半身からのリンパ管が集まる胸管の起点となる膨らみです。"
-},
+  <style>
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background-color: #0F172A;
+      color: #CBD5E1;
+      overflow-x: hidden;
+    }
+    .serif-title {
+      font-family: 'Noto Serif JP', 'Cormorant Garamond', serif;
+    }
+    .en-title {
+      font-family: 'Cormorant Garamond', serif;
+      letter-spacing: 0.15em;
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .card-item {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.2s ease-in-out;
+    }
+    .card-item:hover:not(:disabled) {
+      background: rgba(30, 41, 59, 0.9);
+      border-color: rgba(217, 119, 6, 0.4);
+      transform: translateY(-2px);
+    }
+    .card-item:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      filter: grayscale(0.4);
+    }
+    .gu-mirror {
+      position: fixed !important;
+      margin: 0 !important;
+      z-index: 9999 !important;
+      opacity: 0.85;
+      background: #1E293B;
+      border: 1px solid #D97706;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      border-radius: 0.75rem;
+    }
+    .gu-transit {
+      opacity: 0.25;
+    }
 
-// --- 第6回 循環器系3 ---
-{
-id: 25,
-category: "第6回 循環器系3",
-question: "洞結節（ペースメーカー）はどこに存在するか。",
-options: ["1. 右心房", "2. 左心房", "3. 右心室"],
-correctIndex: 0,
-explanation: "洞結節（洞房結節）は「右心房」の上大静脈開口部付近に存在します。"
-},
-{
-id: 26,
-category: "第6回 循環器系3",
-question: "房室結節と右脚・左脚の間を結ぶ特殊心筋を何と呼ぶか。",
-options: ["1. ヒス束", "2. 房室束", "3. 洞房線維", "4. 腱索"],
-correctIndex: 0,
-explanation: "刺激伝達系において房室結節からの興奮を心室中隔（右脚・左脚）へ伝える部分は「ヒス束」です。"
-},
-{
-id: 27,
-category: "第6回 循環器系3",
-question: "消化管で吸収された（ ）の多くは血管ではなくリンパ管（乳び管）で運ばれる。",
-options: ["1. 脂質", "2. 炭水化物", "3. タンパク質"],
-correctIndex: 0,
-explanation: "糖質やタンパク質（アミノ酸）は毛細血管へ、脂質（カイロミクロン）は中心乳び管（リンパ管）へ吸収されます。"
-},
-{
-id: 28,
-category: "第6回 循環器系3",
-question: "臍帯血が肺循環をショートカットして、右心房から左心房に流れる際に通過する穴を何と呼ぶか。",
-options: ["1. 卵円孔", "2. ボタロー管", "3. 静脈管", "4. 心室中隔欠損"],
-correctIndex: 0,
-explanation: "胎児循環において、右心房から直接左心房へ血液を逃す開口部を「卵円孔」と呼びます。"
-},
-{
-id: 29,
-category: "第6回 循環器系3",
-question: "反回神経麻痺症状として正しいものを選べ。",
-options: ["1. 声がかすれる（嗄声）", "2. 味覚障害が起こる", "3. 呼吸困難となる"],
-correctIndex: 0,
-explanation: "反回神経は声帯を動かす筋を支配するため、麻痺すると声がかすれる「嗄声（させい）」が生じます。"
-},
+    /* カスタムスライダー */
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+    input[type=range]:focus {
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 6px;
+      cursor: pointer;
+      background: rgba(217, 119, 6, 0.25);
+      border-radius: 3px;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      background: #D97706;
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -7px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      transition: background-color 0.2s ease;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      background: #F59E0B;
+    }
 
-// --- 第7回 呼吸器系1 ---
-{
-id: 30,
-category: "第7回 呼吸器系1",
-question: "上皮が多列線毛上皮ではないものを1つ選べ。",
-options: ["1. 鼻前庭", "2. 固有鼻腔", "3. 気管", "4. 主気管支", "5. 細気管支"],
-correctIndex: 0,
-explanation: "鼻の入り口である「鼻前庭」は皮膚の続きであり、重層扁平上皮で覆われています。"
-},
-{
-id: 31,
-category: "第7回 呼吸器系1",
-question: "右反回神経はどの血管・構造の下をくぐってさかのぼるか。",
-options: ["1. 腕頭動脈", "2. 甲状腺", "3. 大動脈弓"],
-correctIndex: 0,
-explanation: "右反回神経は「腕頭動脈（または右鎖骨下動脈）」を、左反回神経は「大動脈弓」をくぐり返します。"
-},
-{
-id: 32,
-category: "第7回 呼吸器系1",
-question: "左肺門は右肺門よりもどの位置にあるか。",
-options: ["1. 高い位置", "2. 低い位置"],
-correctIndex: 0,
-explanation: "心臓の位置や大動脈弓の影響などにより、左肺門は右肺門よりも「やや高い」位置に存在します。"
-},
-{
-id: 33,
-category: "第7回 呼吸器系1",
-question: "左肺に隣接して圧痕を作る構造物を1つ選べ。",
-options: ["1. 胸大動脈", "2. 食道", "3. 上大静脈", "4. 下大静脈"],
-correctIndex: 0,
-explanation: "左肺の内側面には大動脈弓から続く「胸大動脈（大動脈圧痕）」や心臓が接しています。"
-},
+    /* 早押しボタン用アニメーション */
+    .buzz-btn {
+      box-shadow: 0 8px 0 #b45309, 0 15px 20px rgba(0,0,0,0.4);
+      transition: all 0.1s ease;
+    }
+    .buzz-btn:active:not(:disabled) {
+      transform: translateY(4px);
+      box-shadow: 0 4px 0 #b45309, 0 8px 10px rgba(0,0,0,0.4);
+    }
+    .buzz-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: translateY(4px);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative selection:bg-amber-500/30 selection:text-amber-200">
 
-// --- 第8回 呼吸器系2 ---
-{
-id: 34,
-category: "第8回 呼吸器系2",
-question: "肺の成熟期に表面活性物質（サーファクタント）を出す細胞はどれか。",
-options: ["1. Ⅱ型肺胞上皮細胞", "2. Ⅰ型肺胞上皮細胞", "3. 肺胞マクロファージ"],
-correctIndex: 0,
-explanation: "肺胞の折りたたみを防ぐ表面活性物質は「Ⅱ型肺胞上皮細胞」から分泌されます。"
-},
-{
-id: 35,
-category: "第8回 呼吸器系2",
-question: "胸腔内圧は、息を吸う時（吸気時）にどのようになるか。",
-options: ["1. さらに陰圧になる", "2. さらに陽圧になる", "3. 変化しない"],
-correctIndex: 0,
-explanation: "胸腔内は常に陰圧ですが、息を吸って胸郭が広がることで「さらに陰圧（強陰圧）」になります。"
-},
-{
-id: 36,
-category: "第8回 呼吸器系2",
-question: "内肋間筋の主な役割はどちらか。",
-options: ["1. 呼気筋（息を吐く）", "2. 吸気筋（息を吸う）"],
-correctIndex: 0,
-explanation: "外肋間筋は胸郭を挙上する「吸気筋」、内肋間筋は胸郭を引き下げる「呼気筋」です。"
-},
-{
-id: 37,
-category: "第8回 呼吸器系2",
-question: "胸管（主要なリンパ管）の位置関係として正しいものを選べ。",
-options: ["1. 両肺に接する", "2. 右肺に接する", "3. 左肺に接する", "4. どちらにも接しない"],
-correctIndex: 0,
-explanation: "胸管は後縦隔を通る際、左右両方の肺（胸膜）に接するように走っています。"
-},
-{
-id: 38,
-category: "第8回 呼吸器系2",
-question: "食道の生理的狭窄部位（3箇所）に該当しないものを1つ選べ。",
-options: ["1. 総腸骨動脈交叉部", "2. 食道入口部", "3. 気管分岐部", "4. 横隔膜貫通部（食道裂孔）"],
-correctIndex: 0,
-explanation: "食道の生理的狭窄部は「①食道起始部」「②気管分岐部（大動脈弓交叉部）」「③横隔膜貫通部（食道裂孔）」の3箇所です。"
-},
+  <!-- 左上 ハンバーガーボタン -->
+  <div class="fixed top-4 left-4 sm:top-6 sm:left-6 z-40">
+    <button onclick="toggleNavDrawer()" class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white transition backdrop-blur-md shadow-lg" aria-label="メニューを開く">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+    </button>
+  </div>
 
-// --- 第9回 消化器系1 ---
-{
-id: 39,
-category: "第9回 消化器系1",
-question: "成人の食道の長さはおよそどれくらいか。",
-options: ["1. 25 cm", "2. 5 cm", "3. 13 cm", "4. 40 cm"],
-correctIndex: 0,
-explanation: "成人の食道の長さは約25cmです。"
-},
-{
-id: 40,
-category: "第9回 消化器系1",
-question: "胃の内面を覆う上皮組織はどれか。",
-options: ["1. 単層円柱上皮", "2. 移行上皮", "3. 重層扁平上皮"],
-correctIndex: 0,
-explanation: "胃から大腸までの消化管粘膜の多くは粘液分泌や吸収に適した「単層円柱上皮」です。"
-},
-{
-id: 41,
-category: "第9回 消化器系1",
-question: "舌の後ろ1/3の味覚を支配する神経はどれか。",
-options: ["1. 舌咽神経", "2. 顔面神経", "3. 迷走神経", "4. 舌下神経", "5. 三叉神経"],
-correctIndex: 0,
-explanation: "舌の前2/3の味覚は「顔面神経」、後ろ1/3の味覚は「舌咽神経」が支配します。"
-},
-{
-id: 42,
-category: "第9回 消化器系1",
-question: "構造的な括約筋が存在しない部位を選べ。",
-options: ["1. 噴門", "2. 食道", "3. 幽門"],
-correctIndex: 0,
-explanation: "胃の出口（幽門）には明瞭な幽門括約筋が存在しますが、入口（噴門）には独立した解剖学的括約筋構造はありません。"
-},
-{
-id: 43,
-category: "第9回 消化器系1",
-question: "マクバーニー点（MacBurney点）があらわす解剖学的位置はどれか。",
-options: ["1. 虫垂基部の位置", "2. 回盲弁の位置", "3. 臍の位置", "4. 直腸の位置"],
-correctIndex: 0,
-explanation: "マクバーニー点は右前上腸骨棘と臍を結ぶ線上の外側1/3の点で、急性虫垂炎の圧痛点（虫垂基部）です。"
-},
+  <!-- スライドメニュー -->
+  <div id="nav-overlay" onclick="closeNavDrawer()" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 transition-opacity"></div>
+  <div id="nav-drawer" class="fixed top-0 left-0 h-full w-72 glass-card bg-slate-900/95 border-r border-slate-800 z-50 transform -translate-x-full transition-transform duration-300 p-6 flex flex-col justify-between shadow-2xl">
+    <div>
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <span class="en-title text-xs text-amber-500/80 tracking-widest uppercase font-semibold">NAVIGATION MENU</span>
+        <button onclick="closeNavDrawer()" class="text-slate-400 hover:text-white text-sm p-1 transition">✕</button>
+      </div>
+      <div class="mt-6 space-y-2.5">
+        <button onclick="closeNavDrawer(); showSubjectScreen();" class="w-full text-left px-4 py-3 rounded-xl bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/50 text-slate-200 text-xs transition flex items-center gap-3 group">
+          <span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 font-mono text-amber-400 text-[10px] font-bold">SOLO</span>
+          <span class="font-medium">個人演習（科目一覧）</span>
+        </button>
+        <button onclick="closeNavDrawer(); showMultiplayerLobby();" class="w-full text-left px-4 py-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs transition flex items-center gap-3 group">
+          <span class="px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 font-mono text-amber-400 text-[10px] font-bold">2P</span>
+          <span class="font-medium">早押し対戦（2人マルチ）</span>
+        </button>
+        <button onclick="closeNavDrawer(); openAuthModal();" class="w-full text-left px-4 py-3 rounded-xl bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/50 text-slate-200 text-xs transition flex items-center gap-3 group">
+          <span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 font-mono text-amber-400 text-[10px] font-bold">ADM</span>
+          <span class="font-medium">管理者メニュー</span>
+        </button>
+      </div>
+    </div>
+    <div class="text-[11px] text-slate-500 font-light text-center border-t border-slate-800/80 pt-4">
+      Classy Learning System
+    </div>
+  </div>
 
-// --- 第10回 消化器系2 ---
-{
-id: 44,
-category: "第10回 消化器系2",
-question: "結腸の表面に見られる3本の縦走筋の束を何と呼ぶか。",
-options: ["1. 結腸ひも（結腸帯）", "2. 結腸ハウストラ", "3. 腹膜播種", "4. 輪状ひだ"],
-correctIndex: 0,
-explanation: "大腸（結腸）の外縦筋層が集まってできた3本の帯状構造を「結腸ひも（結腸帯）」と呼びます。"
-},
-{
-id: 45,
-category: "第10回 消化器系2",
-question: "健常成人の唾液分泌量は1日に約どれくらいか。",
-options: ["1. 1.5 L", "2. 1 L", "3. 150 mL"],
-correctIndex: 0,
-explanation: "成人の唾液分泌量は1日あたり約1〜1.5Lです。"
-},
-{
-id: 46,
-category: "第10回 消化器系2",
-question: "解剖学的に肝臓を右葉と左葉に分けた場合、よりサイズが大きいのはどちらか。",
-options: ["1. 右葉", "2. 左葉"],
-correctIndex: 0,
-explanation: "肝臓は「右葉」が非常に大きく、全体の約4/5を占めます。"
-},
-{
-id: 47,
-category: "第10回 消化器系2",
-question: "すい臓は後腹膜臓器である。○か×か。",
-options: ["1. ○（ある）", "2. ×（ない）"],
-correctIndex: 0,
-explanation: "正しい。膵臓、十二指腸、腎臓などは後腹膜臓器に分類されます。"
-},
-{
-id: 48,
-category: "第10回 消化器系2",
-question: "尿管が膀胱に入る「尿管膀胱移行部」は、尿管の生理的狭窄部の1つである。○か×か。",
-options: ["1. ○（正しい）", "2. ×（誤り）"],
-correctIndex: 0,
-explanation: "正しい。尿管の狭窄部は「腎盂尿管移行部」「総腸骨動脈交叉部」「尿管膀胱移行部」の3箇所です。"
-},
+  <!-- メイン領域 -->
+  <div class="w-full max-w-xl mx-auto py-6 sm:py-10 my-auto">
+    <header class="text-center mb-8">
+      <div class="en-title text-amber-500/90 text-xs font-semibold tracking-widest uppercase mb-2">Knowledge Assessment</div>
+      <h1 class="serif-title text-2xl sm:text-3xl font-medium text-slate-100 tracking-wide">テスト対策問題</h1>
+      <p class="text-xs text-slate-400 mt-2 font-light"> </p>
+    </header>
 
-// --- 第11回 泌尿器系 ---
-{
-id: 49,
-category: "第11回 泌尿器系",
-question: "尿管は総腸骨動静脈の（ ）を通って交叉するか。",
-options: ["1. 腹側（前側）", "2. 背側（後側）"],
-correctIndex: 0,
-explanation: "尿管は総腸骨動静脈の前（腹側）をまたぐように交差して骨盤腔へ入ります。"
-},
-{
-id: 50,
-category: "第11回 泌尿器系",
-question: "曲尿細管（近位・遠位曲尿細管）は主にどの部位に存在するか。",
-options: ["1. 腎皮質", "2. 腎髄質", "3. 膀胱"],
-correctIndex: 0,
-explanation: "腎小体や曲尿細管は主に「腎皮質」に存在し、ヘンレループや集合管が「腎髄質」に伸びています。"
-},
-{
-id: 51,
-category: "第11回 泌尿器系",
-question: "尿管の3箇所の生理的狭窄部のうち、最も身体の下部にある狭窄部位はどれか。",
-options: ["1. 尿管膀胱移行部", "2. 腎盂尿管移行部", "3. 総腸骨動脈交叉部"],
-correctIndex: 0,
-explanation: "尿管の一番下（最遠位）にある狭窄部は、膀胱の壁を貫く「尿管膀胱移行部」です。"
-},
-{
-id: 52,
-category: "第11回 泌尿器系",
-question: "外尿道括約筋を支配し、意志による排尿の調整に関わる体性神経はどれか。",
-options: ["1. 陰部神経", "2. 骨盤神経", "3. 排尿神経", "4. 坐骨神経"],
-correctIndex: 0,
-explanation: "外尿道括約筋（随意筋）を支配する体性運動神経は「陰部神経」です。（骨盤神経は副交感神経です）"
-},
-{
-id: 53,
-category: "第11回 泌尿器系",
-question: "精子形成の適温に最も近い温度はどれか。",
-options: ["1. 33℃", "2. 14℃", "3. 20℃", "4. 28℃", "5. 38℃"],
-correctIndex: 0,
-explanation: "精子形成は体温（36.5℃付近）より少し低い「33〜35℃前後」が適温であるため、精巣は体外の陰嚢内に存在します。"
-},
+    <main class="glass-card rounded-2xl p-5 sm:p-8 shadow-2xl relative overflow-hidden">
+     
+      <!-- 画面1: 科目選択 (SOLO) -->
+      <div id="screen-subjects" class="space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <h2 id="subjects-header-title" class="en-title text-xs text-slate-400 tracking-widest uppercase">Select Subject</h2>
+          <div class="flex items-center gap-3">
+            <span id="subject-count-display" class="text-xs text-slate-500 font-light">全17科目</span>
+            <!-- お知らせボタン -->
+            <button onclick="openNoticeModal()" class="relative px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition flex items-center gap-1.5">
+              <span>🔔</span>
+              <span>お知らせ</span>
+              <span id="notice-red-dot" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-slate-900"></span>
+            </button>
+          </div>
+        </div>
+        <div id="subject-list-container" class="grid gap-3 pt-1"></div>
+      </div>
 
-// --- 第12回 生殖器系1 ---
-{
-id: 54,
-category: "第12回 生殖器系1",
-question: "精子はどこで運動能を獲得するか。",
-options: ["1. 精巣上体（副精巣）", "2. 精巣", "3. 精管"],
-correctIndex: 0,
-explanation: "精巣で作られた精子は「精巣上体」を通る過程で成熟し、運動能を獲得します。"
-},
-{
-id: 55,
-category: "第12回 生殖器系1",
-question: "前立腺液が持つ主な役割はどれか。",
-options: ["1. 精子の運動性に関与する", "2. エネルギー源である（果糖）", "3. 尿道通過を容易にする"],
-correctIndex: 0,
-explanation: "前立腺液はアルカリ性で精子の運動性を高めます。（果糖などのエネルギー源は「精嚢液」から分泌されます）"
-},
-{
-id: 56,
-category: "第12回 生殖器系1",
-question: "体外への射精（精管や尿道括約筋の収縮等）を優位にコントロールする神経系はどれか。",
-options: ["1. 交感神経", "2. 副交感神経", "3. 体性神経"],
-correctIndex: 0,
-explanation: "勃起は「副交感神経」、射精は「交感神経」がそれぞれ主導します。"
-},
-{
-id: 57,
-category: "第12回 生殖器系1",
-question: "前立腺癌が最も好発する部位はどこか。",
-options: ["1. 外腺（辺縁領域）", "2. 内腺", "3. 中腺"],
-correctIndex: 0,
-explanation: "前立腺肥大症は「内腺（移行領域）」に多く、前立腺癌は「外腺（辺縁領域）」に好発します。"
-},
-{
-id: 58,
-category: "第12回 生殖器系1",
-question: "出生時に女性が体内に持っている原始卵胞（卵細胞）の数に最も近いものはどれか。",
-options: ["1. 100万個", "2. 100個", "3. 5000個", "4. 1万個", "5. 30万個"],
-correctIndex: 0,
-explanation: "出生時の女児の卵巣には約100万〜200万個の原始卵胞が存在し、思春期までに約30万〜40万個に減少します。"
-},
+      <!-- 画面1.05: 学期選択画面 (科目選択の直後に表示) -->
+      <div id="screen-semester-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline">← 科目選択へ戻る</button>
+          <span id="semester-subject-title" class="serif-title text-sm text-slate-300">学期選択</span>
+        </div>
 
-// --- 第13回 生殖器系2 ---
-{
-id: 59,
-category: "第13回 生殖器系2",
-question: "子宮を腹側（前側）に引っ張り、前傾前屈位を保つひも状の組織は何か。",
-options: ["1. 子宮円索", "2. 固有卵巣ロープ", "3. 子宮広間膜", "4. 仙骨子宮ロープ"],
-correctIndex: 0,
-explanation: "子宮の前面から大陰唇へと伸び、子宮を前傾させる帯状組織を「子宮円索」と呼びます。"
-},
-{
-id: 60,
-category: "第13回 生殖器系2",
-question: "閉経後にフィードバックにより分泌が急増する脳下垂体前葉ホルモンはどれか。",
-options: ["1. FSH（卵胞刺激ホルモン）", "2. エストロゲン", "3. プロゲステロン"],
-correctIndex: 0,
-explanation: "閉経により卵巣機能が低下してエストロゲンが減ると、これを補おうとして下垂体から「FSH（卵胞刺激ホルモン）」が多量に分泌されます。"
-},
-{
-id: 61,
-category: "第13回 生殖器系2",
-question: "子宮内膜のうち、性周期の月経時に剥離脱落しない層はどれか。",
-options: ["1. 基底層", "2. 機能層", "3. 表層", "4. 横紋筋層"],
-correctIndex: 0,
-explanation: "子宮内膜の「機能層」は月経で脱落しますが、最深部の「基底層」は残存し再生の元となります。"
-},
-{
-id: 62,
-category: "第13回 生殖器系2",
-question: "成人の未妊子宮における子宮の全腔長（長さ）はおよそ何cmか。",
-options: ["1. 約 7cm（7〜8cm）", "2. 約 2cm", "3. 約 15cm", "4. 約 25cm"],
-correctIndex: 0,
-explanation: "成人未妊女性の子宮の長さは約7〜8cm（腔長は約7cm）です。"
-},
-{
-id: 63,
-category: "第13回 生殖器系2",
-question: "原発事故などで体内に取り込まれた場合、甲状腺に集積しやすい放射性物質はどれか。",
-options: ["1. 放射性ヨウ素", "2. 放射性セシウム", "3. 放射性ストロンチウム"],
-correctIndex: 0,
-explanation: "甲状腺ホルモンの原料である「ヨウ素」の性質により、放射性ヨウ素は甲状腺に濃縮蓄積されます。"
-},
+        <div class="space-y-3 pt-2">
+          <button onclick="selectSemester('harugakki')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">HARU</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">2026春学期</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">2026春学期の演習問題</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
 
-// --- 第14回 内分泌器系 ---
-{
-id: 64,
-category: "第14回 内分泌器系",
-question: "視床下部などでホルモンを合成・分泌する特殊な神経細胞を何というか。",
-options: ["1. 神経分泌細胞", "2. グリア細胞", "3. 樹状細胞"],
-correctIndex: 0,
-explanation: "神経系でありながらホルモンを合成・分泌する細胞を「神経分泌細胞」と呼びます。"
-},
-{
-id: 65,
-category: "第14回 内分泌器系",
-question: "下垂体後葉から分泌され、乳腺の射乳や子宮収縮を引き起こすホルモンはどれか。",
-options: ["1. オキシトシン", "2. プロラクチン", "3. バソプレシン"],
-correctIndex: 0,
-explanation: "下垂体後葉から分泌される「オキシトシン」が射乳や子宮収縮を起こします。（プロラクチンは前葉分泌）"
-},
-{
-id: 66,
-category: "第14回 内分泌器系",
-question: "副腎皮質の3層のうち、最も深層（髄質側）に位置する層はどれか。",
-options: ["1. 網状帯", "2. 球状帯", "3. 束状帯"],
-correctIndex: 0,
-explanation: "副腎皮質は外側から「球状帯（電解質コルチコイド）」「束状帯（糖質コルチコイド）」「網状帯（性ホルモン）」の順になっています。"
-},
-{
-id: 67,
-category: "第14回 内分泌器系",
-question: "膵臓ランゲルハンス島の細胞のうち、血糖値を上昇させる「グルカゴン」を分泌するのはどの細胞か。",
-options: ["1. A細胞（α細胞）", "2. B細胞（β細胞）", "3. D細胞（δ細胞）"],
-correctIndex: 0,
-explanation: "A（α）細胞がグルカゴン（血糖上昇）、B（β）細胞がインスリン（血糖降下）を分泌します。"
-},
+          <button onclick="selectSemester('akigakki')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">AKI</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">2026秋学期</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">2026秋学期の演習問題</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+        </div>
+      </div>
 
-// --- 第15回 細胞組織学1（追加） ---
-{
-id: 68,
-category: "第15回 細胞組織学1（追加）",
-question: "上皮組織には血管が存在する。○か×（誤り）か。",
-options: ["1. ○（正しい）", "2. ×（存在しない）"],
-correctIndex: 1,
-explanation: "誤り。上皮組織には血管が存在せず、下層の結合組織（基底膜）を通した拡散によって栄養を受け取ります。"
-},
-{
-id: 69,
-category: "第15回 細胞組織学1（追加）",
-question: "繊毛は微小管の9＋0配列で構成される。○か×（誤り）か。",
-options: ["1. ○（正しい）", "2. ×（9＋2配列である）"],
-correctIndex: 1,
-explanation: "誤り。動繊毛は中央に2本、周囲に二重管が9対並ぶ「9＋2配列」で構成されます。（9＋0配列は一次繊毛などに見られます）"
-},
-{
-id: 70,
-category: "第15回 細胞組織学1（追加）",
-question: "接着斑（デスモソーム）の結合はカルシウム依存性を示す。○か×か。",
-options: ["1. ○（正しい）", "2. ×（誤り）"],
-correctIndex: 0,
-explanation: "正しい。接着斑を構成するカドヘリン（カドヘリンファミリー）はカルシウムイオン（Ca2+）依存性の細胞接着分子です。"
-},
-{
-id: 71,
-category: "第15回 細胞組織学1（追加）",
-question: "ギャップ結合は、コネクソンが6つ集まってできている。○か×か。",
-options: ["1. ○（正しい）", "2. ×（誤り）"],
-correctIndex: 0,
-explanation: "正しい。ギャップ結合の基本単位であるコネクソンは、6つのコネキシンタンパク質が環状に集まって作られます。"
-},
-{
-id: 72,
-category: "第15回 細胞組織学1（追加）",
-question: "物質交換やガス交換を行う血管内皮は単層円柱上皮である。○か×（誤り）か。",
-options: ["1. ○（正しい）", "2. ×（単層扁平上皮である）"],
-correctIndex: 1,
-explanation: "誤り。血管内皮や肺胞は物質・ガス交換を効率よく行うために薄い「単層扁平上皮」で構成されています。"
-},
+      <!-- 画面1.1: 生理学 モード選択（過去問 / 小テスト） -->
+      <div id="screen-physiology-mode-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">生理学 モード選択</span>
+        </div>
 
-// --- 第16回 細胞組織学2（追加） ---
-{
-id: 73,
-category: "第16回 細胞組織学2（追加）",
-question: "ヒスタミンを放出する免疫細胞はどれか。",
-options: ["1. 肥満細胞（マスト細胞）", "2. 赤血球", "3. 破骨細胞", "4. Tリンパ球"],
-correctIndex: 0,
-explanation: "肥満細胞（マスト細胞）や塩基性細胞はヒスタミンやヘパリンを顆粒内に保持し、アレルギー反応時に放出します。"
-},
-{
-id: 74,
-category: "第16回 細胞組織学2（追加）",
-question: "骨などに広く存在するコラーゲン線維の型はどれか。",
-options: ["1. Ⅰ型", "2. Ⅱ型", "3. Ⅲ型", "4. Ⅳ型"],
-correctIndex: 0,
-explanation: "Ⅰ型コラーゲンは体内で最も豊富で、骨、皮膚、腱などに広く存在します。（Ⅱ型は軟骨に豊富です）"
-},
-{
-id: 75,
-category: "第17回 細胞組織学2（追加）",
-question: "線維軟骨が人体で存在する代表的な部位はどれか。",
-options: ["1. 椎間ディスク（椎間板）・恥骨結合", "2. 耳介", "3. 気管軟骨", "4. 関節軟骨"],
-correctIndex: 0,
-explanation: "線維軟骨は強い牽引力や圧力に耐える組織で、椎間ディスク（椎間板）や恥骨結合、関節唇などに存在します。"
-},
-{
-id: 76,
-category: "第17回 細胞組織学2（追加）",
-question: "骨基質を破壊（吸収）して血中カルシウム濃度を上げる細胞はどれか。",
-options: ["1. 破骨細胞", "2. 骨芽細胞", "3. 骨細胞", "4. 肥満細胞"],
-correctIndex: 0,
-explanation: "破骨細胞は酸や酵素を分泌して骨基質を破壊（骨吸収）し、カルシウムを血液中に動員します。"
-},
-{
-id: 77,
-category: "第17回 細胞組織学2（追加）",
-question: "血液中の細胞成分の大部分を占める血球はどれか。",
-options: ["1. 赤血球", "2. 白血球", "3. 血小板", "4. リンパ球"],
-correctIndex: 0,
-explanation: "血液の細胞成分（有形成分）の99%以上は赤血球が占めています。"
-},
-{
-id: 78,
-category: "第17回 細胞組織学2（追加）",
-question: "リンパ球のうち、細胞性免疫に関与するのはどれか。",
-options: ["1. Tリンパ球（T細胞）", "2. Bリンパ球（B細胞）", "3. 形質細胞"],
-correctIndex: 0,
-explanation: "Tリンパ球は細胞性免疫を担い、Bリンパ球は抗体を産生して体液性免疫を担います。"
-},
+        <div class="space-y-3 pt-2">
+          <button onclick="selectPhysiologyMode('past')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">PHY-1</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">過去問</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">生理学の過去問演習</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
 
-// --- 第18回 筋・神経組織（追加） ---
-{
-id: 79,
-category: "第18回 筋・神経組織（追加）",
-question: "脳神経はどちらに分類されるか。",
-options: ["1. 末梢神経系", "2. 中枢神経系"],
-correctIndex: 0,
-explanation: "脳や脊髄自体は中枢神経系ですが、脳から出る「脳神経（12対）」や脊髄から出る「脊髄神経」は末梢神経系です。"
-},
-{
-id: 80,
-category: "第18回 筋・神経組織（追加）",
-question: "神経細胞（ニューロン）が持つ2種類の神経突起は軸索と何か。",
-options: ["1. 樹状突起", "2. 介在板", "3. シナプス小胞", "4. 髄鞘"],
-correctIndex: 0,
-explanation: "神経細胞は信号を受け取る「樹状突起」と、信号を送り出す1本の「軸索」を持ちます。"
-},
-{
-id: 81,
-category: "第18回 筋・神経組織（追加）",
-question: "シナプス小胞からシナプス隙間に放出される物質は何か。",
-options: ["1. 神経伝達物質", "2. ホルモン", "3. ヒスタミン", "4. コラーゲン"],
-correctIndex: 0,
-explanation: "シナプス前終末に存在するシナプス小胞から「神経伝達物質」が放出して情報伝達を行います。"
-},
-{
-id: 82,
-category: "第18回 筋・神経組織（追加）",
-question: "平滑筋の性質として正しいものはどれか。",
-options: ["1. 不随意筋である", "2. 随意筋である"],
-correctIndex: 0,
-explanation: "内臓や血管の壁を構成する平滑筋は、自律神経の支配を受け自分の意思で動かせない「不随意筋」です。"
-},
-{
-id: 83,
-category: "第18回 筋・神経組織（追加）",
-question: "骨格筋、心筋、平滑筋のうち、再生能力がほぼ無い（欠如している）のはどれか。",
-options: ["1. 心筋", "2. 骨格筋", "3. 平滑筋"],
-correctIndex: 0,
-explanation: "心筋細胞は増殖・再生能力がほぼ無いため、壊死すると線維化して瘢痕組織に置き換わります。"
-},
+          <button onclick="selectPhysiologyMode('quiz')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">PHY-2</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">小テスト</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">生理学の小テスト演習</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+        </div>
+      </div>
 
-// --- 第19回 循環器系1（追加） ---
-{
-id: 84,
-category: "第19回 循環器系1（追加）",
-question: "大動脈弓から分枝する3本の動脈の正解順序（起頭側から）を選べ。",
-options: [
-"1. 腕頭動脈 → 左総頸動脈 → 左鎖骨下動脈",
-"2. 左総頸動脈 → 左鎖骨下動脈 → 腕頭動脈",
-"3. 腕頭動脈 → 左鎖骨下動脈 → 左総頸動脈"
-],
-correctIndex: 0,
-explanation: "大動脈弓からは近位より「①腕頭動脈」「②左総頸動脈」「③左鎖骨下動脈」の順に分岐します。"
-},
-{
-id: 85,
-category: "第19回 循環器系1（追加）",
-question: "通常、手首で脈拍を触れる際に用いられる動脈はどれか。",
-options: ["1. 橈骨動脈", "2. 尺骨動脈", "3. 腕頭動脈", "4. 鎖骨下動脈"],
-correctIndex: 0,
-explanation: "手首の親指側（手関節前面外側）を走る「橈骨動脈」が最も一般的触診部位です。"
-},
-{
-id: 86,
-category: "第19回 循環器系1（追加）",
-question: "静脈系において、体の深部を走る深静脈に対して、体表近くを走る静脈を何と呼ぶか。",
-options: ["1. 皮静脈", "2. 終動脈", "3. 吻合静脈", "4. 網状静脈"],
-correctIndex: 0,
-explanation: "皮下組織内を走り体表から透けて見える静脈を「皮静脈（浅静脈）」と呼びます。"
-},
-{
-id: 87,
-category: "第19回 循環器系1（追加）",
-question: "肘窩を斜めに走り、静脈注射や採血によく用いられる静脈はどれか。",
-options: ["1. 肘正中皮静脈", "2. 橈骨静脈", "3. 伏在静脈", "4. 腋窩静脈"],
-correctIndex: 0,
-explanation: "肘窩前面で貴要皮静脈と頭側皮静脈を結ぶ「肘正中皮静脈」は採血の第一選択部位です。"
-},
-{
-id: 88,
-category: "第19回 循環器系1（追加）",
-question: "下半身の静脈血が重力に対抗して心臓へ戻るため、ふくらはぎの筋とともに重要な役割を果たす構造はどれか。",
-options: ["1. 静脈弁", "2. 腱索", "3. 介在板", "4. 膠原線維"],
-correctIndex: 0,
-explanation: "下肢の静脈には血液の逆流を防ぐ「静脈弁」が存在し、筋ポンプ作用とともに静脈還流を補助します。"
-},
+      <!-- 画面1.2: 解剖学 コース選択（練習問題 / 応用問題） -->
+      <div id="screen-anatomy-mode-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">解剖学 モード選択</span>
+        </div>
 
-// --- 第20回 循環器系2（追加） ---
-{
-id: 89,
-category: "第20回 循環器系2（追加）",
-question: "人の心臓のおおよその大きさとして正しい表現はどれか。",
-options: ["1. こぶし大", "2. クルミ大", "3. ゴルフボール大"],
-correctIndex: 0,
-explanation: "成人の心臓の大きさは、所有者の「こぶし大（拳大）」程度とされています。"
-},
-{
-id: 90,
-category: "第20回 循環器系2（追加）",
-question: "腱索は僧帽弁や三尖弁と心室のどの構造（筋肉）をつなげているか。",
-options: ["1. 乳頭筋", "2. 櫛状筋", "3. 輪状筋", "4. 括約筋"],
-correctIndex: 0,
-explanation: "心室壁から隆起した「乳頭筋」から腱索が伸び、房室弁の弁尖につながっています。"
-},
-{
-id: 91,
-category: "第20回 循環器系2（追加）",
-question: "心臓の4つの弁のうち、二尖弁と呼ばれるものはどれか。",
-options: ["1. 僧帽弁", "2. 三尖弁", "3. 大動脈弁", "4. 肺動脈弁"],
-correctIndex: 0,
-explanation: "左房室弁である「僧帽弁」のみが2枚の弁尖からなる二尖弁です。（他は三尖弁または半月弁）"
-},
-{
-id: 92,
-category: "第20回 循環器系2（追加）",
-question: "左冠動脈はどの血管の根元から分枝するか。",
-options: ["1. 上行大動脈", "2. 肺動脈幹", "3. 大動脈弓", "4. 腕頭動脈"],
-correctIndex: 0,
-explanation: "左右の冠動脈は「上行大動脈」の起点直上にある大動脈洞（バルサルバ洞）から分枝します。"
-},
-{
-id: 93,
-category: "第20回 循環器系2（追加）",
-question: "心臓や脳などに存在する、他の側副路との吻合を持たない細動脈を何というか。",
-options: ["1. 終動脈", "2. 筋型動脈", "3. 弾性型動脈", "4. 毛細血管"],
-correctIndex: 0,
-explanation: "吻合を持たない「終動脈」が閉塞すると、その支配領域へ代替血流が届かず梗塞を引き起こします。"
-},
+        <div class="space-y-3 pt-2">
+          <button onclick="selectAnatomyMode('basic')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">ANA-1</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">練習問題</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">小テスト・ちいかわの問題</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
 
-// --- 第21回 循環器系3（追加） ---
-{
-id: 94,
-category: "第21回 循環器系3（追加）",
-question: "房室結節が存在する正確な部位はどれか。",
-options: ["1. 心房中隔の右房側", "2. 心室中隔の左室側", "3. 上大静脈開口部", "4. 心尖部"],
-correctIndex: 0,
-explanation: "房室結節（田原結節）は心房中隔の右心房側底部（冠状静脈洞開口部付近）に存在します。"
-},
-{
-id: 95,
-category: "第21回 循環器系3（追加）",
-question: "心房細動の異常電流が発生しやすいのは、何本ある肺静脈の開口部付近か。",
-options: ["1. 4本", "2. 2本", "3. 3本", "4. 5本"],
-correctIndex: 0,
-explanation: "心房細動の異性刺激は、左心房に開口する「4本」の肺静脈基部周辺から発生することが非常に多いです。"
-},
-{
-id: 96,
-category: "第21回 循環器系3（追加）",
-question: "胎児循環において、臍帯血が肝臓を通らず直接下大静脈へ流入するバイパス管を何というか。",
-options: ["1. 静脈管（アランティウス管）", "2. 卵円孔", "3. 動脈管（ボタロー管）"],
-correctIndex: 0,
-explanation: "臍静脈からの血液は「静脈管（アランティウス管）」を通って肝臓を迂回し、下大静脈へ注入されます。"
-},
-{
-id: 97,
-category: "第21回 循環器系3（追加）",
-question: "右上半身からのリンパが集まり右静脈角へ合流する主要リンパ管はどれか。",
-options: ["1. 右リンパ総幹（右リンパ幹）", "2. 胸管", "3. 乳び槽"],
-correctIndex: 0,
-explanation: "右上半身のリンパは「右リンパ総幹」を経て右静脈角へ、その他の身体（左半身・下半身）は「胸管」を経て左静脈角へ流入します。"
-},
-{
-id: 98,
-category: "第21回 循環器系3（追加）",
-question: "人体最大のリンパ管であり、乳び槽から始まって左静脈角に流れる構造はどれか。",
-options: ["1. 胸管", "2. 右リンパ総幹", "3. 奇静脈"],
-correctIndex: 0,
-explanation: "胸管は乳び槽を起点として縦隔を上行し、左静脈角に注ぐ人体最大のリンパ管です。"
-},
+          <button onclick="selectAnatomyMode('applied')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 font-mono text-xs font-bold">ANA-2</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">応用問題</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">小テスト・ちいかわの問題の応用(AIを使用してます。)</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+        </div>
+      </div>
 
-// --- 第22回 呼吸器系1（追加） ---
-{
-id: 99,
-category: "第22回 呼吸器系1（追加）",
-question: "気管が左右の主気管支に分岐する位置（高さ）はどこか。",
-options: ["1. T4〜T5（第4〜5胸椎）の高さ", "2. C4〜C6の高さ", "3. T10の高さ"],
-correctIndex: 0,
-explanation: "気管分岐部は胸骨角（第4〜第5胸椎：T4〜T5）の高さに位置します。"
-},
-{
-id: 100,
-category: "第22回 呼吸器系1（追加）",
-question: "気道の多列繊毛上皮の中に散在し、粘液を分泌する単細胞腺は何か。",
-options: ["1. 杯細胞（はいさいぼう）", "2. 破骨細胞", "3. 肥満細胞", "4. 主細胞"],
-correctIndex: 0,
-explanation: "気道粘膜などの多列繊毛上皮には「杯細胞（粘液分泌細胞）」が存在し、粘液を分泌して異物を捕獲します。"
-},
-{
-id: 101,
-category: "第22回 呼吸器系1（追加）",
-question: "鼻中隔前下部にあり、鼻出血（鼻ぢ）の好発部位として知られる血管網領域はどこか。",
-options: ["1. キーゼルバッハ部位", "2. マクバーニー点", "3. ヴァルデエル咽頭輪"],
-correctIndex: 0,
-explanation: "鼻中隔前端の「キーゼルバッハ部位（Kiesselbach's area）」は血管が集まっており出血しやすい部位です。"
-},
-{
-id: 102,
-category: "第22回 呼吸器系1（追加）",
-question: "嚥下運動時に飲食物が気道に入るのを防ぐ蓋の役割をする構造は喉頭の何か。",
-options: ["1. 喉頭蓋（こうとうがい）", "2. 軟口蓋", "3. 甲状軟骨", "4. 披裂軟骨"],
-correctIndex: 0,
-explanation: " swallow（飲み込み）の際、喉頭が挙上して「喉頭蓋」が反転し、気管入口部を塞ぎます。"
-},
-{
-id: 103,
-category: "第22回 呼吸器系1（追加）",
-question: "右肺の葉の数は、左肺と比較してどうか。",
-options: ["1. 右肺の方が少ない（2葉）", "2. 右肺の方が多い（3葉）", "3. どちらも同じ"],
-correctIndex: 1,
-explanation: "右肺は「上葉・中葉・下葉の3葉」、左肺は心臓が存在するため「上葉・下葉の2葉」となっています。"
-},
+      <!-- 画面1.3: 看護学方法論Ⅰ コース選択（ドロップダウン不対応・12回別問題直接選択） -->
+      <div id="screen-nursing-mode-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">看護学方法論Ⅰ モード選択</span>
+        </div>
 
-// --- 第23回 呼吸器系2（追加） ---
-{
-id: 104,
-category: "第23回 呼吸器系2（追加）",
-question: "右肺にある肺区域（S1〜S10）の個数はいくつか。",
-options: ["1. 10個", "2. 8個", "3. 5個", "4. 12個"],
-correctIndex: 0,
-explanation: "右肺は基本的に10個の肺区域に分かれています。（左肺は8〜10個）"
-},
-{
-id: 105,
-category: "第23回 呼吸器系2（追加）",
-question: "右肺の内側面に対して食道は接するか。",
-options: ["1. 接する", "2. 接しない"],
-correctIndex: 0,
-explanation: "食道は縦隔を通る際、右肺の内側面（食道圧痕）に接しています。"
-},
-{
-id: 106,
-category: "第23回 呼吸器系2（追加）",
-question: "区域気管支から肺胞に至る気管支分岐の正しい順番はどれか。",
-options: [
-"1. 細気管支 → 終末細気管支 → 呼吸細気管支",
-"2. 終末細気管支 → 呼吸細気管支 → 細気管支",
-"3. 呼吸細気管支 → 細気管支 → 終末細気管支"
-],
-correctIndex: 0,
-explanation: "気道は 区域気管支 → 細気管支 → 終末細気管支 → 呼吸細気管支 → 肺胞管・肺胞 の順に分岐します。"
-},
-{
-id: 107,
-category: "第23回 呼吸器系2（追加）",
-question: "肺胞空気と血液の間でガス交換を行う極めて薄い境界構造を何と呼ぶか。",
-options: ["1. 血液空気関門", "2. 血液脳関門", "3. ろ過膜"],
-correctIndex: 0,
-explanation: "Ⅰ型肺胞上皮、基底膜、毛細血管内皮から構成される薄膜を「血液空気関門（血液気体関門）」と呼びます。"
-},
-{
-id: 108,
-category: "第23回 呼吸器系2（追加）",
-question: "胸郭を下方に拡げて息を吸うための主動作筋である横隔膜は分類上どちらか。",
-options: ["1. 吸気筋", "2. 呼気筋"],
-correctIndex: 0,
-explanation: "横隔膜が収縮して下降することで胸腔内圧が下がり息が吸い込まれるため、主要な「吸気筋」です。"
-},
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+          <button onclick="selectNursingRound('1')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第1回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('2')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第2回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('3')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第3回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('4')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第4回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('5')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第5回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('6')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第6回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('7')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第7回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('8')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第8回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('9')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第9回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('10')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第10回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('quiz')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-amber-400 group-hover:text-amber-300">小テスト演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('all')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-amber-400 group-hover:text-amber-300">総合練習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+        </div>
+      </div>
 
-// --- 第24回 消化器系1（追加） ---
-{
-id: 109,
-category: "第24回 消化器系1（追加）",
-question: "次の選択肢（上行結腸、横行結腸、下行結腸）のうち、後腹膜器官でないものはどれか。",
-options: ["1. 横行結腸", "2. 上行結腸", "3. 下行結腸"],
-correctIndex: 0,
-explanation: "上行結腸と下行結腸は後腹膜固定ですが、横行結腸とS状結腸は腹膜に包まれた腹膜内器官（間膜を持つ）です。"
-},
-{
-id: 110,
-category: "第24回 消化器系1（追加）",
-question: "1個あたりの中に味蕾（味覚受容体）を最も多く有する舌乳頭はどれか。",
-options: ["1. 有郭乳頭", "2. 葉状乳頭", "3. 茸状乳頭", "4. 糸状乳頭"],
-correctIndex: 0,
-explanation: "舌分界線の前方に並ぶ大型の「有郭乳頭」は、1個あたり数百個と最多の味蕾を含みます。（※糸状乳頭には味蕾はありません）"
-},
-{
-id: 111,
-category: "第24回 消化器系1（追加）",
-question: "小腸（空腸・回腸）内腔に張り巡らされている特徴的な輪状のひだ構造の名称は何か。",
-options: ["1. 輪状ヒダ（ケルクリングヒダ）", "2. 結腸ひも", "3. ハウストラ", "4. 縦走ヒダ"],
-correctIndex: 0,
-explanation: "小腸粘膜の表面積を大きく拡大するため、粘膜下層まで及ぶ「輪状ヒダ（ケルクリングヒダ）」が発達しています。"
-},
-{
-id: 112,
-category: "第24回 消化器系1（追加）",
-question: "総胆管と主膵管が合流して十二指腸降下部に開口する膨大部・突起の名称は何か。",
-options: ["1. 大十二指腸乳頭（ファーター乳頭）", "2. 小十二指腸乳頭", "3. 幽門", "4. 回盲弁"],
-correctIndex: 0,
-explanation: "十二指腸下降脚の samme 後内壁にある「大十二指腸乳頭（ファーター乳頭）」から胆汁と膵液が放出されます。"
-},
+      <!-- 画面1.3.5: 生化学 解答形式選択画面 -->
+      <div id="screen-biochemistry-format-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">生化学 解答形式選択</span>
+        </div>
 
-// --- 第25回 消化器系2（追加） ---
-{
-id: 113,
-category: "第25回 消化器系2（追加）",
-question: "結腸の外表面（漿膜下）に付着している小脂肪組織のかたまりを何というか。",
-options: ["1. 腹膜垂（ふくまくすい）", "2. 結腸ヒモ", "3. ハウストラ", "4. 網嚢"],
-correctIndex: 0,
-explanation: "大腸（結腸）の結腸帯に沿って多数ぶら下がる脂肪組織を「腹膜垂」と呼びます。"
-},
-{
-id: 114,
-category: "第25回 消化器系2（追加）",
-question: "直腸下部の内肛門括約筋はどちらの筋肉に分類されるか。",
-options: ["1. 不随意筋（平滑筋）", "2. 随意筋（骨格筋）"],
-correctIndex: 0,
-explanation: "内肛門括約筋は自律神経支配の平滑筋（不随意筋）であり、外肛門括約筋が体性神経（陰部神経）支配の骨格筋（随意筋）です。"
-},
-{
-id: 115,
-category: "第25回 消化器系2（追加）",
-question: "大唾液腺（耳下腺・顎下腺・舌下腺）からの唾液分泌を直接促す自律神経系はどれか。",
-options: ["1. 副交感神経", "2. 交感神経", "3. 体性神経"],
-correctIndex: 0,
-explanation: "食事時などに水様の唾液を大量に分泌・促進させるのは「副交感神経（顔面神経・舌咽神経）」の作用です。"
-},
-{
-id: 116,
-category: "第25回 消化器系2（追加）",
-question: "肝臓の前面下部に見られる「肝円索」は、発生期（胎児期）の何の血管の遺残物か。",
-options: ["1. 臍静脈", "2. 臍動脈", "3. 静脈管", "4. 卵円孔"],
-correctIndex: 0,
-explanation: "出生後に閉塞した胎児の「臍静脈」は、肝円索となって肝臓下面に残存します。"
-},
-{
-id: 117,
-category: "第25回 消化器系2（追加）",
-question: "非食事時（食間期）に胆汁が十二指腸へ流出するのを防ぐため、大十二指腸乳頭部を締め出している括約筋は何か。",
-options: ["1. オディ括約筋（胆膵管括約筋）", "2. 幽門括約筋", "3. 内肛門括約筋"],
-correctIndex: 0,
-explanation: "ファーター乳頭周囲の「オディ括約筋（Oddi括約筋）」が収縮することで、食間に作られた胆汁は胆嚢に貯蔵されます。"
-},
+        <div class="space-y-3 pt-2">
+          <button onclick="selectBiochemistryFormat('choice')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">BIO-1</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">選択式</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">ボタンタップで解答する通常の四肢択一形式</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
 
-// ==========================================
-// 旧 応用問題（練習問題の末尾へ統合）
-// ==========================================
-{
-id: 101,
-category: "応用: 循環器系",
-question: "刺激伝達系において、正常な心臓で刺激発生の起首（ペースメーカー）となる部位はどれか。",
-options: ["1. 洞房結節", "2. 房室結節", "3. ヒス束", "4. プルキンエ繊維"],
-correctIndex: 0,
-explanation: "正常な心拍動のペースメーカーは右心房の開口部付近にある洞房結節（キース・フラック結節）です。"
-},
-{
-id: 102,
-category: "応用: 呼吸器系",
-question: "安静吸気時に働く主たる呼吸筋の組み合わせとして正しいものはどれか。",
-options: ["1. 腹直筋と内肋間筋", "2. 横隔膜と外肋間筋", "3. 胸鎖乳突筋と斜角筋", "4. 腹斜筋と横隔膜"],
-correctIndex: 1,
-explanation: "安静時の吸気動作は主に横隔膜の収縮（下降）と外肋間筋の収縮（胸郭の挙上）によって行われます。"
-},
-{
-id: 103,
-category: "応用: 消化器系",
-question: "次のうち、消化酵素ペプシンを分泌する主細胞が存在する胃の部位はどれか。",
-options: ["1. 噴門部", "2. 胃底腺", "3. 幽門腺", "4. 十二指腸"],
-correctIndex: 1,
-explanation: "ペプシノーゲンを分泌する主細胞や、塩酸を分泌する壁細胞は主に胃体部〜胃底部の「胃底腺」に存在します。"
-},
-{
-id: 104,
-category: "応用: 神経系",
-question: "脳幹に含まれない部位はどれか。",
-options: ["1. 中脳", "2. 橋", "3. 延髄", "4. 小脳"],
-correctIndex: 3,
-explanation: "脳幹は一般に「中脳・橋・延髄」（広義には間脳を含む）を指し、小脳は脳幹には含まれません。"
-},
-{
-id: 105,
-category: "応用: 内分泌系",
-question: "カルシトニンの働きとして正しいものはどれか。",
-options: ["1. 骨吸収を促進し血中カルシウムを上昇させる", "2. 血中カルシウム濃度を低下させる", "3. 血糖値を低下させる", "4. 血圧を上昇させる"],
-correctIndex: 1,
-explanation: "甲状腺の傍胞細胞から分泌されるカルシトニンは、骨へのカルシウム沈着を促して血中カルシウム濃度を低下させます。"
-},
-{
-id: 106,
-category: "応用: 消化器系2",
-question: "結腸表面の脂肪組織を（ ）と呼ぶ。",
-options: ["1. 腹膜垂", "2. 結腸ヒモ", "3. 結腸膨起"],
-correctIndex: 0,
-explanation: "大腸（結腸）の外表面（漿膜下）に付着する小脂肪組織のかたまりを「腹膜垂（ふくまくすい）」と呼びます。"
-},
-{
-id: 107,
-category: "応用: 消化器系2",
-question: "内肛門括約筋はどちらの筋肉に分類されるか。",
-options: ["1. 不随意筋", "2. 随意筋"],
-correctIndex: 0,
-explanation: "内肛門括約筋は自律神経支配の平滑筋（不随意筋）です。（外肛門括約筋は体性神経支配の骨格筋・随意筋です）"
-},
-{
-id: 108,
-category: "応用: 消化器系2",
-question: "唾液腺での唾液分泌を促進するのはどの神経系か。",
-options: ["1. 副交感神経", "2. 交感神経", "3. 交感神経と副交感神経"],
-correctIndex: 0,
-explanation: "大唾液腺からの水様唾液の分泌を主導・促進するのは副交感神経の作用です。"
-},
-{
-id: 109,
-category: "応用: 消化器系2",
-question: "肝円索は（ ）の遺残物である。",
-options: ["1. 臍静脈", "2. 臍動脈", "3. 静脈管", "4. 卵円孔"],
-correctIndex: 0,
-explanation: "出生後に閉塞した胎児期の「臍静脈（さいじょうみゃく）」が解剖学的に「肝円索」として残存します。"
-},
-{
-id: 110,
-category: "応用: 消化器系2",
-question: "食間時に十二指腸に胆汁が出ないようにする筋を（ ）と呼ぶ。",
-options: ["1. オディ括約筋", "2. 幽門括約筋", "3. 内肛門括約筋"],
-correctIndex: 0,
-explanation: "大十二指腸乳頭周囲にある「オディ括約筋（Oddi括約筋）」が収縮することで、非食事時の胆汁流入を防ぎ胆嚢へ貯蔵します。"
-},
-{
-id: 111,
-category: "応用: 泌尿器系",
-question: "腎門で出入りする腎動脈・腎静脈・尿管のうち、最も腹側（正面）から出入りするのはどれか。",
-options: ["1. 腎静脈", "2. 腎動脈", "3. 尿管"],
-correctIndex: 0,
-explanation: "腎門における構造物の配置は、前（腹側）から順に「腎静脈 → 腎動脈 → 尿管（腎盂）」となっています。"
-},
-{
-id: 112,
-category: "応用: 泌尿器系",
-question: "腎小体では血液が濾過され、（ ）が1日150〜200 L生成される。",
-options: ["1. 原尿", "2. 終尿（尿）", "3. 血液"],
-correctIndex: 0,
-explanation: "糸球体で血漿がろ過されて作られる「原尿」は1日に約150〜200Lに達し、その約99%が再吸収されます。"
-},
-{
-id: 113,
-category: "応用: 泌尿器系",
-question: "遠位尿細管で、原尿の流量をモニターする細胞群を（ ）と呼ぶ。",
-options: ["1. 緻密斑", "2. 傍糸球体細胞", "3. 足細胞"],
-correctIndex: 0,
-explanation: "遠位曲尿細管の上皮細胞が濃縮・特殊化した「緻密斑（ちみつはん）」が、原尿中のNa+濃度や流量をセンサーとしてモニターしています。"
-},
-{
-id: 114,
-category: "応用: 泌尿器系",
-question: "尿管と膀胱の粘膜上皮は（ ）上皮である。",
-options: ["1. 移行", "2. 単層円柱", "3. 重層扁平"],
-correctIndex: 0,
-explanation: "腎盂、尿管、膀胱の上皮は、尿の貯留量による伸縮に対応できる「移行上皮（変形上皮）」です。"
-},
-{
-id: 115,
-category: "応用: 泌尿器系",
-question: "排尿を調節する随意筋はどれか。",
-options: ["1. 外尿道括約筋", "2. 内尿道括約筋", "3. 膀胱排尿筋"],
-correctIndex: 0,
-explanation: "意志でコントロールできる（随意筋・体性神経支配）のは「外尿道括約筋」です。"
-},
-{
-id: 116,
-category: "応用: 生殖器系1",
-question: "アンドロゲンは（ ）細胞によって作られる。",
-options: ["1. ライディッヒ（間質）", "2. セルトリ", "3. 卵胞"],
-correctIndex: 0,
-explanation: "男性ホルモンであるアンドロゲン（テストステロン）は、精巣の「ライディッヒ細胞（間細胞）」から分泌されます。"
-},
-{
-id: 117,
-category: "応用: 生殖器系1",
-question: "精子は射精までの間、（ ）に蓄えられる。",
-options: ["1. 精巣上体（副精巣）", "2. 精嚢", "3. 前立腺"],
-correctIndex: 0,
-explanation: "精巣で造られた精子は「精巣上体（精巣上体管）」に送られ、成熟しながら射精まで貯留されます。（※精嚢は精液成分を分泌する器官です）"
-},
-{
-id: 118,
-category: "応用: 生殖器系1",
-question: "加齢に伴って（ ）が肥大すると排尿障害が起こる。",
-options: ["1. 前立腺", "2. 精嚢", "3. 精巣"],
-correctIndex: 0,
-explanation: "前立腺の内腺（移行領域）が加齢とともに肥大化する「前立腺肥大症」により、尿道を圧迫して排尿障害が引き起こされます。"
-},
-{
-id: 119,
-category: "応用: 生殖器系1",
-question: "勃起と射精について正しいのはどれか。",
-options: [
-"1. 交感神経刺激により、陰茎は勃起する",
-"2. 体性神経刺激により、精子は体外に射精される",
-"3. 陰茎の螺旋動脈の平滑筋の収縮で、陰茎は勃起する"
-],
-correctIndex: 1,
-explanation: "射精管や陰部神経（体性神経）などの運動刺激によって精液が体外へ射精されます。（※勃起は「副交感神経」主導で螺旋動脈が「拡張」して起こります）"
-},
-{
-id: 120,
-category: "応用: 生殖器系1",
-question: "男性生殖器について正しいのはどれか。",
-options: [
-"1. 精巣は腹腔内にある",
-"2. 精嚢は精子を貯留する",
-"3. 前立腺は直腸の前面（腹側）に位置する",
-"4. 右精巣静脈は腎静脈に流入する"
-],
-correctIndex: 2,
-explanation: "前立腺は直腸の前（腹側）に位置するため、直腸指診で触診が可能です。（※右精巣静脈は「下大静脈」へ直接流入します）"
-},
-{
-id: 121,
-category: "応用: 生殖器系2",
-question: "受精が起こる場所は、通常（ ）である。",
-options: ["1. 卵管膨大部", "2. 子宮腔", "3. 卵巣"],
-correctIndex: 0,
-explanation: "精子と卵子の受精は、通常「卵管膨大部」で行われます。"
-},
-{
-id: 122,
-category: "応用: 生殖器系2",
-question: "子宮は通常どのような位置姿勢をとっているか。",
-options: ["1. 前傾前屈", "2. 前傾後屈", "3. 後傾前屈"],
-correctIndex: 0,
-explanation: "正常な子宮は、膀胱の上に覆いかぶさるような「前傾前屈位」をとっています。"
-},
-{
-id: 123,
-category: "応用: 生殖器系2",
-question: "子宮内膜で月経時に脱落するのは（ ）である。",
-options: ["1. 機能層", "2. 基底層"],
-correctIndex: 0,
-explanation: "性周期に伴い増殖・剥離・脱落を繰り返すのは「機能層」です。（基底層は残存して再生の土台となります）"
-},
-{
-id: 124,
-category: "応用: 生殖器系2",
-question: "分娩時に、急に分泌が増加する（子宮収縮を促す）ホルモンは何か。",
-options: ["1. オキシトシン", "2. プロラクチン", "3. エストロゲン"],
-correctIndex: 0,
-explanation: "下垂体後葉から分泌される「オキシトシン」が、分娩時に強力な子宮平滑筋の収縮を引き起こします。"
-},
-{
-id: 125,
-category: "応用: 生殖器系2",
-question: "女性の骨盤腔内器官について腹側から背側への配列で正しいのはどれか。",
-options: [
-"1. 尿道 ── 肛門管 ── 膣",
-"2. 膣 ── 尿道 ── 肛門管",
-"3. 肛門管 ── 膣 ── 尿道",
-"4. 尿道 ── 膣 ── 肛門管"
-],
-correctIndex: 3,
-explanation: "女性の骨盤内臓器は、前面（腹側）から順に「①尿道 → ②膣 → ③直腸（肛門管）」の順で並んでいます。"
-},
-{
-id: 126,
-category: "応用: 内分泌器系",
-question: "視床下部でホルモンを合成する細胞は（ ）と呼ばれる。",
-options: ["1. 神経分泌細胞", "2. グリア細胞", "3. 樹状細胞"],
-correctIndex: 0,
-explanation: "神経系でありながら血中にホルモンを放出し合成する構造・細胞を「神経分泌細胞」と呼びます。"
-},
-{
-id: 127,
-category: "応用: 内分泌器系",
-question: "下垂体前葉ホルモンで、乳腺に作用する（催乳）ホルモンは何か。",
-options: ["1. プロラクチン", "2. オキシトシン", "3. 成長ホルモン"],
-correctIndex: 0,
-explanation: "下垂体前葉から分泌される「プロラクチン」が乳腺に作用して乳汁産生・分泌を促します。（※射乳は後葉のオキシトシン）"
-},
-{
-id: 128,
-category: "応用: 内分泌器系",
-question: "ランゲルハンス島のホルモン分泌細胞で最も割合が多い細胞は何か。",
-options: ["1. B細胞（β細胞）", "2. A細胞（α細胞）", "3. D細胞（δ細胞）"],
-correctIndex: 0,
-explanation: "膵島（ランゲルハンス島）の全細胞の約60〜70%をインスリンを分泌する「B細胞（β細胞）」が占めています。"
-},
-{
-id: 129,
-category: "応用: 内分泌器系",
-question: "以下の中から、直接血圧を上昇させるホルモンを選べ。（インスリン・レニン・カルシトニン・アルドステロン）",
-options: ["1. アルドステロン", "2. インスリン", "3. レニン", "4. カルシトニン"],
-correctIndex: 0,
-explanation: "副腎皮質から分泌される「アルドステロン」は腎臓でNa+と水の再吸収を促進し、循環血液量を増やして直接的に血圧を上昇させます。（※レニンは血圧上昇のシグナルを開始する酵素です）"
-}
-];
+          <button onclick="selectBiochemistryFormat('keyboard')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-bold">BIO-2</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">記述式 (キーボード入力)</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">キーボードで文字・用語を入力して回答する形式</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+        </div>
+      </div>
 
-// ==========================================
-// 応用問題データ（練習問題をアレンジした全100問）
-// ==========================================
-var appliedQuestions = [
-{
-id: 101,
-category: "第1回 細胞組織学1（応用）",
-question: "ダイニンは線毛運動に関与するモータータンパク質である。○か×か。",
-options: ["1. ○（正しい）", "2. ×（誤り）"],
-correctIndex: 0,
-explanation: "正しい。線毛の運動を担うモータータンパク質はダイニンです。"
-},
-{
-id: 102,
-category: "第1回 細胞組織学1（応用）",
-question: "伸長・収縮に対応できる「移行上皮」によって覆われている器官を1つ選べ。",
-options: ["1. 膀胱", "2. 肺胞", "3. 血管", "4. 胃"],
-correctIndex: 0,
-explanation: "膀胱や尿管の上皮は伸縮に対応できる移行上皮（変形上皮）で構成されています。"
-},
-{
-id: 103,
-category: "第1回 細胞組織学1（応用）",
-question: "肺胞の壁を構成する上皮組織として正しいものはどれか。",
-options: ["1. 単層扁平上皮", "2. 単層円柱上皮", "3. 移行上皮", "4. 重層扁平上皮"],
-correctIndex: 0,
-explanation: "ガス交換を効率よく行うため、肺胞壁は極めて薄い単層扁平上皮で覆われています。"
-},
-{
-id: 104,
-category: "第1回 細胞組織学1（応用）",
-question: "赤血球に含まれ、酸素を全身へ運搬する役割を持つタンパク質はどれか。",
-options: ["1. ヘモグロビン", "2. ミオグロビン", "3. アルブミン", "4. フィブリノゲン"],
-correctIndex: 0,
-explanation: "赤血球中のヘモグロビンが酸素と結合して全身へ運搬します。"
-},
-{
-id: 105,
-category: "第2回 細胞組織学2（応用）",
-question: "アレルギー反応や免疫に関与し、ヒスタミンを放流する細胞はどれか。",
-options: ["1. 肥満細胞（マスト細胞）", "2. 破骨細胞", "3. 骨芽細胞", "4. 樹状細胞"],
-correctIndex: 0,
-explanation: "肥満細胞（マスト細胞）はアレルギー反応や免疫に関与する免疫細胞の一種です。"
-},
-{
-id: 106,
-category: "第2回 細胞組織学2（応用）",
-question: "硝子軟骨などの軟骨組織を主に構成するコラーゲンの型はどれか。",
-options: ["1. Ⅱ型コラーゲン", "2. Ⅰ型コラーゲン", "3. Ⅲ型コラーゲン", "4. Ⅳ型コラーゲン"],
-correctIndex: 0,
-explanation: "軟骨組織（特に硝子軟骨）の主成分はⅡ型コラーゲンです。"
-},
-{
-id: 107,
-category: "第2回 細胞組織学2（応用）",
-question: "脂肪化して造血機能を失った骨髄の名称はどれか。",
-options: ["1. 黄色骨髄", "2. 赤色骨髄", "3. 白血球骨髄", "4. 骨膜"],
-correctIndex: 0,
-explanation: "造血機能を失い脂肪化した骨髄を黄色骨髄と呼びます。"
-},
-{
-id: 108,
-category: "第2回 細胞組織学2（応用）",
-question: "耳介や喉頭蓋を構成する、柔軟性に富んだ軟骨の種類はどれか。",
-options: ["1. 弾性軟骨", "2. 線維軟骨", "3. 硝子軟骨", "4. 骨組織"],
-correctIndex: 0,
-explanation: "耳介や喉頭蓋の軟骨は弾性軟骨に分類されます。"
-},
-{
-id: 109,
-category: "第2回 細胞組織学2（応用）",
-question: "心筋（固有心筋）は構造上、横紋筋と平滑筋のどちらに分類されるか。",
-options: ["1. 横紋筋", "2. 平滑筋"],
-correctIndex: 0,
-explanation: "心筋は不随意筋ですが、構造的には顕微鏡下で横紋が見える横紋筋です。"
-},
-{
-id: 110,
-category: "第3回 筋・神経組織（応用）",
-question: "末梢神経系に分類されるものを1つ選べ。",
-options: ["1. 脊髄神経", "2. 脊髄", "3. 脳（大脳・小脳）", "4. 脳幹"],
-correctIndex: 0,
-explanation: "脳と脊髄は中枢神経系ですが、そこから枝分かれする脊髄神経や脳神経は末梢神経系です。"
-},
-{
-id: 111,
-category: "第3回 筋・神経組織（応用）",
-question: "シナプス前膜とシナプス後膜の間の微小な隙間を何と呼ぶか。",
-options: ["1. シナプス間隙", "2. シナプス小体", "3. ランビエ絞輪", "4. 樹状突起"],
-correctIndex: 0,
-explanation: "神経伝達物質が放出される微小な隙間をシナプス間隙と呼びます。"
-},
-{
-id: 112,
-category: "第3回 筋・神経組織（応用）",
-question: "次のうち、平滑筋に分類されるものはどれか。",
-options: ["1. 消化管の内臓筋", "2. 骨格筋", "3. 固有心筋", "4. 大腿四頭筋"],
-correctIndex: 0,
-explanation: "内臓壁や血管壁を構成する筋は平滑筋（無紋筋）です。"
-},
-{
-id: 113,
-category: "第3回 筋・神経組織（応用）",
-question: "固有心筋細胞どうしの結合部に存在し、電気伝達を容易にしている構造はどれか。",
-options: ["1. 介在板（光輝線）", "2. 終末槽", "3. T細管", "4. 筋節"],
-correctIndex: 0,
-explanation: "心筋細胞間には介在板（光輝線）が存在し、電気信号を素早く伝達します。"
-},
-{
-id: 114,
-category: "第3回 筋・神経組織（応用）",
-question: "血液脳関門（BBB）を構成する構造・細胞として正しいものを1つ選べ。",
-options: ["1. 周皮細胞（ペリサイト）", "2. 破骨細胞", "3. 肥満細胞", "4. 微小管"],
-correctIndex: 0,
-explanation: "血液脳関門は血管内皮細胞、アストロサイトの足突起、周皮細胞（ペリサイト）などで構成されます。"
-},
-{
-id: 115,
-category: "第4回 循環器系1（応用）",
-question: "肺から心臓（左心房）へと戻る「肺静脈」を流れている血液はどちらか。",
-options: ["1. 動脈血", "2. 静脈血"],
-correctIndex: 0,
-explanation: "肺でガス交換を終えた直後のため、肺静脈には酸素を豊富に含んだ動脈血が流れています。"
-},
-{
-id: 116,
-category: "第4回 循環器系1（応用）",
-question: "血中の酸素分圧などを検知する化学受容器（生体センサー）はどれか。",
-options: ["1. 頚動脈小体", "2. 頚動脈洞", "3. 血液脳関門", "4. 心房中隔"],
-correctIndex: 0,
-explanation: "頚動脈小体は化学受容器として血中酸素分圧をモニターします。（頚動脈洞は圧受容器です）"
-},
-{
-id: 117,
-category: "第4回 循環器系1（応用）",
-question: "動脈の構造のうち、大動脈のように最も太く弾性に富むタイプはどれか。",
-options: ["1. 弾性型動脈", "2. 筋型動脈", "3. 細動脈", "4. 毛細血管"],
-correctIndex: 0,
-explanation: "心臓から直接出る大動脈などは弾性型動脈に分類されます。"
-},
-{
-id: 118,
-category: "第4回 循環器系1（応用）",
-question: "臨床で採血や静注によく用いられる「肘正中皮静脈」の正しい読み方はどれか。",
-options: ["1. ちゅうせいちゅうひじょうみゃく", "2. ひじせいちゅうひじょうみゃく", "3. ちゅうしょうちゅうひじょうみゃく"],
-correctIndex: 0,
-explanation: "「肘正中皮静脈」の解剖学的な読み方は「ちゅうせいちゅうひじょうみゃく」です。"
-},
-{
-id: 119,
-category: "第4回 循環器系1（応用）",
-question: "左冠動脈から分枝する代表的な枝はどれか。",
-options: ["1. 前下行枝（前室間支）", "2. 奇静脈", "3. 右冠動脈", "4. 腕頭動脈"],
-correctIndex: 0,
-explanation: "左冠動脈は「前下行枝（前室間支）」と「回旋枝」に分枝します。"
-},
-{
-id: 120,
-category: "第5回 循環器系2（応用）",
-question: "右心房と右心室の間に位置する房室弁の名称はどれか。",
-options: ["1. 三尖弁", "2. 僧帽弁（二尖弁）", "3. 大動脈弁", "4. 肺動脈弁"],
-correctIndex: 0,
-explanation: "右心房と右心室の間にあるのは三尖弁（右房室弁）です。"
-},
-{
-id: 121,
-category: "第5回 循環器系2（応用）",
-question: "房室弁の弁尖と心室壁の乳頭筋を結び、弁の反転を防ぐ紐状構造はどれか。",
-options: ["1. 腱索", "2. 介在板", "3. 結腸帯", "4. コネクソン"],
-correctIndex: 0,
-explanation: "弁のめくれ上がりを防ぐ紐状の構造を「腱索（けんさく）」と呼びます。"
-},
-{
-id: 122,
-category: "第5回 循環器系2（応用）",
-question: "左冠動脈が分岐する2本の枝は、左前下行枝と何か。",
-options: ["1. 左回旋枝", "2. 右冠動脈", "3. 後下行枝", "4. 腕頭動脈"],
-correctIndex: 0,
-explanation: "左冠動脈は「左前下行枝」と「左回旋枝」の2本に分かれます。"
-},
-{
-id: 123,
-category: "第5回 循環器系2（応用）",
-question: "心室中隔や心臓前壁の心筋梗塞に最も関与しやすい血管はどれか。",
-options: ["1. 左前下行枝", "2. 右冠動脈", "3. 左回旋枝", "4. 胸大動脈"],
-correctIndex: 0,
-explanation: "左前下行枝は心室中隔や前壁を栄養するため、ここが閉塞すると前壁の心筋梗塞を起こします。"
-},
-{
-id: 124,
-category: "第5回 循環器系2（応用）",
-question: "下半身からのリンパ管が集まり、胸管の起点となる膨らみ構造はどれか。",
-options: ["1. 乳び槽", "2. 卵円孔", "3. 奇静脈", "4. 静脈角"],
-correctIndex: 0,
-explanation: "腹腔内の胸管の起始部にある膨大部を「乳び槽」と呼びます。"
-},
-{
-id: 125,
-category: "第6回 循環器系3（応用）",
-question: "心拍動の周期を決める起頭部（ペースメーカー／洞結節）が存在する部位はどこか。",
-options: ["1. 右心房", "2. 左心房", "3. 右心室", "4. 左心室"],
-correctIndex: 0,
-explanation: "洞結節（洞房結節）は右心房の上大静脈開口部付近に位置します。"
-},
-{
-id: 126,
-category: "第6回 循環器系3（応用）",
-question: "房室結節からの興奮を心室中隔（右脚・左脚）へと伝える刺激伝達系の部位はどれか。",
-options: ["1. ヒス束", "2. 腱索", "3. 洞房結節", "4. 冠状静脈洞"],
-correctIndex: 0,
-explanation: "房室結節から右脚・左脚へ分岐する手前の伝導路を「ヒス束（房室束）」と呼びます。"
-},
-{
-id: 127,
-category: "第6回 循環器系3（応用）",
-question: "小腸で吸収された脂質（カイロミクロン）が主に入る移動経路はどれか。",
-options: ["1. リンパ管（乳び管）", "2. 門脈（毛細血管）", "3. 肝動脈", "4. 消化管上皮細胞内のみ"],
-correctIndex: 0,
-explanation: "糖やアミノ酸は毛細血管（門脈系）へ、脂質は中心乳び管（リンパ管）へ吸収されます。"
-},
-{
-id: 128,
-category: "第6回 循環器系3（応用）",
-question: "胎児循環において、右心房から左心房へ直接血液を流す穴（開口部）はどれか。",
-options: ["1. 卵円孔", "2. 動脈管（ボタロー管）", "3. 静脈管", "4. 卵円窩"],
-correctIndex: 0,
-explanation: "胎生期の心房中隔に存在する抜け道（開口部）を卵円孔と呼びます。"
-},
-{
-id: 129,
-category: "第6回 循環器系3（応用）",
-question: "反回神経が障害された際に発生する代表的な症状はどれか。",
-options: ["1. 嗄声（声がかすれる）", "2. 嚥下不能", "3. 味覚消失", "4. 顔面麻痺"],
-correctIndex: 0,
-explanation: "反回神経は声帯を動かす筋を支配するため、麻痺すると声がかすれる「嗄声」が生じます。"
-},
-{
-id: 130,
-category: "第7回 呼吸器系1（応用）",
-question: "次の部位のうち、多列繊毛上皮ではなく「重層扁平上皮」で覆われているのはどれか。",
-options: ["1. 鼻前庭", "2. 固有鼻腔", "3. 気管", "4. 主気管支"],
-correctIndex: 0,
-explanation: "鼻の入り口（鼻前庭）は外皮の続きであり、皮膚と同じ重層扁平上皮です。"
-},
-{
-id: 131,
-category: "第7回 呼吸器系1（応用）",
-question: "左反回神経が下をくぐって反回する血管構造はどれか。",
-options: ["1. 大動脈弓", "2. 腕頭動脈", "3. 鎖骨下動脈", "4. 肺動脈幹"],
-correctIndex: 0,
-explanation: "左反回神経は大動脈弓を、右反回神経は腕頭動脈（右鎖骨下動脈）をくぐって上行します。"
-},
-{
-id: 132,
-category: "第7回 呼吸器系1（応用）",
-question: "解剖学的な位置関係において、左右の肺門の高さを比較した記述として正しいものはどれか。",
-options: ["1. 左肺門の方が右肺門より高い", "2. 右肺門の方が左肺門より高い", "3. 左右とも完全に同じ高さである"],
-correctIndex: 0,
-explanation: "左肺門は右肺門よりもやや高い位置に存在します。"
-},
-{
-id: 133,
-category: "第7回 呼吸器系1（応用）",
-question: "左肺の内側面に接触し、明確な圧痕（凹み）をつくる構造はどれか。",
-options: ["1. 胸大動脈", "2. 奇静脈", "3. 上大静脈", "4. 肝臓"],
-correctIndex: 0,
-explanation: "左肺内側面には、大動脈弓から続く胸大動脈や心臓の圧痕が存在します。"
-},
-{
-id: 134,
-category: "第8回 呼吸器系2（応用）",
-question: "肺胞の表面張力を下げ、崩壊（虚脱）を防ぐサーファクタントを分泌する細胞はどれか。",
-options: ["1. Ⅱ型肺胞上皮細胞", "2. Ⅰ型肺胞上皮細胞", "3. 肺胞マクロファージ", "4. 杯細胞"],
-correctIndex: 0,
-explanation: "表面活性物質（肺サーファクタント）はⅡ型肺胞上皮細胞から分泌されます。"
-},
-{
-id: 135,
-category: "第8回 呼吸器系2（応用）",
-question: "吸気（息を吸う時）における胸腔内圧の変化として正しいものはどれか。",
-options: ["1. 陰圧が強くなる（さらに陰圧になる）", "2. 陽圧になる", "3. 大気圧と等しくなる"],
-correctIndex: 0,
-explanation: "吸気時には胸郭が広がるため、胸腔内圧はさらに陰圧傾向（強陰圧）となります。"
-},
-{
-id: 136,
-category: "第8回 呼吸器系2（応用）",
-question: "肋間筋のうち、主に「呼気（息を吐く動作）」に働くのはどれか。",
-options: ["1. 内肋間筋", "2. 外肋間筋", "3. 横隔膜", "4. 斜角筋"],
-correctIndex: 0,
-explanation: "外肋間筋は吸気筋、内肋間筋は胸郭を引き下げる呼気筋です。"
-},
-{
-id: 137,
-category: "第8回 呼吸器系2（応用）",
-question: "主要なリンパ幹線である「胸管」と左右の肺（胸膜）との位置関係について正しいものはどれか。",
-options: ["1. 左右両方の肺に接している", "2. 右肺のみに接している", "3. 左肺のみに接している", "4. どちらの肺にも接しない"],
-correctIndex: 0,
-explanation: "胸管は後縦隔を走行する際、左右両方の肺（胸膜）と接しています。"
-},
-{
-id: 138,
-category: "第8回 呼吸器系2（応用）",
-question: "食道の生理的狭窄部位でない箇所を1つ選べ。",
-options: ["1. 幽門部", "2. 食道起始部（入口部）", "3. 気管分岐部", "4. 横隔膜貫通部（食道裂孔）"],
-correctIndex: 0,
-explanation: "食道の狭窄部は①食道起始部、②気管分岐部（大動脈弓交差部）、③食道裂孔（横隔膜貫通部）の3箇所です。"
-},
-{
-id: 139,
-category: "第9回 消化器系1（応用）",
-question: "成人における食道の全長はおおよそ何cmか。",
-options: ["1. 約 25 cm", "2. 約 10 cm", "3. 約 40 cm", "4. 約 60 cm"],
-correctIndex: 0,
-explanation: "成人の食道の長さは約25cmです。"
-},
-{
-id: 140,
-category: "第9回 消化器系1（応用）",
-question: "胃粘膜を構成する基本的な上皮組織はどれか。",
-options: ["1. 単層円柱上皮", "2. 重層扁平上皮", "3. 移行上皮", "4. 多列線毛上皮"],
-correctIndex: 0,
-explanation: "胃から大腸に至る消化管粘膜の大部分は単層円柱上皮で覆われています。"
-},
-{
-id: 141,
-category: "第9回 消化器系1（応用）",
-question: "舌の前2/3の味覚を支配する神経はどれか。",
-options: ["1. 顔面神経", "2. 舌咽神経", "3. 迷走神経", "4. 舌下神経"],
-correctIndex: 0,
-explanation: "舌の前2/3の味覚は顔面神経（鼓室神経）、後ろ1/3の味覚は舌咽神経が支配します。"
-},
-{
-id: 142,
-category: "第9回 消化器系1（応用）",
-question: "解剖学的な独立した「括約筋構造」を欠く部位はどこか。",
-options: ["1. 噴門", "2. 幽門", "3. 回盲部", "4. 内部肛門"],
-correctIndex: 0,
-explanation: "幽門には明確な幽門括約筋がありますが、噴門部には独立した解剖学的括約筋層がありません。"
-},
-{
-id: 143,
-category: "第9回 消化器系1（応用）",
-question: "急性虫垂炎で圧痛点となる「マクバーニー点」は、何の解剖学的位置に対応するか。",
-options: ["1. 虫垂基部", "2. 幽門部", "3. 胆嚢底", "4. 脾臓"],
-correctIndex: 0,
-explanation: "マクバーニー点は虫垂基部が体表に投影される位置に対応しています。"
-},
-{
-id: 144,
-category: "第10回 消化器系2（応用）",
-question: "大腸（結腸）の外縦筋層が集まって形成される3本の帯状構造を何と呼ぶか。",
-options: ["1. 結腸ひも（結腸帯）", "2. 輪状ヒダ", "3. 腹膜垂", "4. 腸絨毛"],
-correctIndex: 0,
-explanation: "結腸の外縦筋が集まってできた3本の帯を結腸ひも（結腸帯）と呼びます。"
-},
-{
-id: 145,
-category: "第10回 消化器系2（応用）",
-question: "健康な成人が1日に分泌する唾液の総量として最も適切なものはどれか。",
-options: ["1. 約 1〜1.5 L", "2. 約 100 mL", "3. 約 5 L", "4. 約 300 mL"],
-correctIndex: 0,
-explanation: "成人の唾液分泌量は1日あたり約1.0〜1.5Lです。"
-},
-{
-id: 146,
-category: "第10回 消化器系2（応用）",
-question: "解剖学的な肝臓の区分（右葉・左葉）において、容積が大きいのはどちらか。",
-options: ["1. 右葉（全体の約4/5）", "2. 左葉（全体の約4/5）"],
-correctIndex: 0,
-explanation: "肝臓は右葉が非常に大きく、全体の約4/5を占めています。"
-},
-{
-id: 147,
-category: "第10回 消化器系2（応用）",
-question: "膵臓や十二指腸のように、腹膜の後方に位置する臓器を何というか。",
-options: ["1. 後腹膜臓器", "2. 腹膜内臓器", "3. 骨盤内臓器"],
-correctIndex: 0,
-explanation: "膵臓、十二指腸、腎臓などは後腹膜臓器（腹膜外臓器）に分類されます。"
-},
-{
-id: 148,
-category: "第10回 消化器系2（応用）",
-question: "尿管の生理的狭窄部として正しい個数はいくつか。",
-options: ["1. 3 箇所", "2. 1 箇所", "3. 5 箇所", "4. 2 箇所"],
-correctIndex: 0,
-explanation: "尿管の狭窄部は①腎盂尿管移行部、②総腸骨動脈交叉部、③尿管膀胱移行部の3箇所です。"
-},
-{
-id: 149,
-category: "第11回 泌尿器系（応用）",
-question: "尿管が腹腔から骨盤腔へ入る際、総腸骨動静脈のどちら側を交差して通るか。",
-options: ["1. 腹側（前側）", "2. 背側（後側）"],
-correctIndex: 0,
-explanation: "尿管は総腸骨動静脈の前（腹側）をまたぐように交差します。"
-},
-{
-id: 150,
-category: "第11回 泌尿器系（応用）",
-question: "腎小体や近位・遠位曲尿細管が主として存在する腎臓の領域はどこか。",
-options: ["1. 腎皮質", "2. 腎髄質", "3. 腎杯", "4. 腎盂"],
-correctIndex: 0,
-explanation: "腎小体や曲尿細管は主に外側の「腎皮質」に存在します。"
-},
-{
-id: 151,
-category: "第11回 泌尿器系（応用）",
-question: "尿管にある3つの生理的狭窄部位のうち、最も遠位（下部）にあるのはどれか。",
-options: ["1. 尿管膀胱移行部", "2. 腎盂尿管移行部", "3. 総腸骨動脈交叉部"],
-correctIndex: 0,
-explanation: "最も下部にあるのは、膀胱の壁を貫通する「尿管膀胱移行部」です。"
-},
-{
-id: 152,
-category: "第11回 泌尿器系（応用）",
-question: "外尿道括約筋（随意筋）を支配し、意志による排尿制御に関わる神経はどれか。",
-options: ["1. 陰部神経", "2. 骨盤神経", "3. 腹腔神経", "4. 迷走神経"],
-correctIndex: 0,
-explanation: "外尿道括約筋を支配する体性運動神経は陰部神経です。"
-},
-{
-id: 153,
-category: "第11回 泌尿器系（応用）",
-question: "精巣が体外の陰嚢内に位置する理由として適切な温度環境（適温）はどれか。",
-options: ["1. 体温よりやや低い 33〜35℃ 前後", "2. 体温より高い 38〜40℃ 前後", "3. 室温と同じ 20℃ 前後"],
-correctIndex: 0,
-explanation: "精子形成の適温は体温より1〜2℃低い33〜35℃前後です。"
-},
-{
-id: 154,
-category: "第12回 生殖器系1（応用）",
-question: "精巣で作られた精子が成熟し、運動能力を獲得する場所はどこか。",
-options: ["1. 精巣上体（副精巣）", "2. 精嚢", "3. 前立腺", "4. 射精管"],
-correctIndex: 0,
-explanation: "精子は精巣上体を通る間に成熟し運動能を獲得します。"
-},
-{
-id: 155,
-category: "第12回 生殖器系1（応用）",
-question: "精子のエネルギー源となる果糖（フルクトース）を多く分泌する器官はどれか。",
-options: ["1. 精嚢", "2. 前立腺", "3. 陰茎", "4. 精巣上体"],
-correctIndex: 0,
-explanation: "精嚢液には精子のエネルギー源となる果糖が豊富に含まれます。"
-},
-{
-id: 156,
-category: "第12回 生殖器系1（応用）",
-question: "男性の性機能のうち、勃起を主導する自律神経系はどちらか。",
-options: ["1. 副交感神経", "2. 交感神経"],
-correctIndex: 0,
-explanation: "勃起は「副交感神経」、射精は「交感神経」が主導してコントロールします。"
-},
-{
-id: 157,
-category: "第12回 生殖器系1（応用）",
-question: "前立腺肥大症が好発する前立腺の領域（腺）はどれか。",
-options: ["1. 内腺（移行領域）", "2. 外腺（辺縁領域）", "3. 被膜"],
-correctIndex: 0,
-explanation: "前立腺肥大症は尿道周囲の「内腺」、前立腺癌は「外腺」に好発します。"
-},
-{
-id: 158,
-category: "第12回 生殖器系1（応用）",
-question: "女児が出生時に卵巣内に保持している原始卵胞のおおよその数はどれか。",
-options: ["1. 約 100万〜200万個", "2. 約 100個", "3. 約 5000個", "4. 約 1億個"],
-correctIndex: 0,
-explanation: "出生時の女児卵巣には約100万〜200万個の原始卵胞が存在します。"
-},
-{
-id: 159,
-category: "第13回 生殖器系2（応用）",
-question: "子宮の前面から大陰唇へと伸び、子宮の前傾姿勢を保つ索状構造はどれか。",
-options: ["1. 子宮円索", "2. 固有卵巣ロープ", "3. 子宮広間膜", "4. 仙骨子宮靭帯"],
-correctIndex: 0,
-explanation: "子宮を前傾前屈位に引っ張り保つ帯状組織を「子宮円索」と呼びます。"
-},
-{
-id: 160,
-category: "第13回 生殖器系2（応用）",
-question: "閉経後、エストロゲンの減少に伴うフィードバックにより分泌が急増する下垂体前葉ホルモンはどれか。",
-options: ["1. FSH（卵胞刺激ホルモン）", "2. プロラクチン", "3. オキシトシン", "4. 成長ホルモン"],
-correctIndex: 0,
-explanation: "エストロゲンの低下に反応し、下垂体からFSH（卵胞刺激ホルモン）が過剰分泌されます。"
-},
-{
-id: 161,
-category: "第13回 生殖器系2（応用）",
-question: "子宮内膜のうち、月経時に剥離せず残存し再生の源となる層はどれか。",
-options: ["1. 基底層", "2. 機能層", "3. 漿膜層", "4. 筋層"],
-correctIndex: 0,
-explanation: "月経で脱落するのは「機能層」であり、最深部の「基底層」は残って再生の土台となります。"
-},
-{
-id: 162,
-category: "第13回 生殖器系2（応用）",
-question: "成人未妊女性における子宮の全腔長（長さ）の目安として正しいものはどれか。",
-options: ["1. 約 7〜8 cm", "2. 約 2 cm", "3. 約 15 cm", "4. 約 25 cm"],
-correctIndex: 0,
-explanation: "成人未妊女性の子宮の長さは約7〜8cmです。"
-},
-{
-id: 163,
-category: "第13回 生殖器系2（応用）",
-question: "人体に取り込まれた際、甲状腺に特異的に集積・濃縮する放射性物質はどれか。",
-options: ["1. 放射性ヨウ素", "2. 放射性セシウム", "3. 放射性ストロンチウム", "4. 放射性カリウム"],
-correctIndex: 0,
-explanation: "甲状腺ホルモンの原料であるヨウ素の性質上、放射性ヨウ素は甲状腺に集積します。"
-},
-{
-id: 164,
-category: "第14回 内分泌器系（応用）",
-question: "視床下部等に存在し、神経刺激を受けてホルモンを分泌する細胞を何というか。",
-options: ["1. 神経分泌細胞", "2. グリア細胞", "3. 樹状細胞", "4. 上皮細胞"],
-correctIndex: 0,
-explanation: "ホルモンを合成・分泌する神経細胞を「神経分泌細胞」と呼びます。"
-},
-{
-id: 165,
-category: "第14回 内分泌器系（応用）",
-question: "下垂体後葉から分泌され、分娩時の子宮収縮や乳腺の射乳を促進するホルモンはどれか。",
-options: ["1. オキシトシン", "2. プロラクチン", "3. バソプレシン", "4. エストロゲン"],
-correctIndex: 0,
-explanation: "下垂体後葉から放出されるオキシトシンが射乳や子宮収縮を引き起こします。"
-},
-{
-id: 166,
-category: "第14回 内分泌器系（応用）",
-question: "副腎皮質の最外層に位置し、電解質コルチコイド（アルドステロン）を分泌する層はどれか。",
-options: ["1. 球状帯", "2. 束状帯", "3. 網状帯", "4. 髄質"],
-correctIndex: 0,
-explanation: "副腎皮質は外側から球状帯（電解質）、束状帯（糖質）、網状帯（性ホルモン）の順です。"
-},
-{
-id: 167,
-category: "第14回 内分泌器系（応用）",
-question: "膵島（ランゲルハンス島）のB（β）細胞から分泌される血糖降下ホルモンはどれか。",
-options: ["1. インスリン", "2. グルカゴン", "3. ソマトスタチン", "4. アドレナリン"],
-correctIndex: 0,
-explanation: "B（β）細胞はインスリンを分泌して血糖値を下げます。（A細胞はグルカゴン）"
-},
-{
-id: 168,
-category: "第15回 細胞組織学1（応用）",
-question: "上皮組織に関する記述として正しいものはどれか。",
-options: [
-"1. 組織内に直接血管が通っていない",
-"2. 豊富な血管網が組織内を網の目状に走る",
-"3. 骨組織よりも硬い基質を持つ"
-],
-correctIndex: 0,
-explanation: "上皮組織には血管が存在せず、結合組織の毛細血管からの拡散によって栄養を受け取ります。"
-},
-{
-id: 169,
-category: "第15回 細胞組織学1（応用）",
-question: "気管などの動繊毛に見られる微小管の構造配列はどれか。",
-options: ["1. 9＋2 配列", "2. 9＋0 配列", "3. 3＋3 配列", "4. 6＋2 配列"],
-correctIndex: 0,
-explanation: "運動性を持つ繊毛（動繊毛）の微小管は「9＋2配列」となっています。"
-},
-{
-id: 170,
-category: "第15回 細胞組織学1（応用）",
-question: "細胞接着構造のうち、カルシウムイオン（Ca2+）依存性の接着を行う分子を含むのはどれか。",
-options: ["1. 接着斑（デスモソーム）", "2. ギャップ結合", "3. 密着結合"],
-correctIndex: 0,
-explanation: "デスモソームや接着帯の細胞接着分子（カドヘリン）はカルシウム依存性を示します。"
-},
-{
-id: 171,
-category: "第15回 細胞組織学1（応用）",
-question: "隣接する細胞間でイオンや小分子を直接通す「ギャップ結合」の構成単位（コネクソン）は何個のコネキシンからなるか。",
-options: ["1. 6 個", "2. 2 個", "3. 12 個", "4. 4 個"],
-correctIndex: 0,
-explanation: "ギャップ結合をかたち作るコネクソンは、6つのコネキシンタンパク質が集まって作られます。"
-},
-{
-id: 172,
-category: "第15回 細胞組織学1（応用）",
-question: "毛細血管の内皮を覆う上皮組織の形態はどれか。",
-options: ["1. 単層扁平上皮", "2. 移行上皮", "3. 単層円柱上皮", "4. 腺上皮"],
-correctIndex: 0,
-explanation: "物質交換を効率化するため、血管内皮は非常に薄い単層扁平上皮で構成されます。"
-},
-{
-id: 173,
-category: "第16回 細胞組織学2（応用）",
-question: "結合組織に存在し、顆粒中にヒスタミンやヘパリンを保持・放出する細胞はどれか。",
-options: ["1. 肥満細胞（マスト細胞）", "2. 破骨細胞", "3. 線維芽細胞", "4. 赤血球"],
-correctIndex: 0,
-explanation: "肥満細胞（マスト細胞）はアレルギーに関与するヒスタミン等を保持・放出します。"
-},
-{
-id: 174,
-category: "第16回 細胞組織学2（応用）",
-question: "体内で最も豊富に存在し、骨・皮膚・腱などの主成分となるコラーゲンはどれか。",
-options: ["1. Ⅰ型コラーゲン", "2. Ⅱ型コラーゲン", "3. Ⅲ型コラーゲン", "4. Ⅳ型コラーゲン"],
-correctIndex: 0,
-explanation: "Ⅰ型コラーゲンは骨や皮膚、腱に多く存在する最もポピュラーなコラーゲンです。"
-},
-{
-id: 175,
-category: "第17回 細胞組織学2（応用）",
-question: "椎間板（椎間ディスク）や恥骨結合に存在し、強靭な引っ張り圧力に耐える軟骨はどれか。",
-options: ["1. 線維軟骨", "2. 弾性軟骨", "3. 硝子軟骨"],
-correctIndex: 0,
-explanation: "椎間板や恥骨結合、関節唇などには強靭な線維軟骨が存在します。"
-},
-{
-id: 176,
-category: "第17回 細胞組織学2（応用）",
-question: "骨吸収（骨基質の破壊）を行ってカルシウムを血中に動員する多核大型細胞はどれか。",
-options: ["1. 破骨細胞", "2. 骨芽細胞", "3. 骨細胞", "4. 軟骨細胞"],
-correctIndex: 0,
-explanation: "破骨細胞は骨基質を溶解・破壊（骨吸収）して血中カルシウム濃度を調整します。"
-},
-{
-id: 177,
-category: "第17回 細胞組織学2（応用）",
-question: "血液に含まれる有形成分（細胞成分）の中で最も数が多く大半を占めるのはどれか。",
-options: ["1. 赤血球", "2. 白血球", "3. 血小板", "4. 単球"],
-correctIndex: 0,
-explanation: "血球成分の99%以上は酸素運搬を担う赤血球です。"
-},
-{
-id: 178,
-category: "第17回 細胞組織学2（応用）",
-question: "抗体を産生して体液性免疫を担う細胞（形質細胞）の元となるリンパ球はどれか。",
-options: ["1. Bリンパ球（B細胞）", "2. Tリンパ球（T細胞）", "3. NK細胞", "4. 好中球"],
-correctIndex: 0,
-explanation: "B細胞が形質細胞へ分化して抗体を分泌し、体液性免疫を行います。（T細胞は細胞性免疫）"
-},
-{
-id: 179,
-category: "第18回 筋・神経組織（応用）",
-question: "脳から出る12対の「脳神経」はどちらの神経系に属するか。",
-options: ["1. 末梢神経系", "2. 中枢神経系"],
-correctIndex: 0,
-explanation: "脳自体は中枢神経系ですが、脳から出入りする脳神経（12対）は末梢神経系です。"
-},
-{
-id: 180,
-category: "第18回 筋・神経組織（応用）",
-question: "神経細胞（ニューロン）において、他の細胞からの興奮性・抑制性シグナルを受信する突起はどれか。",
-options: ["1. 樹状突起", "2. 軸索", "3. 髄鞘", "4. シナプス小胞"],
-correctIndex: 0,
-explanation: "神経細胞の樹状突起は入力シグナルを受け取るレセプター器官です。"
-},
-{
-id: 181,
-category: "第18回 筋・神経組織（応用）",
-question: "神経伝達物質が蓄えられている、シナプス前終末内の小胞構造はどれか。",
-options: ["1. シナプス小胞", "2. 終末槽", "3. コネキシン", "4. リソソーム"],
-correctIndex: 0,
-explanation: "シナプス小胞内にアセチルコリンなどの神経伝達物質が充填されています。"
-},
-{
-id: 182,
-category: "第18回 筋・神経組織（応用）",
-question: "自律神経支配を受け、自分の意志で収縮させることができない筋肉を何というか。",
-options: ["1. 不随意筋", "2. 随意筋"],
-correctIndex: 0,
-explanation: "平滑筋や心筋のように意志で動かせない筋肉を不随意筋と呼びます。"
-},
-{
-id: 183,
-category: "第18回 筋・神経組織（応用）",
-question: "再生能力が著しく低く、一度壊死すると増殖復元しない筋組織はどれか。",
-options: ["1. 心筋", "2. 骨格筋", "3. 平滑筋"],
-correctIndex: 0,
-explanation: "心筋細胞は増殖能力がほとんど無く、壊死部は瘢痕組織（結節）に置換されます。"
-},
-{
-id: 184,
-category: "第19回 循環器系1（応用）",
-question: "大動脈弓から最初に（最も近位で）分岐する動脈はどれか。",
-options: ["1. 腕頭動脈", "2. 左総頸動脈", "3. 左鎖骨下動脈", "4. 冠動脈"],
-correctIndex: 0,
-explanation: "大動脈弓からは近位より①腕頭動脈、②左総頸動脈、③左鎖骨下動脈の順で分岐します。"
-},
-{
-id: 185,
-category: "第19回 循環器系1（応用）",
-question: "手首の外側（親指側）で脈拍を触知する代表的な動脈はどれか。",
-options: ["1. 橈骨動脈", "2. 尺骨動脈", "3. 肱動脈", "4. 鎖骨下動脈"],
-correctIndex: 0,
-explanation: "脈拍測定部位として臨床で広く用いられるのは橈骨動脈です。"
-},
-{
-id: 186,
-category: "第19回 循環器系1（応用）",
-question: "皮下組織内を走り、体表から透けて視認できる静脈系を何というか。",
-options: ["1. 皮静脈（浅静脈）", "2. 深静脈", "3. 終動脈", "4. 門脈"],
-correctIndex: 0,
-explanation: "体表近くの皮下を走る静脈を皮静脈（浅静脈）と呼びます。"
-},
-{
-id: 187,
-category: "第19回 循環器系1（応用）",
-question: "肘窩で頭側皮静脈と貴要皮静脈を結び、静脈注射の第一選択となる静脈はどれか。",
-options: ["1. 肘正中皮静脈", "2. 橈骨静脈", "3. 腋窩静脈", "4. 大伏在静脈"],
-correctIndex: 0,
-explanation: "採血・静注で第一選択となるのは肘正中皮静脈です。"
-},
-{
-id: 188,
-category: "第19回 循環器系1（応用）",
-question: "四肢の静脈内に存在し、血液の逆流を防止する弁構造の名称はどれか。",
-options: ["1. 静脈弁", "2. 半月弁", "3. 腱索", "4. 介在板"],
-correctIndex: 0,
-explanation: "静脈血流の逆流を防ぐため、四肢の静脈には静脈弁が存在します。"
-},
-{
-id: 189,
-category: "第20回 循環器系2（応用）",
-question: "成人の心臓の大きさの解剖学的表現として正しいものはどれか。",
-options: ["1. 本人のこぶし大（拳大）", "2. 鶏卵大", "3. 親指大", "4. 頭蓋大"],
-correctIndex: 0,
-explanation: "心臓のおおよその大きさは本人のこぶし大と表現されます。"
-},
-{
-id: 190,
-category: "第20回 循環器系2（応用）",
-question: "心室の内壁から突き出し、腱索を介して房室弁を保持する筋肉の突起はどれか。",
-options: ["1. 乳頭筋", "2. 櫛状筋", "3. 平滑筋", "4. 横隔膜"],
-correctIndex: 0,
-explanation: "心室壁の乳頭筋から腱索が伸びて房室弁の弁尖につながります。"
-},
-{
-id: 191,
-category: "第20回 循環器系2（応用）",
-question: "心臓の4つの弁の中で、唯一2枚の弁尖からなる「二尖弁」はどれか。",
-options: ["1. 僧帽弁（左房室弁）", "2. 三尖弁（右房室弁）", "3. 大動脈弁", "4. 肺動脈弁"],
-correctIndex: 0,
-explanation: "左房室弁である僧帽弁のみが二尖弁です。"
-},
-{
-id: 192,
-category: "第20回 循環器系2（応用）",
-question: "左右の冠動脈が分岐する根元の血管はどこか。",
-options: ["1. 上行大動脈（バルサルバ洞）", "2. 肺動脈幹", "3. 胸大動脈", "4. 腕頭動脈"],
-correctIndex: 0,
-explanation: "冠動脈は上行大動脈の根本（大動脈洞／バルサルバ洞）から分岐します。"
-},
-{
-id: 193,
-category: "第20回 循環器系2（応用）",
-question: "他の動脈との間に側副路（吻合）を持たないため、閉塞すると梗塞を引き起こしやすい動脈を何というか。",
-options: ["1. 終動脈", "2. 弾性型動脈", "3. 筋型動脈", "4. 大動脈"],
-correctIndex: 0,
-explanation: "吻合を持たない細動脈を終動脈と呼び、閉塞すると虚血・梗塞に陥ります。"
-},
-{
-id: 194,
-category: "第21回 循環器系3（応用）",
-question: "房室結節（田原結節）が存在する正確な解剖学的位置はどれか。",
-options: ["1. 心房中隔の右心房側底部", "2. 心室中隔の左心室側", "3. 上大静脈開口部", "4. 心尖部"],
-correctIndex: 0,
-explanation: "房室結節は心房中隔の右心房側底面（冠状静脈洞開口部付近）にあります。"
-},
-{
-id: 195,
-category: "第21回 循環器系3（応用）",
-question: "心房細動の異常刺激（不整脈の発生源）が発生しやすいのは、左心房に開口する何の血管付近か。",
-options: ["1. 肺静脈（4本）の開口部", "2. 上大静脈の開口部", "3. 冠状静脈洞の開口部"],
-correctIndex: 0,
-explanation: "心房細動の異常電位は、左心房に流入する4本の肺静脈基部付近から生じることが多いです。"
-},
-{
-id: 196,
-category: "第21回 循環器系3（応用）",
-question: "胎児循環において、臍静脈からの血液が肝臓を通らず下大静脈へ抜けるバイパス管はどれか。",
-options: ["1. 静脈管（アランティウス管）", "2. 動脈管（ボタロー管）", "3. 卵円孔"],
-correctIndex: 0,
-explanation: "臍静脈血が肝臓を迂回して下大静脈へ直接流れる管を静脈管（アランティウス管）と呼びます。"
-},
-{
-id: 197,
-category: "第21回 循環器系3（応用）",
-question: "右上半身からのリンパが集まり、右静脈角へと流入する主要なリンパ管はどれか。",
-options: ["1. 右リンパ総幹", "2. 胸管", "3. 乳び槽", "4. 奇静脈"],
-correctIndex: 0,
-explanation: "右上半身のリンパは右リンパ総幹を経て右静脈角へ流入します。（左半身と下半身は胸管）"
-},
-{
-id: 198,
-category: "第21回 循環器系3（応用）",
-question: "乳び槽を起点とし、左静脈角に合流する体内最大規模のリンパ管はどれか。",
-options: ["1. 胸管", "2. 右リンパ総幹", "3. 奇静脈", "4. 上大静脈"],
-correctIndex: 0,
-explanation: "胸管は乳び槽から始まり左静脈角へと注ぐ人体最大のリンパ管です。"
-},
-{
-id: 199,
-category: "第22回 呼吸器系1（応用）",
-question: "気管が左右の主気管支に枝分かれする分岐部の高さ（骨格基準）はどこか。",
-options: ["1. 第4〜第5胸椎（T4〜T5）の高さ", "2. 第1頸椎の高さ", "3. 第10胸椎の高さ"],
-correctIndex: 0,
-explanation: "気管分岐部は胸骨角（T4〜T5の高さ）に位置します。"
-},
-{
-id: 200,
-category: "第22回 呼吸器系1（応用）",
-question: "気道粘膜上皮内に散在し、粘液を分泌して異物を絡め捕る単細胞腺はどれか。",
-options: ["1. 杯細胞（はいさいぼう）", "2. 壁細胞", "3. 主細胞", "4. パネート細胞"],
-correctIndex: 0,
-explanation: "多列線毛上皮の間に存在する杯細胞が粘液を分泌します。"
-}
-];
+      <!-- 画面1.4: 制限時間選択 -->
+      <div id="screen-time-select" class="hidden space-y-6 text-center">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button id="time-back-btn" onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 戻る</button>
+          <span id="time-subject-title" class="serif-title text-sm text-slate-300">制限時間選択</span>
+        </div>
 
-// ==========================================
-// グローバル関数・DB登録
-// ==========================================
-window.getAnatomyQuestions = function() {
-return basicQuestions;
-};
+        <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-6">
+          <div class="space-y-2">
+            <div class="text-xs text-slate-400 uppercase tracking-widest font-medium">1問あたりの制限時間を選択</div>
+            <div class="text-4xl font-bold text-amber-500 font-mono"><span id="time-slider-display">30</span> <span class="text-sm font-normal text-slate-500">秒</span></div>
+          </div>
+          <div class="px-2">
+            <input type="range" id="time-select-slider" min="10" max="30" step="10" value="30" oninput="updateTimeSliderValue(this.value)" class="w-full">
+            <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
+              <span>10秒</span><span>20秒</span><span>30秒</span>
+            </div>
+          </div>
+        </div>
 
-window.getAnatomyAppliedQuestions = function() {
-return appliedQuestions;
-};
+        <button onclick="proceedToCountOrStart()" class="w-full py-3.5 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-xl text-xs font-semibold transition shadow-lg tracking-widest">次へ進む</button>
+      </div>
 
-if (typeof window.QUIZ_DB === 'undefined') {
-window.QUIZ_DB = {};
-}
-window.QUIZ_DB.anatomy = basicQuestions;
-window.QUIZ_DB.anatomyApplied = appliedQuestions;
+      <!-- 画面1.5: モード選択 -->
+      <div id="screen-round-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button id="round-back-btn" onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 戻る</button>
+          <span id="round-subject-title" class="serif-title text-sm text-slate-300">モード選択</span>
+        </div>
 
-// ==========================================
-// ランダム化 ＆ 先頭の番号削除処理
-// ==========================================
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 py-4">
+          <select id="roundSelect" class="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg p-2.5 focus:ring-amber-500 focus:border-amber-500 w-full sm:w-auto">
+            <option value="1">第1回</option>
+            <option value="2">第2回</option>
+            <option value="3">第3回</option>
+            <option value="4">第4回</option>
+            <option value="5">第5回</option>
+            <option value="6">第6回</option>
+            <option value="7">第7回</option>
+            <option value="8">第8回</option>
+            <option value="9">第9回</option>
+            <option value="10">第10回</option>
+            <option value="quiz">小テスト</option>
+            <option value="all">総合練習問題</option>
+          </select>
+          <button id="startButton" class="w-full sm:w-auto px-5 py-2.5 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-lg text-sm font-semibold transition">次へ進む</button>
+        </div>
 
-// 配列をシャッフルする共通関数（Fisher-Yatesアルゴリズム）
-function shuffleAnatomyArray(array) {
-const shuffled = [...array];
-for (let i = shuffled.length - 1; i > 0; i--) {
-const j = Math.floor(Math.random() * (i + 1));
-[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-}
-return shuffled;
+        <div id="quizContainer"></div>
+      </div>
+
+      <!-- 画面1.6: 問題数選択画面 -->
+      <div id="screen-count-select" class="hidden space-y-6 text-center">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button id="count-back-btn" onclick="showTimeSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 戻る</button>
+          <span id="count-subject-title" class="serif-title text-sm text-slate-300">問題数選択</span>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-6">
+          <div class="space-y-2">
+            <div class="text-xs text-slate-400 uppercase tracking-widest font-medium">出題数を選択</div>
+            <div class="text-4xl font-bold text-amber-500 font-mono"><span id="slider-count-display">10</span> <span class="text-sm font-normal text-slate-500">問</span></div>
+          </div>
+          <div class="px-2">
+            <input type="range" id="quiz-count-slider" min="10" max="30" step="10" value="10" oninput="updateSliderValue(this.value)" class="w-full">
+            <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
+              <span>10問</span><span>20問</span><span>30問</span>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="startQuiz()" class="w-full py-3.5 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-xl text-xs font-semibold transition shadow-lg tracking-widest">演習を開始する</button>
+      </div>
+
+      <!-- 画面2: クイズ開始前設定 (SOLO) -->
+      <div id="screen-quiz-start" class="hidden space-y-6 text-center">
+        <div class="pb-3 border-b border-slate-700/50 flex items-center justify-between">
+          <button id="start-back-btn" onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 戻る</button>
+          <span id="quiz-subject-title" class="serif-title text-sm text-slate-300">科目名</span>
+        </div>
+       
+        <div class="py-2 space-y-2">
+          <div class="en-title text-3xl text-amber-500/90 font-semibold">PRACTICE QUIZ</div>
+          <h2 id="start-screen-heading" class="serif-title text-2xl text-slate-100">演習問題</h2>
+          <p id="start-screen-desc" class="text-xs text-slate-400 font-light leading-relaxed max-w-sm mx-auto">
+            過去問データベースから問題が出題されます。
+          </p>
+        </div>
+
+        <div id="count-selector-container" class="hidden space-y-6 p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
+          <div class="space-y-2">
+            <div class="text-xs text-slate-400 uppercase tracking-widest font-medium">出題数を選択</div>
+            <div class="text-4xl font-bold text-amber-500 font-mono"><span id="slider-count-display-deprecated">10</span> <span class="text-sm font-normal text-slate-500">問</span></div>
+          </div>
+          <div class="px-2">
+            <input type="range" id="quiz-count-slider-deprecated" min="10" max="30" step="10" value="10" oninput="updateSliderValue(this.value)" class="w-full">
+            <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
+              <span>10問</span><span>20問</span><span>30問</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="highscore-badge" class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs flex justify-between items-center max-w-xs mx-auto">
+          <span class="text-slate-400 font-light flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            最高記録:
+          </span>
+          <span id="start-screen-highscore" class="font-bold text-amber-400">未挑戦</span>
+        </div>
+
+        <button id="start-screen-submit-btn" onclick="handleStartScreenSubmit()" class="w-full py-4 rounded-xl bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold text-sm transition shadow-lg tracking-widest">
+          次へ進む
+        </button>
+      </div>
+
+      <!-- 画面3: クイズ実行画面 (SOLO) -->
+      <div id="screen-quiz-play" class="hidden space-y-5">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50 text-xs">
+          <span id="quiz-progress-text" class="en-title text-amber-500 font-semibold uppercase">QUESTION 1 / 10</span>
+          <div class="flex items-center gap-3">
+            <span id="quiz-score-live" class="text-slate-400 font-light">正解: 0</span>
+            <button onclick="quitQuiz()" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-rose-900/40 text-slate-400 hover:text-rose-300 border border-slate-700 transition text-[11px]">✕ 中断</button>
+          </div>
+        </div>
+
+        <!-- 30秒制限時間タイマーバー -->
+        <div class="w-full bg-slate-800/80 h-2 rounded-full overflow-hidden border border-slate-700/50">
+          <div id="quiz-timer-bar" class="h-full bg-amber-500 w-full transition-all duration-100 ease-linear"></div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+          <div id="quiz-question-number" class="text-[11px] text-amber-500/80 font-medium">Q1</div>
+          <div id="quiz-question-text" class="text-sm text-slate-100 leading-relaxed font-normal">---</div>
+         
+          <!-- 問題画像表示領域 -->
+          <div id="quiz-image-container" class="hidden my-3">
+            <img id="quiz-image" src="" alt="問題画像" class="max-h-64 rounded-lg mx-auto border border-slate-700/80 object-contain shadow">
+          </div>
+
+          <!-- 語群 (wordBox) 表示領域 -->
+          <div id="quiz-wordbox-container" class="hidden mt-3 p-3 rounded-lg bg-slate-950/70 border border-slate-700/50 text-xs">
+            <div class="text-[11px] text-amber-400 font-medium mb-1.5 flex items-center gap-1">
+              <span>【語群】</span>
+            </div>
+            <div id="quiz-wordbox-content" class="text-slate-300 leading-relaxed space-y-1"></div>
+          </div>
+        </div>
+
+        <!-- 選択肢コンテナ -->
+        <div id="quiz-options-container" class="space-y-2.5"></div>
+
+        <!-- キーボード入力用コンテナ -->
+        <div id="quiz-keyboard-input-container" class="hidden space-y-3">
+          <p class="text-xs text-amber-400 font-medium">正しい用語・文字を入力してください。</p>
+          <div class="flex gap-2">
+            <input type="text" id="quiz-keyboard-input" placeholder="例: 用語または文字を入力" onkeydown="if(event.key==='Enter') submitKeyboardAnswer()" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-xs focus:outline-none focus:border-amber-500">
+            <button onclick="submitKeyboardAnswer()" class="px-5 py-2.5 bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold rounded-xl text-xs transition shadow-lg shrink-0">
+              解答
+            </button>
+          </div>
+        </div>
+
+        <!-- 複数選択用 回答確定ボタン -->
+        <button id="quiz-submit-multi-btn" onclick="submitMultipleAnswers()" class="hidden w-full py-3 bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold rounded-xl text-xs transition shadow-lg tracking-widest">
+          選択した内容で回答する
+        </button>
+
+        <div id="quiz-feedback-box" class="hidden p-4 rounded-xl border text-xs leading-relaxed space-y-2">
+          <div id="quiz-feedback-title" class="font-bold text-sm"></div>
+          <div id="quiz-feedback-desc" class="text-slate-300"></div>
+          <button id="quiz-next-btn" onclick="nextQuestion()" class="w-full mt-2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition">次へ進む →</button>
+        </div>
+      </div>
+
+      <!-- 画面4: クイズ結果画面 (SOLO) -->
+      <div id="screen-quiz-result" class="hidden text-center space-y-6 py-4">
+        <div class="en-title text-xs text-amber-500/80 tracking-widest uppercase">RESULT</div>
+        <h2 class="serif-title text-2xl text-slate-100">演習完了</h2>
+
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 max-w-xs mx-auto space-y-2 relative overflow-hidden">
+          <div id="new-record-badge" class="hidden absolute top-2 right-2 bg-amber-500/20 border border-amber-500/50 text-amber-300 text-[10px] px-2 py-0.5 rounded-full font-bold animate-pulse flex items-center gap-1">
+            <span>BEST RECORD</span>
+          </div>
+          <div class="text-xs text-slate-400">正答率</div>
+          <div class="text-4xl font-bold text-amber-400"><span id="final-score-val">0</span><span class="text-2xl font-normal text-amber-400">%</span> <span id="final-total-val" class="text-base font-normal text-slate-400 hidden">/ 10</span></div>
+          <div id="final-eval-text" class="text-xs text-amber-500/90 pt-2 font-light">素晴らしい集中力です！</div>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button onclick="startQuiz()" class="w-1/2 py-3.5 rounded-xl bg-amber-700 hover:bg-amber-600 text-amber-50 text-xs font-medium transition">もう一度挑戦する</button>
+          <button onclick="showSubjectScreen()" class="w-1/2 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition">科目選択へ戻る</button>
+        </div>
+      </div>
+
+      <!-- 画面5: マルチプレイ（早押し対戦）ロビー画面 -->
+      <div id="screen-multi-lobby" class="hidden space-y-6">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline">← シングルへ戻る</button>
+          <span class="en-title text-xs text-amber-500 font-semibold tracking-widest uppercase">2-PLAYER BATTLE</span>
+        </div>
+
+        <div class="text-center space-y-2 py-2">
+          <h2 class="serif-title text-2xl text-slate-100">2人リアルタイム早押し対戦</h2>
+          <p class="text-xs text-slate-400 font-light">部屋コードを作成・共有して友達と早押し問題で勝負しよう！</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- 部屋を作る (ホスト) -->
+          <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4 text-center">
+            <div class="text-xs font-semibold text-amber-400 uppercase tracking-wider">部屋を作成する (部屋主)</div>
+            <p class="text-[11px] text-slate-400 font-light">あなたが部屋主となり、問題科目を選択してゲームを開始できます。</p>
+            <button onclick="createMultiRoom()" class="w-full py-3 rounded-xl bg-amber-700 hover:bg-amber-600 text-amber-50 text-xs font-semibold transition shadow-lg">
+              部屋を作成する
+            </button>
+          </div>
+
+          <!-- 部屋に入る (ゲスト) -->
+          <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4 text-center">
+            <div class="text-xs font-semibold text-amber-400 uppercase tracking-wider">コードで入室する</div>
+            <input type="text" id="join-code-input" maxlength="4" placeholder="4桁コード (例: 1234)" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-100 text-center font-mono text-base uppercase focus:outline-none focus:border-amber-500">
+            <button onclick="joinMultiRoom()" class="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition border border-slate-700">
+              入室する
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 画面6: マルチ対戦待機ルーム (ホスト/ゲスト) -->
+      <div id="screen-multi-room" class="hidden space-y-6 text-center">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="leaveMultiRoom()" class="text-xs text-rose-400 hover:underline">← 部屋を出る</button>
+          <span class="en-title text-xs text-amber-500 font-semibold tracking-widest">ROOM: <span id="multi-room-code-display" class="font-mono text-amber-400 text-sm">----</span></span>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-900/90 border border-amber-500/30 space-y-1">
+          <div class="text-[11px] text-slate-400 uppercase tracking-widest">部屋コードを友達に教えてください</div>
+          <div id="multi-room-code-large" class="text-3xl font-mono font-bold text-amber-400 tracking-widest">----</div>
+        </div>
+
+        <!-- プレイヤー状態 -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1">
+            <div class="text-[10px] text-slate-400">プレイヤー 1 (部屋主)</div>
+            <div id="p1-status" class="text-xs font-bold text-amber-400">接続中...</div>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1">
+            <div class="text-[10px] text-slate-400">プレイヤー 2 (ゲスト)</div>
+            <div id="p2-status" class="text-xs font-bold text-slate-500">待機中...</div>
+          </div>
+        </div>
+
+        <!-- 部屋主専用設定エリア -->
+        <div id="host-settings-area" class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3 text-left hidden">
+          <div class="text-xs font-semibold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span>⚙</span> <span>科目と出題の設定 (部屋主のみ)</span>
+          </div>
+          <div class="space-y-2">
+            <label class="text-[11px] text-slate-400 block">対戦科目を選択:</label>
+            <select id="multi-subject-select" class="w-full bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg p-2.5 focus:border-amber-500">
+              <!-- JSで動的生成 -->
+            </select>
+          </div>
+          <div class="space-y-2">
+            <label class="text-[11px] text-slate-400 block">出題数: <span id="multi-count-val" class="text-amber-400 font-bold font-mono">10</span> 問</label>
+            <input type="range" id="multi-count-slider" min="5" max="20" step="5" value="10" oninput="document.getElementById('multi-count-val').textContent=this.value" class="w-full">
+          </div>
+        </div>
+
+        <div id="guest-waiting-msg" class="text-xs text-amber-400 font-light animate-pulse hidden">
+          部屋主が科目を選択し、スタートするのを待っています...
+        </div>
+
+        <button id="multi-start-btn" onclick="startMultiGame()" disabled class="w-full py-3.5 rounded-xl bg-amber-700 disabled:bg-slate-800 disabled:text-slate-600 disabled:border disabled:border-slate-800 hover:bg-amber-600 text-amber-50 font-semibold text-xs transition shadow-lg tracking-widest">
+          2人が揃うとスタートできます
+        </button>
+      </div>
+
+      <!-- 画面7: マルチプレイ早押し対戦実行画面 -->
+      <div id="screen-multi-play" class="hidden space-y-5">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50 text-xs">
+          <span id="multi-progress-text" class="en-title text-amber-500 font-semibold uppercase">QUESTION 1 / 10</span>
+          <div class="flex items-center gap-4 text-xs font-mono">
+            <span class="text-amber-400">あなた: <strong id="multi-my-score">0</strong></span>
+            <span class="text-slate-400">相手: <strong id="multi-opp-score">0</strong></span>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+          <div id="multi-q-num" class="text-[11px] text-amber-500/80 font-medium">Q1</div>
+          <div id="multi-q-text" class="text-sm text-slate-100 leading-relaxed font-normal">---</div>
+
+          <!-- 対戦用 問題画像表示領域 -->
+          <div id="multi-image-container" class="hidden my-3">
+            <img id="multi-image" src="" alt="問題画像" class="max-h-56 rounded-lg mx-auto border border-slate-700/80 object-contain shadow">
+          </div>
+        </div>
+
+        <!-- 早押し・判定状態表示エリア -->
+        <div id="buzz-status-banner" class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center text-xs font-bold transition">
+          正しい選択肢を先に押してください！
+        </div>
+
+        <!-- 選択肢群 (先に押して正解した方が勝ち) -->
+        <div id="multi-options-container" class="space-y-2.5 transition"></div>
+
+        <div id="multi-next-btn-wrap" class="hidden">
+          <button id="multi-next-btn" onclick="nextMultiQuestionHost()" class="w-full py-2.5 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-lg text-xs font-medium transition">次の問題へ進む (部屋主操作) →</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- お知らせ用モーダル -->
+  <div id="modal-notice" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div class="glass-card w-full max-w-sm rounded-2xl p-5 space-y-4 border border-slate-700/60 shadow-2xl">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-700/50">
+        <div class="flex items-center gap-1.5">
+          <span>🔔</span>
+          <h3 class="serif-title text-base font-medium text-slate-100">お知らせ</h3>
+        </div>
+        <button onclick="closeNoticeModal()" class="text-slate-400 text-xs hover:text-white p-1">✕</button>
+      </div>
+      <div id="notice-list-container" class="space-y-3 text-xs leading-relaxed text-slate-300 max-h-60 overflow-y-auto">
+        <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+          <div class="text-[10px] text-amber-400 font-mono">新機能アップデート</div>
+          <div class="font-semibold text-slate-100">演習機能が新しくなりました</div>
+          <p class="text-slate-400 text-[11px] font-light">画像の表示、複数選択問題、早押し対戦（2Pマルチ）に対応しました。</p>
+        </div>
+      </div>
+      <button onclick="closeNoticeModal()" class="w-full py-2 bg-slate-800 text-slate-300 rounded-lg text-xs hover:bg-slate-700 transition">閉じる</button>
+    </div>
+  </div>
+
+  <!-- 管理者パスワードモーダル -->
+  <div id="modal-auth" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div class="glass-card w-full max-w-sm rounded-2xl p-5 space-y-4 border border-slate-700/60 shadow-2xl">
+      <div class="text-center space-y-1">
+        <div class="en-title text-[10px] text-amber-500/80 tracking-widest uppercase font-semibold">AUTHENTICATION</div>
+        <h3 class="serif-title text-lg text-slate-100">管理者認証</h3>
+      </div>
+      <input type="password" id="admin-password-input" placeholder="パスワードを入力" onkeydown="if(event.key==='Enter') submitPassword()" class="w-full px-3.5 py-2.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-100 text-sm text-center tracking-widest focus:outline-none focus:border-amber-600">
+      <div id="auth-error-msg" class="text-center text-[11px] text-rose-400 font-light hidden">パスワードが正しくありません</div>
+      <div class="flex gap-2.5">
+        <button onclick="closeAuthModal()" class="w-1/2 py-2 bg-slate-800 text-slate-300 rounded-lg text-xs hover:bg-slate-700 transition">キャンセル</button>
+        <button onclick="submitPassword()" class="w-1/2 py-2 bg-amber-700 text-amber-50 rounded-lg text-xs hover:bg-amber-600 transition font-semibold">認証する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 管理者設定モーダル -->
+  <div id="modal-admin" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div class="glass-card w-full max-w-xl rounded-2xl p-5 sm:p-6 space-y-5 border border-slate-700/60 shadow-2xl max-h-[90vh] overflow-y-auto my-auto">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+        <div>
+          <div class="en-title text-[10px] text-amber-500/80 tracking-widest uppercase font-semibold">ADMINISTRATION</div>
+          <h3 class="serif-title text-lg text-slate-100">管理者設定・科目編集</h3>
+        </div>
+        <button onclick="closeAdminModal()" class="text-slate-400 text-sm p-1 transition hover:text-white">✕</button>
+      </div>
+
+      <!-- アクセス状況表示エリア -->
+      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 space-y-3">
+        <div class="text-xs font-semibold text-amber-400 flex items-center gap-1.5 uppercase tracking-widest">
+          <span>📊</span> <span>アクセス状況</span>
+        </div>
+        <div class="grid grid-cols-2 gap-3 text-center">
+          <div class="p-3 rounded-lg bg-slate-950 border border-slate-800">
+            <div class="text-[10px] text-slate-400">今閲覧している人数</div>
+            <div id="admin-current-online-count" class="text-xl font-bold font-mono text-amber-400 mt-0.5">--</div>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-950 border border-slate-800">
+            <div class="text-[10px] text-slate-400">今日閲覧した人数</div>
+            <div id="admin-today-visitor-count" class="text-xl font-bold font-mono text-amber-400 mt-0.5">--</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- お知らせ送信エリア -->
+      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 space-y-3">
+        <div class="text-xs font-semibold text-amber-400 flex items-center gap-1.5 uppercase tracking-widest">
+          <span>📢</span> <span>お知らせを投稿する</span>
+        </div>
+        <div class="space-y-2">
+          <input type="text" id="admin-notice-title" placeholder="お知らせのタイトル" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
+          <textarea id="admin-notice-content" placeholder="お知らせの本文" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-20"></textarea>
+        </div>
+        <button onclick="postAdminNotice()" class="w-full py-2 bg-amber-700/90 hover:bg-amber-600 text-amber-50 text-xs font-medium rounded-lg transition shadow tracking-widest">
+          お知らせを送信する
+        </button>
+      </div>
+
+      <!-- 投稿済みお知らせ一覧・削除管理エリア -->
+      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 space-y-3">
+        <div class="text-xs font-semibold text-amber-400 flex items-center justify-between uppercase tracking-widest">
+          <div class="flex items-center gap-1.5">
+            <span>🗑️</span> <span>投稿済みお知らせの削除・管理</span>
+          </div>
+        </div>
+        <div id="admin-notice-manage-list" class="space-y-2 max-h-40 overflow-y-auto pt-1">
+          <div class="text-slate-500 text-[11px] text-center py-2">お知らせデータを読み込んでいます...</div>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 space-y-3">
+        <div class="text-xs font-semibold text-amber-400 flex items-center gap-1.5 uppercase tracking-widest">
+          <span>＋</span> <span>新しい科目を追加する</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <input type="text" id="new-subject-name" placeholder="科目名 (例: 薬理学)" class="sm:col-span-2 px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
+          <input type="text" id="new-subject-code" placeholder="コード (例: PHA)" class="px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 uppercase">
+        </div>
+        <button onclick="addNewSubject()" class="w-full py-2 bg-amber-700/90 hover:bg-amber-600 text-amber-50 text-xs font-medium rounded-lg transition shadow tracking-widest">
+          科目を追加登録する
+        </button>
+      </div>
+
+      <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-3">
+        <div class="flex justify-between items-center">
+          <div class="text-xs font-medium text-slate-200 uppercase tracking-widest">登録済み科目の並べ替え・設定</div>
+          <span class="text-[10px] text-emerald-400 font-light flex items-center gap-1">● リアルタイム同期中</span>
+        </div>
+        <p class="text-[11px] text-slate-400 font-light leading-relaxed">
+          左側の「☰」をドラッグして順番を変更できます。設定変更は全利用者に即時反映されます。
+        </p>
+        <div id="admin-drag-container" class="space-y-2 pt-1"></div>
+      </div>
+
+      <button onclick="resetAllDataToDefault()" class="w-full py-2 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/50 text-[11px] rounded-lg transition flex items-center justify-center gap-1.5 font-light">
+        <span>平均正答率データをリセット</span>
+      </button>
+
+      <button onclick="closeAdminModal()" class="w-full py-2.5 bg-slate-800 text-slate-300 rounded-lg text-xs hover:bg-slate-700 transition">閉じる</button>
+    </div>
+  </div>
+
+  <!-- 問題編集用モーダル -->
+  <div id="modal-questions-editor" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div class="glass-card w-full max-w-2xl rounded-2xl p-5 sm:p-6 space-y-5 border border-slate-700/60 shadow-2xl max-h-[90vh] overflow-y-auto my-auto">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+        <div>
+          <div class="en-title text-[10px] text-amber-500/80 tracking-widest uppercase font-semibold">QUESTION EDITOR</div>
+          <h3 id="editor-subject-title" class="serif-title text-lg text-slate-100">問題の編集・画像追加</h3>
+        </div>
+        <button onclick="closeQuestionsEditorModal()" class="text-slate-400 text-sm p-1 transition hover:text-white">✕</button>
+      </div>
+
+      <!-- AI問題自動生成エリア -->
+      <div class="p-4 rounded-xl bg-gradient-to-r from-amber-950/40 via-slate-900 to-amber-950/40 border border-amber-500/30 space-y-3">
+        <div class="flex justify-between items-center cursor-pointer" onclick="toggleAiGeneratorPanel()">
+          <div class="flex items-center gap-2">
+            <span class="text-sm">✨</span>
+            <span class="text-xs font-semibold text-amber-300">Gemini AIで画像/テキストから問題生成</span>
+          </div>
+          <span id="ai-panel-toggle-icon" class="text-xs text-amber-400">▼ 開く</span>
+        </div>
+
+        <div id="ai-generator-panel" class="hidden space-y-3 pt-2 border-t border-amber-500/20">
+          <p class="text-[11px] text-slate-400 font-light">
+            教科書や問題集の画像（またはテキスト）をアップロード・入力すると、AIが自動解析して選択肢と解答付きの問題データを作成します。
+          </p>
+
+          <div class="space-y-1">
+            <label class="text-[10px] text-amber-400 block">1. 画像から作成 (省略可):</label>
+            <input type="file" id="ai-input-image" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-amber-500/20 file:text-amber-300 hover:file:bg-amber-500/30 cursor-pointer">
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-[10px] text-amber-400 block">2. テキスト・補足指示 (省略可):</label>
+            <textarea id="ai-input-text" placeholder="例: 以下の内容から問題を作成してください。..." class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-16"></textarea>
+          </div>
+
+          <button onclick="generateQuestionWithGemini()" id="ai-generate-btn" class="w-full py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-amber-50 text-xs font-semibold rounded-lg transition shadow flex items-center justify-center gap-2">
+            <span>✨ Gemini AIで問題を生成する</span>
+          </button>
+          <div id="ai-generate-loading" class="hidden text-center text-xs text-amber-400 font-light animate-pulse">
+            AIが問題を作成中です... しばらくお待ちください
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center">
+        <p class="text-[11px] text-slate-400 font-light">各問題の文言、画像、選択肢、正解番号、解説を変更できます。</p>
+        <button onclick="addNewQuestionToEditor()" class="px-3 py-1.5 bg-amber-700 hover:bg-amber-600 text-amber-50 text-xs rounded-lg transition font-medium">＋ 問題を追加</button>
+      </div>
+
+      <!-- モード切替（看護学方法論Ⅰ・生化学などの複数モード対応科目用） -->
+      <div id="editor-mode-selector-container" class="hidden p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1.5">
+        <label class="text-[11px] text-amber-400 font-medium block">編集する形式・モードを選択:</label>
+        <select id="editor-mode-select" onchange="changeEditorMode(this.value)" class="w-full bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 focus:outline-none focus:border-amber-500">
+        </select>
+      </div>
+
+      <!-- 問題カード一覧 -->
+      <div id="editor-questions-list" class="space-y-4"></div>
+
+      <div class="pt-2 flex gap-3">
+        <button onclick="closeQuestionsEditorModal()" class="w-1/2 py-2.5 bg-slate-800 text-slate-300 rounded-lg text-xs hover:bg-slate-700 transition">キャンセル</button>
+        <button onclick="saveEditedQuestions()" class="w-1/2 py-2.5 bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold text-xs rounded-lg transition shadow tracking-widest">変更を全保存する</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---------------------------------------------------------
+    // 看護学方法論Ⅰ (lessonData) 取得用ヘルパー関数
+    // ---------------------------------------------------------
+    window.getNursingQuestions = function(roundVal) {
+      if (typeof lessonData === 'undefined') return [];
+      let results = [];
+      if (roundVal === 'all' || !roundVal) {
+        Object.keys(lessonData).forEach(key => {
+          const roundNum = isNaN(parseInt(key, 10)) ? key : parseInt(key, 10);
+          const items = lessonData[key].map(q => ({ ...q, round: roundNum }));
+          results = results.concat(items);
+        });
+      } else {
+        const key = roundVal.toString();
+        if (lessonData[key]) {
+          const roundNum = isNaN(parseInt(key, 10)) ? key : parseInt(key, 10);
+          results = lessonData[key].map(q => ({ ...q, round: roundNum }));
+        }
+      }
+      return results;
+    };
+
+    // 看護学方法論Ⅰ 回選択用関数
+    function selectNursingRound(selectedValue) {
+      currentRound = (selectedValue === "all") ? null : selectedValue;
+      if (typeof window.getNursingQuestions === "function") {
+        const currentQuestions = window.getNursingQuestions(selectedValue);
+        if (Array.isArray(currentQuestions) && currentQuestions.length > 0) {
+          window.QUIZ_DB.nursing_method = currentQuestions;
+        }
+      }
+      showStartScreen();
+    }
+
+    // 生化学 解答形式選択用関数
+    function selectBiochemistryFormat(format) {
+      currentBiochemistryFormat = format;
+      showStartScreen();
+    }
+
+    // =========================================================
+    //  1. Firebase 設定
+    // =========================================================
+    const firebaseConfig = {
+      databaseURL: "https://test-taisaku-7e433-default-rtdb.firebaseio.com/"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // プレイヤーIDの生成（セッションごとにユニーク）
+    let myPlayerId = sessionStorage.getItem('my_player_id');
+    if (!myPlayerId) {
+      myPlayerId = 'usr_' + Math.random().toString(36).substring(2, 9);
+      sessionStorage.setItem('my_player_id', myPlayerId);
+    }
+
+    // ---------------------------------------------------------
+    // 閲覧人数（リアルタイム人数・今日の閲覧人数）管理機能
+    // ---------------------------------------------------------
+    function initVisitorTracking() {
+      const now = new Date();
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+      const onlineRef = db.ref(`presence/online/${myPlayerId}`);
+      const connectedRef = db.ref('.info/connected');
+
+      connectedRef.on('value', (snap) => {
+        if (snap.val() === true) {
+          onlineRef.onDisconnect().remove();
+          onlineRef.set(true);
+        }
+      });
+
+      db.ref(`presence/daily/${todayStr}/${myPlayerId}`).set(true);
+
+      db.ref('presence/online').on('value', (snap) => {
+        const count = snap.val() ? Object.keys(snap.val()).length : 0;
+        const el = document.getElementById('admin-current-online-count');
+        if (el) el.textContent = `${count} 人`;
+      });
+
+      db.ref(`presence/daily/${todayStr}`).on('value', (snap) => {
+        const count = snap.val() ? Object.keys(snap.val()).length : 0;
+        const el = document.getElementById('admin-today-visitor-count');
+        if (el) el.textContent = `${count} 人`;
+      });
+    }
+
+    // ---------------------------------------------------------
+    // お知らせモーダル表示制御・既読状態保持機能
+    // ---------------------------------------------------------
+    function openNoticeModal() {
+      document.getElementById('modal-notice').classList.remove('hidden');
+      const redDot = document.getElementById('notice-red-dot');
+      if (redDot) {
+        redDot.classList.add('hidden');
+      }
+      localStorage.setItem('notice_read_status', 'read');
+    }
+    function closeNoticeModal() {
+      document.getElementById('modal-notice').classList.add('hidden');
+    }
+
+    function postAdminNotice() {
+      const titleInput = document.getElementById('admin-notice-title');
+      const contentInput = document.getElementById('admin-notice-content');
+
+      const title = titleInput.value.trim();
+      const content = contentInput.value.trim();
+
+      if (!title || !content) {
+        alert("お知らせのタイトルと本文を入力してください。");
+        return;
+      }
+
+      const noticeData = {
+        title: title,
+        content: content,
+        timestamp: Date.now()
+      };
+
+      db.ref('notices').push(noticeData).then(() => {
+        alert("お知らせを投稿しました。");
+        titleInput.value = '';
+        contentInput.value = '';
+      }).catch(err => {
+        console.error("お知らせの送信に失敗しました:", err);
+        alert("お知らせの送信に失敗しました。");
+      });
+    }
+
+    function deleteAdminNotice(noticeId) {
+      if (!confirm("このお知らせを消去しますか？")) return;
+
+      db.ref(`notices/${noticeId}`).remove().then(() => {
+        alert("お知らせを削除しました。");
+      }).catch(err => {
+        console.error("お知らせの削除に失敗しました:", err);
+        alert("削除に失敗しました。");
+      });
+    }
+
+    // ---------------------------------------------------------
+    // データ形式の自動補正ヘルパー
+    // ---------------------------------------------------------
+    function normalizeQuestion(item) {
+      if (!item) return null;
+
+      const qText = item.q || item.question || item.title || item.text || "問題文がありません";
+
+      let opts = item.options || item.opts || item.choices || item.answers || [];
+      if (!Array.isArray(opts)) {
+        opts = [];
+      }
+
+      let correctAnswers = [];
+      const rawAns = item.correctAnswers !== undefined ? item.correctAnswers : (item.answers !== undefined ? item.answers : (item.answer !== undefined ? item.answer : (item.correct !== undefined ? item.correct : (item.ans !== undefined ? item.ans : item.correctIndex))));
+     
+      if (Array.isArray(rawAns)) {
+        if (rawAns.length > 0 && typeof rawAns[0] === 'string' && opts.length > 0) {
+          correctAnswers = rawAns.map(ansText => opts.indexOf(ansText)).filter(idx => idx !== -1);
+          if (correctAnswers.length === 0) {
+            correctAnswers = rawAns.map(v => parseInt(v, 10)).filter(v => !isNaN(v));
+          }
+        } else {
+          correctAnswers = rawAns.map(v => parseInt(v, 10)).filter(v => !isNaN(v));
+        }
+      } else if (typeof rawAns === 'number') {
+        correctAnswers = [rawAns];
+      } else if (typeof rawAns === 'string') {
+        const parsed = parseInt(rawAns, 10);
+        if (!isNaN(parsed)) {
+          correctAnswers = [parsed];
+        } else if (opts.length > 0) {
+          const foundIdx = opts.indexOf(rawAns);
+          if (foundIdx !== -1) correctAnswers = [foundIdx];
+        }
+      }
+
+      let wordBoxData = item.wordBox || item.wordGroup || item.words || null;
+      let imgData = item.image || item.img || null;
+
+      const expText = item.exp || item.explanation || item.desc || item.detail || "解説はありません。";
+
+      return {
+        ...item,
+        q: qText,
+        options: opts,
+        answers: correctAnswers,
+        image: imgData,
+        wordBox: wordBoxData,
+        isMultiple: correctAnswers.length > 1,
+        exp: expText,
+        enableKeyboard: !!item.enableKeyboard,
+        keyword: item.keyword || (typeof rawAns === 'string' && isNaN(parseInt(rawAns, 10)) ? rawAns : "")
+      };
+    }
+
+    const defaultSubjects = [
+      { id: "psychology", name: "心理学", code: "PSY", visible: true, status: "available", isFixed: true, hasRounds: true, fixedCount: null, semester: "akigakki" },
+      { id: "mind_behavior", name: "こころと行動", code: "MND", visible: true, status: "available", isFixed: true, hasRounds: false, fixedCount: null, semester: "akigakki" },
+      { id: "medical_intro", name: "医療概論", code: "MED", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null, semester: "akigakki" },
+      { id: "physiology", name: "生理学", code: "PHY", visible: true, status: "available", isFixed: false, hasRounds: false, hasPhysiologyModes: true, fixedCount: null, semester: "akigakki" },
+      { id: "biochemistry", name: "生化学", code: "BIO", visible: true, status: "available", isFixed: false, hasRounds: false, hasBiochemistryFormats: true, fixedCount: null, semester: "harugakki" },
+      { id: "microbiology", name: "微生物学", code: "MIC", visible: true, status: "available", isFixed: true, hasRounds: false, fixedCount: null, semester: "akigakki" },
+      { id: "anatomy", name: "解剖学", code: "ANA", visible: true, status: "available", isFixed: false, hasRounds: false, hasAnatomyModes: true, fixedCount: null, semester: "akigakki" },
+      { id: "nursing_method", name: "看護学方法論Ⅰ", code: "NUR Ⅰ", visible: true, status: "available", isFixed: true, hasRounds: false, hasNursingModes: true, fixedCount: null, semester: "akigakki" },
+      { id: "public_health_nursing", name: "公衆衛生看護学概論", code: "PHN", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null, semester: "akigakki" },
+      { id: "nutrition", name: "栄養学", code: "NUT", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null, semester: "akigakki" },
+      { id: "pathology", name: "病理学", code: "PAT", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null, semester: "akigakki" },
+      { id: "medical_welfare", name: "医療福祉概論", code: "MWL", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null, semester: "akigakki" },
+      { id: "constitution", name: "日本国憲法", code: "CON", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null, semester: "akigakki" },
+      { id: "pharmacology", name: "薬理学", code: "PHA", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null, semester: "akigakki" },
+      { id: "statistics", name: "統計学", code: "STA", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null, semester: "akigakki" },
+      { id: "nursing_method_3", name: "看護学方法論Ⅲ", code: "NUR Ⅲ", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null, semester: "akigakki" },
+      { id: "nursing_method_4", name: "看護学方法論Ⅳ", code: "NUR Ⅳ", visible: true, status: "available", isFixed: false, hasRounds: false, fixedCount: null, semester: "akigakki" }
+    ];
+
+    let subjects = [...defaultSubjects];
+    let currentSubject = null;
+    let currentSemester = null;
+    let currentRound = null;
+    let currentPhysiologyMode = 'past';
+    let currentAnatomyMode = 'basic';
+    let currentNursingMode = 'rounds';
+    let currentBiochemistryFormat = 'choice';
+    let activeQuestions = [];
+    let currentQIndex = 0;
+    let score = 0;
+    let isAnswered = false;
+    let selectedIndices = new Set();
+    let dragulaInstance = null;
+
+    let quizTimer = null;
+    let timeLeft = 30;
+    let QUIZ_LIMIT_TIME = 30;
+
+    let currentRoomCode = null;
+    let isHost = false;
+    let roomRef = null;
+    let roomData = null;
+
+    let editingSubjectId = null;
+    let editingQuestionsList = [];
+    let editingSelectedRound = 'choice';
+
+    function getAverageAccuracy(subjectId) {
+      const historyKey = `history_accuracy_${subjectId}`;
+      const records = JSON.parse(localStorage.getItem(historyKey) || '[]');
+      if (!records || records.length === 0) return null;
+      const sum = records.reduce((acc, curr) => acc + curr, 0);
+      return Math.round(sum / records.length);
+    }
+
+    // =========================================================
+    //  管理者モーダル制御機能
+    // =========================================================
+    function openAuthModal() {
+      document.getElementById('modal-auth').classList.remove('hidden');
+      document.getElementById('admin-password-input').value = '';
+      document.getElementById('auth-error-msg').classList.add('hidden');
+    }
+
+    function closeAuthModal() {
+      document.getElementById('modal-auth').classList.add('hidden');
+    }
+
+    function submitPassword() {
+      const pwd = document.getElementById('admin-password-input').value;
+      if (pwd === "2721") {
+        closeAuthModal();
+        openAdminModal();
+      } else {
+        document.getElementById('auth-error-msg').classList.remove('hidden');
+      }
+    }
+
+    function openAdminModal() {
+      document.getElementById('modal-admin').classList.remove('hidden');
+      renderAdminDragList();
+    }
+
+    function closeAdminModal() {
+      document.getElementById('modal-admin').classList.add('hidden');
+    }
+
+    function saveSubjectsToStorage() {
+      db.ref('subjects').set(subjects);
+    }
+
+    function renderAdminDragList() {
+      const container = document.getElementById('admin-drag-container');
+      if (!container) return;
+
+      container.innerHTML = subjects.map((s, idx) => `
+        <div data-id="${s.id}" class="drag-item p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <span class="drag-handle cursor-grab active:cursor-grabbing text-slate-500 hover:text-amber-400 text-base">☰</span>
+            <span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-[10px] font-bold">${s.code}</span>
+            <span class="text-xs font-medium text-slate-200">${s.name}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="openQuestionsEditorModal('${s.id}')" class="px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-[11px] transition">
+              問題編集
+            </button>
+            <button onclick="toggleSubjectVisibility(${idx})" class="px-2.5 py-1 ${s.visible !== false ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-slate-800 text-slate-500 border-slate-700'} border rounded-lg text-[11px] transition">
+              ${s.visible !== false ? '表示中' : '非表示'}
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      if (dragulaInstance) dragulaInstance.destroy();
+      dragulaInstance = dragula([container], {
+        moves: (el, container, handle) => handle.classList.contains('drag-handle')
+      });
+
+      dragulaInstance.on('drop', () => {
+        const newOrderIds = Array.from(container.children).map(child => child.getAttribute('data-id'));
+        subjects.sort((a, b) => newOrderIds.indexOf(a.id) - newOrderIds.indexOf(b.id));
+        saveSubjectsToStorage();
+      });
+    }
+
+    function toggleSubjectVisibility(idx) {
+      subjects[idx].visible = !(subjects[idx].visible !== false);
+      saveSubjectsToStorage();
+      renderAdminDragList();
+    }
+
+    function addNewSubject() {
+      const nameInput = document.getElementById('new-subject-name');
+      const codeInput = document.getElementById('new-subject-code');
+
+      const name = nameInput.value.trim();
+      const code = codeInput.value.trim().toUpperCase();
+
+      if (!name || !code) {
+        alert("科目名とコードを入力してください。");
+        return;
+      }
+
+      const id = "sub_" + Date.now();
+      subjects.push({
+        id: id,
+        name: name,
+        code: code,
+        visible: true,
+        status: "available",
+        isFixed: false,
+        hasRounds: false,
+        fixedCount: null,
+        semester: "akigakki"
+      });
+
+      window.QUIZ_DB[id] = [];
+      saveSubjectsToStorage();
+
+      nameInput.value = '';
+      codeInput.value = '';
+      renderAdminDragList();
+      alert(`科目「${name}」を追加しました。`);
+    }
+
+    function resetAllDataToDefault() {
+      if (confirm("全ての科目の平均正答率履歴データを削除しますか？")) {
+        subjects.forEach(s => {
+          localStorage.removeItem(`history_accuracy_${s.id}`);
+        });
+        alert("平均正答率データをリセットしました。");
+        renderSubjectList();
+      }
+    }
+
+    // ---------------------------------------------------------
+    // 問題編集モーダル制御機能
+    // ---------------------------------------------------------
+    function toggleAiGeneratorPanel() {
+      const panel = document.getElementById('ai-generator-panel');
+      const icon = document.getElementById('ai-panel-toggle-icon');
+      if (panel.classList.contains('hidden')) {
+        panel.classList.remove('hidden');
+        icon.textContent = '▲ 閉じる';
+      } else {
+        panel.classList.add('hidden');
+        icon.textContent = '▼ 開く';
+      }
+    }
+
+    async function generateQuestionWithGemini() {
+      const imgInput = document.getElementById('ai-input-image');
+      const textInput = document.getElementById('ai-input-text');
+      const btn = document.getElementById('ai-generate-btn');
+      const loading = document.getElementById('ai-generate-loading');
+
+      const text = textInput.value.trim();
+      const file = imgInput.files && imgInput.files[0];
+
+      if (!file && !text) {
+        alert("画像を選択するか、テキストを入力してください。");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.classList.add('opacity-50');
+      loading.classList.remove('hidden');
+
+      try {
+        let contentsParts = [];
+        let base64Img = "";
+
+        if (file) {
+          base64Img = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = e => resolve(e.target.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+
+          const base64Data = base64Img.split(',')[1];
+          const mimeType = file.type || 'image/jpeg';
+          contentsParts.push({
+            inlineData: {
+              mimeType: mimeType,
+              data: base64Data
+            }
+          });
+        }
+
+        const isKeyboardMode = (editingSubjectId === 'biochemistry' && editingSelectedRound === 'keyboard');
+
+        const promptText = isKeyboardMode ? `
+以下の画像または提示内容を解析し、記述式（キーボード入力用）問題を1問作成してください。
+必ず以下のJSONフォーマットのみを返してください。余計な解説やマークダウン記法(例: \`\`\`json)は一切含めないでください。
+
+{
+  "q": "問題文",
+  "keyword": "正解となるキーワード・用語",
+  "exp": "正解の理由や解説"
 }
 
-// 選択肢のテキストから先頭の番号（例: "1. ", "2. ", "1. " など）を取り除く関数
-function cleanOptionText(text) {
-if (typeof text !== 'string') return text;
-// 先頭にある数字＋ドット＋スペース（例: "1. " や "1." など）を削除
-return text.replace(/^\d+\.\s*/, '');
+ユーザー指示/補足: ${text || "画像や内容から重要な問題を1問自動作成してください。"}
+` : `
+以下の画像または提示内容を解析し、四肢択一問題を1問作成してください。
+必ず以下のJSONフォーマットのみを返してください。余計な解説やマークダウン記法(例: \`\`\`json)は一切含めないでください。
+
+{
+  "q": "問題文",
+  "options": ["選択肢1", "選択肢2", "選択肢3", "選択肢4"],
+  "answers": [正解のインデックス(0〜3の数値)],
+  "exp": "正解の理由や解説"
 }
 
-// 問題と選択肢をランダム化 ＆ 番号クリーンアップ関数
-function randomizeAnatomyQuestions(questions) {
-if (!questions || !Array.isArray(questions)) return [];
+ユーザー指示/補足: ${text || "画像や内容から重要な問題を1問自動作成してください。"}
+`;
 
-// 1. 問題の順番をランダム化
-const shuffledQuestions = shuffleAnatomyArray(questions);
+        contentsParts.push({ text: promptText });
 
-// 2. 選択肢の処理
-return shuffledQuestions.map((item) => {
-// 現在の正解のテキストを取得
-const rawCorrectText = item.options[item.correctIndex];
-// 正解テキストから番号を除去したもの（追跡用）
-const cleanedCorrectText = cleanOptionText(rawCorrectText);
+        const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contents: [{ parts: contentsParts }] })
+        });
 
-// すべての選択肢から先頭の番号を除去
-const cleanedOptions = item.options.map(opt => cleanOptionText(opt));
+        if (!response.ok) {
+          throw new Error(`APIエラー: ${response.status}`);
+        }
 
-// 番号を除去した選択肢をシャッフル
-const shuffledOptions = shuffleAnatomyArray(cleanedOptions);
+        const data = await response.json();
+        const resText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        const cleanJsonStr = resText.replace(/```json/g, '').replace(/```/g, '').trim();
+        const parsedQ = JSON.parse(cleanJsonStr);
 
-// シャッフル後の選択肢の中で、正解テキストが何番目にあるかを再検索
-const newCorrectIndex = shuffledOptions.indexOf(cleanedCorrectText);
+        if (!parsedQ.q) {
+          throw new Error("生成データが不正です。");
+        }
 
-return {
-...item,
-options: shuffledOptions,
-correctIndex: newCorrectIndex
-};
-});
-}
+        if (isKeyboardMode) {
+          editingQuestionsList.unshift({
+            q: parsedQ.q,
+            keyword: parsedQ.keyword || "",
+            exp: parsedQ.exp || "Gemini AIによって生成された記述問題です。",
+            image: base64Img || "",
+            enableKeyboard: true,
+            options: [],
+            answers: [],
+            round: editingSelectedRound || null
+          });
+        } else {
+          editingQuestionsList.unshift({
+            q: parsedQ.q,
+            options: parsedQ.options || [],
+            answers: Array.isArray(parsedQ.answers) ? parsedQ.answers : [parsedQ.answers || 0],
+            exp: parsedQ.exp || "Gemini AIによって生成された問題です。",
+            image: base64Img || "",
+            enableKeyboard: false,
+            round: editingSelectedRound || null
+          });
+        }
 
-// 既存の取得関数（getAnatomyQuestions等）をランダム対応版にオーバーライド
-window.getAnatomyQuestions = function() {
-return randomizeAnatomyQuestions(basicQuestions);
-};
+        renderEditorQuestionsList();
+        alert("Gemini AIが問題を生成し、一覧の先頭に追加しました！");
+        
+        imgInput.value = '';
+        textInput.value = '';
+        toggleAiGeneratorPanel();
 
-window.getAnatomyAppliedQuestions = function() {
-return randomizeAnatomyQuestions(appliedQuestions);
-};
+      } catch (err) {
+        console.error("AI問題生成エラー:", err);
+        alert("AIによる問題の生成に失敗しました: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('opacity-50');
+        loading.classList.add('hidden');
+      }
+    }
 
-// QUIZ_DBも呼び出されるたびにランダムな配列を生成するプロパティに変更
-Object.defineProperty(window.QUIZ_DB, 'anatomy', {
-get: function() {
-return randomizeAnatomyQuestions(basicQuestions);
-},
-configurable: true
-});
+    function openQuestionsEditorModal(subjectId) {
+      editingSubjectId = subjectId;
+      const sub = subjects.find(s => s.id === subjectId);
+      document.getElementById('editor-subject-title').textContent = `${sub ? sub.name : '科目'} - 問題編集`;
 
-Object.defineProperty(window.QUIZ_DB, 'anatomyApplied', {
-get: function() {
-return randomizeAnatomyQuestions(appliedQuestions);
-},
-configurable: true
-});
+      const modeSelector = document.getElementById('editor-mode-selector-container');
+      const modeSelect = document.getElementById('editor-mode-select');
+
+      if (subjectId === 'biochemistry' || (sub && sub.hasBiochemistryFormats)) {
+        modeSelector.classList.remove('hidden');
+        modeSelect.innerHTML = `
+          <option value="choice">選択式問題</option>
+          <option value="keyboard">記述式 (キーボード入力) 問題</option>
+        `;
+        editingSelectedRound = 'choice';
+        modeSelect.value = 'choice';
+      } else if (subjectId === 'physiology' || (sub && sub.hasPhysiologyModes)) {
+        modeSelector.classList.remove('hidden');
+        modeSelect.innerHTML = `
+          <option value="past">過去問</option>
+          <option value="quiz">小テスト</option>
+        `;
+        editingSelectedRound = 'past';
+        modeSelect.value = 'past';
+      } else if (subjectId === 'nursing_method' || (sub && sub.hasNursingModes)) {
+        modeSelector.classList.remove('hidden');
+        modeSelect.innerHTML = `
+          <option value="1">第1回演習問題</option>
+          <option value="2">第2回演習問題</option>
+          <option value="3">第3回演習問題</option>
+          <option value="4">第4回演習問題</option>
+          <option value="5">第5回演習問題</option>
+          <option value="6">第6回演習問題</option>
+          <option value="7">第7回演習問題</option>
+          <option value="8">第8回演習問題</option>
+          <option value="9">第9回演習問題</option>
+          <option value="10">第10回演習問題</option>
+          <option value="quiz">小テスト演習問題</option>
+        `;
+        editingSelectedRound = '1';
+        modeSelect.value = '1';
+      } else if (subjectId === 'psychology' || (sub && sub.hasRounds)) {
+        modeSelector.classList.remove('hidden');
+        modeSelect.innerHTML = Array.from({length: 10}, (_, i) => `<option value="${i+1}">第${i+1}回</option>`).join('') + `<option value="quiz">小テスト</option>`;
+        editingSelectedRound = '1';
+        modeSelect.value = '1';
+      } else {
+        modeSelector.classList.add('hidden');
+        editingSelectedRound = null;
+      }
+
+      loadQuestionsForEditor();
+      document.getElementById('modal-questions-editor').classList.remove('hidden');
+    }
+
+    function changeEditorMode(roundVal) {
+      editingSelectedRound = roundVal;
+      loadQuestionsForEditor();
+    }
+
+    function loadQuestionsForEditor() {
+      let rawData = [];
+
+      if (editingSubjectId === 'biochemistry') {
+        const dbKey = (editingSelectedRound === 'keyboard') ? 'biochemistry_keyboard' : 'biochemistry';
+        rawData = window.QUIZ_DB[dbKey] || [];
+        if (rawData.length === 0 && typeof window.getBiochemistryQuestions === 'function') {
+          rawData = window.getBiochemistryQuestions();
+        }
+      } else if (editingSubjectId === 'physiology' && typeof window.getPhysiologyQuestions === 'function') {
+        const fetched = window.getPhysiologyQuestions(editingSelectedRound || 'past');
+        if (fetched && fetched.length > 0) rawData = fetched;
+      } else if (editingSubjectId === 'nursing_method' && typeof window.getNursingQuestions === 'function') {
+        const fetched = window.getNursingQuestions(editingSelectedRound || 'all');
+        if (fetched && fetched.length > 0) rawData = fetched;
+      } else if (editingSubjectId === 'psychology' && typeof window.getQuestions === 'function') {
+        const fetched = window.getQuestions(editingSelectedRound || 'all');
+        if (fetched && fetched.length > 0) rawData = fetched;
+      } else {
+        rawData = window.QUIZ_DB[editingSubjectId] || [];
+      }
+
+      if (editingSubjectId === 'physiology' || editingSubjectId === 'biochemistry') {
+        editingQuestionsList = [...rawData];
+      } else if (editingSelectedRound) {
+        editingQuestionsList = rawData.filter(q => q.round == editingSelectedRound);
+      } else {
+        editingQuestionsList = [...rawData];
+      }
+
+      editingQuestionsList = editingQuestionsList.map(q => normalizeQuestion(q)).filter(Boolean);
+      renderEditorQuestionsList();
+    }
+
+    function renderEditorQuestionsList() {
+      const container = document.getElementById('editor-questions-list');
+      if (editingQuestionsList.length === 0) {
+        container.innerHTML = `<div class="p-6 text-center text-slate-500 text-xs">問題が登録されていません。「＋ 問題を追加」ボタンから追加できます。</div>`;
+        return;
+      }
+
+      const isBiochemistryKeyboard = (editingSubjectId === 'biochemistry' && editingSelectedRound === 'keyboard');
+
+      container.innerHTML = editingQuestionsList.map((q, idx) => {
+        const isKeyboardMode = isBiochemistryKeyboard || q.enableKeyboard;
+
+        return `
+        <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3 relative">
+          <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+            <span class="text-xs font-bold text-amber-400 font-mono">第 ${idx + 1} 問</span>
+            <button onclick="removeQuestionFromEditor(${idx})" class="text-xs text-rose-400 hover:text-rose-300 transition">削除</button>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-[10px] text-slate-400 block">問題文:</label>
+            <textarea onchange="updateEditorQData(${idx}, 'q', this.value)" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-16">${q.q}</textarea>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-[10px] text-slate-400 block">画像:</label>
+            <input type="file" accept="image/*" onchange="handleImageFileUpload(${idx}, this)" class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-amber-500/10 file:text-amber-300 hover:file:bg-amber-500/20 cursor-pointer">
+            ${q.image ? `
+              <div class="mt-2 flex items-center gap-3">
+                <img src="${q.image}" class="max-h-20 rounded border border-slate-700 object-contain">
+                <button onclick="removeEditorImage(${idx})" class="px-2 py-1 bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/60 rounded text-[10px] transition">画像を削除</button>
+              </div>
+            ` : ''}
+          </div>
+
+          ${!isKeyboardMode ? `
+            <div class="space-y-1">
+              <label class="text-[10px] text-slate-400 block">選択肢 (カンマ区切り):</label>
+              <input type="text" value="${(q.options || []).join(', ')}" onchange="updateEditorQData(${idx}, 'options', this.value)" placeholder="選択肢1, 選択肢2, 選択肢3, 選択肢4" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-[10px] text-slate-400 block">正解の番号 (0始まり, 複数可):</label>
+                <input type="text" value="${(q.answers || []).join(', ')}" onchange="updateEditorQData(${idx}, 'answers', this.value)" placeholder="例: 0 または 0, 2" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 font-mono">
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 block">キーボード解答対応:</label>
+                <select onchange="updateEditorQData(${idx}, 'enableKeyboard', this.value === 'true')" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
+                  <option value="false" ${!q.enableKeyboard ? 'selected' : ''}>無効 (選択肢)</option>
+                  <option value="true" ${q.enableKeyboard ? 'selected' : ''}>有効 (記述入力)</option>
+                </select>
+              </div>
+            </div>
+          ` : ''}
+
+          <div class="space-y-1">
+            <label class="text-[10px] text-slate-400 block">記述用正解キーワード (省略時は正解選択肢を判定):</label>
+            <input type="text" value="${q.keyword || ''}" onchange="updateEditorQData(${idx}, 'keyword', this.value)" placeholder="例: クエン酸回路" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-[10px] text-slate-400 block">解説:</label>
+            <textarea onchange="updateEditorQData(${idx}, 'exp', this.value)" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-14">${q.exp || ''}</textarea>
+          </div>
+        </div>
+      `;
+      }).join('');
+    }
+
+    function handleImageFileUpload(idx, input) {
+      const file = input.files && input.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        updateEditorQData(idx, 'image', e.target.result);
+        renderEditorQuestionsList();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeEditorImage(idx) {
+      updateEditorQData(idx, 'image', '');
+      renderEditorQuestionsList();
+    }
+
+    function updateEditorQData(idx, field, value) {
+      if (!editingQuestionsList[idx]) return;
+
+      if (field === 'options') {
+        editingQuestionsList[idx].options = value.split(',').map(s => s.trim()).filter(Boolean);
+      } else if (field === 'answers') {
+        editingQuestionsList[idx].answers = value.split(',').map(s => parseInt(s.trim(), 10)).filter(v => !isNaN(v));
+      } else {
+        editingQuestionsList[idx][field] = value;
+      }
+    }
+
+    function addNewQuestionToEditor() {
+      const isKeyboard = (editingSubjectId === 'biochemistry' && editingSelectedRound === 'keyboard');
+      editingQuestionsList.push({
+        q: "新しい問題文を入力してください",
+        options: isKeyboard ? [] : ["選択肢1", "選択肢2", "選択肢3", "選択肢4"],
+        answers: isKeyboard ? [] : [0],
+        exp: "解説を入力してください",
+        image: "",
+        enableKeyboard: isKeyboard,
+        keyword: "",
+        round: editingSelectedRound || null
+      });
+      renderEditorQuestionsList();
+    }
+
+    function removeQuestionFromEditor(idx) {
+      if (confirm("この問題を削除しますか？")) {
+        editingQuestionsList.splice(idx, 1);
+        renderEditorQuestionsList();
+      }
+    }
+
+    function saveEditedQuestions() {
+      if (!editingSubjectId) return;
+
+      let saveDbKey = editingSubjectId;
+      if (editingSubjectId === 'biochemistry') {
+        saveDbKey = (editingSelectedRound === 'keyboard') ? 'biochemistry_keyboard' : 'biochemistry';
+      } else if (editingSubjectId === 'physiology' && editingSelectedRound) {
+        saveDbKey = `physiology_${editingSelectedRound}`;
+      }
+
+      let rawData = window.QUIZ_DB[saveDbKey] || [];
+
+      if (editingSubjectId === 'physiology' || editingSubjectId === 'biochemistry') {
+        rawData = [...editingQuestionsList];
+      } else if (editingSelectedRound) {
+        rawData = rawData.filter(q => q.round != editingSelectedRound);
+        rawData = rawData.concat(editingQuestionsList);
+      } else {
+        rawData = [...editingQuestionsList];
+      }
+
+      window.QUIZ_DB[saveDbKey] = rawData;
+      db.ref(`quiz_db/${saveDbKey}`).set(rawData).then(() => {
+        alert("問題データをFirebaseに保存しました。");
+        closeQuestionsEditorModal();
+      }).catch(err => {
+        console.error("問題保存エラー:", err);
+        alert("問題データの保存に失敗しました。");
+      });
+    }
+
+    function closeQuestionsEditorModal() {
+      document.getElementById('modal-questions-editor').classList.add('hidden');
+    }
+
+    // =========================================================
+    //  初期化・リアルタイム同期
+    // =========================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      initVisitorTracking();
+      initRealtimeSync();
+
+      if (localStorage.getItem('notice_read_status') === 'read') {
+        const redDot = document.getElementById('notice-red-dot');
+        if (redDot) redDot.classList.add('hidden');
+      }
+
+      const startBtn = document.getElementById("startButton");
+      if (startBtn) {
+        startBtn.addEventListener("click", () => {
+          const selectedValue = document.getElementById("roundSelect").value;
+          currentRound = (selectedValue === "all") ? null : selectedValue;
+
+          if (currentSubject.id === 'psychology' && typeof window.getQuestions === "function") {
+            const currentQuestions = window.getQuestions(selectedValue);
+            if (Array.isArray(currentQuestions) && currentQuestions.length > 0) {
+              window.QUIZ_DB.psychology = currentQuestions;
+            }
+          } else if (currentSubject.id === 'nursing_method' && typeof window.getNursingQuestions === "function") {
+            const currentQuestions = window.getNursingQuestions(selectedValue);
+            if (Array.isArray(currentQuestions) && currentQuestions.length > 0) {
+              window.QUIZ_DB.nursing_method = currentQuestions;
+            }
+          }
+          showStartScreen();
+        });
+      }
+    });
+
+    function initRealtimeSync() {
+      db.ref('subjects').on('value', (snapshot) => {
+        const val = snapshot.val();
+        if (val && Array.isArray(val)) {
+          // デフォルト科目が不足している場合に補完
+          defaultSubjects.forEach(defSub => {
+            if (!val.find(s => s.id === defSub.id)) {
+              val.push(defSub);
+            }
+          });
+          subjects = val;
+        } else {
+          saveSubjectsToStorage();
+        }
+        renderSubjectList();
+        if (!document.getElementById('modal-admin').classList.contains('hidden')) {
+          renderAdminDragList();
+        }
+      });
+
+      db.ref('quiz_db').on('value', (snapshot) => {
+        const val = snapshot.val();
+        if (val) {
+          Object.keys(val).forEach(subId => {
+            window.QUIZ_DB[subId] = val[subId];
+          });
+        }
+      });
+
+      db.ref('notices').on('value', (snapshot) => {
+        const val = snapshot.val();
+        const container = document.getElementById('notice-list-container');
+        const adminManageContainer = document.getElementById('admin-notice-manage-list');
+
+        if (val) {
+          const noticeArray = Object.keys(val).map(key => ({
+            id: key,
+            ...val[key]
+          })).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+          if (container) {
+            container.innerHTML = noticeArray.map(item => `
+              <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+                <div class="text-[10px] text-amber-400 font-mono">${item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'お知らせ'}</div>
+                <div class="font-semibold text-slate-100">${item.title}</div>
+                <p class="text-slate-400 text-[11px] font-light whitespace-pre-wrap">${item.content}</p>
+              </div>
+            `).join('');
+          }
+
+          if (adminManageContainer) {
+            adminManageContainer.innerHTML = noticeArray.map(item => `
+              <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between gap-2">
+                <div class="overflow-hidden pr-2">
+                  <div class="text-[10px] text-amber-400/80 font-mono">${item.timestamp ? new Date(item.timestamp).toLocaleDateString() : ''}</div>
+                  <div class="text-xs font-medium text-slate-200 truncate">${item.title}</div>
+                </div>
+                <button onclick="deleteAdminNotice('${item.id}')" class="px-2 py-1 bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/60 rounded text-[10px] font-medium shrink-0 transition">
+                  削除
+                </button>
+              </div>
+            `).join('');
+          }
+
+        } else {
+          if (container) {
+            container.innerHTML = `
+              <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+                <div class="text-[10px] text-amber-400 font-mono">新機能アップデート</div>
+                <div class="font-semibold text-slate-100">演習機能が新しくなりました</div>
+                <p class="text-slate-400 text-[11px] font-light">画像の表示、複数選択問題、早押し対戦（2Pマルチ）に対応しました。</p>
+              </div>
+            `;
+          }
+          if (adminManageContainer) {
+            adminManageContainer.innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">現在、投稿されたお知らせはありません。</div>`;
+          }
+        }
+      });
+    }
+
+    function toggleNavDrawer() {
+      const drawer = document.getElementById('nav-drawer');
+      const overlay = document.getElementById('nav-overlay');
+      const isOpen = !drawer.classList.contains('-translate-x-full');
+      if (isOpen) {
+        closeNavDrawer();
+      } else {
+        drawer.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+      }
+    }
+
+    function closeNavDrawer() {
+      document.getElementById('nav-drawer').classList.add('-translate-x-full');
+      document.getElementById('nav-overlay').classList.add('hidden');
+    }
+
+    function hideAllScreens() {
+      stopQuizTimer();
+      document.getElementById('screen-subjects').classList.add('hidden');
+      document.getElementById('screen-semester-select').classList.add('hidden');
+      document.getElementById('screen-physiology-mode-select').classList.add('hidden');
+      document.getElementById('screen-anatomy-mode-select').classList.add('hidden');
+      document.getElementById('screen-nursing-mode-select').classList.add('hidden');
+      document.getElementById('screen-biochemistry-format-select').classList.add('hidden');
+      document.getElementById('screen-time-select').classList.add('hidden');
+      document.getElementById('screen-round-select').classList.add('hidden');
+      document.getElementById('screen-count-select').classList.add('hidden');
+      document.getElementById('screen-quiz-start').classList.add('hidden');
+      document.getElementById('screen-quiz-play').classList.add('hidden');
+      document.getElementById('screen-quiz-result').classList.add('hidden');
+      document.getElementById('screen-multi-lobby').classList.add('hidden');
+      document.getElementById('screen-multi-room').classList.add('hidden');
+      document.getElementById('screen-multi-play').classList.add('hidden');
+    }
+
+    function showSubjectScreen() {
+      hideAllScreens();
+      document.getElementById('screen-subjects').classList.remove('hidden');
+      renderSubjectList();
+    }
+
+    function renderSubjectList() {
+      const container = document.getElementById('subject-list-container');
+      const visibleSubjects = subjects.filter(s => s.visible !== false);
+      document.getElementById('subject-count-display').textContent = `全${visibleSubjects.length}科目`;
+
+      container.innerHTML = visibleSubjects.map(s => {
+        const isPrep = s.status === 'preparing';
+        const isPhysiology = s.id === 'physiology';
+        const isAnatomy = s.id === 'anatomy';
+        const isNursing = s.id === 'nursing_method';
+        const isBiochemistry = s.id === 'biochemistry';
+        const statusLabel = isPrep ? '【準備中】' : (s.hasPhysiologyModes || isPhysiology ? '過去問・小テスト対応' : (s.hasAnatomyModes || isAnatomy ? '練習問題・応用問題対応' : (s.hasBiochemistryFormats || isBiochemistry ? '選択式・記述式対応' : (s.hasNursingModes || isNursing ? '12回別問題・問題数選択可' : (s.hasRounds ? '全13回 小テスト対応' : (s.fixedCount ? `過去問演習（${s.fixedCount}問固定）` : '過去問演習・問題数選択可'))))));
+       
+        const avgAcc = isPrep ? null : getAverageAccuracy(s.id);
+        const avgDisplay = (avgAcc !== null) ? `${avgAcc}%` : '-- %';
+
+        return `
+          <button onclick="selectSubject('${s.id}')" ${isPrep ? 'disabled' : ''} class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">${s.code}</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">${s.name}</div>
+                <div class="text-[11px] ${isPrep ? 'text-amber-500/80 font-semibold' : 'text-slate-400 font-light'} mt-0.5">${statusLabel}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="text-right">
+                <div class="text-[10px] text-slate-500 font-light">平均正答率</div>
+                <div class="text-xs font-mono font-semibold ${avgAcc !== null ? 'text-amber-400' : 'text-slate-600'}">${avgDisplay}</div>
+              </div>
+              <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">${isPrep ? '🔒' : '→'}</span>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectSubject(subjectId) {
+      currentSubject = subjects.find(s => s.id === subjectId);
+      if (!currentSubject || currentSubject.status === 'preparing') return;
+
+      showSemesterSelectionScreen();
+    }
+
+    function showSemesterSelectionScreen() {
+      hideAllScreens();
+      document.getElementById('screen-semester-select').classList.remove('hidden');
+      document.getElementById('semester-subject-title').textContent = `${currentSubject.name} - 学期選択`;
+    }
+
+    function selectSemester(semester) {
+      currentSemester = semester;
+      proceedSubjectNextStep();
+    }
+
+    function proceedSubjectNextStep() {
+      const subjectId = currentSubject.id;
+
+      if (subjectId === 'physiology' || currentSubject.hasPhysiologyModes) {
+        showPhysiologyModeSelectionScreen();
+      } else if (subjectId === 'anatomy' || currentSubject.hasAnatomyModes) {
+        showAnatomyModeSelectionScreen();
+      } else if (subjectId === 'biochemistry' || currentSubject.hasBiochemistryFormats) {
+        showBiochemistryFormatSelectionScreen();
+      } else if (subjectId === 'nursing_method' || currentSubject.hasNursingModes) {
+        showNursingModeSelectionScreen();
+      } else if (currentSubject.hasRounds) {
+        showRoundSelectionScreen();
+      } else {
+        currentRound = null;
+        showStartScreen();
+      }
+    }
+
+    function showBiochemistryFormatSelectionScreen() {
+      hideAllScreens();
+      document.getElementById('screen-biochemistry-format-select').classList.remove('hidden');
+    }
+
+    function showPhysiologyModeSelectionScreen() {
+      hideAllScreens();
+      document.getElementById('screen-physiology-mode-select').classList.remove('hidden');
+    }
+
+    function selectPhysiologyMode(mode) {
+      currentPhysiologyMode = mode;
+      showStartScreen();
+    }
+
+    function showAnatomyModeSelectionScreen() {
+      hideAllScreens();
+      document.getElementById('screen-anatomy-mode-select').classList.remove('hidden');
+    }
+
+    function selectAnatomyMode(mode) {
+      currentAnatomyMode = mode;
+      showStartScreen();
+    }
+
+    function showNursingModeSelectionScreen() {
+      hideAllScreens();
+      document.getElementById('screen-nursing-mode-select').classList.remove('hidden');
+    }
+
+    function selectNursingMode(mode) {
+      currentNursingMode = mode;
+      showRoundSelectionScreen();
+    }
+
+    function showRoundSelectionScreen() {
+      hideAllScreens();
+      document.getElementById('screen-round-select').classList.remove('hidden');
+      document.getElementById('round-subject-title').textContent = `${currentSubject.name} モード選択`;
+
+      const roundBackBtn = document.getElementById('round-back-btn');
+      if (currentSubject.id === 'nursing_method' || currentSubject.hasNursingModes) {
+        roundBackBtn.onclick = () => showNursingModeSelectionScreen();
+      } else {
+        roundBackBtn.onclick = () => showSemesterSelectionScreen();
+      }
+    }
+
+    function showTimeSelectionScreen() {
+      hideAllScreens();
+      document.getElementById('screen-time-select').classList.remove('hidden');
+      document.getElementById('time-subject-title').textContent = `${currentSubject.name} 制限時間設定`;
+      
+      const backBtn = document.getElementById('time-back-btn');
+      if (currentSubject.id === 'biochemistry' || currentSubject.hasBiochemistryFormats) {
+        backBtn.onclick = () => showBiochemistryFormatSelectionScreen();
+      } else {
+        backBtn.onclick = () => showStartScreen();
+      }
+    }
+
+    function updateTimeSliderValue(val) {
+      document.getElementById('time-slider-display').textContent = val;
+      QUIZ_LIMIT_TIME = parseInt(val, 10);
+    }
+
+    function proceedToCountOrStart() {
+      if (currentSubject.fixedCount) {
+        startQuiz();
+      } else {
+        showCountSelectionScreen();
+      }
+    }
+
+    function showCountSelectionScreen() {
+      hideAllScreens();
+      document.getElementById('screen-count-select').classList.remove('hidden');
+      document.getElementById('count-subject-title').textContent = `${currentSubject.name} 出題数設定`;
+    }
+
+    function showStartScreen() {
+      hideAllScreens();
+      document.getElementById('screen-quiz-start').classList.remove('hidden');
+
+      const titleEl = document.getElementById('quiz-subject-title');
+      const headingEl = document.getElementById('start-screen-heading');
+      const descEl = document.getElementById('start-screen-desc');
+      const countContainer = document.getElementById('count-selector-container');
+      const backBtn = document.getElementById('start-back-btn');
+
+      if (currentSubject.id === 'biochemistry' || currentSubject.hasBiochemistryFormats) {
+        backBtn.onclick = () => showBiochemistryFormatSelectionScreen();
+        const fmtTitle = currentBiochemistryFormat === 'keyboard' ? '記述式' : '選択式';
+        titleEl.textContent = `${currentSubject.name} - ${fmtTitle}`;
+        headingEl.textContent = `${currentSubject.name}（${fmtTitle}）`;
+        descEl.textContent = currentBiochemistryFormat === 'keyboard'
+          ? `生化学のキーボード入力（記述式）問題が出題されます。`
+          : `生化学の選択式問題が出題されます。`;
+        countContainer.classList.add('hidden');
+
+      } else if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) {
+        backBtn.onclick = () => showPhysiologyModeSelectionScreen();
+        const modeTitle = currentPhysiologyMode === 'quiz' ? '小テスト' : '過去問';
+        titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
+        headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
+        descEl.textContent = currentPhysiologyMode === 'quiz'
+          ? `生理学の小テスト問題が出題されます。`
+          : `生理学の過去問演習問題が出題されます。`;
+        countContainer.classList.add('hidden');
+
+      } else if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) {
+        backBtn.onclick = () => showAnatomyModeSelectionScreen();
+        const modeTitle = currentAnatomyMode === 'applied' ? '応用問題' : '練習問題';
+        titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
+        headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
+        descEl.textContent = currentAnatomyMode === 'applied'
+          ? `解剖学の応用・発展レベルの問題が出題されます。`
+          : `解剖学の基礎・標準問題が出題されます。`;
+        countContainer.classList.add('hidden');
+
+      } else if (currentSubject.id === 'nursing_method' || currentSubject.hasNursingModes) {
+        backBtn.onclick = () => showNursingModeSelectionScreen();
+        if (currentRound === 'quiz') {
+          titleEl.textContent = `${currentSubject.name} - 小テスト`;
+          headingEl.textContent = `小テスト 演習`;
+          descEl.textContent = `小テストの問題が出題されます。次へ進んで時間と問題数を選択してください。`;
+          countContainer.classList.add('hidden');
+        } else if (currentRound) {
+          titleEl.textContent = `${currentSubject.name} - 第${currentRound}回`;
+          headingEl.textContent = `第 ${currentRound} 回 演習`;
+          descEl.textContent = `第${currentRound}回の演習を開始します。次へ進んで時間と問題数を選択してください。`;
+          countContainer.classList.add('hidden');
+        } else {
+          titleEl.textContent = `${currentSubject.name} - 総合練習問題`;
+          headingEl.textContent = `総合練習問題`;
+          descEl.textContent = `全範囲の中からランダムに問題が出題されます。次へ進んで時間と問題数を選択してください。`;
+          countContainer.classList.add('hidden');
+        }
+      } else if (currentSubject.hasRounds) {
+        backBtn.onclick = () => showRoundSelectionScreen();
+        if (currentRound) {
+          titleEl.textContent = `${currentSubject.name} - 第${currentRound}回`;
+          headingEl.textContent = `第 ${currentRound} 回 演習`;
+          descEl.textContent = `第${currentRound}回の演習を開始します。次へ進んで時間と問題数を選択してください。`;
+          countContainer.classList.add('hidden');
+        } else {
+          titleEl.textContent = `${currentSubject.name} - 総合練習問題`;
+          headingEl.textContent = `総合練習問題`;
+          descEl.textContent = `全範囲の中からランダムに問題が出題されます。次へ進んで時間と問題数を選択してください。`;
+          countContainer.classList.add('hidden');
+        }
+      } else {
+        backBtn.onclick = () => showSemesterSelectionScreen();
+        titleEl.textContent = currentSubject.name;
+        headingEl.textContent = `${currentSubject.name} 演習問題`;
+       
+        descEl.textContent = `データベースから問題が出題されます。次へ進んで時間と問題数を選択してください。`;
+        countContainer.classList.add('hidden');
+      }
+
+      updateHighscoreDisplay();
+    }
+
+    function handleStartScreenSubmit() {
+      showTimeSelectionScreen();
+    }
+
+    function updateSliderValue(val) {
+      document.getElementById('slider-count-display').textContent = val;
+    }
+
+    function getHighscoreKey() {
+      let modeSuffix = '';
+      if (currentSubject.id === 'biochemistry' || currentSubject.hasBiochemistryFormats) {
+        modeSuffix = `_${currentBiochemistryFormat}`;
+      } else if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) {
+        modeSuffix = `_${currentPhysiologyMode}`;
+      } else if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) {
+        modeSuffix = `_${currentAnatomyMode}`;
+      } else if (currentRound) {
+        modeSuffix = `_r${currentRound}`;
+      }
+      return `highscore_${currentSubject.id}${modeSuffix}`;
+    }
+
+    function updateHighscoreDisplay() {
+      const key = getHighscoreKey();
+      const saved = localStorage.getItem(key);
+      const badge = document.getElementById('start-screen-highscore');
+      badge.textContent = (saved !== null) ? `${saved}%` : "未挑戦";
+    }
+
+    function startQuiz() {
+      const subjectSemester = currentSubject.semester || 'akigakki';
+      if (currentSemester && currentSemester !== subjectSemester) {
+        alert(`選択した学期（2026${currentSemester === 'harugakki' ? '春' : '秋'}学期）にはこの科目の問題データが存在しません。`);
+        return;
+      }
+
+      if (currentSubject.id === 'psychology' && typeof window.getQuestions === 'function') {
+        const psychData = window.getQuestions(currentRound ? currentRound.toString() : 'all');
+        if (Array.isArray(psychData) && psychData.length > 0) {
+          window.QUIZ_DB.psychology = psychData;
+        }
+      }
+
+      if (currentSubject.id === 'nursing_method' && typeof window.getNursingQuestions === 'function') {
+        const nursingData = window.getNursingQuestions(currentRound ? currentRound.toString() : 'all');
+        if (Array.isArray(nursingData) && nursingData.length > 0) {
+          window.QUIZ_DB.nursing_method = nursingData;
+        }
+      }
+
+      if (currentSubject.id === 'microbiology' && typeof window.getMicrobiologyQuestions === 'function') {
+        const microData = window.getMicrobiologyQuestions();
+        if (Array.isArray(microData) && microData.length > 0 && (!window.QUIZ_DB.microbiology || window.QUIZ_DB.microbiology.length === 0)) {
+          window.QUIZ_DB.microbiology = microData;
+        }
+      }
+
+      if (currentSubject.id === 'medical_intro' && typeof window.getMedicineQuestions === 'function') {
+        const medData = window.getMedicineQuestions();
+        if (Array.isArray(medData) && medData.length > 0 && (!window.QUIZ_DB.medical_intro || window.QUIZ_DB.medical_intro.length === 0)) {
+          window.QUIZ_DB.medical_intro = medData;
+        }
+      }
+
+      if (currentSubject.id === 'mind_behavior' && typeof window.getMindBehaviorQuestions === 'function') {
+        const mindData = window.getMindBehaviorQuestions();
+        if (Array.isArray(mindData) && mindData.length > 0 && (!window.QUIZ_DB.mind_behavior || window.QUIZ_DB.mind_behavior.length === 0)) {
+          window.QUIZ_DB.mind_behavior = mindData;
+        }
+      }
+
+      if (currentSubject.id === 'physiology' && typeof window.getPhysiologyQuestions === 'function') {
+        const physioData = window.getPhysiologyQuestions(currentPhysiologyMode);
+        if (Array.isArray(physioData) && physioData.length > 0) {
+          window.QUIZ_DB.physiology = physioData;
+        }
+      }
+
+      if (currentSubject.id === 'biochemistry' && typeof window.getBiochemistryQuestions === 'function') {
+        const bioData = window.getBiochemistryQuestions();
+        if (Array.isArray(bioData) && bioData.length > 0 && (!window.QUIZ_DB.biochemistry || window.QUIZ_DB.biochemistry.length === 0)) {
+          window.QUIZ_DB.biochemistry = bioData;
+        }
+      }
+
+      if (currentSubject.id === 'anatomy') {
+        if (currentAnatomyMode === 'applied' && typeof window.getAnatomyAppliedQuestions === 'function') {
+          const anatomyAppliedData = window.getAnatomyAppliedQuestions();
+          if (Array.isArray(anatomyAppliedData) && anatomyAppliedData.length > 0) {
+            window.QUIZ_DB.anatomy_applied = anatomyAppliedData;
+          }
+        } else if (typeof window.getAnatomyQuestions === 'function') {
+          const anatomyBasicData = window.getAnatomyQuestions();
+          if (Array.isArray(anatomyBasicData) && anatomyBasicData.length > 0) {
+            window.QUIZ_DB.anatomy = anatomyBasicData;
+          }
+        }
+      }
+
+      let targetDbKey = currentSubject.id;
+      if (currentSubject.id === 'anatomy' && currentAnatomyMode === 'applied') {
+        targetDbKey = 'anatomy_applied';
+      } else if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'keyboard') {
+        targetDbKey = (window.QUIZ_DB.biochemistry_keyboard && window.QUIZ_DB.biochemistry_keyboard.length > 0) ? 'biochemistry_keyboard' : 'biochemistry';
+      }
+
+      let rawData = window.QUIZ_DB[targetDbKey] || [];
+      if (rawData.length === 0) {
+        alert("該当科目の問題が登録されていません。");
+        return;
+      }
+
+      let list = [];
+      if ((currentSubject.hasRounds || currentSubject.hasNursingModes) && currentRound !== null) {
+        list = rawData.filter(q => q.round == currentRound);
+        if (list.length === 0) list = [...rawData];
+      } else {
+        list = [...rawData];
+      }
+
+      list = list.map(q => normalizeQuestion(q)).filter(Boolean);
+
+      if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'keyboard') {
+        list = list.map(q => ({
+          ...q,
+          enableKeyboard: true
+        }));
+      }
+
+      list = list.map(q => {
+        if (!q.options || q.options.length <= 1) return q;
+       
+        const correctOptTexts = q.answers.map(idx => q.options[idx]).filter(Boolean);
+        const shuffledOpts = [...q.options].sort(() => Math.random() - 0.5);
+        const newAnsIndices = correctOptTexts.map(text => shuffledOpts.indexOf(text)).filter(idx => idx !== -1);
+
+        return {
+          ...q,
+          options: shuffledOpts,
+          answers: newAnsIndices
+        };
+      });
+
+      list = list.sort(() => Math.random() - 0.5);
+
+      let reqCount = currentSubject.fixedCount || (parseInt(document.getElementById('quiz-count-slider')?.value) || 10);
+      list = list.slice(0, Math.min(reqCount, list.length));
+
+      activeQuestions = list;
+      currentQIndex = 0;
+      score = 0;
+
+      hideAllScreens();
+      document.getElementById('screen-quiz-play').classList.remove('hidden');
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      isAnswered = false;
+      selectedIndices.clear();
+      const q = activeQuestions[currentQIndex];
+      const total = activeQuestions.length;
+
+      document.getElementById('quiz-progress-text').textContent = `QUESTION ${currentQIndex + 1} / ${total}`;
+      document.getElementById('quiz-score-live').textContent = `正解: ${score}`;
+     
+      const qNumText = `Q${currentQIndex + 1}` + (q.isMultiple ? ` 【複数選択問題 (${q.answers.length}つ選択)】` : '');
+      document.getElementById('quiz-question-number').textContent = qNumText;
+      document.getElementById('quiz-question-text').textContent = q.q;
+
+      const imgContainer = document.getElementById('quiz-image-container');
+      const imgEl = document.getElementById('quiz-image');
+      if (q.image) {
+        imgEl.src = q.image;
+        imgContainer.classList.remove('hidden');
+      } else {
+        imgEl.src = '';
+        imgContainer.classList.add('hidden');
+      }
+
+      const wbContainer = document.getElementById('quiz-wordbox-container');
+      const wbContent = document.getElementById('quiz-wordbox-content');
+      if (q.wordBox) {
+        wbContainer.classList.remove('hidden');
+        if (Array.isArray(q.wordBox)) {
+          wbContent.innerHTML = q.wordBox.map(w => `<span class="inline-block px-2 py-0.5 m-0.5 rounded bg-slate-900 border border-slate-700/80 font-mono">${w}</span>`).join(' ');
+        } else {
+          wbContent.textContent = q.wordBox;
+        }
+      } else {
+        wbContainer.classList.add('hidden');
+        wbContent.innerHTML = '';
+      }
+
+      const fbBox = document.getElementById('quiz-feedback-box');
+      fbBox.className = "hidden p-4 rounded-xl border text-xs leading-relaxed space-y-2";
+
+      const submitBtn = document.getElementById('quiz-submit-multi-btn');
+      const container = document.getElementById('quiz-options-container');
+      const kbContainer = document.getElementById('quiz-keyboard-input-container');
+
+      if (q.enableKeyboard) {
+        container.classList.add('hidden');
+        submitBtn.classList.add('hidden');
+        kbContainer.classList.remove('hidden');
+        const kbInput = document.getElementById('quiz-keyboard-input');
+        kbInput.value = '';
+        kbInput.disabled = false;
+      } else {
+        container.classList.remove('hidden');
+        kbContainer.classList.add('hidden');
+
+        if (q.isMultiple) {
+          submitBtn.classList.remove('hidden');
+          container.innerHTML = q.options.map((opt, idx) => `
+            <button id="opt-btn-${idx}" onclick="toggleOptionSelect(${idx})" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center gap-3">
+              <span id="opt-check-${idx}" class="w-4 h-4 rounded border border-slate-600 bg-slate-950 flex items-center justify-center font-bold text-[10px] text-amber-400 shrink-0"></span>
+              <span>${opt}</span>
+            </button>
+          `).join('');
+        } else {
+          submitBtn.classList.add('hidden');
+          container.innerHTML = q.options.map((opt, idx) => `
+            <button onclick="handleSingleAnswer(${idx})" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center justify-between">
+              <span>${opt}</span>
+              <span class="opt-mark hidden font-bold"></span>
+            </button>
+          `).join('');
+        }
+      }
+
+      startQuizTimer();
+    }
+
+    function toggleOptionSelect(idx) {
+      if (isAnswered) return;
+      const btn = document.getElementById(`opt-btn-${idx}`);
+      const check = document.getElementById(`opt-check-${idx}`);
+
+      if (selectedIndices.has(idx)) {
+        selectedIndices.delete(idx);
+        btn.classList.remove('border-amber-500/80', 'bg-amber-950/30');
+        check.textContent = '';
+        check.classList.remove('border-amber-500');
+      } else {
+        selectedIndices.add(idx);
+        btn.classList.add('border-amber-500/80', 'bg-amber-950/30');
+        check.textContent = '✓';
+        check.classList.add('border-amber-500');
+      }
+    }
+
+    function startQuizTimer() {
+      stopQuizTimer();
+      timeLeft = QUIZ_LIMIT_TIME;
+      updateTimerBarUI();
+
+      const intervalMs = 100;
+      quizTimer = setInterval(() => {
+        timeLeft -= intervalMs / 1000;
+        if (timeLeft <= 0) {
+          timeLeft = 0;
+          updateTimerBarUI();
+          stopQuizTimer();
+          handleTimeout();
+        } else {
+          updateTimerBarUI();
+        }
+      }, intervalMs);
+    }
+
+    function stopQuizTimer() {
+      if (quizTimer) {
+        clearInterval(quizTimer);
+        quizTimer = null;
+      }
+    }
+
+    function updateTimerBarUI() {
+      const bar = document.getElementById('quiz-timer-bar');
+      if (!bar) return;
+     
+      const percentage = Math.max(0, (timeLeft / QUIZ_LIMIT_TIME) * 100);
+      bar.style.width = `${percentage}%`;
+
+      if (percentage <= 16.6) {
+        bar.className = "h-full bg-rose-500 transition-all duration-100 ease-linear";
+      } else if (percentage <= 33.3) {
+        bar.className = "h-full bg-amber-500 transition-all duration-100 ease-linear";
+      } else {
+        bar.className = "h-full bg-emerald-500 transition-all duration-100 ease-linear";
+      }
+    }
+
+    function handleTimeout() {
+      if (isAnswered) return;
+      const q = activeQuestions[currentQIndex];
+      if (q.enableKeyboard) {
+        evaluateKeyboardAnswer("", true);
+      } else if (q.isMultiple) {
+        evaluateAnswers([], true);
+      } else {
+        evaluateAnswers([-1], true);
+      }
+    }
+
+    function handleSingleAnswer(selectedIdx) {
+      if (isAnswered) return;
+      stopQuizTimer();
+      evaluateAnswers([selectedIdx], false);
+    }
+
+    function submitMultipleAnswers() {
+      if (isAnswered) return;
+      if (selectedIndices.size === 0) {
+        alert("1つ以上の選択肢を選んでください。");
+        return;
+      }
+      stopQuizTimer();
+      evaluateAnswers(Array.from(selectedIndices), false);
+    }
+
+    function submitKeyboardAnswer() {
+      if (isAnswered) return;
+      const inputEl = document.getElementById('quiz-keyboard-input');
+      const val = inputEl.value.trim();
+      if (!val) {
+        alert("回答を入力してください。");
+        return;
+      }
+      stopQuizTimer();
+      evaluateKeyboardAnswer(val, false);
+    }
+
+    function evaluateKeyboardAnswer(userText, isTimeout) {
+      isAnswered = true;
+      const q = activeQuestions[currentQIndex];
+      const kbInput = document.getElementById('quiz-keyboard-input');
+      const fbBox = document.getElementById('quiz-feedback-box');
+      const fbTitle = document.getElementById('quiz-feedback-title');
+      const fbDesc = document.getElementById('quiz-feedback-desc');
+
+      if (kbInput) kbInput.disabled = true;
+
+      const normalizeStr = (str) => {
+        if (!str || typeof str !== 'string') return '';
+        return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0))
+                  .replace(/◯|〇|O|o/g, '〇')
+                  .toLowerCase()
+                  .replace(/\s+/g, '');
+      };
+
+      const normUser = normalizeStr(userText);
+      let isCorrect = false;
+
+      if (!isTimeout && normUser !== '') {
+        let targets = [];
+        if (q.keyword && String(q.keyword).trim()) {
+          targets.push(String(q.keyword));
+        }
+        if (q.options && q.options.length > 0) {
+          q.answers.forEach(idx => {
+            if (q.options[idx]) targets.push(String(q.options[idx]));
+          });
+        }
+        if (q.correct && typeof q.correct === 'string') {
+          targets.push(q.correct);
+        }
+        if (q.answer && typeof q.answer === 'string') {
+          targets.push(q.answer);
+        }
+
+        for (let target of targets) {
+          const normTarget = normalizeStr(target);
+          if (normTarget && (normUser === normTarget || normTarget.includes(normUser) || normUser.includes(normTarget))) {
+            isCorrect = true;
+            break;
+          }
+        }
+      }
+
+      if (isCorrect) {
+        score++;
+        fbBox.className = "p-4 rounded-xl border border-emerald-500/40 bg-emerald-950/30 text-emerald-200 text-xs leading-relaxed space-y-2 block";
+        fbTitle.textContent = "✓ 正解！";
+      } else {
+        fbBox.className = "p-4 rounded-xl border border-rose-500/40 bg-rose-950/30 text-rose-200 text-xs leading-relaxed space-y-2 block";
+        fbTitle.textContent = isTimeout ? "⌛ 時間切れ..." : "✕ 不正解...";
+      }
+
+      fbDesc.textContent = q.exp || "解説はありません。";
+      document.getElementById('quiz-score-live').textContent = `正解: ${score}`;
+      document.getElementById('quiz-next-btn').textContent = (currentQIndex + 1 >= activeQuestions.length) ? "結果を見る →" : "次へ進む →";
+    }
+
+    function evaluateAnswers(userSelectedArray, isTimeout) {
+      isAnswered = true;
+      const q = activeQuestions[currentQIndex];
+      const buttons = document.querySelectorAll('.quiz-opt-btn');
+      const submitBtn = document.getElementById('quiz-submit-multi-btn');
+      const fbBox = document.getElementById('quiz-feedback-box');
+      const fbTitle = document.getElementById('quiz-feedback-title');
+      const fbDesc = document.getElementById('quiz-feedback-desc');
+
+      submitBtn.classList.add('hidden');
+
+      const correctSorted = [...q.answers].sort((a,b) => a-b).join(',');
+      const userSorted = [...userSelectedArray].filter(v => v >= 0).sort((a,b) => a-b).join(',');
+      const isCorrect = (!isTimeout && userSorted.length > 0 && correctSorted === userSorted);
+
+      buttons.forEach((btn, idx) => {
+        btn.disabled = true;
+        const isTargetCorrect = q.answers.includes(idx);
+        const isUserChosen = userSelectedArray.includes(idx);
+
+        if (isTargetCorrect) {
+          btn.classList.add('bg-emerald-950/60', 'border-emerald-500/80', 'text-emerald-200');
+        } else if (isUserChosen && !isTargetCorrect) {
+          btn.classList.add('bg-rose-950/60', 'border-rose-500/80', 'text-rose-200');
+        } else {
+          btn.classList.add('opacity-40');
+        }
+      });
+
+      if (isCorrect) {
+        score++;
+        fbBox.className = "p-4 rounded-xl border border-emerald-500/40 bg-emerald-950/30 text-emerald-200 text-xs leading-relaxed space-y-2 block";
+        fbTitle.textContent = "✓ 正解！";
+      } else {
+        fbBox.className = "p-4 rounded-xl border border-rose-500/40 bg-rose-950/30 text-rose-200 text-xs leading-relaxed space-y-2 block";
+        fbTitle.textContent = isTimeout ? "⌛ 時間切れ..." : "✕ 不正解...";
+      }
+
+      fbDesc.textContent = q.exp || "解説はありません。";
+      document.getElementById('quiz-score-live').textContent = `正解: ${score}`;
+      document.getElementById('quiz-next-btn').textContent = (currentQIndex + 1 >= activeQuestions.length) ? "結果を見る →" : "次へ進む →";
+    }
+
+    function nextQuestion() {
+      currentQIndex++;
+      if (currentQIndex >= activeQuestions.length) {
+        showResultScreen();
+      } else {
+        renderQuestion();
+      }
+    }
+
+    function quitQuiz() {
+      if (confirm("現在の演習を終了して科目選択画面へ戻りますか？")) {
+        stopQuizTimer();
+        showSubjectScreen();
+      }
+    }
+
+    function showResultScreen() {
+      stopQuizTimer();
+      hideAllScreens();
+      document.getElementById('screen-quiz-result').classList.remove('hidden');
+
+      const total = activeQuestions.length;
+      const accRate = Math.round((score / total) * 100);
+
+      document.getElementById('final-score-val').textContent = accRate;
+      
+      const evalText = document.getElementById('final-eval-text');
+      if (accRate === 100) {
+        evalText.textContent = "素晴らしい！満点達成です！";
+        if (typeof confetti === 'function') {
+          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        }
+      } else if (accRate >= 80) {
+        evalText.textContent = "合格ライン達成！大変優秀です。";
+      } else if (accRate >= 60) {
+        evalText.textContent = "あと一歩！間違えた箇所を復習しましょう。";
+      } else {
+        evalText.textContent = "繰り返し練習して基礎を固めましょう。";
+      }
+
+      const key = getHighscoreKey();
+      const prevBest = localStorage.getItem(key);
+      const newRecordBadge = document.getElementById('new-record-badge');
+
+      if (prevBest === null || accRate > parseInt(prevBest, 10)) {
+        localStorage.setItem(key, accRate);
+        newRecordBadge.classList.remove('hidden');
+      } else {
+        newRecordBadge.classList.add('hidden');
+      }
+
+      const historyKey = `history_accuracy_${currentSubject.id}`;
+      const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+      history.push(accRate);
+      if (history.length > 20) history.shift();
+      localStorage.setItem(historyKey, JSON.stringify(history));
+    }
+
+    // =========================================================
+    //  2人マルチプレイ (早押し対戦) ロジック
+    // =========================================================
+    function showMultiplayerLobby() {
+      hideAllScreens();
+      document.getElementById('screen-multi-lobby').classList.remove('hidden');
+    }
+
+    function createMultiRoom() {
+      const roomCode = Math.floor(1000 + Math.random() * 9000).toString();
+      currentRoomCode = roomCode;
+      isHost = true;
+
+      roomRef = db.ref(`multi_rooms/${roomCode}`);
+      roomRef.set({
+        hostId: myPlayerId,
+        status: 'waiting',
+        subjectId: subjects[0]?.id || 'psychology',
+        questionCount: 10,
+        players: {
+          p1: { id: myPlayerId, score: 0 },
+          p2: null
+        },
+        currentQIndex: 0,
+        questions: [],
+        buzzPlayer: null,
+        created: Date.now()
+      }).then(() => {
+        enterMultiRoomView();
+      });
+    }
+
+    function joinMultiRoom() {
+      const code = document.getElementById('join-code-input').value.trim();
+      if (!code || code.length !== 4) {
+        alert("4桁の部屋コードを入力してください。");
+        return;
+      }
+
+      const targetRef = db.ref(`multi_rooms/${code}`);
+      targetRef.once('value', (snap) => {
+        const val = snap.val();
+        if (!val) {
+          alert("該当する部屋が見つかりません。コードを確認してください。");
+          return;
+        }
+        if (val.players && val.players.p2 && val.players.p2.id !== myPlayerId) {
+          alert("この部屋は既に満員です。");
+          return;
+        }
+
+        currentRoomCode = code;
+        isHost = false;
+        roomRef = targetRef;
+
+        roomRef.child('players/p2').set({
+          id: myPlayerId,
+          score: 0
+        }).then(() => {
+          enterMultiRoomView();
+        });
+      });
+    }
+
+    function enterMultiRoomView() {
+      hideAllScreens();
+      document.getElementById('screen-multi-room').classList.remove('hidden');
+
+      document.getElementById('multi-room-code-display').textContent = currentRoomCode;
+      document.getElementById('multi-room-code-large').textContent = currentRoomCode;
+
+      const hostSettings = document.getElementById('host-settings-area');
+      const guestMsg = document.getElementById('guest-waiting-msg');
+      
+      if (isHost) {
+        hostSettings.classList.remove('hidden');
+        guestMsg.classList.add('hidden');
+
+        const selectEl = document.getElementById('multi-subject-select');
+        selectEl.innerHTML = subjects.filter(s => s.status !== 'preparing' && s.visible !== false).map(s => `
+          <option value="${s.id}">${s.name}</option>
+        `).join('');
+      } else {
+        hostSettings.classList.add('hidden');
+        guestMsg.classList.remove('hidden');
+      }
+
+      listenToRoomUpdates();
+    }
+
+    function listenToRoomUpdates() {
+      if (!roomRef) return;
+
+      roomRef.on('value', (snap) => {
+        roomData = snap.val();
+        if (!roomData) return;
+
+        const p1Status = document.getElementById('p1-status');
+        const p2Status = document.getElementById('p2-status');
+        const startBtn = document.getElementById('multi-start-btn');
+
+        if (roomData.players && roomData.players.p1) {
+          p1Status.textContent = roomData.players.p1.id === myPlayerId ? "あなた (接続完了)" : "接続中";
+        } else {
+          p1Status.textContent = "待機中...";
+        }
+
+        if (roomData.players && roomData.players.p2) {
+          p2Status.textContent = roomData.players.p2.id === myPlayerId ? "あなた (接続完了)" : "対戦相手 (参加済)";
+        } else {
+          p2Status.textContent = "待機中...";
+        }
+
+        if (isHost) {
+          if (roomData.players && roomData.players.p1 && roomData.players.p2) {
+            startBtn.disabled = false;
+            startBtn.textContent = "対戦を開始する！";
+          } else {
+            startBtn.disabled = true;
+            startBtn.textContent = "相手の参加を待っています...";
+          }
+        }
+
+        if (roomData.status === 'playing') {
+          if (document.getElementById('screen-multi-play').classList.contains('hidden')) {
+            hideAllScreens();
+            document.getElementById('screen-multi-play').classList.remove('hidden');
+          }
+          renderMultiPlayView();
+        }
+      });
+    }
+
+    function startMultiGame() {
+      if (!isHost || !roomRef) return;
+
+      const selectedSubId = document.getElementById('multi-subject-select').value;
+      const count = parseInt(document.getElementById('multi-count-slider').value, 10);
+
+      let rawData = window.QUIZ_DB[selectedSubId] || [];
+      if (rawData.length === 0) {
+        alert("選択された科目に問題がありません。");
+        return;
+      }
+
+      let qList = rawData.map(q => normalizeQuestion(q)).filter(Boolean);
+      qList = qList.sort(() => Math.random() - 0.5).slice(0, Math.min(count, qList.length));
+
+      roomRef.update({
+        status: 'playing',
+        subjectId: selectedSubId,
+        questionCount: qList.length,
+        questions: qList,
+        currentQIndex: 0,
+        buzzPlayer: null,
+        answeredChoice: null
+      });
+    }
+
+    function renderMultiPlayView() {
+      if (!roomData || !roomData.questions) return;
+
+      const qIndex = roomData.currentQIndex || 0;
+      const q = roomData.questions[qIndex];
+      const total = roomData.questions.length;
+
+      document.getElementById('multi-progress-text').textContent = `QUESTION ${qIndex + 1} / ${total}`;
+      
+      const isP1 = (roomData.players.p1.id === myPlayerId);
+      const myScore = isP1 ? roomData.players.p1.score : (roomData.players.p2 ? roomData.players.p2.score : 0);
+      const oppScore = isP1 ? (roomData.players.p2 ? roomData.players.p2.score : 0) : roomData.players.p1.score;
+
+      document.getElementById('multi-my-score').textContent = myScore;
+      document.getElementById('multi-opp-score').textContent = oppScore;
+
+      document.getElementById('multi-q-num').textContent = `Q${qIndex + 1}`;
+      document.getElementById('multi-q-text').textContent = q.q;
+
+      const imgContainer = document.getElementById('multi-image-container');
+      const imgEl = document.getElementById('multi-image');
+      if (q.image) {
+        imgEl.src = q.image;
+        imgContainer.classList.remove('hidden');
+      } else {
+        imgEl.src = '';
+        imgContainer.classList.add('hidden');
+      }
+
+      const banner = document.getElementById('buzz-status-banner');
+      const container = document.getElementById('multi-options-container');
+      const nextBtnWrap = document.getElementById('multi-next-btn-wrap');
+
+      if (roomData.buzzPlayer) {
+        const isMeBuzz = (roomData.buzzPlayer === myPlayerId);
+        const isCorrect = roomData.isBuzzCorrect;
+
+        if (isCorrect) {
+          banner.textContent = isMeBuzz ? "🎉 あなたが正解しました！ (+1pt)" : "相手が正解しました！";
+          banner.className = isMeBuzz ? "p-3 rounded-xl bg-emerald-900/90 border border-emerald-500 text-emerald-200 text-xs font-bold text-center" : "p-3 rounded-xl bg-rose-900/90 border border-rose-500 text-rose-200 text-xs font-bold text-center";
+        } else {
+          banner.textContent = isMeBuzz ? "❌ 残念！不正解です..." : "相手が不正解でした！";
+          banner.className = "p-3 rounded-xl bg-rose-900/90 border border-rose-500 text-rose-200 text-xs font-bold text-center";
+        }
+
+        if (isHost) {
+          nextBtnWrap.classList.remove('hidden');
+        }
+      } else {
+        banner.textContent = "正しい選択肢を先に押してください！";
+        banner.className = "p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center text-xs font-bold transition";
+        nextBtnWrap.classList.add('hidden');
+      }
+
+      container.innerHTML = (q.options || []).map((opt, idx) => {
+        const isChosen = (roomData.answeredChoice === idx);
+        const isTargetCorrect = q.answers.includes(idx);
+        let btnStyle = "bg-slate-900/80 border-slate-700/60 text-slate-200 hover:bg-slate-800";
+
+        if (roomData.buzzPlayer) {
+          if (isTargetCorrect) {
+            btnStyle = "bg-emerald-950/80 border-emerald-500/80 text-emerald-200";
+          } else if (isChosen && !isTargetCorrect) {
+            btnStyle = "bg-rose-950/80 border-rose-500/80 text-rose-200";
+          } else {
+            btnStyle = "bg-slate-950/40 border-slate-800 text-slate-600";
+          }
+        }
+
+        return `
+          <button onclick="handleMultiChoiceClick(${idx})" ${roomData.buzzPlayer ? 'disabled' : ''} class="w-full p-4 rounded-xl border ${btnStyle} text-xs font-medium text-left transition shadow flex justify-between items-center">
+            <span>${opt}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function handleMultiChoiceClick(choiceIdx) {
+      if (!roomRef || !roomData || roomData.buzzPlayer) return;
+
+      const qIndex = roomData.currentQIndex || 0;
+      const q = roomData.questions[qIndex];
+      const isCorrect = q.answers.includes(choiceIdx);
+
+      const isP1 = (roomData.players.p1.id === myPlayerId);
+      const playerKey = isP1 ? 'p1' : 'p2';
+      const currentScore = isP1 ? roomData.players.p1.score : roomData.players.p2.score;
+
+      const updates = {};
+      updates['buzzPlayer'] = myPlayerId;
+      updates['answeredChoice'] = choiceIdx;
+      updates['isBuzzCorrect'] = isCorrect;
+
+      if (isCorrect) {
+        updates[`players/${playerKey}/score`] = currentScore + 1;
+      }
+
+      roomRef.update(updates);
+    }
+
+    function nextMultiQuestionHost() {
+      if (!isHost || !roomRef || !roomData) return;
+
+      const nextIndex = (roomData.currentQIndex || 0) + 1;
+      if (nextIndex >= roomData.questions.length) {
+        alert("全問題が終了しました！ロビーに戻ります。");
+        roomRef.update({ status: 'finished' });
+        showSubjectScreen();
+      } else {
+        roomRef.update({
+          currentQIndex: nextIndex,
+          buzzPlayer: null,
+          answeredChoice: null,
+          isBuzzCorrect: null
+        });
+      }
+    }
+
+    function leaveMultiRoom() {
+      if (roomRef) {
+        roomRef.off();
+      }
+      showSubjectScreen();
+    }
+  </script>
+</body>
+</html>
