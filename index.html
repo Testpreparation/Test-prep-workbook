@@ -33,7 +33,9 @@
     window.QUIZ_DB.biochemistry = []; // 生化学（選択式）
     window.QUIZ_DB.biochemistry_keyboard = []; // 生化学（記述式）
     window.QUIZ_DB.nursing_method = []; // 看護学方法論Ⅰ用
-    window.QUIZ_DB.public_health_nursing = []; // 公衆衛生看護学概論
+    window.QUIZ_DB.public_health_nursing = []; // 公衆衛生看護学概論（共通）
+    window.QUIZ_DB.public_health_nursing_basic = []; // 公衆衛生看護学概論（練習問題）
+    window.QUIZ_DB.public_health_nursing_exercise = []; // 公衆衛生看護学概論（演習問題）
     window.QUIZ_DB.public_health = []; // 公衆衛生学（共通）
     window.QUIZ_DB.public_health_past = []; // 公衆衛生学（過去問）
     window.QUIZ_DB.public_health_exercise = []; // 公衆衛生学（演習問題）
@@ -60,6 +62,8 @@
   <script src="publichealth_past2026harugakki.js"></script>
   <script src="publichealth_exercise2026harugakki.js"></script>
   <script src="publichealth_national2026harugakki.js"></script>
+  <script src="publichealthnursing_basic2026harugakki.js"></script>
+  <script src="publichealthnursing_exercise2026harugakki.js"></script>
 
   <!-- 各科目の外部問題データベースJSの読み込み（秋学期） -->
   <script src="psychology2026akigakki.js"></script>
@@ -73,6 +77,8 @@
   <script src="publichealth_past2026akigakki.js"></script>
   <script src="publichealth_exercise2026akigakki.js"></script>
   <script src="publichealth_national2026akigakki.js"></script>
+  <script src="publichealthnursing_basic2026akigakki.js"></script>
+  <script src="publichealthnursing_exercise2026akigakki.js"></script>
 
   <style>
     body {
@@ -355,6 +361,38 @@
               <div>
                 <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">模擬国家試験</div>
                 <div class="text-[11px] text-slate-400 font-light mt-0.5">国家試験形式の模擬問題</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 画面1.2.6: 公衆衛生看護学概論 モード選択 (練習問題 / 演習問題) -->
+      <div id="screen-phn-mode-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">公衆衛生看護学概論 モード選択</span>
+        </div>
+
+        <div class="space-y-3 pt-2">
+          <button onclick="selectPHNMode('basic')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">PHN-1</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">練習問題</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">公衆衛生看護学概論の練習問題</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+
+          <button onclick="selectPHNMode('exercise')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-bold">PHN-2</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">演習問題</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">公衆衛生看護学概論の演習問題</div>
               </div>
             </div>
             <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
@@ -849,7 +887,7 @@
       <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 space-y-3">
         <div class="text-xs font-semibold text-amber-400 flex items-center justify-between uppercase tracking-widest">
           <div class="flex items-center gap-1.5">
-            <span>🗑️️</span> <span>投稿済みお知らせの削除・管理</span>
+            <span>🗑️</span> <span>投稿済みお知らせの削除・管理</span>
           </div>
         </div>
         <div id="admin-notice-manage-list" class="space-y-2 max-h-40 overflow-y-auto pt-1">
@@ -1165,7 +1203,7 @@
       { id: "microbiology", name: "微生物学", code: "MIC", visible: true, semesterSetting: "all", status: "available", isFixed: true, hasRounds: false, fixedCount: null },
       { id: "anatomy", name: "解剖学", code: "ANA", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, hasAnatomyModes: true, fixedCount: null },
       { id: "nursing_method", name: "看護学方法論Ⅰ", code: "NUR Ⅰ", visible: true, semesterSetting: "all", status: "available", isFixed: true, hasRounds: false, hasNursingModes: true, fixedCount: null },
-      { id: "public_health_nursing", name: "公衆衛生看護学概論", code: "PHN", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "public_health_nursing", name: "公衆衛生看護学概論", code: "PHN", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, hasPHNModes: true, fixedCount: null },
       { id: "public_health", name: "公衆衛生学", code: "PUB", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, hasPublicHealthModes: true, fixedCount: null },
       { id: "nutrition", name: "栄養学", code: "NUT", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
       { id: "pathology", name: "病理学", code: "PAT", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
@@ -1184,6 +1222,7 @@
     let currentPhysiologyMode = 'past';
     let currentAnatomyMode = 'basic';
     let currentPublicHealthMode = 'past';
+    let currentPHNMode = 'basic';
     let currentNursingMode = 'rounds';
     let currentBiochemistryFormat = 'choice';
     let activeQuestions = [];
@@ -1547,6 +1586,14 @@
         `;
         editingSelectedRound = 'past';
         modeSelect.value = 'past';
+      } else if (subjectId === 'public_health_nursing' || (sub && sub.hasPHNModes)) {
+        modeSelector.classList.remove('hidden');
+        modeSelect.innerHTML = `
+          <option value="basic">練習問題</option>
+          <option value="exercise">演習問題</option>
+        `;
+        editingSelectedRound = 'basic';
+        modeSelect.value = 'basic';
       } else if (subjectId === 'nursing_method' || (sub && sub.hasNursingModes)) {
         modeSelector.classList.remove('hidden');
         modeSelect.innerHTML = `
@@ -1598,6 +1645,9 @@
       } else if (editingSubjectId === 'public_health') {
         const dbKey = `public_health_${editingSelectedRound || 'past'}`;
         rawData = window.QUIZ_DB[dbKey] || [];
+      } else if (editingSubjectId === 'public_health_nursing') {
+        const dbKey = `public_health_nursing_${editingSelectedRound || 'basic'}`;
+        rawData = window.QUIZ_DB[dbKey] || [];
       } else if (editingSubjectId === 'nursing_method' && typeof window.getNursingQuestions === 'function') {
         const fetched = window.getNursingQuestions(editingSelectedRound || 'all');
         if (fetched && fetched.length > 0) rawData = fetched;
@@ -1608,7 +1658,7 @@
         rawData = window.QUIZ_DB[editingSubjectId] || [];
       }
 
-      if (editingSubjectId === 'physiology' || editingSubjectId === 'biochemistry' || editingSubjectId === 'public_health') {
+      if (editingSubjectId === 'physiology' || editingSubjectId === 'biochemistry' || editingSubjectId === 'public_health' || editingSubjectId === 'public_health_nursing') {
         editingQuestionsList = [...rawData];
       } else if (editingSelectedRound) {
         editingQuestionsList = rawData.filter(q => q.round == editingSelectedRound);
@@ -1751,11 +1801,13 @@
         saveDbKey = `physiology_${editingSelectedRound}`;
       } else if (editingSubjectId === 'public_health' && editingSelectedRound) {
         saveDbKey = `public_health_${editingSelectedRound}`;
+      } else if (editingSubjectId === 'public_health_nursing' && editingSelectedRound) {
+        saveDbKey = `public_health_nursing_${editingSelectedRound}`;
       }
 
       let rawData = window.QUIZ_DB[saveDbKey] || [];
 
-      if (editingSubjectId === 'physiology' || editingSubjectId === 'biochemistry' || editingSubjectId === 'public_health') {
+      if (editingSubjectId === 'physiology' || editingSubjectId === 'biochemistry' || editingSubjectId === 'public_health' || editingSubjectId === 'public_health_nursing') {
         rawData = [...editingQuestionsList];
       } else if (editingSelectedRound) {
         rawData = rawData.filter(q => q.round != editingSelectedRound);
@@ -1911,6 +1963,7 @@
       document.getElementById('screen-physiology-mode-select').classList.add('hidden');
       document.getElementById('screen-anatomy-mode-select').classList.add('hidden');
       document.getElementById('screen-publichealth-mode-select').classList.add('hidden');
+      document.getElementById('screen-phn-mode-select').classList.add('hidden');
       document.getElementById('screen-nursing-mode-select').classList.add('hidden');
       document.getElementById('screen-biochemistry-format-select').classList.add('hidden');
       document.getElementById('screen-time-select').classList.add('hidden');
@@ -1940,9 +1993,10 @@
         const isPhysiology = s.id === 'physiology';
         const isAnatomy = s.id === 'anatomy';
         const isPublicHealth = s.id === 'public_health';
+        const isPHN = s.id === 'public_health_nursing';
         const isNursing = s.id === 'nursing_method';
         const isBiochemistry = s.id === 'biochemistry';
-        const statusLabel = isPrep ? '【準備中】' : (s.hasPhysiologyModes || isPhysiology ? '過去問・小テスト対応' : (s.hasAnatomyModes || isAnatomy ? '練習問題・応用問題対応' : (s.hasPublicHealthModes || isPublicHealth ? '過去問・演習問題・模擬国試対応' : (s.hasBiochemistryFormats || isBiochemistry ? '選択式・記述式対応' : (s.hasNursingModes || isNursing ? '12回別問題・問題数選択可' : (s.hasRounds ? '全13回 小テスト対応' : (s.fixedCount ? `過去問演習（${s.fixedCount}問固定）` : '過去問演習・問題数選択可')))))));
+        const statusLabel = isPrep ? '【準備中】' : (s.hasPhysiologyModes || isPhysiology ? '過去問・小テスト対応' : (s.hasAnatomyModes || isAnatomy ? '練習問題・応用問題対応' : (s.hasPublicHealthModes || isPublicHealth ? '過去問・演習問題・模擬国試対応' : (s.hasPHNModes || isPHN ? '練習問題・演習問題対応' : (s.hasBiochemistryFormats || isBiochemistry ? '選択式・記述式対応' : (s.hasNursingModes || isNursing ? '12回別問題・問題数選択可' : (s.hasRounds ? '全13回 小テスト対応' : (s.fixedCount ? `過去問演習（${s.fixedCount}問固定）` : '過去問演習・問題数選択可'))))))));
        
         const avgAcc = isPrep ? null : getAverageAccuracy(s.id);
         const avgDisplay = (avgAcc !== null) ? `${avgAcc}%` : '-- %';
@@ -2006,6 +2060,8 @@
         showAnatomyModeSelectionScreen();
       } else if (currentSubject.id === 'public_health' || currentSubject.hasPublicHealthModes) {
         showPublicHealthModeSelectionScreen();
+      } else if (currentSubject.id === 'public_health_nursing' || currentSubject.hasPHNModes) {
+        showPHNModeSelectionScreen();
       } else if (currentSubject.id === 'biochemistry' || currentSubject.hasBiochemistryFormats) {
         showBiochemistryFormatSelectionScreen();
       } else if (currentSubject.id === 'nursing_method' || currentSubject.hasNursingModes) {
@@ -2050,6 +2106,16 @@
 
     function selectPublicHealthMode(mode) {
       currentPublicHealthMode = mode;
+      showStartScreen();
+    }
+
+    function showPHNModeSelectionScreen() {
+      hideAllScreens();
+      document.getElementById('screen-phn-mode-select').classList.remove('hidden');
+    }
+
+    function selectPHNMode(mode) {
+      currentPHNMode = mode;
       showStartScreen();
     }
 
@@ -2156,6 +2222,14 @@
         descEl.textContent = `公衆衛生学の${modeTitle}が出題されます。`;
         countContainer.classList.add('hidden');
 
+      } else if (currentSubject.id === 'public_health_nursing' || currentSubject.hasPHNModes) {
+        backBtn.onclick = () => showPHNModeSelectionScreen();
+        const modeTitle = currentPHNMode === 'basic' ? '練習問題' : '演習問題';
+        titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
+        headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
+        descEl.textContent = `公衆衛生看護学概論の${modeTitle}が出題されます。`;
+        countContainer.classList.add('hidden');
+
       } else if (currentSubject.id === 'nursing_method' || currentSubject.hasNursingModes) {
         backBtn.onclick = () => showNursingModeSelectionScreen();
         if (currentRound === 'quiz') {
@@ -2220,6 +2294,8 @@
         modeSuffix += `_${currentAnatomyMode}`;
       } else if (currentSubject.id === 'public_health' || currentSubject.hasPublicHealthModes) {
         modeSuffix += `_${currentPublicHealthMode}`;
+      } else if (currentSubject.id === 'public_health_nursing' || currentSubject.hasPHNModes) {
+        modeSuffix += `_${currentPHNMode}`;
       } else if (currentRound) {
         modeSuffix += `_r${currentRound}`;
       }
@@ -2305,6 +2381,17 @@
         }
       }
 
+      if (currentSubject.id === 'public_health_nursing') {
+        const modeSuffix = currentPHNMode.charAt(0).toUpperCase() + currentPHNMode.slice(1);
+        const fnName = isAutumn ? `getPublicHealthNursing${modeSuffix}QuestionsAutumn` : `getPublicHealthNursing${modeSuffix}Questions`;
+        if (typeof window[fnName] === 'function') {
+          const phnData = window[fnName]();
+          if (Array.isArray(phnData) && phnData.length > 0) {
+            window.QUIZ_DB[`public_health_nursing_${currentPHNMode}`] = phnData;
+          }
+        }
+      }
+
       if (currentSubject.id === 'biochemistry') {
         const fnName = isAutumn ? 'getBiochemistryQuestionsAutumn' : 'getBiochemistryQuestions';
         if (typeof window[fnName] === 'function') {
@@ -2338,6 +2425,8 @@
         targetDbKey = 'anatomy_applied';
       } else if (currentSubject.id === 'public_health') {
         targetDbKey = `public_health_${currentPublicHealthMode}`;
+      } else if (currentSubject.id === 'public_health_nursing') {
+        targetDbKey = `public_health_nursing_${currentPHNMode}`;
       } else if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'keyboard') {
         targetDbKey = (window.QUIZ_DB.biochemistry_keyboard && window.QUIZ_DB.biochemistry_keyboard.length > 0) ? 'biochemistry_keyboard' : 'biochemistry';
       }
