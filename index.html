@@ -48,6 +48,9 @@
     window.QUIZ_DB.statistics = []; // 統計学
     window.QUIZ_DB.nursing_method_3 = []; // 看護学方法論Ⅲ
     window.QUIZ_DB.nursing_method_4 = []; // 看護学方法論Ⅳ
+
+    // ★ 暗記カード専用独立データベース
+    window.FLASHCARD_DB = window.FLASHCARD_DB || {};
   </script>
 
   <!-- 各科目の外部問題データベースJSの読み込み（春学期） -->
@@ -79,6 +82,9 @@
   <script src="publichealth_national2026akigakki.js"></script>
   <script src="publichealthnursing_basic2026akigakki.js"></script>
   <script src="publichealthnursing_exercise2026akigakki.js"></script>
+
+  <!-- ★ 暗記カード専用の独立外部JSファイルを読み込み -->
+  <script src="flashcard_data.js" onerror="console.log('flashcard_data.js 未検出。')"></script>
 
   <style>
     body {
@@ -129,6 +135,72 @@
       opacity: 0.25;
     }
 
+    /* カスタムスクロールバー */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #1E293B;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+    .custom-scrollbar {
+      scrollbar-width: thin;
+      scrollbar-color: #1E293B rgba(15, 23, 42, 0.6);
+    }
+
+    /* ★ リアルな3Dカードフリップ＆シャドウアニメーション */
+    .perspective-1000 {
+      perspective: 1200px;
+    }
+    .transform-style-3d {
+      transform-style: preserve-3d;
+      transition: transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.65s ease;
+    }
+    .backface-hidden {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .rotate-y-180 {
+      transform: rotateY(180deg) rotateZ(-1deg);
+    }
+
+    /* 単語カード（リアルなカードリング付き単語帳デザイン） */
+    .flashcard-paper {
+      background: #1E293B;
+      background-image: radial-gradient(circle at 50% 50%, #334155 0%, #1E293B 100%);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12), 0 16px 32px -8px rgba(0, 0, 0, 0.75);
+    }
+    .flashcard-hole {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #0F172A;
+      border: 2px solid #475569;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
+      position: relative;
+    }
+    .flashcard-ring-wire {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 24px;
+      height: 36px;
+      border: 4px solid #94A3B8;
+      border-bottom: none;
+      border-radius: 12px 12px 0 0;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+      z-index: 20;
+    }
+
     /* カスタムスライダー */
     input[type=range] {
       -webkit-appearance: none;
@@ -158,22 +230,6 @@
     }
     input[type=range]::-webkit-slider-thumb:hover {
       background: #F59E0B;
-    }
-
-    /* 早押しボタン用アニメーション */
-    .buzz-btn {
-      box-shadow: 0 8px 0 #b45309, 0 15px 20px rgba(0,0,0,0.4);
-      transition: all 0.1s ease;
-    }
-    .buzz-btn:active:not(:disabled) {
-      transform: translateY(4px);
-      box-shadow: 0 4px 0 #b45309, 0 8px 10px rgba(0,0,0,0.4);
-    }
-    .buzz-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      box-shadow: none;
-      transform: translateY(4px);
     }
   </style>
 </head>
@@ -224,7 +280,7 @@
 
     <main class="glass-card rounded-2xl p-5 sm:p-8 shadow-2xl relative overflow-hidden">
      
-      <!-- 画面1: 科目選択 (SOLO) -->
+      <!-- 画面1: 科目選択 (SOLO) - 2ページ横スライド対応 -->
       <div id="screen-subjects" class="space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
           <h2 id="subjects-header-title" class="en-title text-xs text-slate-400 tracking-widest uppercase">Select Subject</h2>
@@ -238,10 +294,226 @@
             </button>
           </div>
         </div>
-        <div id="subject-list-container" class="grid gap-3 pt-1"></div>
+
+        <!-- スライドコンテナ -->
+        <div class="relative overflow-hidden w-full">
+          <div id="subjects-slider-track" class="flex transition-transform duration-300 ease-out w-[200%]" style="transform: translateX(0%);">
+            
+            <!-- Page 1: 演習問題 科目リスト -->
+            <div id="slider-page-1" class="w-1/2 pr-1 space-y-3">
+              <div id="subject-list-container" class="grid gap-3 pt-1 max-h-[60vh] overflow-y-auto pr-1.5 custom-scrollbar"></div>
+            </div>
+
+            <!-- Page 2: 暗記カード画面構造 -->
+            <div id="slider-page-2" class="w-1/2 pl-1 space-y-4 flex flex-col justify-between">
+              
+              <!-- ステップ1: 暗記カード 科目選択画面（シンプル化） -->
+              <div id="fc-step-1-subject-select" class="space-y-3">
+                <div id="flashcard-subject-list-container" class="grid gap-2.5 max-h-[60vh] overflow-y-auto pr-1 pt-1 custom-scrollbar">
+                  <!-- JS生成 -->
+                </div>
+              </div>
+
+              <!-- ★ ステップ2: 科目ダッシュボード画面（配置・デザイン最適化） -->
+              <div id="fc-step-2-dashboard" class="hidden space-y-4">
+                <div class="flex justify-between items-center pb-2.5 border-b border-slate-800">
+                  <button onclick="backToFlashcardStep(1)" class="text-xs text-amber-400 hover:text-amber-300 hover:underline flex items-center gap-1 font-medium transition">
+                    <span>← 科目選択へ</span>
+                  </button>
+                  <span id="fc-dash-subject-title" class="text-xs font-bold text-slate-100 tracking-wide font-mono px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700/60">科目名</span>
+                </div>
+
+                <!-- 洗練された進捗ステータスカード -->
+                <div class="p-4 rounded-2xl bg-gradient-to-br from-slate-900/90 via-slate-900/95 to-slate-950/90 border border-amber-500/20 shadow-xl space-y-3 relative overflow-hidden">
+                  <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-300 font-semibold tracking-wider flex items-center gap-2">
+                      <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_rgba(251,191,36,0.8)]"></span>
+                      <span>進行状況</span>
+                    </span>
+                    <div class="font-mono text-xs flex items-center gap-1.5">
+                      <span class="text-slate-400">習得:</span>
+                      <span id="fc-dash-learned-count" class="text-amber-400 font-bold text-sm">0</span>
+                      <span class="text-slate-600">/</span>
+                      <span id="fc-dash-total-count" class="text-slate-400">0</span>
+                      <span id="fc-dash-progress-percent" class="text-amber-300 font-bold ml-1.5 text-xs px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30">0%</span>
+                    </div>
+                  </div>
+                  
+                  <div class="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-slate-800/80 p-0.5 shadow-inner">
+                    <div id="fc-dash-progress-bar" class="h-full bg-gradient-to-r from-amber-600 via-amber-500 to-amber-300 rounded-full w-0 transition-all duration-500 ease-out shadow-[0_0_12px_rgba(245,158,11,0.5)]"></div>
+                  </div>
+                </div>
+
+                <!-- モード切替（表裏の入れ替え） -->
+                <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between shadow-sm">
+                  <div class="space-y-0.5">
+                    <div id="fc-toggle-status-title" class="text-xs font-bold text-slate-200">表: 単語 → 裏: 意味</div>
+                    <div class="text-[10px] text-slate-400 font-light">出題カードの表裏を反転します</div>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="fc-mode-toggle-switch" onchange="toggleFlashcardModeSwitch(this.checked)" class="sr-only peer">
+                    <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500 shadow-inner"></div>
+                  </label>
+                </div>
+
+                <!-- 洗練されたサブアクションボタン群 -->
+                <div class="grid grid-cols-2 gap-2.5">
+                  <button onclick="openLearnedWordsModal()" class="py-3 px-3 rounded-xl bg-emerald-900/60 hover:bg-emerald-800/80 text-emerald-200 text-xs font-medium transition border border-emerald-700/60 active:scale-95 flex items-center justify-center gap-1.5 shadow-sm">
+                    <span>覚えた単語一覧</span>
+                  </button>
+                  <button onclick="resetLearnedWordsForCurrentSubject()" class="py-3 px-3 rounded-xl bg-rose-950/80 hover:bg-rose-900/90 text-rose-300 hover:text-rose-100 text-xs font-medium transition border border-rose-800/80 active:scale-95 flex items-center justify-center gap-1.5 shadow-sm">
+                    <span>覚えた単語をリセット</span>
+                  </button>
+                </div>
+
+                <!-- 問題数ゼロ時の警告表示 -->
+                <div id="fc-no-questions-warning" class="hidden p-3 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs text-center font-light">
+                  ⚠️ この科目には暗記カード問題が登録されていません
+                </div>
+
+                <!-- メインアクションボタン -->
+                <button id="fc-go-step3-btn" onclick="goToFlashcardTimeSetting()" class="w-full py-3.5 bg-gradient-to-r from-amber-700 via-amber-600 to-amber-500 hover:from-amber-600 hover:to-amber-400 disabled:from-slate-800 disabled:to-slate-900 disabled:text-slate-600 disabled:border-slate-800 disabled:cursor-not-allowed text-amber-50 rounded-xl text-xs font-semibold transition duration-200 transform active:scale-95 shadow-[0_4px_15px_rgba(217,119,6,0.3)] border border-amber-400/30 tracking-widest flex items-center justify-center gap-2">
+                  <span>学習条件を設定する</span>
+                  <span>→</span>
+                </button>
+              </div>
+
+              <!-- ステップ3-A: 秒数選択専用画面 -->
+              <div id="fc-step-3-time" class="hidden space-y-5 text-center">
+                <div class="flex justify-between items-center pb-2 border-b border-slate-700/50">
+                  <button onclick="backToFlashcardStep(2)" class="text-xs text-amber-500 hover:underline">← 戻る</button>
+                  <span id="fc-time-subject-title" class="serif-title text-sm text-slate-300">秒数設定</span>
+                </div>
+
+                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
+                  <div class="space-y-1">
+                    <div class="text-xs text-slate-400 font-medium">1カードあたりの目標時間</div>
+                    <div class="text-3xl font-bold text-amber-500 font-mono"><span id="fc-time-slider-display">10</span> <span class="text-sm font-normal text-slate-500">秒</span></div>
+                  </div>
+                  <div class="px-2">
+                    <input type="range" id="fc-time-slider" min="5" max="30" step="5" value="10" oninput="document.getElementById('fc-time-slider-display').textContent = this.value" class="w-full">
+                    <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
+                      <span>5秒</span><span>15秒</span><span>30秒</span>
+                    </div>
+                  </div>
+                </div>
+
+                <button onclick="goToFlashcardCountSetting()" class="w-full py-3.5 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-xl text-xs font-semibold transition shadow-lg tracking-widest uppercase">
+                  枚数選択へ進む →
+                </button>
+              </div>
+
+              <!-- ステップ3-B: 枚数選択専用画面 -->
+              <div id="fc-step-3-count" class="hidden space-y-5 text-center">
+                <div class="flex justify-between items-center pb-2 border-b border-slate-700/50">
+                  <button onclick="goToFlashcardTimeSetting()" class="text-xs text-amber-500 hover:underline">← 秒数設定に戻る</button>
+                  <span id="fc-count-subject-title" class="serif-title text-sm text-slate-300">枚数設定</span>
+                </div>
+
+                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
+                  <div class="space-y-1">
+                    <div class="text-xs text-slate-400 font-medium">学習するカード枚数</div>
+                    <div class="text-3xl font-bold text-amber-500 font-mono"><span id="fc-count-slider-display">10</span> <span class="text-sm font-normal text-slate-500">枚</span></div>
+                  </div>
+                  <div class="px-2">
+                    <input type="range" id="fc-count-slider" min="5" max="30" step="5" value="10" oninput="document.getElementById('fc-count-slider-display').textContent = this.value" class="w-full">
+                    <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
+                      <span>5枚</span><span>15枚</span><span>30枚</span>
+                    </div>
+                  </div>
+                </div>
+
+                <button onclick="startFlashcardPlay()" class="w-full py-3.5 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-xl text-xs font-semibold transition shadow-lg tracking-widest uppercase">
+                  暗記学習を開始する
+                </button>
+              </div>
+
+              <!-- ステップ4: 単語カード学習実行画面（リアルな3D単語カード＆洗練されたアクションボタン） -->
+              <div id="fc-step-4-play" class="hidden space-y-4 flex-col justify-between">
+                
+                <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                  <button onclick="backToFlashcardStep(2)" class="text-xs text-amber-500 hover:underline flex items-center gap-1">
+                    <span>← 中断</span>
+                  </button>
+                  <span id="flashcard-progress-num" class="text-xs font-mono text-amber-400 font-semibold">1 / 10</span>
+                </div>
+
+                <!-- 単語カード (リアルフリップ) -->
+                <div class="perspective-1000 w-full min-h-[220px] cursor-pointer py-1" onclick="flipFlashcard()">
+                  <div id="flashcard-card" class="relative w-full h-full min-h-[220px] duration-500 transform-style-3d flashcard-paper rounded-2xl border border-slate-700/80 p-6 flex flex-col justify-between">
+                    
+                    <!-- リング ＆ 穴デザイン -->
+                    <div class="absolute top-3 left-8 z-30">
+                      <div class="flashcard-hole">
+                        <div class="flashcard-ring-wire"></div>
+                      </div>
+                    </div>
+
+                    <!-- 表面 -->
+                    <div id="flashcard-front" class="absolute inset-0 p-6 pl-14 backface-hidden flex flex-col justify-between rounded-2xl flashcard-paper border border-slate-700/80">
+                      <div class="flex justify-between items-center text-[10px] text-amber-500/80 font-mono pt-1">
+                        <span id="fc-front-label">WORD</span>
+                        <span class="text-slate-500">TAP TO FLIP</span>
+                      </div>
+                      <div id="flashcard-question-text" class="text-lg font-semibold text-slate-100 text-center my-auto leading-relaxed px-2">
+                        ---
+                      </div>
+                      <div class="text-[10px] text-slate-500 text-center font-light">タップして裏面を表示 ↺</div>
+                    </div>
+
+                    <!-- 裏面 -->
+                    <div id="flashcard-back" class="absolute inset-0 p-6 pl-14 backface-hidden rotate-y-180 flex flex-col justify-between rounded-2xl bg-slate-950 border border-amber-500/40">
+                      <div class="flex justify-between items-center text-[10px] text-emerald-400 font-mono pt-1">
+                        <span id="fc-back-label">MEANING</span>
+                        <span class="text-amber-400">ANSWER</span>
+                      </div>
+                      <div class="my-auto space-y-2 text-center">
+                        <div id="flashcard-answer-text" class="text-base font-bold text-amber-400">---</div>
+                        <div id="flashcard-exp-text" class="text-xs text-slate-300 font-light leading-relaxed max-h-24 overflow-y-auto custom-scrollbar px-1">---</div>
+                      </div>
+                      <div class="text-[10px] text-slate-500 text-center font-light">タップして表面に戻る ↺</div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <!-- アクションボタン（覚えた！ & 次へ） -->
+                <div id="fc-action-buttons" class="flex items-center justify-between gap-3 pt-1">
+                  <button onclick="markCurrentCardLearned()" class="w-1/2 py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white font-semibold text-xs transition duration-200 transform active:scale-95 shadow-[0_4px_15px_rgba(16,185,129,0.35)] border border-emerald-400/30 flex items-center justify-center gap-2">
+                    <span class="text-sm">✓</span>
+                    <span class="tracking-wider">覚えた！</span>
+                  </button>
+                  <button onclick="nextFlashcard()" class="w-1/2 py-3.5 rounded-xl bg-gradient-to-r from-slate-800 via-slate-800 to-slate-700 hover:from-slate-700 hover:to-slate-600 text-slate-100 font-semibold text-xs transition duration-200 transform active:scale-95 border border-slate-600/60 shadow-[0_4px_12px_rgba(0,0,0,0.4)] flex items-center justify-center gap-2">
+                    <span class="tracking-wider">次へ</span>
+                    <span class="text-sm">→</span>
+                  </button>
+                </div>
+
+                <!-- 完了メッセージ -->
+                <div id="fc-completed-msg" class="hidden p-6 rounded-2xl bg-slate-900/90 border border-amber-500/40 text-center space-y-3 my-auto">
+                  <div class="text-3xl">🎉</div>
+                  <div class="text-xs font-mono text-amber-400 font-bold uppercase tracking-widest">COMPLETE!</div>
+                  <div class="text-sm font-bold text-slate-100">暗記学習カードの達成が完了しました！</div>
+                  <button onclick="backToFlashcardStep(2)" class="px-4 py-2 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-xl text-xs font-semibold transition">
+                    画面へ戻る
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        <!-- スライド用ページインジケータードット -->
+        <div class="flex items-center justify-center gap-2 pt-2">
+          <button id="dot-page-1" onclick="switchSubjectPage(0)" class="w-2.5 h-2.5 rounded-full bg-amber-500 transition-all duration-300" aria-label="1ページ目"></button>
+          <button id="dot-page-2" onclick="switchSubjectPage(1)" class="w-2.5 h-2.5 rounded-full bg-slate-700 hover:bg-slate-600 transition-all duration-300" aria-label="2ページ目（暗記カード）"></button>
+        </div>
       </div>
 
-      <!-- 画面1.0: 学期選択画面 (シンプルデザイン) -->
+      <!-- 画面1.0: 学期選択画面 -->
       <div id="screen-semester-select" class="hidden space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
           <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline">← 科目選択へ戻る</button>
@@ -261,7 +533,7 @@
         </div>
       </div>
 
-      <!-- 画面1.1: 生理学 モード選択（過去問 / 小テスト） -->
+      <!-- 画面1.1: 生理学 モード選択 -->
       <div id="screen-physiology-mode-select" class="hidden space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
           <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
@@ -293,7 +565,7 @@
         </div>
       </div>
 
-      <!-- 画面1.2: 解剖学 コース選択（練習問題 / 応用問題） -->
+      <!-- 画面1.2: 解剖学 コース選択 -->
       <div id="screen-anatomy-mode-select" class="hidden space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
           <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
@@ -325,7 +597,7 @@
         </div>
       </div>
 
-      <!-- 画面1.2.5: 公衆衛生学 モード選択 (過去問 / 演習問題 / 模擬国家試験) -->
+      <!-- 画面1.2.5: 公衆衛生学 モード選択 -->
       <div id="screen-publichealth-mode-select" class="hidden space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
           <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
@@ -368,7 +640,7 @@
         </div>
       </div>
 
-      <!-- 画面1.2.6: 公衆衛生看護学概論 モード選択 (練習問題 / 演習問題) -->
+      <!-- 画面1.2.6: 公衆衛生看護学概論 モード選択 -->
       <div id="screen-phn-mode-select" class="hidden space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
           <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
@@ -400,7 +672,7 @@
         </div>
       </div>
 
-      <!-- 画面1.3: 看護学方法論Ⅰ コース選択（ドロップダウン不対応・12回別問題直接選択） -->
+      <!-- 画面1.3: 看護学方法論Ⅰ コース選択 -->
       <div id="screen-nursing-mode-select" class="hidden space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
           <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
@@ -674,9 +946,18 @@
           <div id="new-record-badge" class="hidden absolute top-2 right-2 bg-amber-500/20 border border-amber-500/50 text-amber-300 text-[10px] px-2 py-0.5 rounded-full font-bold animate-pulse flex items-center gap-1">
             <span>BEST RECORD</span>
           </div>
-          <div class="text-xs text-slate-400">正答率</div>
+          <div class="text-xs text-slate-400" id="result-score-title">全0問中 0問正解</div>
           <div class="text-4xl font-bold text-amber-400"><span id="final-score-val">0</span><span class="text-2xl font-normal text-amber-400">%</span> <span id="final-total-val" class="text-base font-normal text-slate-400 hidden">/ 10</span></div>
           <div id="final-eval-text" class="text-xs text-amber-500/90 pt-2 font-light">素晴らしい集中力です！</div>
+        </div>
+
+        <!-- 今回の記録 & 挑戦履歴 (最大10件) -->
+        <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 text-left space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+            <span class="text-xs font-semibold text-slate-200">挑戦履歴（最大10件）</span>
+            <span class="text-[10px] text-slate-500 font-mono">HISTORY</span>
+          </div>
+          <div id="quiz-attempt-history-list" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
         </div>
 
         <div class="flex gap-3 pt-2">
@@ -718,7 +999,7 @@
         </div>
       </div>
 
-      <!-- 画面6: マルチ対戦待機ルーム (ホスト/ゲスト) -->
+      <!-- 画面6: マルチ対戦待機ルーム -->
       <div id="screen-multi-room" class="hidden space-y-6 text-center">
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
           <button onclick="leaveMultiRoom()" class="text-xs text-rose-400 hover:underline">← 部屋を出る</button>
@@ -750,7 +1031,6 @@
           <div class="space-y-2">
             <label class="text-[11px] text-slate-400 block">対戦科目を選択:</label>
             <select id="multi-subject-select" class="w-full bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg p-2.5 focus:border-amber-500">
-              <!-- JSで動的生成 -->
             </select>
           </div>
           <div class="space-y-2">
@@ -788,12 +1068,10 @@
           </div>
         </div>
 
-        <!-- 早押し・判定状態表示エリア -->
         <div id="buzz-status-banner" class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center text-xs font-bold transition">
           正しい選択肢を先に押してください！
         </div>
 
-        <!-- 選択肢群 (先に押して正解した方が勝ち) -->
         <div id="multi-options-container" class="space-y-2.5 transition"></div>
 
         <div id="multi-next-btn-wrap" class="hidden">
@@ -802,6 +1080,23 @@
       </div>
 
     </main>
+  </div>
+
+  <!-- 暗記カード：覚えた単語一覧表示モーダル -->
+  <div id="modal-learned-words" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div class="glass-card w-full max-w-md rounded-2xl p-5 space-y-4 border border-slate-700/60 shadow-2xl">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-700/50">
+        <div class="flex items-center gap-1.5">
+          <h3 class="serif-title text-base font-medium text-slate-100">覚えた単語・用語一覧</h3>
+        </div>
+        <button onclick="closeLearnedWordsModal()" class="text-slate-400 text-xs hover:text-white p-1">✕</button>
+      </div>
+      <div id="learned-words-list-container" class="space-y-2 text-xs leading-relaxed max-h-64 overflow-y-auto custom-scrollbar pr-1">
+      </div>
+      <div class="pt-2 flex justify-end">
+        <button onclick="closeLearnedWordsModal()" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg text-xs hover:bg-slate-700 transition">閉じる</button>
+      </div>
+    </div>
   </div>
 
   <!-- お知らせ用モーダル -->
@@ -914,7 +1209,7 @@
           <span class="text-[10px] text-emerald-400 font-light flex items-center gap-1">● リアルタイム同期中</span>
         </div>
         <p class="text-[11px] text-slate-400 font-light leading-relaxed">
-          左側の「☰」をドラッグして順番を変更できます。各科目の表示学期（春学期/秋学期/すべて）もここで選択できます。
+          「演習」ボタンで通常問題、「暗記」ボタンで暗記カード機能の表示/非表示を直接切り替えられます。
         </p>
         <div id="admin-drag-container" class="space-y-2 pt-1"></div>
       </div>
@@ -929,17 +1224,41 @@
 
   <!-- 問題編集用モーダル -->
   <div id="modal-questions-editor" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
-    <div class="glass-card w-full max-w-2xl rounded-2xl p-5 sm:p-6 space-y-5 border border-slate-700/60 shadow-2xl max-h-[90vh] overflow-y-auto my-auto">
+    <div class="glass-card w-full max-w-2xl rounded-2xl p-5 sm:p-6 space-y-4 border border-slate-700/60 shadow-2xl max-h-[90vh] overflow-y-auto my-auto">
       <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
         <div>
           <div class="en-title text-[10px] text-amber-500/80 tracking-widest uppercase font-semibold">QUESTION EDITOR</div>
-          <h3 id="editor-subject-title" class="serif-title text-lg text-slate-100">問題の編集・画像追加</h3>
+          <h3 id="editor-subject-title" class="serif-title text-lg text-slate-100">問題の編集</h3>
         </div>
         <button onclick="closeQuestionsEditorModal()" class="text-slate-400 text-sm p-1 transition hover:text-white">✕</button>
       </div>
 
-      <!-- AI問題自動生成エリア -->
-      <div class="p-4 rounded-xl bg-gradient-to-r from-amber-950/40 via-slate-900 to-amber-950/40 border border-amber-500/30 space-y-3">
+      <!-- 編集ターゲット切替タブ (演習問題 ↔ 暗記カード) -->
+      <div class="flex border-b border-slate-800 bg-slate-950/60 rounded-xl p-1 gap-1">
+        <button id="editor-tab-quiz" onclick="switchEditorCategory('quiz')" class="w-1/2 py-2 rounded-lg text-xs font-bold transition text-center bg-amber-500 text-slate-950">
+          演習テスト問題
+        </button>
+        <button id="editor-tab-flashcard" onclick="switchEditorCategory('flashcard')" class="w-1/2 py-2 rounded-lg text-xs font-bold transition text-center text-slate-400 hover:text-slate-200">
+          暗記カード専用問題
+        </button>
+      </div>
+
+      <!-- 暗記カード専用 科目全体表示/非表示スイッチ -->
+      <div id="editor-flashcard-subject-visibility-wrap" class="hidden p-3.5 rounded-xl bg-slate-900/90 border border-amber-500/30 flex items-center justify-between">
+        <div class="space-y-0.5">
+          <div class="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+            <span>この科目の暗記カード機能を有効化</span>
+          </div>
+          <div class="text-[10px] text-slate-400">OFFにするとユーザーの暗記カード科目一覧で非表示になります</div>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" id="editor-fc-subject-toggle-switch" onchange="toggleSubjectFlashcardVisibility(this.checked)" class="sr-only peer">
+          <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500 shadow-inner"></div>
+        </label>
+      </div>
+
+      <!-- ★ Gemini AI問題自動生成エリア -->
+      <div id="editor-ai-panel-wrapper" class="p-4 rounded-xl bg-gradient-to-r from-amber-950/40 via-slate-900 to-amber-950/40 border border-amber-500/30 space-y-3">
         <div class="flex justify-between items-center cursor-pointer" onclick="toggleAiGeneratorPanel()">
           <div class="flex items-center gap-2">
             <span class="text-sm">✨</span>
@@ -950,34 +1269,45 @@
 
         <div id="ai-generator-panel" class="hidden space-y-3 pt-2 border-t border-amber-500/20">
           <p class="text-[11px] text-slate-400 font-light">
-            教科書や問題集の画像（またはテキスト）をアップロード・入力すると、AIが自動解析して選択肢と解答付きの問題データを作成します。
+            教科書や問題集の画像（またはテキスト）を解析し、自動で選択肢と解答付きの問題データを作成・追加します。
           </p>
 
-          <div class="space-y-1">
-            <label class="text-[10px] text-amber-400 block">1. 画像から作成 (省略可):</label>
-            <input type="file" id="ai-input-image" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-amber-500/20 file:text-amber-300 hover:file:bg-amber-500/30 cursor-pointer">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div class="sm:col-span-2 space-y-1">
+              <label class="text-[10px] text-amber-400 block">1. 画像から作成 (省略可):</label>
+              <input type="file" id="ai-input-image" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-amber-500/20 file:text-amber-300 hover:file:bg-amber-500/30 cursor-pointer">
+            </div>
+            <div class="space-y-1">
+              <label class="text-[10px] text-amber-400 block">2. 生成数:</label>
+              <select id="ai-generate-count-select" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
+                <option value="1">1問生成</option>
+                <option value="2">2問生成</option>
+                <option value="3">3問生成</option>
+                <option value="5">5問生成</option>
+              </select>
+            </div>
           </div>
 
           <div class="space-y-1">
-            <label class="text-[10px] text-amber-400 block">2. テキスト・補足指示 (省略可):</label>
-            <textarea id="ai-input-text" placeholder="例: 以下の内容から問題を作成してください。..." class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-16"></textarea>
+            <label class="text-[10px] text-amber-400 block">3. テキスト・指示 (省略可):</label>
+            <textarea id="ai-input-text" placeholder="例: 以下の内容から重要ポイントを問題にしてください..." class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-16"></textarea>
           </div>
 
-          <button onclick="generateQuestionWithGemini()" id="ai-generate-btn" class="w-full py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-amber-50 text-xs font-semibold rounded-lg transition shadow flex items-center justify-center gap-2">
-            <span>✨ Gemini AIで問題を生成する</span>
+          <button onclick="generateQuestionWithGemini()" id="ai-generate-btn" class="w-full py-2.5 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-amber-50 text-xs font-semibold rounded-lg transition shadow flex items-center justify-center gap-2">
+            <span>✨ Gemini AIで問題を自動生成する</span>
           </button>
           <div id="ai-generate-loading" class="hidden text-center text-xs text-amber-400 font-light animate-pulse">
-            AIが問題を作成中です... しばらくお待ちください
+            AIが問題を解析・作成中です... しばらくお待ちください
           </div>
         </div>
       </div>
 
       <div class="flex justify-between items-center">
-        <p class="text-[11px] text-slate-400 font-light">各問題の文言、画像、選択肢、正解番号、解説を変更できます。</p>
+        <p id="editor-type-desc" class="text-[11px] text-slate-400 font-light">各問題の文言、選択肢、解説を変更できます。</p>
         <button onclick="addNewQuestionToEditor()" class="px-3 py-1.5 bg-amber-700 hover:bg-amber-600 text-amber-50 text-xs rounded-lg transition font-medium">＋ 問題を追加</button>
       </div>
 
-      <!-- モード切替（看護学方法論Ⅰ・生化学などの複数モード対応科目用） -->
+      <!-- モード切替 (演習問題用) -->
       <div id="editor-mode-selector-container" class="hidden p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1.5">
         <label class="text-[11px] text-amber-400 font-medium block">編集する形式・モードを選択:</label>
         <select id="editor-mode-select" onchange="changeEditorMode(this.value)" class="w-full bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 focus:outline-none focus:border-amber-500">
@@ -1017,7 +1347,6 @@
       return results;
     };
 
-    // 看護学方法論Ⅰ 回選択用関数
     function selectNursingRound(selectedValue) {
       currentRound = (selectedValue === "all") ? null : selectedValue;
       if (typeof window.getNursingQuestions === "function") {
@@ -1029,7 +1358,6 @@
       showStartScreen();
     }
 
-    // 生化学 解答形式選択用関数
     function selectBiochemistryFormat(format) {
       currentBiochemistryFormat = format;
       showStartScreen();
@@ -1045,7 +1373,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // プレイヤーIDの生成（セッションごとにユニーク）
     let myPlayerId = sessionStorage.getItem('my_player_id');
     if (!myPlayerId) {
       myPlayerId = 'usr_' + Math.random().toString(36).substring(2, 9);
@@ -1053,7 +1380,7 @@
     }
 
     // ---------------------------------------------------------
-    // 閲覧人数（リアルタイム人数・今日の閲覧人数）管理機能
+    // 閲覧人数管理機能
     // ---------------------------------------------------------
     function initVisitorTracking() {
       const now = new Date();
@@ -1085,7 +1412,7 @@
     }
 
     // ---------------------------------------------------------
-    // お知らせモーダル表示制御・既読状態保持機能
+    // お知らせモーダル表示制御
     // ---------------------------------------------------------
     function openNoticeModal() {
       document.getElementById('modal-notice').classList.remove('hidden');
@@ -1182,6 +1509,7 @@
 
       return {
         ...item,
+        id: item.id || `q_${Math.random().toString(36).substring(2, 9)}`,
         q: qText,
         options: opts,
         answers: correctAnswers,
@@ -1195,24 +1523,24 @@
     }
 
     const defaultSubjects = [
-      { id: "psychology", name: "心理学", code: "PSY", visible: true, semesterSetting: "all", status: "available", isFixed: true, hasRounds: true, fixedCount: null },
-      { id: "mind_behavior", name: "こころと行動", code: "MND", visible: true, semesterSetting: "all", status: "available", isFixed: true, hasRounds: false, fixedCount: null },
-      { id: "medical_intro", name: "医療概論", code: "MED", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
-      { id: "physiology", name: "生理学", code: "PHY", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, hasPhysiologyModes: true, fixedCount: null },
-      { id: "biochemistry", name: "生化学", code: "BIO", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, hasBiochemistryFormats: true, fixedCount: null },
-      { id: "microbiology", name: "微生物学", code: "MIC", visible: true, semesterSetting: "all", status: "available", isFixed: true, hasRounds: false, fixedCount: null },
-      { id: "anatomy", name: "解剖学", code: "ANA", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, hasAnatomyModes: true, fixedCount: null },
-      { id: "nursing_method", name: "看護学方法論Ⅰ", code: "NUR Ⅰ", visible: true, semesterSetting: "all", status: "available", isFixed: true, hasRounds: false, hasNursingModes: true, fixedCount: null },
-      { id: "public_health_nursing", name: "公衆衛生看護学概論", code: "PHN", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, hasPHNModes: true, fixedCount: null },
-      { id: "public_health", name: "公衆衛生学", code: "PUB", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, hasPublicHealthModes: true, fixedCount: null },
-      { id: "nutrition", name: "栄養学", code: "NUT", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
-      { id: "pathology", name: "病理学", code: "PAT", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
-      { id: "medical_welfare", name: "医療福祉概論", code: "MWL", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
-      { id: "constitution", name: "日本国憲法", code: "CON", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
-      { id: "pharmacology", name: "薬理学", code: "PHA", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
-      { id: "statistics", name: "統計学", code: "STA", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
-      { id: "nursing_method_3", name: "看護学方法論Ⅲ", code: "NUR Ⅲ", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
-      { id: "nursing_method_4", name: "看護学方法論Ⅳ", code: "NUR Ⅳ", visible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null }
+      { id: "psychology", name: "心理学", code: "PSY", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: true, hasRounds: true, fixedCount: null },
+      { id: "mind_behavior", name: "こころと行動", code: "MND", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: true, hasRounds: false, fixedCount: null },
+      { id: "medical_intro", name: "医療概論", code: "MED", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "physiology", name: "生理学", code: "PHY", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, hasPhysiologyModes: true, fixedCount: null },
+      { id: "biochemistry", name: "生化学", code: "BIO", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, hasBiochemistryFormats: true, fixedCount: null },
+      { id: "microbiology", name: "微生物学", code: "MIC", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: true, hasRounds: false, fixedCount: null },
+      { id: "anatomy", name: "解剖学", code: "ANA", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, hasAnatomyModes: true, fixedCount: null },
+      { id: "nursing_method", name: "看護学方法論Ⅰ", code: "NUR Ⅰ", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: true, hasRounds: false, hasNursingModes: true, fixedCount: null },
+      { id: "public_health_nursing", name: "公衆衛生看護学概論", code: "PHN", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, hasPHNModes: true, fixedCount: null },
+      { id: "public_health", name: "公衆衛生学", code: "PUB", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, hasPublicHealthModes: true, fixedCount: null },
+      { id: "nutrition", name: "栄養学", code: "NUT", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "pathology", name: "病理学", code: "PAT", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "medical_welfare", name: "医療福祉概論", code: "MWL", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "constitution", name: "日本国憲法", code: "CON", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "pharmacology", name: "薬理学", code: "PHA", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "statistics", name: "統計学", code: "STA", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "nursing_method_3", name: "看護学方法論Ⅲ", code: "NUR Ⅲ", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "nursing_method_4", name: "看護学方法論Ⅳ", code: "NUR Ⅳ", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null }
     ];
 
     let subjects = [...defaultSubjects];
@@ -1242,8 +1570,20 @@
     let roomData = null;
 
     let editingSubjectId = null;
+    let editingCategory = 'quiz'; // 'quiz' か 'flashcard'
     let editingQuestionsList = [];
     let editingSelectedRound = 'choice';
+
+    // ---------------------------------------------------------
+    //  暗記カード専用 状態変数 & ステップ遷移
+    // ---------------------------------------------------------
+    let currentSubjectPageIndex = 0;
+    let flashcardAllList = [];         // 該当科目の全専用カード
+    let flashcardUnlearnedList = [];   // 未学習＆表示設定のカードのみ
+    let flashcardCurrentIndex = 0;
+    let isFlashcardFlipped = false;
+    let currentFlashcardSubject = null;
+    let flashcardMode = 0;             // 0: [表:単語 / 裏:意味], 1: [表:意味 / 裏:単語]
 
     function getAverageAccuracy(subjectId) {
       const historyKey = `history_accuracy_${subjectId}`;
@@ -1251,6 +1591,418 @@
       if (!records || records.length === 0) return null;
       const sum = records.reduce((acc, curr) => acc + curr, 0);
       return Math.round(sum / records.length);
+    }
+
+    // =========================================================
+    //  スライドページ切り替え機能
+    // =========================================================
+    function switchSubjectPage(pageIdx) {
+      currentSubjectPageIndex = pageIdx;
+      const track = document.getElementById('subjects-slider-track');
+      const dot1 = document.getElementById('dot-page-1');
+      const dot2 = document.getElementById('dot-page-2');
+
+      if (track) {
+        track.style.transform = `translateX(-${pageIdx * 50}%)`;
+      }
+
+      if (pageIdx === 0) {
+        dot1.className = "w-2.5 h-2.5 rounded-full bg-amber-500 transition-all duration-300";
+        dot2.className = "w-2.5 h-2.5 rounded-full bg-slate-700 hover:bg-slate-600 transition-all duration-300";
+      } else {
+        dot1.className = "w-2.5 h-2.5 rounded-full bg-slate-700 hover:bg-slate-600 transition-all duration-300";
+        dot2.className = "w-2.5 h-2.5 rounded-full bg-amber-500 transition-all duration-300";
+        backToFlashcardStep(1);
+      }
+    }
+
+    function initSubjectPageSwipe() {
+      const screenEl = document.getElementById('screen-subjects');
+      if (!screenEl) return;
+
+      let startX = 0;
+      let startY = 0;
+      let isDragging = false;
+
+      screenEl.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        isDragging = true;
+      }, { passive: true });
+
+      screenEl.addEventListener('touchend', (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        const endX = e.changedTouches[0].clientX;
+        const endY = e.changedTouches[0].clientY;
+        const diffX = endX - startX;
+        const diffY = endY - startY;
+
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
+          if (diffX < 0 && currentSubjectPageIndex === 0) {
+            switchSubjectPage(1);
+          } else if (diffX > 0 && currentSubjectPageIndex === 1) {
+            switchSubjectPage(0);
+          }
+        }
+      }, { passive: true });
+    }
+
+    // ---------------------------------------------------------
+    //  暗記カード専用データ取得 (専用外部ファイル flashcard_data.js から読み込み)
+    // ---------------------------------------------------------
+    function fetchFlashcardDataForSubject(subjectId) {
+      if (window.FLASHCARD_DB && Array.isArray(window.FLASHCARD_DB[subjectId]) && window.FLASHCARD_DB[subjectId].length > 0) {
+        return window.FLASHCARD_DB[subjectId];
+      }
+      return [];
+    }
+
+    // ---------------------------------------------------------
+    //  2ページ目: 暗記カード ステッピング構造・画面遷移制御
+    // ---------------------------------------------------------
+    
+    function backToFlashcardStep(stepNum) {
+      document.getElementById('fc-step-1-subject-select').classList.add('hidden');
+      document.getElementById('fc-step-2-dashboard').classList.add('hidden');
+      document.getElementById('fc-step-3-time').classList.add('hidden');
+      document.getElementById('fc-step-3-count').classList.add('hidden');
+      
+      const step4 = document.getElementById('fc-step-4-play');
+      step4.classList.add('hidden');
+      step4.classList.remove('flex');
+
+      if (stepNum === 1) {
+        document.getElementById('fc-step-1-subject-select').classList.remove('hidden');
+        renderFlashcardSubjectList();
+      } else if (stepNum === 2) {
+        document.getElementById('fc-step-2-dashboard').classList.remove('hidden');
+        updateFlashcardDashboardUI();
+      }
+    }
+
+    function renderFlashcardSubjectList() {
+      const container = document.getElementById('flashcard-subject-list-container');
+      if (!container) return;
+
+      const visibleSubjects = subjects.filter(s => s.status !== 'preparing' && s.visible !== false && s.flashcardVisible !== false);
+      
+      if (visibleSubjects.length === 0) {
+        container.innerHTML = `<div class="text-center py-8 text-xs text-slate-500">利用可能な暗記カード科目がありません。</div>`;
+        return;
+      }
+
+      container.innerHTML = visibleSubjects.map(s => {
+        const fcData = fetchFlashcardDataForSubject(s.id).filter(item => item.visible !== false);
+        const learnedSet = getLearnedWordsSet(s.id);
+        const totalCount = fcData.length;
+        const learnedCount = Math.min(learnedSet.size, totalCount);
+        const progressPercent = totalCount > 0 ? Math.round((learnedCount / totalCount) * 100) : 0;
+
+        return `
+          <button onclick="selectFlashcardSubject('${s.id}')" class="card-item w-full p-3.5 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-[11px] font-bold">${s.code}</span>
+              <div>
+                <div class="text-xs font-medium text-slate-100 group-hover:text-amber-300 transition">${s.name}</div>
+                <div class="text-[10px] text-slate-400 font-light mt-0.5">全${totalCount}単語 (達成率: ${progressPercent}%)</div>
+              </div>
+            </div>
+            <span class="text-amber-500/80 group-hover:text-amber-400 transition text-xs font-medium">選択 →</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectFlashcardSubject(subjectId) {
+      currentFlashcardSubject = subjects.find(s => s.id === subjectId);
+      if (!currentFlashcardSubject) return;
+
+      loadFlashcardData();
+      backToFlashcardStep(2);
+    }
+
+    function getLearnedStorageKey(subjectId) {
+      return `flashcard_learned_${subjectId}`;
+    }
+
+    function getLearnedWordsSet(subjectId) {
+      const raw = localStorage.getItem(getLearnedStorageKey(subjectId));
+      return new Set(raw ? JSON.parse(raw) : []);
+    }
+
+    function saveLearnedWordsSet(subjectId, setObj) {
+      localStorage.setItem(getLearnedStorageKey(subjectId), JSON.stringify(Array.from(setObj)));
+    }
+
+    function loadFlashcardData() {
+      if (!currentFlashcardSubject) return;
+      const subId = currentFlashcardSubject.id;
+
+      const rawFcData = fetchFlashcardDataForSubject(subId);
+
+      flashcardAllList = rawFcData.map((item, i) => ({
+        id: item.id || `card_${i}_${(item.word || '').substring(0, 8)}`,
+        word: item.word || "単語",
+        meaning: item.meaning || "意味",
+        exp: item.exp || "解説はありません。",
+        visible: item.visible !== false
+      }));
+
+      const learnedSet = getLearnedWordsSet(subId);
+      flashcardUnlearnedList = flashcardAllList.filter(item => item.visible !== false && !learnedSet.has(item.id));
+    }
+
+    function updateFlashcardDashboardUI() {
+      if (!currentFlashcardSubject) return;
+
+      document.getElementById('fc-dash-subject-title').textContent = currentFlashcardSubject.name;
+
+      const validList = flashcardAllList.filter(item => item.visible !== false);
+      const total = validList.length;
+      const learnedSet = getLearnedWordsSet(currentFlashcardSubject.id);
+      const learnedCount = Math.min(learnedSet.size, total);
+      const progressPercent = total > 0 ? Math.round((learnedCount / total) * 100) : 0;
+
+      document.getElementById('fc-dash-learned-count').textContent = learnedCount;
+      document.getElementById('fc-dash-total-count').textContent = total;
+      document.getElementById('fc-dash-progress-percent').textContent = `${progressPercent}%`;
+      document.getElementById('fc-dash-progress-bar').style.width = `${progressPercent}%`;
+
+      // 問題がない場合の警告表示 ＆ 設定進出ボタンの有効/無効制御
+      const goBtn = document.getElementById('fc-go-step3-btn');
+      const warningEl = document.getElementById('fc-no-questions-warning');
+
+      if (total === 0) {
+        if (goBtn) goBtn.disabled = true;
+        if (warningEl) warningEl.classList.remove('hidden');
+      } else {
+        if (goBtn) goBtn.disabled = false;
+        if (warningEl) warningEl.classList.add('hidden');
+      }
+
+      // スイッチ状態同期
+      const toggleSwitch = document.getElementById('fc-mode-toggle-switch');
+      if (toggleSwitch) {
+        toggleSwitch.checked = (flashcardMode === 1);
+      }
+      updateToggleLabelUI(flashcardMode);
+    }
+
+    function toggleFlashcardModeSwitch(isChecked) {
+      flashcardMode = isChecked ? 1 : 0;
+      updateToggleLabelUI(flashcardMode);
+    }
+
+    function updateToggleLabelUI(mode) {
+      const titleEl = document.getElementById('fc-toggle-status-title');
+      if (!titleEl) return;
+      if (mode === 0) {
+        titleEl.textContent = "表: 単語 → 裏: 意味";
+        titleEl.className = "text-xs font-bold text-slate-200";
+      } else {
+        titleEl.textContent = "表: 意味 → 裏: 単語";
+        titleEl.className = "text-xs font-bold text-amber-400";
+      }
+    }
+
+    // ステップ3-A（目標秒数選択画面）へ遷移
+    function goToFlashcardTimeSetting() {
+      const validList = flashcardAllList.filter(item => item.visible !== false);
+      if (validList.length === 0) {
+        alert("この科目には暗記カードが登録されていません。");
+        return;
+      }
+
+      document.getElementById('fc-step-2-dashboard').classList.add('hidden');
+      document.getElementById('fc-step-3-count').classList.add('hidden');
+      document.getElementById('fc-step-3-time').classList.remove('hidden');
+      document.getElementById('fc-time-subject-title').textContent = `${currentFlashcardSubject.name} - 秒数設定`;
+    }
+
+    // ステップ3-B（枚数選択画面）へ遷移
+    function goToFlashcardCountSetting() {
+      document.getElementById('fc-step-3-time').classList.add('hidden');
+      document.getElementById('fc-step-3-count').classList.remove('hidden');
+      document.getElementById('fc-count-subject-title').textContent = `${currentFlashcardSubject.name} - 枚数設定`;
+    }
+
+    function startFlashcardPlay() {
+      const validList = flashcardAllList.filter(item => item.visible !== false);
+      if (validList.length === 0) {
+        alert("この科目には暗記カードが登録されていません。");
+        backToFlashcardStep(2);
+        return;
+      }
+
+      document.getElementById('fc-step-3-count').classList.add('hidden');
+      const playStep = document.getElementById('fc-step-4-play');
+      playStep.classList.remove('hidden');
+      playStep.classList.add('flex');
+
+      const reqCount = parseInt(document.getElementById('fc-count-slider').value, 10) || 10;
+      
+      let list = [...flashcardUnlearnedList];
+      if (list.length === 0) {
+        list = validList;
+      }
+
+      list = list.sort(() => Math.random() - 0.5).slice(0, Math.min(reqCount, list.length));
+      flashcardUnlearnedList = list;
+
+      flashcardCurrentIndex = 0;
+      isFlashcardFlipped = false;
+
+      renderFlashcardUI();
+    }
+
+    function renderFlashcardUI() {
+      const cardEl = document.getElementById('flashcard-card');
+      const qText = document.getElementById('flashcard-question-text');
+      const aText = document.getElementById('flashcard-answer-text');
+      const expText = document.getElementById('flashcard-exp-text');
+      const progressNum = document.getElementById('flashcard-progress-num');
+
+      const frontLabel = document.getElementById('fc-front-label');
+      const backLabel = document.getElementById('fc-back-label');
+
+      if (cardEl) {
+        cardEl.classList.remove('rotate-y-180');
+        isFlashcardFlipped = false;
+      }
+
+      const cardContainer = document.querySelector('#fc-step-4-play .perspective-1000');
+      const buttons = document.getElementById('fc-action-buttons');
+      const completedMsg = document.getElementById('fc-completed-msg');
+
+      if (!flashcardUnlearnedList || flashcardUnlearnedList.length === 0) {
+        if (cardContainer) cardContainer.classList.add('hidden');
+        if (buttons) buttons.classList.add('hidden');
+        if (completedMsg) completedMsg.classList.remove('hidden');
+        return;
+      } else {
+        if (cardContainer) cardContainer.classList.remove('hidden');
+        if (buttons) buttons.classList.remove('hidden');
+        if (completedMsg) completedMsg.classList.add('hidden');
+      }
+
+      const item = flashcardUnlearnedList[flashcardCurrentIndex];
+      if (!item) return;
+
+      if (progressNum) {
+        progressNum.textContent = `${flashcardCurrentIndex + 1} / ${flashcardUnlearnedList.length}`;
+      }
+
+      const wordStr = item.word || "単語";
+      const meaningStr = item.meaning || "意味";
+      const expStr = item.exp || "解説はありません。";
+
+      if (flashcardMode === 0) {
+        if (frontLabel) frontLabel.textContent = "WORD";
+        if (backLabel) backLabel.textContent = "MEANING";
+
+        if (qText) qText.textContent = wordStr;
+        if (aText) aText.textContent = meaningStr;
+        if (expText) expText.textContent = expStr;
+      } else {
+        if (frontLabel) frontLabel.textContent = "MEANING";
+        if (backLabel) backLabel.textContent = "WORD";
+
+        if (qText) qText.textContent = meaningStr;
+        if (aText) aText.textContent = wordStr;
+        if (expText) expText.textContent = expStr;
+      }
+    }
+
+    function flipFlashcard() {
+      const cardEl = document.getElementById('flashcard-card');
+      if (!cardEl || flashcardUnlearnedList.length === 0) return;
+
+      isFlashcardFlipped = !isFlashcardFlipped;
+      if (isFlashcardFlipped) {
+        cardEl.classList.add('rotate-y-180');
+      } else {
+        cardEl.classList.remove('rotate-y-180');
+      }
+    }
+
+    function markCurrentCardLearned() {
+      if (!currentFlashcardSubject || flashcardUnlearnedList.length === 0) return;
+
+      const currentCard = flashcardUnlearnedList[flashcardCurrentIndex];
+      if (!currentCard) return;
+
+      const subId = currentFlashcardSubject.id;
+      const learnedSet = getLearnedWordsSet(subId);
+      learnedSet.add(currentCard.id);
+      saveLearnedWordsSet(subId, learnedSet);
+
+      flashcardUnlearnedList.splice(flashcardCurrentIndex, 1);
+      if (flashcardCurrentIndex >= flashcardUnlearnedList.length) {
+        flashcardCurrentIndex = 0;
+      }
+
+      renderFlashcardUI();
+    }
+
+    function nextFlashcard() {
+      if (flashcardUnlearnedList.length === 0) return;
+      flashcardCurrentIndex = (flashcardCurrentIndex + 1) % flashcardUnlearnedList.length;
+      renderFlashcardUI();
+    }
+
+    function resetLearnedWordsForCurrentSubject() {
+      if (!currentFlashcardSubject) return;
+      if (confirm(`科目「${currentFlashcardSubject.name}」の記憶状態をリセットしますか？`)) {
+        localStorage.removeItem(getLearnedStorageKey(currentFlashcardSubject.id));
+        loadFlashcardData();
+        updateFlashcardDashboardUI();
+        alert("記憶状態をリセットしました。");
+      }
+    }
+
+    function openLearnedWordsModal() {
+      if (!currentFlashcardSubject) return;
+
+      const subId = currentFlashcardSubject.id;
+      const learnedSet = getLearnedWordsSet(subId);
+      const learnedList = flashcardAllList.filter(item => learnedSet.has(item.id));
+
+      const container = document.getElementById('learned-words-list-container');
+      
+      if (learnedList.length === 0) {
+        container.innerHTML = `<div class="text-center py-6 text-slate-500">まだ覚えた単語はありません。「覚えた！」ボタンを押すと一覧に追加されます。</div>`;
+      } else {
+        container.innerHTML = learnedList.map(item => `
+          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center gap-2">
+            <div class="space-y-0.5 overflow-hidden">
+              <div class="font-bold text-amber-400 text-xs truncate">${item.word}</div>
+              <div class="text-[11px] text-slate-300 font-light truncate">${item.meaning}</div>
+            </div>
+            <button onclick="unmarkLearnedWord('${item.id}')" class="px-2 py-1 bg-slate-800 hover:bg-rose-900 text-rose-300 border border-slate-700 rounded text-[10px] shrink-0 transition">
+              未修得に戻す
+            </button>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('modal-learned-words').classList.remove('hidden');
+    }
+
+    function unmarkLearnedWord(cardId) {
+      if (!currentFlashcardSubject) return;
+      const subId = currentFlashcardSubject.id;
+      const learnedSet = getLearnedWordsSet(subId);
+      learnedSet.delete(cardId);
+      saveLearnedWordsSet(subId, learnedSet);
+
+      openLearnedWordsModal();
+      loadFlashcardData();
+      updateFlashcardDashboardUI();
+    }
+
+    function closeLearnedWordsModal() {
+      document.getElementById('modal-learned-words').classList.add('hidden');
     }
 
     // =========================================================
@@ -1289,12 +2041,15 @@
       db.ref('subjects').set(subjects);
     }
 
+    // 管理者メニュー一覧レンダリング
     function renderAdminDragList() {
       const container = document.getElementById('admin-drag-container');
       if (!container) return;
 
       container.innerHTML = subjects.map((s, idx) => {
         const semSetting = s.semesterSetting || 'all';
+        const isFcVisible = (s.flashcardVisible !== false);
+
         return `
         <div data-id="${s.id}" class="drag-item p-3 rounded-xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div class="flex items-center gap-3">
@@ -1303,17 +2058,24 @@
             <span class="text-xs font-medium text-slate-200">${s.name}</span>
           </div>
           <div class="flex flex-wrap items-center gap-2">
-            <!-- 学期表示設定ドロップダウン -->
             <select onchange="updateSubjectSemesterSetting(${idx}, this.value)" class="bg-slate-900 border border-slate-700 text-slate-300 text-[11px] rounded-lg px-2 py-1 focus:outline-none focus:border-amber-500">
-              <option value="all" ${semSetting === 'all' ? 'selected' : ''}>学期: 両方表示</option>
+              <option value="all" ${semSetting === 'all' ? 'selected' : ''}>学期: 両方</option>
               <option value="spring" ${semSetting === 'spring' ? 'selected' : ''}>学期: 春のみ</option>
               <option value="autumn" ${semSetting === 'autumn' ? 'selected' : ''}>学期: 秋のみ</option>
             </select>
-            <button onclick="openQuestionsEditorModal('${s.id}')" class="px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-[11px] transition">
-              問題編集
-            </button>
+
+            <!-- 演習問題 表示/非表示切替 -->
             <button onclick="toggleSubjectVisibility(${idx})" class="px-2.5 py-1 ${s.visible !== false ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-slate-800 text-slate-500 border-slate-700'} border rounded-lg text-[11px] transition">
-              ${s.visible !== false ? '表示中' : '非表示'}
+              ${s.visible !== false ? '演習: 表示' : '演習: 非表示'}
+            </button>
+
+            <!-- 暗記カード 表示/非表示切替 -->
+            <button onclick="toggleSubjectFlashcardVisibilityDirect(${idx})" class="px-2.5 py-1 ${isFcVisible ? 'bg-amber-500/10 text-amber-300 border-amber-500/30' : 'bg-slate-800 text-slate-500 border-slate-700'} border rounded-lg text-[11px] transition">
+              ${isFcVisible ? '暗記: 表示' : '暗記: 非表示'}
+            </button>
+
+            <button onclick="openQuestionsEditorModal('${s.id}')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-[11px] transition">
+              編集
             </button>
             <button onclick="deleteSubject(${idx})" class="px-2 py-1 bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/60 rounded-lg text-[11px] transition">
               削除
@@ -1346,6 +2108,14 @@
       renderAdminDragList();
     }
 
+    // 管理者一覧からの直接 暗記カード表示非表示切り替え
+    function toggleSubjectFlashcardVisibilityDirect(idx) {
+      subjects[idx].flashcardVisible = !(subjects[idx].flashcardVisible !== false);
+      saveSubjectsToStorage();
+      renderAdminDragList();
+      renderFlashcardSubjectList();
+    }
+
     function deleteSubject(idx) {
       const targetSubject = subjects[idx];
       if (!targetSubject) return;
@@ -1355,11 +2125,10 @@
         subjects.splice(idx, 1);
         saveSubjectsToStorage();
 
-        // 該当科目の問題データベースも同時に削除
         db.ref(`quiz_db/${subId}`).remove();
-        if (window.QUIZ_DB[subId]) {
-          delete window.QUIZ_DB[subId];
-        }
+        db.ref(`flashcard_db/${subId}`).remove();
+        if (window.QUIZ_DB[subId]) delete window.QUIZ_DB[subId];
+        if (window.FLASHCARD_DB[subId]) delete window.FLASHCARD_DB[subId];
 
         renderAdminDragList();
         renderSubjectList();
@@ -1384,6 +2153,7 @@
         name: name,
         code: code,
         visible: true,
+        flashcardVisible: true,
         semesterSetting: "all",
         status: "available",
         isFixed: false,
@@ -1392,6 +2162,7 @@
       });
 
       window.QUIZ_DB[id] = [];
+      window.FLASHCARD_DB[id] = [];
       saveSubjectsToStorage();
 
       nameInput.value = '';
@@ -1411,7 +2182,7 @@
     }
 
     // ---------------------------------------------------------
-    // 問題編集モーダル制御機能
+    // 管理者用：演習問題 ＆ 暗記カード 専用編集機能
     // ---------------------------------------------------------
     function toggleAiGeneratorPanel() {
       const panel = document.getElementById('ai-generator-panel');
@@ -1421,21 +2192,24 @@
         icon.textContent = '▲ 閉じる';
       } else {
         panel.classList.add('hidden');
-        icon.textContent = '▼ 開く';
+        icon.textContent = '▼ 開発';
       }
     }
 
+    // ★ Gemini AIによる問題生成機能（構造化出力 responseSchema を適用し、確実に動作するよう改修）
     async function generateQuestionWithGemini() {
       const imgInput = document.getElementById('ai-input-image');
       const textInput = document.getElementById('ai-input-text');
+      const countSelect = document.getElementById('ai-generate-count-select');
       const btn = document.getElementById('ai-generate-btn');
       const loading = document.getElementById('ai-generate-loading');
 
-      const text = textInput.value.trim();
-      const file = imgInput.files && imgInput.files[0];
+      const text = textInput ? textInput.value.trim() : '';
+      const file = imgInput && imgInput.files && imgInput.files[0];
+      const count = parseInt(countSelect ? countSelect.value : "1", 10) || 1;
 
       if (!file && !text) {
-        alert("画像を選択するか、テキストを入力してください。");
+        alert("画像を選択するか、テキスト指示を入力してください。");
         return;
       }
 
@@ -1467,85 +2241,131 @@
 
         const isKeyboardMode = (editingSubjectId === 'biochemistry' && editingSelectedRound === 'keyboard');
 
-        const promptText = isKeyboardMode ? `
-以下の画像または提示内容を解析し、記述式（キーボード入力用）問題を1問作成してください。
-必ず以下のJSONフォーマットのみを返してください。余計な解説やマークダウン記法(例: \`\`\`json)は一切含めないでください。
+        let responseSchema;
+        if (isKeyboardMode) {
+          responseSchema = {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                q: { type: "STRING" },
+                keyword: { type: "STRING" },
+                exp: { type: "STRING" }
+              },
+              required: ["q", "keyword", "exp"]
+            }
+          };
+        } else {
+          responseSchema = {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                q: { type: "STRING" },
+                options: {
+                  type: "ARRAY",
+                  items: { type: "STRING" }
+                },
+                answers: {
+                  type: "ARRAY",
+                  items: { type: "INTEGER" }
+                },
+                exp: { type: "STRING" }
+              },
+              required: ["q", "options", "answers", "exp"]
+            }
+          };
+        }
 
-{
-  "q": "問題文",
-  "keyword": "正解となるキーワード・用語",
-  "exp": "正解の理由や解説"
-}
-
-ユーザー指示/補足: ${text || "画像や内容から重要な問題を1問自動作成してください。"}
-` : `
-以下の画像または提示内容を解析し、四肢択一問題を1問作成してください。
-必ず以下のJSONフォーマットのみを返してください。余計な解説やマークダウン記法(例: \`\`\`json)は一切含めないでください。
-
-{
-  "q": "問題文",
-  "options": ["選択肢1", "選択肢2", "選択肢3", "選択肢4"],
-  "answers": [正解のインデックス(0〜3の数値)],
-  "exp": "正解の理由や解説"
-}
-
-ユーザー指示/補足: ${text || "画像や内容から重要な問題を1問自動作成してください。"}
-`;
+        const promptText = isKeyboardMode 
+          ? `提示された画像またはテキストの内容から、記述式（キーボード入力用）問題を【 ${count} 問 】生成してください。補足: ${text || "重要ポイントから作成してください。"}`
+          : `提示された画像またはテキストの内容から、四肢択一問題を【 ${count} 問 】生成してください。補足: ${text || "重要ポイントから作成してください。"}`;
 
         contentsParts.push({ text: promptText });
+
+        const requestBody = {
+          contents: [{ parts: contentsParts }],
+          generationConfig: {
+            responseMimeType: "application/json",
+            responseSchema: responseSchema
+          }
+        };
 
         const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ contents: [{ parts: contentsParts }] })
+          body: JSON.stringify(requestBody)
         });
 
         if (!response.ok) {
-          throw new Error(`APIエラー: ${response.status}`);
+          throw new Error(`APIエラー (Status ${response.status})`);
         }
 
         const data = await response.json();
         const resText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-        const cleanJsonStr = resText.replace(/```json/g, '').replace(/```/g, '').trim();
-        const parsedQ = JSON.parse(cleanJsonStr);
 
-        if (!parsedQ.q) {
-          throw new Error("生成データが不正です。");
+        if (!resText) {
+          throw new Error("AIから有効な応答を受信できませんでした。");
         }
 
-        if (isKeyboardMode) {
-          editingQuestionsList.unshift({
-            q: parsedQ.q,
-            keyword: parsedQ.keyword || "",
-            exp: parsedQ.exp || "Gemini AIによって生成された記述問題です。",
-            image: base64Img || "",
-            enableKeyboard: true,
-            options: [],
-            answers: [],
-            round: editingSelectedRound || null
-          });
-        } else {
-          editingQuestionsList.unshift({
-            q: parsedQ.q,
-            options: parsedQ.options || [],
-            answers: Array.isArray(parsedQ.answers) ? parsedQ.answers : [parsedQ.answers || 0],
-            exp: parsedQ.exp || "Gemini AIによって生成された問題です。",
-            image: base64Img || "",
-            enableKeyboard: false,
-            round: editingSelectedRound || null
-          });
+        let cleanJsonStr = resText.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const startIdx = cleanJsonStr.indexOf('[');
+        const endIdx = cleanJsonStr.lastIndexOf(']');
+        if (startIdx !== -1 && endIdx !== -1 && endIdx >= startIdx) {
+          cleanJsonStr = cleanJsonStr.substring(startIdx, endIdx + 1);
         }
+
+        let questionsArray;
+        try {
+          questionsArray = JSON.parse(cleanJsonStr);
+        } catch (parseErr) {
+          console.error("Parse Error JSON Text:", resText);
+          throw new Error("AI応答のJSON解析に失敗しました。");
+        }
+
+        if (!Array.isArray(questionsArray)) {
+          questionsArray = [questionsArray];
+        }
+
+        let addedCount = 0;
+        questionsArray.forEach(parsedQ => {
+          if (!parsedQ || !parsedQ.q) return;
+
+          if (isKeyboardMode) {
+            editingQuestionsList.unshift({
+              q: parsedQ.q,
+              keyword: parsedQ.keyword || "",
+              exp: parsedQ.exp || "AIによって生成された記述問題です。",
+              image: base64Img || "",
+              enableKeyboard: true,
+              options: [],
+              answers: [],
+              round: editingSelectedRound || null
+            });
+          } else {
+            editingQuestionsList.unshift({
+              q: parsedQ.q,
+              options: Array.isArray(parsedQ.options) ? parsedQ.options : ["選択肢1", "選択肢2", "選択肢3", "選択肢4"],
+              answers: Array.isArray(parsedQ.answers) ? parsedQ.answers : [0],
+              exp: parsedQ.exp || "AIによって生成された問題です。",
+              image: base64Img || "",
+              enableKeyboard: false,
+              round: editingSelectedRound || null
+            });
+          }
+          addedCount++;
+        });
 
         renderEditorQuestionsList();
-        alert("Gemini AIが問題を生成し、一覧の先頭に追加しました！");
+        alert(`✨ Gemini AIが ${addedCount} 問の問題を正常に作成・追加しました！`);
         
-        imgInput.value = '';
-        textInput.value = '';
+        if (imgInput) imgInput.value = '';
+        if (textInput) textInput.value = '';
         toggleAiGeneratorPanel();
 
       } catch (err) {
-        console.error("AI問題生成エラー:", err);
-        alert("AIによる問題の生成に失敗しました: " + err.message);
+        console.error("AI問題生成処理エラー:", err);
+        alert("AIによる問題生成に失敗しました: " + err.message);
       } finally {
         btn.disabled = false;
         btn.classList.remove('opacity-50');
@@ -1555,13 +2375,67 @@
 
     function openQuestionsEditorModal(subjectId) {
       editingSubjectId = subjectId;
+      editingCategory = 'quiz';
       const sub = subjects.find(s => s.id === subjectId);
       document.getElementById('editor-subject-title').textContent = `${sub ? sub.name : '科目'} - 問題編集`;
 
+      switchEditorCategory('quiz');
+      document.getElementById('modal-questions-editor').classList.remove('hidden');
+    }
+
+    function switchEditorCategory(cat) {
+      editingCategory = cat;
+
+      const tabQuiz = document.getElementById('editor-tab-quiz');
+      const tabFC = document.getElementById('editor-tab-flashcard');
+      const fcSubVisibilityWrap = document.getElementById('editor-flashcard-subject-visibility-wrap');
+      const aiWrapper = document.getElementById('editor-ai-panel-wrapper');
+      const desc = document.getElementById('editor-type-desc');
+
+      if (cat === 'quiz') {
+        tabQuiz.className = "w-1/2 py-2 rounded-lg text-xs font-bold transition text-center bg-amber-500 text-slate-950";
+        tabFC.className = "w-1/2 py-2 rounded-lg text-xs font-bold transition text-center text-slate-400 hover:text-slate-200";
+        fcSubVisibilityWrap.classList.add('hidden');
+        aiWrapper.classList.remove('hidden');
+        desc.textContent = "通常のテスト演習問題の文言、選択肢、解説を編集します。";
+      } else {
+        tabQuiz.className = "w-1/2 py-2 rounded-lg text-xs font-bold transition text-center text-slate-400 hover:text-slate-200";
+        tabFC.className = "w-1/2 py-2 rounded-lg text-xs font-bold transition text-center bg-amber-500 text-slate-950";
+        fcSubVisibilityWrap.classList.remove('hidden');
+        aiWrapper.classList.add('hidden');
+        desc.textContent = "暗記カード専用問題（単語・意味・表示/非表示）を編集します。";
+
+        const sub = subjects.find(s => s.id === editingSubjectId);
+        const toggleSwitch = document.getElementById('editor-fc-subject-toggle-switch');
+        if (sub && toggleSwitch) {
+          toggleSwitch.checked = (sub.flashcardVisible !== false);
+        }
+      }
+
+      setupEditorModeSelector();
+      loadQuestionsForEditor();
+    }
+
+    function toggleSubjectFlashcardVisibility(isChecked) {
+      const sub = subjects.find(s => s.id === editingSubjectId);
+      if (sub) {
+        sub.flashcardVisible = isChecked;
+        saveSubjectsToStorage();
+      }
+    }
+
+    function setupEditorModeSelector() {
       const modeSelector = document.getElementById('editor-mode-selector-container');
       const modeSelect = document.getElementById('editor-mode-select');
+      const sub = subjects.find(s => s.id === editingSubjectId);
 
-      if (subjectId === 'biochemistry' || (sub && sub.hasBiochemistryFormats)) {
+      if (editingCategory === 'flashcard') {
+        modeSelector.classList.add('hidden');
+        editingSelectedRound = null;
+        return;
+      }
+
+      if (editingSubjectId === 'biochemistry' || (sub && sub.hasBiochemistryFormats)) {
         modeSelector.classList.remove('hidden');
         modeSelect.innerHTML = `
           <option value="choice">選択式問題</option>
@@ -1569,7 +2443,7 @@
         `;
         editingSelectedRound = 'choice';
         modeSelect.value = 'choice';
-      } else if (subjectId === 'physiology' || (sub && sub.hasPhysiologyModes)) {
+      } else if (editingSubjectId === 'physiology' || (sub && sub.hasPhysiologyModes)) {
         modeSelector.classList.remove('hidden');
         modeSelect.innerHTML = `
           <option value="past">過去問</option>
@@ -1577,7 +2451,7 @@
         `;
         editingSelectedRound = 'past';
         modeSelect.value = 'past';
-      } else if (subjectId === 'public_health' || (sub && sub.hasPublicHealthModes)) {
+      } else if (editingSubjectId === 'public_health' || (sub && sub.hasPublicHealthModes)) {
         modeSelector.classList.remove('hidden');
         modeSelect.innerHTML = `
           <option value="past">過去問</option>
@@ -1586,7 +2460,7 @@
         `;
         editingSelectedRound = 'past';
         modeSelect.value = 'past';
-      } else if (subjectId === 'public_health_nursing' || (sub && sub.hasPHNModes)) {
+      } else if (editingSubjectId === 'public_health_nursing' || (sub && sub.hasPHNModes)) {
         modeSelector.classList.remove('hidden');
         modeSelect.innerHTML = `
           <option value="basic">練習問題</option>
@@ -1594,7 +2468,7 @@
         `;
         editingSelectedRound = 'basic';
         modeSelect.value = 'basic';
-      } else if (subjectId === 'nursing_method' || (sub && sub.hasNursingModes)) {
+      } else if (editingSubjectId === 'nursing_method' || (sub && sub.hasNursingModes)) {
         modeSelector.classList.remove('hidden');
         modeSelect.innerHTML = `
           <option value="1">第1回演習問題</option>
@@ -1611,7 +2485,7 @@
         `;
         editingSelectedRound = '1';
         modeSelect.value = '1';
-      } else if (subjectId === 'psychology' || (sub && sub.hasRounds)) {
+      } else if (editingSubjectId === 'psychology' || (sub && sub.hasRounds)) {
         modeSelector.classList.remove('hidden');
         modeSelect.innerHTML = Array.from({length: 10}, (_, i) => `<option value="${i+1}">第${i+1}回</option>`).join('') + `<option value="quiz">小テスト</option>`;
         editingSelectedRound = '1';
@@ -1620,9 +2494,6 @@
         modeSelector.classList.add('hidden');
         editingSelectedRound = null;
       }
-
-      loadQuestionsForEditor();
-      document.getElementById('modal-questions-editor').classList.remove('hidden');
     }
 
     function changeEditorMode(roundVal) {
@@ -1631,6 +2502,19 @@
     }
 
     function loadQuestionsForEditor() {
+      if (editingCategory === 'flashcard') {
+        const rawFc = fetchFlashcardDataForSubject(editingSubjectId);
+        editingQuestionsList = rawFc.map((item, idx) => ({
+          id: item.id || `fc_${editingSubjectId}_${idx}`,
+          word: item.word || "単語",
+          meaning: item.meaning || "意味",
+          exp: item.exp || "解説はありません。",
+          visible: item.visible !== false
+        }));
+        renderEditorQuestionsList();
+        return;
+      }
+
       let rawData = [];
 
       if (editingSubjectId === 'biochemistry') {
@@ -1672,8 +2556,46 @@
 
     function renderEditorQuestionsList() {
       const container = document.getElementById('editor-questions-list');
+
+      if (editingCategory === 'flashcard') {
+        if (editingQuestionsList.length === 0) {
+          container.innerHTML = `<div class="p-6 text-center text-slate-500 text-xs">暗記カードが登録されていません。「＋ 問題を追加」から追加できます。</div>`;
+          return;
+        }
+
+        container.innerHTML = editingQuestionsList.map((item, idx) => `
+          <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3 relative">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+              <span class="text-xs font-bold text-amber-400 font-mono">カード ${idx + 1}</span>
+              <div class="flex items-center gap-2">
+                <button onclick="toggleFlashcardCardVisibility(${idx})" class="px-2 py-0.5 rounded text-[10px] font-bold transition ${item.visible !== false ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-slate-800 text-slate-500 border border-slate-700'}">
+                  ${item.visible !== false ? '表示' : '非表示'}
+                </button>
+                <button onclick="removeQuestionFromEditor(${idx})" class="text-xs text-rose-400 hover:text-rose-300 transition">削除</button>
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              <label class="text-[10px] text-amber-400 font-medium block">表面（単語・用語）:</label>
+              <input type="text" value="${item.word || ''}" onchange="updateEditorQData(${idx}, 'word', this.value)" placeholder="例: 心筋梗塞" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
+            </div>
+
+            <div class="space-y-1">
+              <label class="text-[10px] text-amber-400 font-medium block">裏面（意味・定義）:</label>
+              <textarea onchange="updateEditorQData(${idx}, 'meaning', this.value)" placeholder="例: 冠動脈の閉塞により心筋細胞が壊死する病態..." class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-16">${item.meaning || ''}</textarea>
+            </div>
+
+            <div class="space-y-1">
+              <label class="text-[10px] text-slate-400 block">補足解説:</label>
+              <textarea onchange="updateEditorQData(${idx}, 'exp', this.value)" placeholder="例: 心電図ではST上昇がみられる..." class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-14">${item.exp || ''}</textarea>
+            </div>
+          </div>
+        `).join('');
+        return;
+      }
+
       if (editingQuestionsList.length === 0) {
-        container.innerHTML = `<div class="p-6 text-center text-slate-500 text-xs">問題が登録されていません。「＋ 問題を追加」ボタンから追加できます。</div>`;
+        container.innerHTML = `<div class="p-6 text-center text-slate-500 text-xs">問題が登録されていません。「＋ 問題を追加」から追加できます。</div>`;
         return;
       }
 
@@ -1740,6 +2662,12 @@
       }).join('');
     }
 
+    function toggleFlashcardCardVisibility(idx) {
+      if (!editingQuestionsList[idx]) return;
+      editingQuestionsList[idx].visible = !(editingQuestionsList[idx].visible !== false);
+      renderEditorQuestionsList();
+    }
+
     function handleImageFileUpload(idx, input) {
       const file = input.files && input.files[0];
       if (!file) return;
@@ -1770,17 +2698,27 @@
     }
 
     function addNewQuestionToEditor() {
-      const isKeyboard = (editingSubjectId === 'biochemistry' && editingSelectedRound === 'keyboard');
-      editingQuestionsList.push({
-        q: "新しい問題文を入力してください",
-        options: isKeyboard ? [] : ["選択肢1", "選択肢2", "選択肢3", "選択肢4"],
-        answers: isKeyboard ? [] : [0],
-        exp: "解説を入力してください",
-        image: "",
-        enableKeyboard: isKeyboard,
-        keyword: "",
-        round: editingSelectedRound || null
-      });
+      if (editingCategory === 'flashcard') {
+        editingQuestionsList.push({
+          id: `fc_${editingSubjectId}_${Date.now()}`,
+          word: "新規単語",
+          meaning: "単語の意味を入力してください",
+          exp: "補足解説を入力してください",
+          visible: true
+        });
+      } else {
+        const isKeyboard = (editingSubjectId === 'biochemistry' && editingSelectedRound === 'keyboard');
+        editingQuestionsList.push({
+          q: "新しい問題文を入力してください",
+          options: isKeyboard ? [] : ["選択肢1", "選択肢2", "選択肢3", "選択肢4"],
+          answers: isKeyboard ? [] : [0],
+          exp: "解説を入力してください",
+          image: "",
+          enableKeyboard: isKeyboard,
+          keyword: "",
+          round: editingSelectedRound || null
+        });
+      }
       renderEditorQuestionsList();
     }
 
@@ -1793,6 +2731,18 @@
 
     function saveEditedQuestions() {
       if (!editingSubjectId) return;
+
+      if (editingCategory === 'flashcard') {
+        window.FLASHCARD_DB[editingSubjectId] = [...editingQuestionsList];
+        db.ref(`flashcard_db/${editingSubjectId}`).set(editingQuestionsList).then(() => {
+          alert("暗記カードデータをFirebaseに保存しました。");
+          closeQuestionsEditorModal();
+        }).catch(err => {
+          console.error("暗記カード保存エラー:", err);
+          alert("暗記カードデータの保存に失敗しました。");
+        });
+        return;
+      }
 
       let saveDbKey = editingSubjectId;
       if (editingSubjectId === 'biochemistry') {
@@ -1818,7 +2768,7 @@
 
       window.QUIZ_DB[saveDbKey] = rawData;
       db.ref(`quiz_db/${saveDbKey}`).set(rawData).then(() => {
-        alert("問題データをFirebaseに保存しました。");
+        alert("演習テスト問題をFirebaseに保存しました。");
         closeQuestionsEditorModal();
       }).catch(err => {
         console.error("問題保存エラー:", err);
@@ -1836,6 +2786,7 @@
     window.addEventListener('DOMContentLoaded', () => {
       initVisitorTracking();
       initRealtimeSync();
+      initSubjectPageSwipe();
 
       if (localStorage.getItem('notice_read_status') === 'read') {
         const redDot = document.getElementById('notice-red-dot');
@@ -1873,6 +2824,9 @@
           saveSubjectsToStorage();
         }
         renderSubjectList();
+        if (currentSubjectPageIndex === 1) {
+          renderFlashcardSubjectList();
+        }
         if (!document.getElementById('modal-admin').classList.contains('hidden')) {
           renderAdminDragList();
         }
@@ -1883,6 +2837,15 @@
         if (val) {
           Object.keys(val).forEach(subId => {
             window.QUIZ_DB[subId] = val[subId];
+          });
+        }
+      });
+
+      db.ref('flashcard_db').on('value', (snapshot) => {
+        const val = snapshot.val();
+        if (val) {
+          Object.keys(val).forEach(subId => {
+            window.FLASHCARD_DB[subId] = val[subId];
           });
         }
       });
@@ -1980,6 +2943,7 @@
     function showSubjectScreen() {
       hideAllScreens();
       document.getElementById('screen-subjects').classList.remove('hidden');
+      switchSubjectPage(0);
       renderSubjectList();
     }
 
@@ -2779,6 +3743,27 @@
       }
     }
 
+    function getAttemptHistoryKey() {
+      let modeSuffix = '';
+      if (currentSemester) {
+        modeSuffix += `_${currentSemester}`;
+      }
+      if (currentSubject.id === 'biochemistry' || currentSubject.hasBiochemistryFormats) {
+        modeSuffix += `_${currentBiochemistryFormat}`;
+      } else if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) {
+        modeSuffix += `_${currentPhysiologyMode}`;
+      } else if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) {
+        modeSuffix += `_${currentAnatomyMode}`;
+      } else if (currentSubject.id === 'public_health' || currentSubject.hasPublicHealthModes) {
+        modeSuffix += `_${currentPublicHealthMode}`;
+      } else if (currentSubject.id === 'public_health_nursing' || currentSubject.hasPHNModes) {
+        modeSuffix += `_${currentPHNMode}`;
+      } else if (currentRound) {
+        modeSuffix += `_r${currentRound}`;
+      }
+      return `attempt_history_${currentSubject.id}${modeSuffix}`;
+    }
+
     function showResultScreen() {
       stopQuizTimer();
       hideAllScreens();
@@ -2787,6 +3772,7 @@
       const total = activeQuestions.length;
       const accRate = Math.round((score / total) * 100);
 
+      document.getElementById('result-score-title').textContent = `全${total}問中 ${score}問正解`;
       document.getElementById('final-score-val').textContent = accRate;
       
       const evalText = document.getElementById('final-eval-text');
@@ -2819,6 +3805,40 @@
       history.push(accRate);
       if (history.length > 20) history.shift();
       localStorage.setItem(historyKey, JSON.stringify(history));
+
+      const attemptKey = getAttemptHistoryKey();
+      const attemptHistory = JSON.parse(localStorage.getItem(attemptKey) || '[]');
+      
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      
+      attemptHistory.unshift({
+        score: score,
+        total: total,
+        accRate: accRate,
+        timestamp: dateStr
+      });
+
+      if (attemptHistory.length > 10) {
+        attemptHistory.pop();
+      }
+      localStorage.setItem(attemptKey, JSON.stringify(attemptHistory));
+
+      const historyListContainer = document.getElementById('quiz-attempt-history-list');
+      if (historyListContainer) {
+        historyListContainer.innerHTML = attemptHistory.map((item, idx) => `
+          <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/80 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-mono text-slate-400">#${attemptHistory.length - idx}</span>
+              <span class="text-slate-400 text-[11px] font-mono">${item.timestamp}</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-slate-300 font-mono">${item.score} / ${item.total}問正解</span>
+              <span class="font-bold font-mono ${item.accRate >= 80 ? 'text-emerald-400' : (item.accRate >= 60 ? 'text-amber-400' : 'text-rose-400')}">${item.accRate}%</span>
+            </div>
+          </div>
+        `).join('');
+      }
     }
 
     // =========================================================
@@ -2905,7 +3925,7 @@
         `).join('');
       } else {
         hostSettings.classList.add('hidden');
-        guestMsg.classList.remove('hidden');
+        guestMsg.remove('hidden');
       }
 
       listenToRoomUpdates();
