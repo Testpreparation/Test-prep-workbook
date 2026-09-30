@@ -576,7 +576,7 @@
         </div>
 
         <!-- スライド用ページインジケータードット -->
-        <div class="flex items-center justify-center gap-2 pt-2">
+        <div id="subject-page-dots" class="flex items-center justify-center gap-2 pt-2">
           <button id="dot-page-1" onclick="switchSubjectPage(0)" class="w-2.5 h-2.5 rounded-full bg-amber-500 transition-all duration-300" aria-label="1ページ目"></button>
           <button id="dot-page-2" onclick="switchSubjectPage(1)" class="w-2.5 h-2.5 rounded-full bg-slate-700 hover:bg-slate-600 transition-all duration-300" aria-label="2ページ目（暗記カード）"></button>
         </div>
@@ -1734,6 +1734,7 @@
     let isFlashcardFlipped = false;
     let currentFlashcardSubject = null;
     let flashcardMode = 0;             // 0: [表:単語 / 裏:意味], 1: [表:意味 / 裏:単語]
+    let flashcardSubjectLocked = false;
 
     function getAverageAccuracy(subjectId) {
       const historyKey = `history_accuracy_${subjectId}`;
@@ -1782,6 +1783,7 @@
 
       screenEl.addEventListener('touchend', (e) => {
         if (!isDragging) return;
+        if (flashcardSubjectLocked) { isDragging = false; return; }
         isDragging = false;
         const endX = e.changedTouches[0].clientX;
         const endY = e.changedTouches[0].clientY;
@@ -1829,6 +1831,9 @@
       step4.classList.remove('flex');
 
       if (stepNum === 1) {
+        flashcardSubjectLocked = false;
+        const dots = document.getElementById('subject-page-dots');
+        if (dots) dots.classList.remove('hidden');
         document.getElementById('fc-step-1-subject-select').classList.remove('hidden');
         renderFlashcardSubjectList();
       } else if (stepNum === 2) {
@@ -1871,6 +1876,9 @@
     }
 
     function selectFlashcardSubject(subjectId) {
+      flashcardSubjectLocked = true;
+      const dots = document.getElementById('subject-page-dots');
+      if (dots) dots.classList.add('hidden');
       currentFlashcardSubject = subjects.find(s => s.id === subjectId);
       if (!currentFlashcardSubject) return;
 
