@@ -85,6 +85,8 @@
 
   <!-- ★ 暗記カード専用の独立外部JSファイルを読み込み -->
   <script src="flashcard_data.js" onerror="console.log('flashcard_data.js 未検出。')"></script>
+  <!-- 生化学の暗記カード専用JSを読み込み -->
+  <script src="biochemistry_flashcard_data.js" onerror="console.log('biochemistry_flashcard_data.js 未検出。')"></script>
 
   <style>
     body {
@@ -1649,9 +1651,15 @@
     }
 
     // ---------------------------------------------------------
-    //  暗記カード専用データ取得 (専用外部ファイル flashcard_data.js から読み込み)
+    //  暗記カード専用データ取得 (専用外部ファイル flashcard_data.js または biochemistry_flashcard_data.js から読み込み)
     // ---------------------------------------------------------
     function fetchFlashcardDataForSubject(subjectId) {
+      if (subjectId === 'biochemistry' && typeof window.getBiochemistryFlashcardQuestions === 'function') {
+        const bioFC = window.getBiochemistryFlashcardQuestions();
+        if (Array.isArray(bioFC) && bioFC.length > 0) {
+          return bioFC;
+        }
+      }
       if (window.FLASHCARD_DB && Array.isArray(window.FLASHCARD_DB[subjectId]) && window.FLASHCARD_DB[subjectId].length > 0) {
         return window.FLASHCARD_DB[subjectId];
       }
