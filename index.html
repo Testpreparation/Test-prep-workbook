@@ -747,28 +747,12 @@
           <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
           <span class="serif-title text-sm text-slate-300">薬理学 モード選択</span>
         </div>
-
         <div class="space-y-3 pt-2">
           <button onclick="selectPharmacologyMode('exercise')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
-            <div class="flex items-center gap-3">
-              <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-bold">PHA-1</span>
-              <div>
-                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">演習問題</div>
-                <div class="text-[11px] text-slate-400 font-light mt-0.5">薬理学の演習問題</div>
-              </div>
-            </div>
-            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+            <div><div class="text-sm font-medium text-slate-100 group-hover:text-amber-300">演習問題</div><div class="text-[11px] text-slate-400 mt-0.5">薬理学の演習問題</div></div><span class="text-slate-500 group-hover:text-amber-400">→</span>
           </button>
-
           <button onclick="selectPharmacologyMode('past')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
-            <div class="flex items-center gap-3">
-              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">PHA-2</span>
-              <div>
-                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">過去問</div>
-                <div class="text-[11px] text-slate-400 font-light mt-0.5">薬理学の過去問</div>
-              </div>
-            </div>
-            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+            <div><div class="text-sm font-medium text-slate-100 group-hover:text-amber-300">過去問</div><div class="text-[11px] text-slate-400 mt-0.5">薬理学の過去問</div></div><span class="text-slate-500 group-hover:text-amber-400">→</span>
           </button>
         </div>
       </div>
@@ -779,37 +763,10 @@
           <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
           <span class="serif-title text-sm text-slate-300">看護学方法論Ⅲ モード選択</span>
         </div>
-
         <div class="space-y-3 pt-2">
-          <button onclick="selectNursingMethod3Mode('practice')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
-            <div class="flex items-center gap-3">
-              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">NUR3-1</span>
-              <div>
-                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">練習問題</div>
-              </div>
-            </div>
-            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
-          </button>
-
-          <button onclick="selectNursingMethod3Mode('quiz')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
-            <div class="flex items-center gap-3">
-              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">NUR3-2</span>
-              <div>
-                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">小テスト</div>
-              </div>
-            </div>
-            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
-          </button>
-
-          <button onclick="selectNursingMethod3Mode('exercise')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
-            <div class="flex items-center gap-3">
-              <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-bold">NUR3-3</span>
-              <div>
-                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">演習問題</div>
-              </div>
-            </div>
-            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
-          </button>
+          <button onclick="selectNursingMethod3Mode('practice')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">練習問題</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+          <button onclick="selectNursingMethod3Mode('quiz')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">小テスト</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+          <button onclick="selectNursingMethod3Mode('exercise')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">演習問題</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
         </div>
       </div>
 
@@ -3129,9 +3086,20 @@
 
     function evoGetStats() {
       const rows=[]; let attempts=0, sum=0, best=null;
+      const modeDefs = s => {
+        if (s.id === 'physiology' || s.hasPhysiologyModes) return [{key:'past',label:'過去問'},{key:'quiz',label:'小テスト'}];
+        if (s.id === 'anatomy' || s.hasAnatomyModes) return [{key:'basic',label:'練習問題'},{key:'applied',label:'応用問題'}];
+        if (s.id === 'public_health' || s.hasPublicHealthModes) return [{key:'past',label:'過去問'},{key:'exercise',label:'演習問題'},{key:'national',label:'模擬国家試験'}];
+        if (s.id === 'public_health_nursing' || s.hasPHNModes) return [{key:'basic',label:'練習問題'},{key:'exercise',label:'演習問題'}];
+        if (s.id === 'pharmacology') return [{key:'exercise',label:'演習問題'},{key:'past',label:'過去問'}];
+        if (s.id === 'nursing_method_3') return [{key:'practice',label:'練習問題'},{key:'quiz',label:'小テスト'},{key:'exercise',label:'演習問題'}];
+        return [{key:'all',label:'通常'}];
+      };
       (subjects||[]).filter(s=>s.visible!==false && s.status!=='preparing').forEach(s=>{
-        const rec=JSON.parse(localStorage.getItem(`history_accuracy_${s.id}`)||'[]');
-        if(rec.length){ const avg=Math.round(rec.reduce((a,b)=>a+b,0)/rec.length); rows.push({s,avg}); attempts+=rec.length; sum+=rec.reduce((a,b)=>a+b,0); best=Math.max(best??0,...rec); }
+        modeDefs(s).forEach(m=>{
+          const rec=JSON.parse(localStorage.getItem(`history_accuracy_${s.id}_${m.key}`)||'[]');
+          if(rec.length){ const avg=Math.round(rec.reduce((a,b)=>a+b,0)/rec.length); rows.push({s,mode:m,avg}); attempts+=rec.length; sum+=rec.reduce((a,b)=>a+b,0); best=Math.max(best??0,...rec); }
+        });
       });
       rows.sort((a,b)=>a.avg-b.avg);
       return {rows,attempts,avg:attempts?Math.round(sum/attempts):null,best};
@@ -3151,7 +3119,18 @@
       const box=document.getElementById('evo-subjects');
       if(box){
         const top=st.rows.slice(0,4);
-        box.innerHTML=top.length?top.map(x=>`<div><div class="flex justify-between text-[10px] mb-1"><span class="text-slate-300 truncate pr-2">${x.s.name}</span><span class="font-mono ${x.avg<70?'text-rose-400':'text-amber-400'}">${x.avg}%</span></div><div class="evo-progress"><span style="width:${x.avg}%"></span></div></div>`).join(''):`<div class="text-[11px] text-slate-500 text-center py-4">まだ演習履歴がありません。<br>最初の10問から始めよう。</div>`;
+        box.innerHTML=top.length?top.map(x=>{
+          const dailyKey = `history_accuracy_daily_${x.s.id}_${x.mode.key}`;
+          const daily = JSON.parse(localStorage.getItem(dailyKey) || '[]');
+          const grouped = {};
+          daily.forEach(r=>{ if(r && r.date && typeof r.accuracy === 'number'){ (grouped[r.date] ||= []).push(r.accuracy); } });
+          const dates = Object.keys(grouped).sort().reverse();
+          const dailyRows = dates.map(date=>{
+            const avg = Math.round(grouped[date].reduce((a,b)=>a+b,0)/grouped[date].length);
+            return `<div class="flex justify-between items-center text-[10px]"><span class="text-slate-400">${date}</span><span class="font-mono ${avg<70?'text-rose-400':'text-amber-400'}">${avg}%</span></div>`;
+          }).join('');
+          return `<div><div class="flex justify-between text-[10px] mb-1"><span class="text-slate-300 truncate pr-2">${x.s.name} <span class="text-slate-500">｜${x.mode.label}</span></span></div><div class="space-y-1.5">${dailyRows || `<div class="text-[10px] text-slate-500">日別の演習履歴がありません。</div>`}</div></div>`;
+        }).join(''):`<div class="text-[11px] text-slate-500 text-center py-4">まだ演習履歴がありません。<br>最初の10問から始めよう。</div>`;
       }
     }
 
@@ -3181,8 +3160,6 @@
       document.getElementById('screen-anatomy-mode-select').classList.add('hidden');
       document.getElementById('screen-publichealth-mode-select').classList.add('hidden');
       document.getElementById('screen-phn-mode-select').classList.add('hidden');
-      document.getElementById('screen-pharmacology-mode-select').classList.add('hidden');
-      document.getElementById('screen-nursing-method-3-mode-select').classList.add('hidden');
       document.getElementById('screen-nursing-mode-select').classList.add('hidden');
       document.getElementById('screen-biochemistry-format-select').classList.add('hidden');
       document.getElementById('screen-time-select').classList.add('hidden');
@@ -4102,11 +4079,24 @@
         newRecordBadge.classList.add('hidden');
       }
 
-      const historyKey = `history_accuracy_${currentSubject.id}`;
+      let conditionMode = 'all';
+      if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) conditionMode = currentPhysiologyMode;
+      else if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) conditionMode = currentAnatomyMode;
+      else if (currentSubject.id === 'public_health' || currentSubject.hasPublicHealthModes) conditionMode = currentPublicHealthMode;
+      else if (currentSubject.id === 'public_health_nursing' || currentSubject.hasPHNModes) conditionMode = currentPHNMode;
+      else if (currentSubject.id === 'pharmacology') conditionMode = currentPharmacologyMode;
+      else if (currentSubject.id === 'nursing_method_3') conditionMode = currentNursingMethod3Mode;
+      const historyKey = `history_accuracy_${currentSubject.id}_${conditionMode}`;
       const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
       history.push(accRate);
       if (history.length > 20) history.shift();
       localStorage.setItem(historyKey, JSON.stringify(history));
+
+      const dailyHistoryKey = `history_accuracy_daily_${currentSubject.id}_${conditionMode}`;
+      const dailyHistory = JSON.parse(localStorage.getItem(dailyHistoryKey) || '[]');
+      dailyHistory.push({ date: `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`, accuracy: accRate });
+      if (dailyHistory.length > 100) dailyHistory.shift();
+      localStorage.setItem(dailyHistoryKey, JSON.stringify(dailyHistory));
 
       const attemptKey = getAttemptHistoryKey();
       const attemptHistory = JSON.parse(localStorage.getItem(attemptKey) || '[]');
