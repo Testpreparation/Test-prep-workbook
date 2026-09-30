@@ -48,6 +48,16 @@
     window.QUIZ_DB.statistics = []; // 統計学
     window.QUIZ_DB.nursing_method_3 = []; // 看護学方法論Ⅲ
     window.QUIZ_DB.nursing_method_4 = []; // 看護学方法論Ⅳ
+     window.QUIZ_DB.pharmacology_past_2026_spring = [];
+     window.QUIZ_DB.pharmacology_exercise_2026_spring = [];
+     window.QUIZ_DB.nursing_method_3_practice_2026_spring = [];
+     window.QUIZ_DB.nursing_method_3_quiz_2026_spring = [];
+     window.QUIZ_DB.nursing_method_3_exercise_2026_spring = [];
+     window.QUIZ_DB.pharmacology_past_2026_autumn = [];
+     window.QUIZ_DB.pharmacology_exercise_2026_autumn = [];
+     window.QUIZ_DB.nursing_method_3_practice_2026_autumn = [];
+     window.QUIZ_DB.nursing_method_3_quiz_2026_autumn = [];
+     window.QUIZ_DB.nursing_method_3_exercise_2026_autumn = [];
 
     // ★ 暗記カード専用独立データベース
     window.FLASHCARD_DB = window.FLASHCARD_DB || {};
@@ -61,7 +71,13 @@
   <script src="physiology2026harugakki.js"></script>
   <script src="anatomy2026harugakki.js"></script>
   <script src="biochemistry2026harugakki.js"></script>
+  <!-- 薬理学：過去問・演習問題を独立JSで管理 -->
+  <script src="pharmacology_past2026harugakki.js"></script>
+  <script src="pharmacology_exercise2026harugakki.js"></script>
   <script src="nursingmethod2026harugakki.js"></script>
+  <script src="nursingmethod3_practice2026harugakki.js"></script>
+  <script src="nursingmethod3_quiz2026harugakki.js"></script>
+  <script src="nursingmethod3_exercise2026harugakki.js"></script>
   <script src="publichealth_past2026harugakki.js"></script>
   <script src="publichealth_exercise2026harugakki.js"></script>
   <script src="publichealth_national2026harugakki.js"></script>
@@ -76,7 +92,13 @@
   <script src="physiology2026akigakki.js"></script>
   <script src="anatomy2026akigakki.js"></script>
   <script src="biochemistry2026akigakki.js"></script>
+  <!-- 薬理学：過去問・演習問題を独立JSで管理 -->
+  <script src="pharmacology_past2026akigakki.js"></script>
+  <script src="pharmacology_exercise2026akigakki.js"></script>
   <script src="nursingmethod2026akigakki.js"></script>
+  <script src="nursingmethod3_practice2026akigakki.js"></script>
+  <script src="nursingmethod3_quiz2026akigakki.js"></script>
+  <script src="nursingmethod3_exercise2026akigakki.js"></script>
   <script src="publichealth_past2026akigakki.js"></script>
   <script src="publichealth_exercise2026akigakki.js"></script>
   <script src="publichealth_national2026akigakki.js"></script>
@@ -234,6 +256,15 @@
       background: #F59E0B;
     }
   </style>
+
+<style id="evolution-dashboard-css">
+  .evo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem}
+  .evo-card{background:linear-gradient(145deg,rgba(15,23,42,.92),rgba(2,6,23,.88));border:1px solid rgba(71,85,105,.45);border-radius:1rem;padding:1rem;box-shadow:0 12px 30px rgba(0,0,0,.18)}
+  .evo-glow{box-shadow:0 0 0 1px rgba(245,158,11,.12),0 18px 50px rgba(245,158,11,.06)}
+  .evo-progress{height:6px;border-radius:999px;background:#1e293b;overflow:hidden}.evo-progress>span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+  .evo-chip{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .55rem;border-radius:999px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.18);color:#fbbf24;font-size:10px}
+  @media(max-width:480px){.evo-grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative selection:bg-amber-500/30 selection:text-amber-200">
 
@@ -253,6 +284,9 @@
         <button onclick="closeNavDrawer()" class="text-slate-400 hover:text-white text-sm p-1 transition">✕</button>
       </div>
       <div class="mt-6 space-y-2.5">
+        <button onclick="closeNavDrawer(); showDashboard();" class="w-full text-left px-4 py-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs transition flex items-center gap-3">
+          <span class="px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 font-mono text-amber-400 text-[10px] font-bold">HOME</span><span class="font-medium">学習ホーム</span>
+        </button>
         <button onclick="closeNavDrawer(); showSubjectScreen();" class="w-full text-left px-4 py-3 rounded-xl bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/50 text-slate-200 text-xs transition flex items-center gap-3 group">
           <span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 font-mono text-amber-400 text-[10px] font-bold">SOLO</span>
           <span class="font-medium">個人演習（科目一覧）</span>
@@ -282,6 +316,39 @@
 
     <main class="glass-card rounded-2xl p-5 sm:p-8 shadow-2xl relative overflow-hidden">
      
+
+      <!-- EVOLUTION: 学習ホーム（科目別コンディション＋学習ログのみ） -->
+      <div id="screen-dashboard" class="space-y-4">
+        <div>
+          <div class="en-title text-[10px] text-amber-500 tracking-[.22em] font-semibold">STUDY HOME</div>
+          <h2 class="serif-title text-xl text-slate-100 mt-1">学習ホーム</h2>
+          <p class="text-[11px] text-slate-400 mt-1">現在の学習状況を確認できます。</p>
+          <button onclick="showSubjectScreen()" class="w-full mt-3 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition">
+            科目一覧へ
+          </button>
+        </div>
+
+        <div class="evo-card">
+          <div class="flex justify-between items-center mb-3">
+            <span class="text-xs font-semibold text-slate-200">科目別コンディション</span>
+            <span class="text-[10px] text-slate-500">直近の平均</span>
+          </div>
+          <div id="evo-subjects" class="space-y-3"></div>
+        </div>
+
+        <div class="evo-card">
+          <div class="flex justify-between items-center mb-3">
+            <span class="text-xs font-semibold text-slate-200">学習ログ</span>
+            <span class="evo-chip">LOCAL DATA</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 text-center">
+            <div><div id="evo-total-attempts" class="text-lg font-mono font-bold text-slate-100">0</div><div class="text-[9px] text-slate-500">演習回数</div></div>
+            <div><div id="evo-avg" class="text-lg font-mono font-bold text-amber-400">--</div><div class="text-[9px] text-slate-500">平均正答率</div></div>
+            <div><div id="evo-best" class="text-lg font-mono font-bold text-slate-100">--</div><div class="text-[9px] text-slate-500">最高記録</div></div>
+          </div>
+        </div>
+      </div>
+
       <!-- 画面1: 科目選択 (SOLO) - 2ページ横スライド対応 -->
       <div id="screen-subjects" class="space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
@@ -667,6 +734,78 @@
               <div>
                 <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">演習問題</div>
                 <div class="text-[11px] text-slate-400 font-light mt-0.5">公衆衛生看護学概論の演習問題</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 薬理学 モード選択 -->
+      <div id="screen-pharmacology-mode-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">薬理学 モード選択</span>
+        </div>
+
+        <div class="space-y-3 pt-2">
+          <button onclick="selectPharmacologyMode('exercise')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-bold">PHA-1</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">演習問題</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">薬理学の演習問題</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+
+          <button onclick="selectPharmacologyMode('past')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">PHA-2</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">過去問</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">薬理学の過去問</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 看護学方法論Ⅲ モード選択 -->
+      <div id="screen-nursing-method-3-mode-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">看護学方法論Ⅲ モード選択</span>
+        </div>
+
+        <div class="space-y-3 pt-2">
+          <button onclick="selectNursingMethod3Mode('practice')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">NUR3-1</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">練習問題</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+
+          <button onclick="selectNursingMethod3Mode('quiz')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">NUR3-2</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">小テスト</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+
+          <button onclick="selectNursingMethod3Mode('exercise')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-bold">NUR3-3</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">演習問題</div>
               </div>
             </div>
             <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
@@ -1166,6 +1305,16 @@
         </div>
       </div>
 
+      <!-- 閲覧履歴 -->
+      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 space-y-3">
+        <div class="text-xs font-semibold text-amber-400 flex items-center gap-1.5 uppercase tracking-widest">
+          <span>👥</span> <span>閲覧履歴</span>
+        </div>
+        <div id="admin-visitor-history" class="space-y-2 max-h-56 overflow-y-auto">
+          <div class="text-[11px] text-slate-500 text-center py-3">読み込み中...</div>
+        </div>
+      </div>
+
       <!-- お知らせ送信エリア -->
       <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 space-y-3">
         <div class="text-xs font-semibold text-amber-400 flex items-center gap-1.5 uppercase tracking-widest">
@@ -1384,9 +1533,43 @@
     // ---------------------------------------------------------
     // 閲覧人数管理機能
     // ---------------------------------------------------------
+    function getVisitorDeviceName() {
+      const ua = navigator.userAgent || '';
+      if (/iPhone/i.test(ua)) return 'iPhone';
+      if (/iPad/i.test(ua)) return 'iPad';
+      if (/Android/i.test(ua)) {
+        const m = ua.match(/Android[^;)]*;\s*(?:[a-z]{2}(?:-[A-Z]{2})?;\s*)?([^;)]+?)(?:\s+Build\/[^;)]+)?[;)]/i);
+        return m && m[1] ? `Android: ${m[1].trim()}` : 'Android端末';
+      }
+      if (/Windows/i.test(ua)) return 'Windows PC';
+      if (/Macintosh|Mac OS X/i.test(ua)) return 'Mac';
+      if (/CrOS/i.test(ua)) return 'Chromebook';
+      return '不明な端末';
+    }
+
+    function renderVisitorHistory(data) {
+      const el = document.getElementById('admin-visitor-history');
+      if (!el) return;
+      const rows = Object.entries(data || {}).map(([id, v]) => ({id, ...v}))
+        .sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0)).slice(0, 100);
+      if (!rows.length) {
+        el.innerHTML = '<div class="text-[11px] text-slate-500 text-center py-3">閲覧履歴はありません。</div>';
+        return;
+      }
+      el.innerHTML = rows.map(v => {
+        const d = v.timestamp ? new Date(v.timestamp) : null;
+        const time = d && !isNaN(d) ? d.toLocaleString('ja-JP', {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}) : '--';
+        return `<div class="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-slate-950 border border-slate-800">
+          <div class="min-w-0"><div class="text-[11px] text-slate-200 truncate">${v.deviceName || '不明な端末'}</div><div class="text-[9px] text-slate-600 font-mono truncate">${v.visitorId || ''}</div></div>
+          <div class="text-[9px] text-slate-500 whitespace-nowrap">${time}</div>
+        </div>`;
+      }).join('');
+    }
+
     function initVisitorTracking() {
       const now = new Date();
       const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      const deviceName = getVisitorDeviceName();
 
       const onlineRef = db.ref(`presence/online/${myPlayerId}`);
       const connectedRef = db.ref('.info/connected');
@@ -1399,6 +1582,8 @@
       });
 
       db.ref(`presence/daily/${todayStr}/${myPlayerId}`).set(true);
+      db.ref(`presence/history/${myPlayerId}`).set({ visitorId: myPlayerId, deviceName, timestamp: firebase.database.ServerValue.TIMESTAMP });
+      db.ref('presence/history').push({ visitorId: myPlayerId, deviceName, timestamp: firebase.database.ServerValue.TIMESTAMP });
 
       db.ref('presence/online').on('value', (snap) => {
         const count = snap.val() ? Object.keys(snap.val()).length : 0;
@@ -1410,6 +1595,10 @@
         const count = snap.val() ? Object.keys(snap.val()).length : 0;
         const el = document.getElementById('admin-today-visitor-count');
         if (el) el.textContent = `${count} 人`;
+      });
+
+      db.ref('presence/history').on('value', (snap) => {
+        renderVisitorHistory(snap.val());
       });
     }
 
@@ -1554,6 +1743,8 @@
     let currentPublicHealthMode = 'past';
     let currentPHNMode = 'basic';
     let currentNursingMode = 'rounds';
+    let currentPharmacologyMode = 'exercise';
+    let currentNursingMethod3Mode = 'practice';
     let currentBiochemistryFormat = 'choice';
     let activeQuestions = [];
     let currentQIndex = 0;
@@ -2814,6 +3005,12 @@
             if (Array.isArray(currentQuestions) && currentQuestions.length > 0) {
               window.QUIZ_DB.psychology = currentQuestions;
             }
+          } else if (currentSubject.id === 'pharmacology') {
+            const key = `pharmacology_${currentPharmacologyMode}_${currentSemester === '2026_autumn' ? '2026_autumn' : '2026_spring'}`;
+            if (Array.isArray(window.QUIZ_DB[key])) window.QUIZ_DB.pharmacology = window.QUIZ_DB[key];
+          } else if (currentSubject.id === 'nursing_method_3') {
+            const key = `nursing_method_3_${currentNursingMethod3Mode}_${currentSemester === '2026_autumn' ? '2026_autumn' : '2026_spring'}`;
+            if (Array.isArray(window.QUIZ_DB[key])) window.QUIZ_DB.nursing_method_3 = window.QUIZ_DB[key];
           } else if (currentSubject.id === 'nursing_method' && typeof window.getNursingQuestions === "function") {
             const currentQuestions = window.getNursingQuestions(selectedValue, currentSemester);
             if (Array.isArray(currentQuestions) && currentQuestions.length > 0) {
@@ -2823,6 +3020,7 @@
           showStartScreen();
         });
       }
+      showDashboard();
     });
 
     function initRealtimeSync() {
@@ -2929,14 +3127,62 @@
       document.getElementById('nav-overlay').classList.add('hidden');
     }
 
+    function evoGetStats() {
+      const rows=[]; let attempts=0, sum=0, best=null;
+      (subjects||[]).filter(s=>s.visible!==false && s.status!=='preparing').forEach(s=>{
+        const rec=JSON.parse(localStorage.getItem(`history_accuracy_${s.id}`)||'[]');
+        if(rec.length){ const avg=Math.round(rec.reduce((a,b)=>a+b,0)/rec.length); rows.push({s,avg}); attempts+=rec.length; sum+=rec.reduce((a,b)=>a+b,0); best=Math.max(best??0,...rec); }
+      });
+      rows.sort((a,b)=>a.avg-b.avg);
+      return {rows,attempts,avg:attempts?Math.round(sum/attempts):null,best};
+    }
+
+    function renderDashboard() {
+      const st=evoGetStats();
+      const streak=Number(localStorage.getItem('study_streak')||0);
+      const done=Number(localStorage.getItem('evo_today_done')||0);
+      const streakEl=document.getElementById('evo-streak'); if(streakEl) streakEl.textContent=streak;
+      const left=document.getElementById('evo-mission-left'); if(left) left.textContent=Math.max(0,10-done);
+      const doneEl=document.getElementById('evo-mission-done'); if(doneEl) doneEl.textContent=`${Math.min(done,10)}問完了`;
+      const prog=document.getElementById('evo-mission-progress'); if(prog) prog.style.width=`${Math.min(done,10)*10}%`;
+      const ta=document.getElementById('evo-total-attempts'); if(ta) ta.textContent=st.attempts;
+      const av=document.getElementById('evo-avg'); if(av) av.textContent=st.avg===null?'--':`${st.avg}%`;
+      const be=document.getElementById('evo-best'); if(be) be.textContent=st.best===null?'--':`${st.best}%`;
+      const box=document.getElementById('evo-subjects');
+      if(box){
+        const top=st.rows.slice(0,4);
+        box.innerHTML=top.length?top.map(x=>`<div><div class="flex justify-between text-[10px] mb-1"><span class="text-slate-300 truncate pr-2">${x.s.name}</span><span class="font-mono ${x.avg<70?'text-rose-400':'text-amber-400'}">${x.avg}%</span></div><div class="evo-progress"><span style="width:${x.avg}%"></span></div></div>`).join(''):`<div class="text-[11px] text-slate-500 text-center py-4">まだ演習履歴がありません。<br>最初の10問から始めよう。</div>`;
+      }
+    }
+
+    function showDashboard(){
+      hideAllScreens();
+      const el=document.getElementById('screen-dashboard'); if(el) el.classList.remove('hidden');
+      renderDashboard();
+    }
+    function evoStartPractice(){
+      showSubjectScreen();
+      const first=(subjects||[]).find(s=>s.visible!==false && s.status!=='preparing');
+      if(first) selectSubject(first.id);
+    }
+    function evoOpenWeak(){ showSubjectScreen(); }
+    function evoOpenWrong(){
+      const st=evoGetStats();
+      alert(st.attempts?`現在 ${st.attempts} 回の演習履歴があります。各科目の結果画面から再挑戦できます。`:'まだ演習履歴がありません。まず問題を解いてみよう。');
+    }
+
     function hideAllScreens() {
       stopQuizTimer();
+      const dashboard = document.getElementById('screen-dashboard');
+      if (dashboard) dashboard.classList.add('hidden');
       document.getElementById('screen-subjects').classList.add('hidden');
       document.getElementById('screen-semester-select').classList.add('hidden');
       document.getElementById('screen-physiology-mode-select').classList.add('hidden');
       document.getElementById('screen-anatomy-mode-select').classList.add('hidden');
       document.getElementById('screen-publichealth-mode-select').classList.add('hidden');
       document.getElementById('screen-phn-mode-select').classList.add('hidden');
+      document.getElementById('screen-pharmacology-mode-select').classList.add('hidden');
+      document.getElementById('screen-nursing-method-3-mode-select').classList.add('hidden');
       document.getElementById('screen-nursing-mode-select').classList.add('hidden');
       document.getElementById('screen-biochemistry-format-select').classList.add('hidden');
       document.getElementById('screen-time-select').classList.add('hidden');
@@ -3038,6 +3284,26 @@
         showPHNModeSelectionScreen();
       } else if (currentSubject.id === 'biochemistry' || currentSubject.hasBiochemistryFormats) {
         showBiochemistryFormatSelectionScreen();
+      } else if (currentSubject.id === 'pharmacology') {
+        showPharmacologyModeSelectionScreen();
+      } else if (currentSubject.id === 'nursing_method_3') {
+        showNursingMethod3ModeSelectionScreen();
+      } else if (currentSubject.id === 'pharmacology') {
+        backBtn.onclick = () => showPharmacologyModeSelectionScreen();
+        const modeTitle = currentPharmacologyMode === 'past' ? '過去問' : '演習問題';
+        titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
+        headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
+        descEl.textContent = `薬理学の${modeTitle}が出題されます。`;
+        countContainer.classList.add('hidden');
+
+      } else if (currentSubject.id === 'nursing_method_3') {
+        backBtn.onclick = () => showNursingMethod3ModeSelectionScreen();
+        const modeTitle = currentNursingMethod3Mode === 'practice' ? '練習問題' : (currentNursingMethod3Mode === 'quiz' ? '小テスト' : '演習問題');
+        titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
+        headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
+        descEl.textContent = `${currentSubject.name}の${modeTitle}が出題されます。`;
+        countContainer.classList.add('hidden');
+
       } else if (currentSubject.id === 'nursing_method' || currentSubject.hasNursingModes) {
         showNursingModeSelectionScreen();
       } else if (currentSubject.hasRounds) {
@@ -3090,6 +3356,28 @@
 
     function selectPHNMode(mode) {
       currentPHNMode = mode;
+      showStartScreen();
+    }
+
+    function showPharmacologyModeSelectionScreen() {
+      hideAllScreens();
+      document.getElementById('screen-pharmacology-mode-select').classList.remove('hidden');
+    }
+
+    function selectPharmacologyMode(mode) {
+      currentPharmacologyMode = mode;
+      currentRound = null;
+      showStartScreen();
+    }
+
+    function showNursingMethod3ModeSelectionScreen() {
+      hideAllScreens();
+      document.getElementById('screen-nursing-method-3-mode-select').classList.remove('hidden');
+    }
+
+    function selectNursingMethod3Mode(mode) {
+      currentNursingMethod3Mode = mode;
+      currentRound = null;
       showStartScreen();
     }
 
@@ -3270,6 +3558,10 @@
         modeSuffix += `_${currentPublicHealthMode}`;
       } else if (currentSubject.id === 'public_health_nursing' || currentSubject.hasPHNModes) {
         modeSuffix += `_${currentPHNMode}`;
+      } else if (currentSubject.id === 'pharmacology') {
+        modeSuffix += `_${currentPharmacologyMode}`;
+      } else if (currentSubject.id === 'nursing_method_3') {
+        modeSuffix += `_${currentNursingMethod3Mode}`;
       } else if (currentRound) {
         modeSuffix += `_r${currentRound}`;
       }
