@@ -3107,6 +3107,8 @@
 
     function renderDashboard() {
       const st=evoGetStats();
+      const today = new Date();
+      const todayStr = `${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`;
       const streak=Number(localStorage.getItem('study_streak')||0);
       const done=Number(localStorage.getItem('evo_today_done')||0);
       const streakEl=document.getElementById('evo-streak'); if(streakEl) streakEl.textContent=streak;
@@ -3118,19 +3120,20 @@
       const be=document.getElementById('evo-best'); if(be) be.textContent=st.best===null?'--':`${st.best}%`;
       const box=document.getElementById('evo-subjects');
       if(box){
-        const top=st.rows.slice(0,4);
-        box.innerHTML=top.length?top.map(x=>{
-          const dailyKey = `history_accuracy_daily_${x.s.id}_${x.mode.key}`;
-          const daily = JSON.parse(localStorage.getItem(dailyKey) || '[]');
-          const grouped = {};
-          daily.forEach(r=>{ if(r && r.date && typeof r.accuracy === 'number'){ (grouped[r.date] ||= []).push(r.accuracy); } });
-          const dates = Object.keys(grouped).sort().reverse();
-          const dailyRows = dates.map(date=>{
-            const avg = Math.round(grouped[date].reduce((a,b)=>a+b,0)/grouped[date].length);
-            return `<div class="flex justify-between items-center text-[10px]"><span class="text-slate-400">${date}</span><span class="font-mono ${avg<70?'text-rose-400':'text-amber-400'}">${avg}%</span></div>`;
-          }).join('');
-          return `<div><div class="flex justify-between text-[10px] mb-1"><span class="text-slate-300 truncate pr-2">${x.s.name} <span class="text-slate-500">｜${x.mode.label}</span></span></div><div class="space-y-1.5">${dailyRows || `<div class="text-[10px] text-slate-500">日別の演習履歴がありません。</div>`}</div></div>`;
-        }).join(''):`<div class="text-[11px] text-slate-500 text-center py-4">まだ演習履歴がありません。<br>最初の10問から始めよう。</div>`;
+        const dailyRows = [];
+        (subjects||[]).filter(s=>s.visible!==false && s.status!=='preparing').forEach(s=>{
+          modeDefs(s).forEach(m=>{
+            const dailyKey = `history_accuracy_daily_${s.id}_${m.key}`;
+            const daily = JSON.parse(localStorage.getItem(dailyKey) || '[]');
+            const todayValues = daily.filter(r=>r && r.date===todayStr && typeof r.accuracy==='number').map(r=>r.accuracy);
+            if(todayValues.length){
+              const avg=Math.round(todayValues.reduce((a,b)=>a+b,0)/todayValues.length);
+              dailyRows.push({s,mode:m,avg});
+            }
+          });
+        });
+        const top=dailyRows.slice(0,4);
+        box.innerHTML=top.length?top.map(x=>`<div><div class="flex justify-between text-[10px] mb-1"><span class="text-slate-300 truncate pr-2">${x.s.name} <span class="text-slate-500">｜${x.mode.label}</span></span><span class="font-mono ${x.avg<70?'text-rose-400':'text-amber-400'}">${x.avg}%</span></div></div>`).join(''):`<div class="text-[11px] text-slate-500 text-center py-4">本日の演習履歴がありません。</div>`;
       }
     }
 
@@ -4092,6 +4095,7 @@
       if (history.length > 20) history.shift();
       localStorage.setItem(historyKey, JSON.stringify(history));
 
+      const now = new Date();
       const dailyHistoryKey = `history_accuracy_daily_${currentSubject.id}_${conditionMode}`;
       const dailyHistory = JSON.parse(localStorage.getItem(dailyHistoryKey) || '[]');
       dailyHistory.push({ date: `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`, accuracy: accRate });
@@ -4101,7 +4105,6 @@
       const attemptKey = getAttemptHistoryKey();
       const attemptHistory = JSON.parse(localStorage.getItem(attemptKey) || '[]');
       
-      const now = new Date();
       const dateStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
       
       attemptHistory.unshift({
