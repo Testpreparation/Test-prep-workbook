@@ -3229,6 +3229,7 @@
       document.getElementById('screen-publichealth-mode-select').classList.add('hidden');
       document.getElementById('screen-phn-mode-select').classList.add('hidden');
       document.getElementById('screen-nursing-mode-select').classList.add('hidden');
+      document.getElementById('screen-nursing-method-3-mode-select').classList.add('hidden');
       document.getElementById('screen-biochemistry-format-select').classList.add('hidden');
       document.getElementById('screen-time-select').classList.add('hidden');
       document.getElementById('screen-round-select').classList.add('hidden');
@@ -3333,22 +3334,6 @@
         showPharmacologyModeSelectionScreen();
       } else if (currentSubject.id === 'nursing_method_3') {
         showNursingMethod3ModeSelectionScreen();
-      } else if (currentSubject.id === 'pharmacology') {
-        backBtn.onclick = () => showPharmacologyModeSelectionScreen();
-        const modeTitle = currentPharmacologyMode === 'past' ? '過去問' : '演習問題';
-        titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
-        headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
-        descEl.textContent = `薬理学の${modeTitle}が出題されます。`;
-        countContainer.classList.add('hidden');
-
-      } else if (currentSubject.id === 'nursing_method_3') {
-        backBtn.onclick = () => showNursingMethod3ModeSelectionScreen();
-        const modeTitle = currentNursingMethod3Mode === 'practice' ? '練習問題' : (currentNursingMethod3Mode === 'quiz' ? '小テスト' : '演習問題');
-        titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
-        headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
-        descEl.textContent = `${currentSubject.name}の${modeTitle}が出題されます。`;
-        countContainer.classList.add('hidden');
-
       } else if (currentSubject.id === 'nursing_method' || currentSubject.hasNursingModes) {
         showNursingModeSelectionScreen();
       } else if (currentSubject.hasRounds) {
@@ -3535,6 +3520,22 @@
         titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
         headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
         descEl.textContent = `公衆衛生看護学概論の${modeTitle}が出題されます。`;
+        countContainer.classList.add('hidden');
+
+      } else if (currentSubject.id === 'pharmacology') {
+        backBtn.onclick = () => showPharmacologyModeSelectionScreen();
+        const modeTitle = currentPharmacologyMode === 'past' ? '過去問' : '演習問題';
+        titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
+        headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
+        descEl.textContent = `薬理学の${modeTitle}が出題されます。`;
+        countContainer.classList.add('hidden');
+
+      } else if (currentSubject.id === 'nursing_method_3') {
+        backBtn.onclick = () => showNursingMethod3ModeSelectionScreen();
+        const modeTitle = currentNursingMethod3Mode === 'practice' ? '練習問題' : (currentNursingMethod3Mode === 'quiz' ? '小テスト' : '演習問題');
+        titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
+        headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
+        descEl.textContent = `${currentSubject.name}の${modeTitle}が出題されます。`;
         countContainer.classList.add('hidden');
 
       } else if (currentSubject.id === 'nursing_method' || currentSubject.hasNursingModes) {
