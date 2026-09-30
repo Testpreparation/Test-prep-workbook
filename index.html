@@ -1945,17 +1945,21 @@
       learnedSet.add(currentCard.id);
       saveLearnedWordsSet(subId, learnedSet);
 
-      flashcardUnlearnedList.splice(flashcardCurrentIndex, 1);
-      if (flashcardCurrentIndex >= flashcardUnlearnedList.length) {
-        flashcardCurrentIndex = 0;
-      }
-
-      renderFlashcardUI();
+      nextFlashcard();
     }
 
     function nextFlashcard() {
       if (flashcardUnlearnedList.length === 0) return;
-      flashcardCurrentIndex = (flashcardCurrentIndex + 1) % flashcardUnlearnedList.length;
+      if (flashcardCurrentIndex + 1 >= flashcardUnlearnedList.length) {
+        const cardContainer = document.querySelector('#fc-step-4-play .perspective-1000');
+        const buttons = document.getElementById('fc-action-buttons');
+        const completedMsg = document.getElementById('fc-completed-msg');
+        if (cardContainer) cardContainer.classList.add('hidden');
+        if (buttons) buttons.classList.add('hidden');
+        if (completedMsg) completedMsg.classList.remove('hidden');
+        return;
+      }
+      flashcardCurrentIndex++;
       renderFlashcardUI();
     }
 
