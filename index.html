@@ -1855,7 +1855,8 @@
         list = validList;
       }
 
-      list = list.sort(() => Math.random() - 0.5).slice(0, Math.min(reqCount, list.length));
+      const countToTake = Math.min(reqCount, list.length);
+      list = list.sort(() => Math.random() - 0.5).slice(0, countToTake);
       flashcardUnlearnedList = list;
 
       flashcardCurrentIndex = 0;
@@ -1959,7 +1960,7 @@
         if (completedMsg) completedMsg.classList.remove('hidden');
         return;
       }
-      flashcardCurrentIndex++;
+      flashcardCurrentIndex = flashcardCurrentIndex + 1;
       renderFlashcardUI();
     }
 
@@ -2378,11 +2379,8 @@
       } catch (err) {
         console.error("AI問題生成処理エラー:", err);
         alert("AIによる問題生成に失敗しました: " + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.classList.remove('opacity-50');
-        loading.classList.add('hidden');
-      }
+      } font-light;
+      loading.classList.add('hidden');
     }
 
     function openQuestionsEditorModal(subjectId) {
