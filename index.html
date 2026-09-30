@@ -331,7 +331,11 @@
         <div class="evo-card">
           <div class="flex justify-between items-center mb-3">
             <span class="text-xs font-semibold text-slate-200">科目別コンディション</span>
-            <span class="text-[10px] text-slate-500">直近の平均</span>
+            <div class="flex items-center gap-1.5">
+              <button onclick="evoConditionPrevDate()" id="evo-condition-prev" class="px-2 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[10px] transition">‹</button>
+              <span id="evo-condition-date" class="text-[10px] text-slate-500 min-w-[76px] text-center">--</span>
+              <button onclick="evoConditionNextDate()" id="evo-condition-next" class="px-2 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[10px] transition">›</button>
+            </div>
           </div>
           <div id="evo-subjects" class="space-y-3"></div>
         </div>
@@ -3114,7 +3118,65 @@
       return {rows,attempts,avg:attempts?Math.round(sum/attempts):null,best};
     }
 
-    function renderDashboard() {
+    let evoConditionDateIndex = 0;
+
+    function evoGetConditionDates(){
+      const dates = new Set();
+      (subjects||[]).filter(s=>s.visible!==false && s.status!=='preparing').forEach(s=>{
+        evoModeDefs(s).forEach(m=>{
+          const rec = JSON.parse(localStorage.getItem(`history_accuracy_daily_${s.id}_${m.key}`)||'[]');
+          rec.forEach(x=>{ if(x && x.date) dates.add(x.date); });
+        });
+      });
+      return Array.from(dates).sort((a,b)=>{
+        const pa=a.split('/').map(Number), pb=b.split('/').map(Number);
+        return new Date(pb[0],pb[1]-1,pb[2]) - new Date(pa[0],pa[1]-1,pa[2]);
+      });
+    }
+
+    function evoRenderCondition(){
+      const box=document.getElementById('evo-subjects');
+      if(!box) return;
+      const dates=evoGetConditionDates();
+      if(evoConditionDateIndex >= dates.length) evoConditionDateIndex=Math.max(0,dates.length-1);
+      const selectedDate=dates[evoConditionDateIndex];
+      const dateEl=document.getElementById('evo-condition-date');
+      const prevEl=document.getElementById('evo-condition-prev');
+      const nextEl=document.getElementById('evo-condition-next');
+      if(dateEl) dateEl.textContent=selectedDate || '履歴なし';
+      if(prevEl) prevEl.disabled=!dates.length || evoConditionDateIndex>=dates.length-1;
+      if(nextEl) nextEl.disabled=!dates.length || evoConditionDateIndex<=0;
+      if(prevEl) prevEl.classList.toggle('opacity-40', prevEl.disabled);
+      if(nextEl) nextEl.classList.toggle('opacity-40', nextEl.disabled);
+
+      const conditionRows=[];
+      if(selectedDate){
+        (subjects||[]).filter(s=>s.visible!==false && s.status!=='preparing').forEach(s=>{
+          evoModeDefs(s).forEach(m=>{
+            const rec=JSON.parse(localStorage.getItem(`history_accuracy_daily_${s.id}_${m.key}`)||'[]');
+            const dayRec=rec.filter(x=>x && x.date===selectedDate);
+            if(dayRec.length){
+              const avg=Math.round(dayRec.reduce((a,b)=>a+Number(b.accuracy||0),0)/dayRec.length);
+              conditionRows.push({s,mode:m,avg});
+            }
+          });
+        });
+      }
+      conditionRows.sort((a,b)=>a.s.name.localeCompare(b.s.name,'ja') || a.mode.label.localeCompare(b.mode.label,'ja'));
+      box.innerHTML=conditionRows.length?conditionRows.map(x=>`<div><div class="flex justify-between text-[10px] mb-1"><span class="text-slate-300 truncate pr-2">${x.s.name} <span class="text-slate-500">/ ${x.mode.label}</span></span><span class="font-mono ${x.avg<70?'text-rose-400':'text-amber-400'}">${x.avg}%</span></div><div class="evo-progress"><span style="width:${x.avg}%"></span></div></div>`).join(''):`<div class="text-[11px] text-slate-500 text-center py-4">${selectedDate?'この日の演習履歴がありません。':'まだ演習履歴がありません。'}</div>`;
+    }
+
+    function evoConditionPrevDate(){
+      const dates=evoGetConditionDates();
+      if(evoConditionDateIndex < dates.length-1){ evoConditionDateIndex++; evoRenderCondition(); }
+    }
+
+    function evoConditionNextDate(){
+      const dates=evoGetConditionDates();
+      if(evoConditionDateIndex > 0){ evoConditionDateIndex--; evoRenderCondition(); }
+    }
+
+    function renderDashboard(){
       const st=evoGetStats();
       const today = new Date();
       const todayStr = `${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`;
@@ -3127,25 +3189,9 @@
       const ta=document.getElementById('evo-total-attempts'); if(ta) ta.textContent=st.attempts;
       const av=document.getElementById('evo-avg'); if(av) av.textContent=st.avg===null?'--':`${st.avg}%`;
       const be=document.getElementById('evo-best'); if(be) be.textContent=st.best===null?'--':`${st.best}%`;
-      const box=document.getElementById('evo-subjects');
-      if(box){
-        const dailyRows = [];
-        (subjects||[]).filter(s=>s.visible!==false && s.status!=='preparing').forEach(s=>{
-          evoModeDefs(s).forEach(m=>{
-            const dailyKey = `history_accuracy_daily_${s.id}_${m.key}`;
-            const daily = JSON.parse(localStorage.getItem(dailyKey) || '[]');
-            const todayValues = daily.filter(r=>r && r.date===todayStr && typeof r.accuracy==='number').map(r=>r.accuracy);
-            if(todayValues.length){
-              const avg=Math.round(todayValues.reduce((a,b)=>a+b,0)/todayValues.length);
-              dailyRows.push({s,mode:m,avg});
-            }
-          });
-        });
-        const top=dailyRows.slice(0,4);
-        box.innerHTML=top.length?top.map(x=>`<div><div class="flex justify-between text-[10px] mb-1"><span class="text-slate-300 truncate pr-2">${x.s.name} <span class="text-slate-500">｜${x.mode.label}</span></span><span class="font-mono ${x.avg<70?'text-rose-400':'text-amber-400'}">${x.avg}%</span></div></div>`).join(''):`<div class="text-[11px] text-slate-500 text-center py-4">本日の演習履歴がありません。</div>`;
-      }
+      evoConditionDateIndex=0;
+      evoRenderCondition();
     }
-
     function showDashboard(){
       hideAllScreens();
       const el=document.getElementById('screen-dashboard'); if(el) el.classList.remove('hidden');
