@@ -166,6 +166,106 @@
       opacity: 0.25;
     }
 
+    /* 時間・問題数設定画面 共通デザイン */
+    .setting-screen {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .setting-header {
+      min-height: 46px;
+      border-color: rgba(148, 163, 184, 0.14) !important;
+    }
+    .setting-header > span {
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      color: #E2E8F0;
+    }
+    .setting-header button {
+      min-width: 72px;
+      text-align: left;
+      transition: transform .18s ease, color .18s ease;
+    }
+    .setting-header button:hover {
+      transform: translateX(-2px);
+    }
+    .setting-panel {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(145deg, rgba(30,41,59,.92), rgba(15,23,42,.82)) !important;
+      border-color: rgba(245,158,11,.16) !important;
+      box-shadow: 0 18px 45px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.035);
+    }
+    .setting-panel::before {
+      content: '';
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      top: -95px;
+      right: -55px;
+      border-radius: 50%;
+      background: rgba(245,158,11,.055);
+      pointer-events: none;
+    }
+    .setting-label-row {
+      position: relative;
+      z-index: 1;
+    }
+    .setting-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      background: rgba(245,158,11,.10);
+      border: 1px solid rgba(245,158,11,.20);
+      color: #F59E0B;
+      font-size: 15px;
+      line-height: 1;
+    }
+    .setting-value {
+      position: relative;
+      z-index: 1;
+      margin-top: 6px;
+      letter-spacing: .02em;
+      text-shadow: 0 0 24px rgba(245,158,11,.12);
+    }
+    .setting-panel input[type=range] {
+      position: relative;
+      z-index: 1;
+      height: 24px;
+    }
+    .setting-panel input[type=range]::-webkit-slider-runnable-track {
+      height: 8px;
+      background: linear-gradient(90deg, rgba(217,119,6,.42), rgba(245,158,11,.14));
+      border: 1px solid rgba(245,158,11,.10);
+      border-radius: 999px;
+    }
+    .setting-panel input[type=range]::-webkit-slider-thumb {
+      height: 22px;
+      width: 22px;
+      margin-top: -8px;
+      border: 2px solid rgba(255,255,255,.75);
+      box-shadow: 0 0 0 5px rgba(245,158,11,.10), 0 5px 14px rgba(0,0,0,.38);
+    }
+    .setting-panel input[type=range]::-moz-range-track {
+      height: 8px;
+      background: linear-gradient(90deg, rgba(217,119,6,.42), rgba(245,158,11,.14));
+      border: 1px solid rgba(245,158,11,.10);
+      border-radius: 999px;
+    }
+    .setting-panel input[type=range]::-moz-range-thumb {
+      height: 18px;
+      width: 18px;
+      border: 2px solid rgba(255,255,255,.75);
+      border-radius: 50%;
+      background: #D97706;
+      box-shadow: 0 0 0 5px rgba(245,158,11,.10), 0 5px 14px rgba(0,0,0,.38);
+    }
+    .setting-panel .font-mono {
+      letter-spacing: .03em;
+    }
+
     /* カスタムスクロールバー */
     .custom-scrollbar::-webkit-scrollbar {
       width: 6px;
@@ -891,16 +991,17 @@
       </div>
 
       <!-- 画面1.4: 制限時間選択 -->
-      <div id="screen-time-select" class="hidden space-y-6 text-center">
-        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+      <div id="screen-time-select" class="hidden setting-screen space-y-6 text-center">
+        <div class="setting-header flex justify-between items-center pb-3 border-b border-slate-700/50">
           <button id="time-back-btn" onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 戻る</button>
           <span id="time-subject-title" class="serif-title text-sm text-slate-300">制限時間選択</span>
         </div>
 
-        <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-6">
-          <div class="space-y-2">
+        <div class="setting-panel p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-6">
+          <div class="setting-label-row flex items-center justify-center gap-2">
+            <span class="setting-icon">⏱</span>
             <div class="text-xs text-slate-400 uppercase tracking-widest font-medium">1問あたりの制限時間を選択</div>
-            <div class="text-4xl font-bold text-amber-500 font-mono"><span id="time-slider-display">30</span> <span class="text-sm font-normal text-slate-500">秒</span></div>
+            <div class="setting-value text-4xl font-bold text-amber-500 font-mono"><span id="time-slider-display">30</span> <span class="text-sm font-normal text-slate-500">秒</span></div>
           </div>
           <div class="px-2">
             <input type="range" id="time-select-slider" min="10" max="30" step="10" value="30" oninput="updateTimeSliderValue(this.value)" class="w-full">
@@ -942,16 +1043,17 @@
       </div>
 
       <!-- 画面1.6: 問題数選択画面 -->
-      <div id="screen-count-select" class="hidden space-y-6 text-center">
-        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+      <div id="screen-count-select" class="hidden setting-screen space-y-6 text-center">
+        <div class="setting-header flex justify-between items-center pb-3 border-b border-slate-700/50">
           <button id="count-back-btn" onclick="showTimeSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 戻る</button>
           <span id="count-subject-title" class="serif-title text-sm text-slate-300">問題数選択</span>
         </div>
 
-        <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-6">
-          <div class="space-y-2">
+        <div class="setting-panel p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-6">
+          <div class="setting-label-row flex items-center justify-center gap-2">
+            <span class="setting-icon">▦</span>
             <div class="text-xs text-slate-400 uppercase tracking-widest font-medium">出題数を選択</div>
-            <div class="text-4xl font-bold text-amber-500 font-mono"><span id="slider-count-display">10</span> <span class="text-sm font-normal text-slate-500">問</span></div>
+            <div class="setting-value text-4xl font-bold text-amber-500 font-mono"><span id="slider-count-display">10</span> <span class="text-sm font-normal text-slate-500">問</span></div>
           </div>
           <div class="px-2">
             <input type="range" id="quiz-count-slider" min="10" max="30" step="10" value="10" oninput="updateSliderValue(this.value)" class="w-full">
