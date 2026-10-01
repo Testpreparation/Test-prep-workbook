@@ -3683,6 +3683,13 @@
         }
       }
 
+      if (currentSubject.id === 'nursing_method_3') {
+        const key = `nursing_method_3_${currentNursingMethod3Mode}_${isAutumn ? '2026_autumn' : '2026_spring'}`;
+        if (Array.isArray(window.QUIZ_DB[key]) && window.QUIZ_DB[key].length > 0) {
+          window.QUIZ_DB.nursing_method_3 = window.QUIZ_DB[key];
+        }
+      }
+
       if (currentSubject.id === 'public_health') {
         const modeSuffix = currentPublicHealthMode.charAt(0).toUpperCase() + currentPublicHealthMode.slice(1);
         const fnName = isAutumn ? `getPublicHealth${modeSuffix}QuestionsAutumn` : `getPublicHealth${modeSuffix}Questions`;
