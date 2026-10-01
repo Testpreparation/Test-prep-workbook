@@ -1,6 +1,7 @@
 // 栄養学の暗記カード専用JS
-window.getNutritionFlashcardQuestions = function() {
-  return [
+window.FLASHCARD_DB = window.FLASHCARD_DB || {};
+window.FLASHCARD_DB.nutrition = [
+
   {
     "id": 1,
     "word": "栄養",
@@ -302,4 +303,7 @@ window.getNutritionFlashcardQuestions = function() {
     "exp": "シラバスでは第2回がエネルギー代謝1、第3回がエネルギー代謝2。"
   }
 ];
+
+window.getNutritionFlashcardQuestions = function() {
+  return window.FLASHCARD_DB.nutrition || [];
 };
