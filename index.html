@@ -3684,6 +3684,9 @@
       }
 
       if (currentSubject.id === 'nursing_method_3') {
+        if (currentNursingMethod3Mode === 'practice' && isAutumn && typeof window.loadNursingMethod3Practice2026Autumn === 'function') {
+          window.loadNursingMethod3Practice2026Autumn();
+        }
         const key = `nursing_method_3_${currentNursingMethod3Mode}_${isAutumn ? '2026_autumn' : '2026_spring'}`;
         if (Array.isArray(window.QUIZ_DB[key]) && window.QUIZ_DB[key].length > 0) {
           window.QUIZ_DB.nursing_method_3 = window.QUIZ_DB[key];
@@ -3749,6 +3752,8 @@
         targetDbKey = `public_health_nursing_${currentPHNMode}`;
       } else if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'keyboard') {
         targetDbKey = (window.QUIZ_DB.biochemistry_keyboard && window.QUIZ_DB.biochemistry_keyboard.length > 0) ? 'biochemistry_keyboard' : 'biochemistry';
+      } else if (currentSubject.id === 'nursing_method_3') {
+        targetDbKey = `nursing_method_3_${currentNursingMethod3Mode}_${isAutumn ? '2026_autumn' : '2026_spring'}`;
       }
 
       let rawData = window.QUIZ_DB[targetDbKey] || [];
