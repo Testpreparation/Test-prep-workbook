@@ -953,6 +953,10 @@
               <span>10問</span><span>20問</span><span>30問</span>
             </div>
           </div>
+          <label class="flex items-center justify-center gap-2 text-xs text-slate-300 cursor-pointer">
+            <input type="checkbox" id="weak-question-toggle" class="accent-amber-500">
+            <span>苦手問題を優先して出題</span>
+          </label>
         </div>
 
         <button onclick="startQuiz()" class="w-full py-3.5 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-xl text-xs font-semibold transition shadow-lg tracking-widest">演習を開始する</button>
@@ -1731,6 +1735,7 @@
     let currentQIndex = 0;
     let score = 0;
     let isAnswered = false;
+    let prioritizeWeakQuestions = false;
     let selectedIndices = new Set();
     let dragulaInstance = null;
 
@@ -3670,7 +3675,42 @@
       badge.textContent = (saved !== null) ? `${saved}%` : "未挑戦";
     }
 
+    function getWeakQuestionStatsKey() {
+      return `weak_question_stats_${getAttemptHistoryKey()}`;
+    }
+
+    function getWeakQuestionId(q) {
+      if (!q) return '';
+      if (q.id !== undefined && q.id !== null && String(q.id).trim() !== '') return `id:${String(q.id)}`;
+      return `q:${String(q.q || '').trim()}`;
+    }
+
+    function getWeakQuestionStats() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(getWeakQuestionStatsKey()) || '{}');
+        return raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveWeakQuestionResult(q, isCorrect) {
+      const key = getWeakQuestionId(q);
+      if (!key) return;
+      const stats = getWeakQuestionStats();
+      if (!stats[key]) stats[key] = { correct: 0, wrong: 0 };
+      if (isCorrect) stats[key].correct++;
+      else stats[key].wrong++;
+      localStorage.setItem(getWeakQuestionStatsKey(), JSON.stringify(stats));
+    }
+
+    function isWeakQuestion(q, stats) {
+      const item = stats[getWeakQuestionId(q)];
+      return !!item && Number(item.wrong || 0) > Number(item.correct || 0);
+    }
+
     function startQuiz() {
+      prioritizeWeakQuestions = !!document.getElementById('weak-question-toggle')?.checked;
       const isAutumn = (currentSemester === '2026_autumn');
 
       if (currentSubject.id === 'psychology') {
@@ -3849,6 +3889,13 @@
       });
 
       list = list.sort(() => Math.random() - 0.5);
+
+      if (prioritizeWeakQuestions) {
+        const weakStats = getWeakQuestionStats();
+        const weakList = list.filter(q => isWeakQuestion(q, weakStats));
+        const normalList = list.filter(q => !isWeakQuestion(q, weakStats));
+        list = [...weakList, ...normalList];
+      }
 
       let reqCount = currentSubject.fixedCount || (parseInt(document.getElementById('quiz-count-slider')?.value) || 10);
       list = list.slice(0, Math.min(reqCount, list.length));
@@ -4085,6 +4132,10 @@
           }
         }
       }
+
+      saveWeakQuestionResult(q, isCorrect);
+
+      saveWeakQuestionResult(q, isCorrect);
 
       if (isCorrect) {
         score++;
