@@ -41,6 +41,10 @@
     window.QUIZ_DB.public_health_exercise = []; // 公衆衛生学（演習問題）
     window.QUIZ_DB.public_health_national = []; // 公衆衛生学（模擬国家試験）
     window.QUIZ_DB.nutrition = []; // 栄養学
+    window.QUIZ_DB.nutrition_exercise_2026_spring = [];
+    window.QUIZ_DB.nutrition_quiz_2026_spring = [];
+    window.QUIZ_DB.nutrition_exercise_2026_autumn = [];
+    window.QUIZ_DB.nutrition_quiz_2026_autumn = [];
     window.QUIZ_DB.pathology = []; // 病理学
     window.QUIZ_DB.medical_welfare = []; // 医療福祉概論
     window.QUIZ_DB.constitution = []; // 日本国憲法
@@ -99,6 +103,10 @@
   <script src="nursingmethod3_practice2026akigakki.js"></script>
   <script src="nursingmethod3_quiz2026akigakki.js"></script>
   <script src="nursingmethod3_exercise2026akigakki.js"></script>
+  <script src="nutrition_exercise_2026harugakki.js"></script>
+  <script src="nutrition_quiz_2026harugakki.js"></script>
+  <script src="nutrition_exercise_2026akigakki.js"></script>
+  <script src="nutrition_quiz_2026akigakki.js"></script>
   <script src="publichealth_past2026akigakki.js"></script>
   <script src="publichealth_exercise2026akigakki.js"></script>
   <script src="publichealth_national2026akigakki.js"></script>
@@ -774,6 +782,18 @@
           <button onclick="selectNursingMethod3Mode('practice')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">練習問題</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
           <button onclick="selectNursingMethod3Mode('quiz')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">小テスト</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
           <button onclick="selectNursingMethod3Mode('exercise')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">演習問題</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+        </div>
+      </div>
+
+      <!-- 栄養学 モード選択 -->
+      <div id="screen-nutrition-mode-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">栄養学 モード選択</span>
+        </div>
+        <div class="space-y-3 pt-2">
+          <button onclick="selectNutritionMode('exercise')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">演習問題</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+          <button onclick="selectNutritionMode('quiz')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">小テスト</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
         </div>
       </div>
 
@@ -1709,6 +1729,7 @@
     let currentNursingMode = 'rounds';
     let currentPharmacologyMode = 'exercise';
     let currentNursingMethod3Mode = 'practice';
+    let currentNutritionMode = 'exercise';
     let currentBiochemistryFormat = 'choice';
     let activeQuestions = [];
     let currentQIndex = 0;
@@ -3231,6 +3252,7 @@
       document.getElementById('screen-pharmacology-mode-select').classList.add('hidden');
       document.getElementById('screen-nursing-mode-select').classList.add('hidden');
       document.getElementById('screen-nursing-method-3-mode-select').classList.add('hidden');
+      document.getElementById('screen-nutrition-mode-select').classList.add('hidden');
       document.getElementById('screen-biochemistry-format-select').classList.add('hidden');
       document.getElementById('screen-time-select').classList.add('hidden');
       document.getElementById('screen-round-select').classList.add('hidden');
@@ -3335,6 +3357,8 @@
         showPharmacologyModeSelectionScreen();
       } else if (currentSubject.id === 'nursing_method_3') {
         showNursingMethod3ModeSelectionScreen();
+      } else if (currentSubject.id === 'nutrition') {
+        showNutritionModeSelectionScreen();
       } else if (currentSubject.id === 'nursing_method' || currentSubject.hasNursingModes) {
         showNursingModeSelectionScreen();
       } else if (currentSubject.hasRounds) {
@@ -3408,6 +3432,17 @@
 
     function selectNursingMethod3Mode(mode) {
       currentNursingMethod3Mode = mode;
+      currentRound = null;
+      showStartScreen();
+    }
+
+    function showNutritionModeSelectionScreen() {
+      hideAllScreens();
+      document.getElementById('screen-nutrition-mode-select').classList.remove('hidden');
+    }
+
+    function selectNutritionMode(mode) {
+      currentNutritionMode = mode;
       currentRound = null;
       showStartScreen();
     }
@@ -3534,6 +3569,14 @@
       } else if (currentSubject.id === 'nursing_method_3') {
         backBtn.onclick = () => showNursingMethod3ModeSelectionScreen();
         const modeTitle = currentNursingMethod3Mode === 'practice' ? '練習問題' : (currentNursingMethod3Mode === 'quiz' ? '小テスト' : '演習問題');
+        titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
+        headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
+        descEl.textContent = `${currentSubject.name}の${modeTitle}が出題されます。`;
+        countContainer.classList.add('hidden');
+
+      } else if (currentSubject.id === 'nutrition') {
+        backBtn.onclick = () => showNutritionModeSelectionScreen();
+        const modeTitle = currentNutritionMode === 'exercise' ? '演習問題' : '小テスト';
         titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
         headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
         descEl.textContent = `${currentSubject.name}の${modeTitle}が出題されます。`;
@@ -3690,6 +3733,13 @@
         const key = `nursing_method_3_${currentNursingMethod3Mode}_${isAutumn ? '2026_autumn' : '2026_spring'}`;
         if (Array.isArray(window.QUIZ_DB[key]) && window.QUIZ_DB[key].length > 0) {
           window.QUIZ_DB.nursing_method_3 = window.QUIZ_DB[key];
+        }
+      }
+
+      if (currentSubject.id === 'nutrition') {
+        const key = `nutrition_${currentNutritionMode}_${isAutumn ? '2026_autumn' : '2026_spring'}`;
+        if (Array.isArray(window.QUIZ_DB[key])) {
+          window.QUIZ_DB.nutrition = window.QUIZ_DB[key];
         }
       }
 
