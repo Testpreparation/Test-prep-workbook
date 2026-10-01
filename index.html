@@ -4135,8 +4135,6 @@
 
       saveWeakQuestionResult(q, isCorrect);
 
-      saveWeakQuestionResult(q, isCorrect);
-
       if (isCorrect) {
         score++;
         fbBox.className = "p-4 rounded-xl border border-emerald-500/40 bg-emerald-950/30 text-emerald-200 text-xs leading-relaxed space-y-2 block";
@@ -4165,6 +4163,8 @@
       const correctSorted = [...q.answers].sort((a,b) => a-b).join(',');
       const userSorted = [...userSelectedArray].filter(v => v >= 0).sort((a,b) => a-b).join(',');
       const isCorrect = (!isTimeout && userSorted.length > 0 && correctSorted === userSorted);
+
+      saveWeakQuestionResult(q, isCorrect);
 
       buttons.forEach((btn, idx) => {
         btn.disabled = true;
