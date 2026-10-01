@@ -117,6 +117,8 @@
   <script src="flashcard_data.js" onerror="console.log('flashcard_data.js 未検出。')"></script>
   <!-- 生化学の暗記カード専用JSを読み込み -->
   <script src="biochemistry_flashcard_data.js" onerror="console.log('biochemistry_flashcard_data.js 未検出。')"></script>
+   <!-- 栄養学の暗記カード専用JSを読み込み -->
+  <script src="nutrition_flashcard.js" onerror="console.log('nutrition_flashcard.js 未検出。')"></script>
 
   <style>
     body {
@@ -1832,6 +1834,9 @@
     //  暗記カード専用データ取得 (専用外部ファイル flashcard_data.js または biochemistry_flashcard_data.js から読み込み)
     // ---------------------------------------------------------
     function fetchFlashcardDataForSubject(subjectId) {
+      if (subjectId === 'nutrition' && (!window.FLASHCARD_DB || !Array.isArray(window.FLASHCARD_DB.nutrition) || window.FLASHCARD_DB.nutrition.length === 0) && Array.isArray(window.NUTRITION_FLASHCARD_DATA) && window.NUTRITION_FLASHCARD_DATA.length > 0) {
+        return window.NUTRITION_FLASHCARD_DATA;
+      }
       if (subjectId === 'biochemistry' && typeof window.getBiochemistryFlashcardQuestions === 'function') {
         const bioFC = window.getBiochemistryFlashcardQuestions();
         if (Array.isArray(bioFC) && bioFC.length > 0) {
