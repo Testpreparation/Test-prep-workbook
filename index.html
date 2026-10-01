@@ -2052,7 +2052,16 @@
       
       let list = [...flashcardUnlearnedList];
       if (list.length === 0) {
-        list = validList;
+        const shouldReset = confirm(`「${currentFlashcardSubject.name}」はすべての単語を覚えています。記憶状態をリセットして、もう一度学習しますか？`);
+        if (!shouldReset) {
+          document.getElementById('fc-step-4-play').classList.add('hidden');
+          document.getElementById('fc-step-4-play').classList.remove('flex');
+          document.getElementById('fc-step-3-count').classList.remove('hidden');
+          return;
+        }
+        localStorage.removeItem(getLearnedStorageKey(currentFlashcardSubject.id));
+        loadFlashcardData();
+        list = [...flashcardUnlearnedList];
       }
 
       const countToTake = Math.min(reqCount, list.length);
