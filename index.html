@@ -118,7 +118,7 @@
   <!-- 生化学の暗記カード専用JSを読み込み -->
   <script src="biochemistry_flashcard_data.js" onerror="console.log('biochemistry_flashcard_data.js 未検出。')"></script>
    <!-- 栄養学の暗記カード専用JSを読み込み -->
-  <script src="nutrition_flashcard.js" onerror="console.log('nutrition_flashcard.js 未検出。')"></script>
+  <script src="nutrition_flashcard_data.js" onerror="console.log('nutrition_flashcard_data.js 未検出。')"></script>
 
   <style>
     body {
@@ -1841,6 +1841,12 @@
         const bioFC = window.getBiochemistryFlashcardQuestions();
         if (Array.isArray(bioFC) && bioFC.length > 0) {
           return bioFC;
+        }
+      }
+      if (subjectId === 'nutrition' && typeof window.getNutritionFlashcardQuestions === 'function') {
+        const nutritionFC = window.getNutritionFlashcardQuestions();
+        if (Array.isArray(nutritionFC) && nutritionFC.length > 0) {
+          return nutritionFC;
         }
       }
       if (window.FLASHCARD_DB && Array.isArray(window.FLASHCARD_DB[subjectId]) && window.FLASHCARD_DB[subjectId].length > 0) {
