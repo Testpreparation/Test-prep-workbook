@@ -99,15 +99,14 @@
   <!-- 薬理学：過去問・演習問題を独立JSで管理 -->
   <script src="pharmacology_past2026akigakki.js"></script>
   <script src="pharmacology_exercise2026akigakki.js"></script>
-  <script src="pharmacology_nurse_national_6years.js"></script>
   <script src="nursingmethod2026akigakki.js"></script>
   <script src="nursingmethod3_practice2026akigakki.js"></script>
   <script src="nursingmethod3_quiz2026akigakki.js"></script>
   <script src="nursingmethod3_exercise2026akigakki.js"></script>
-  <script src="nutrition_exercise2026harugakki.js"></script>
-  <script src="nutrition_quiz2026harugakki.js"></script>
-  <script src="nutrition_exercise2026akigakki.js"></script>
-  <script src="nutrition_quiz2026akigakki.js"></script>
+  <script src="nutrition_exercise_2026harugakki.js"></script>
+  <script src="nutrition_quiz_2026harugakki.js"></script>
+  <script src="nutrition_exercise_2026akigakki.js"></script>
+  <script src="nutrition_quiz_2026akigakki.js"></script>
   <script src="publichealth_past2026akigakki.js"></script>
   <script src="publichealth_exercise2026akigakki.js"></script>
   <script src="publichealth_national2026akigakki.js"></script>
@@ -118,6 +117,8 @@
   <script src="flashcard_data.js" onerror="console.log('flashcard_data.js 未検出。')"></script>
   <!-- 生化学の暗記カード専用JSを読み込み -->
   <script src="biochemistry_flashcard_data.js" onerror="console.log('biochemistry_flashcard_data.js 未検出。')"></script>
+   <!-- 栄養学の暗記カード専用JSを読み込み -->
+  <script src="nutrition_flashcard_data.js" onerror="console.log('nutrition_flashcard_data.js 未検出。')"></script>
 
   <style>
     body {
@@ -769,9 +770,6 @@
           </button>
           <button onclick="selectPharmacologyMode('past')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
             <div><div class="text-sm font-medium text-slate-100 group-hover:text-amber-300">過去問</div><div class="text-[11px] text-slate-400 mt-0.5">薬理学の過去問</div></div><span class="text-slate-500 group-hover:text-amber-400">→</span>
-          </button>
-          <button onclick="selectPharmacologyMode('nurse_national_6years')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
-            <div><div class="text-sm font-medium text-slate-100 group-hover:text-amber-300">過去6年看護師国家試験</div><div class="text-[11px] text-slate-400 mt-0.5">薬理学に関する過去6年の看護師国家試験問題</div></div><span class="text-slate-500 group-hover:text-amber-400">→</span>
           </button>
         </div>
       </div>
@@ -1836,10 +1834,19 @@
     //  暗記カード専用データ取得 (専用外部ファイル flashcard_data.js または biochemistry_flashcard_data.js から読み込み)
     // ---------------------------------------------------------
     function fetchFlashcardDataForSubject(subjectId) {
+      if (subjectId === 'nutrition' && (!window.FLASHCARD_DB || !Array.isArray(window.FLASHCARD_DB.nutrition) || window.FLASHCARD_DB.nutrition.length === 0) && Array.isArray(window.NUTRITION_FLASHCARD_DATA) && window.NUTRITION_FLASHCARD_DATA.length > 0) {
+        return window.NUTRITION_FLASHCARD_DATA;
+      }
       if (subjectId === 'biochemistry' && typeof window.getBiochemistryFlashcardQuestions === 'function') {
         const bioFC = window.getBiochemistryFlashcardQuestions();
         if (Array.isArray(bioFC) && bioFC.length > 0) {
           return bioFC;
+        }
+      }
+      if (subjectId === 'nutrition' && typeof window.getNutritionFlashcardQuestions === 'function') {
+        const nutritionFC = window.getNutritionFlashcardQuestions();
+        if (Array.isArray(nutritionFC) && nutritionFC.length > 0) {
+          return nutritionFC;
         }
       }
       if (window.FLASHCARD_DB && Array.isArray(window.FLASHCARD_DB[subjectId]) && window.FLASHCARD_DB[subjectId].length > 0) {
@@ -3003,14 +3010,8 @@
               window.QUIZ_DB.psychology = currentQuestions;
             }
           } else if (currentSubject.id === 'pharmacology') {
-            if (currentPharmacologyMode === 'nurse_national_6years') {
-              if (typeof window.getPharmacologyNurseNational6YearsQuestions === 'function') {
-                window.QUIZ_DB.pharmacology = window.getPharmacologyNurseNational6YearsQuestions();
-              }
-            } else {
-              const key = `pharmacology_${currentPharmacologyMode}_${currentSemester === '2026_autumn' ? '2026_autumn' : '2026_spring'}`;
-              if (Array.isArray(window.QUIZ_DB[key])) window.QUIZ_DB.pharmacology = window.QUIZ_DB[key];
-            }
+            const key = `pharmacology_${currentPharmacologyMode}_${currentSemester === '2026_autumn' ? '2026_autumn' : '2026_spring'}`;
+            if (Array.isArray(window.QUIZ_DB[key])) window.QUIZ_DB.pharmacology = window.QUIZ_DB[key];
           } else if (currentSubject.id === 'nursing_method_3') {
             const key = `nursing_method_3_${currentNursingMethod3Mode}_${currentSemester === '2026_autumn' ? '2026_autumn' : '2026_spring'}`;
             if (Array.isArray(window.QUIZ_DB[key])) window.QUIZ_DB.nursing_method_3 = window.QUIZ_DB[key];
@@ -3047,7 +3048,6 @@
         const val = snapshot.val();
         if (val) {
           Object.keys(val).forEach(subId => {
-            if (subId === 'pharmacology_nurse_national_6years') return;
             window.QUIZ_DB[subId] = val[subId];
           });
         }
@@ -3136,7 +3136,7 @@
       if (s.id === 'anatomy' || s.hasAnatomyModes) return [{key:'basic',label:'練習問題'},{key:'applied',label:'応用問題'}];
       if (s.id === 'public_health' || s.hasPublicHealthModes) return [{key:'past',label:'過去問'},{key:'exercise',label:'演習問題'},{key:'national',label:'模擬国家試験'}];
       if (s.id === 'public_health_nursing' || s.hasPHNModes) return [{key:'basic',label:'練習問題'},{key:'exercise',label:'演習問題'}];
-      if (s.id === 'pharmacology') return [{key:'exercise',label:'演習問題'},{key:'past',label:'過去問'},{key:'nurse_national_6years',label:'過去6年看護師国家試験'}];
+      if (s.id === 'pharmacology') return [{key:'exercise',label:'演習問題'},{key:'past',label:'過去問'}];
       if (s.id === 'nursing_method_3') return [{key:'practice',label:'練習問題'},{key:'quiz',label:'小テスト'},{key:'exercise',label:'演習問題'}];
       return [{key:'all',label:'通常'}];
     };
@@ -3571,10 +3571,10 @@
 
       } else if (currentSubject.id === 'pharmacology') {
         backBtn.onclick = () => showPharmacologyModeSelectionScreen();
-        const modeTitle = currentPharmacologyMode === 'nurse_national_6years' ? '過去6年看護師国家試験' : (currentPharmacologyMode === 'past' ? '過去問' : '演習問題');
+        const modeTitle = currentPharmacologyMode === 'past' ? '過去問' : '演習問題';
         titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
         headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
-        descEl.textContent = currentPharmacologyMode === 'nurse_national_6years' ? '薬理学に関する過去6年の看護師国家試験問題が出題されます。' : `薬理学の${modeTitle}が出題されます。`;
+        descEl.textContent = `薬理学の${modeTitle}が出題されます。`;
         countContainer.classList.add('hidden');
 
       } else if (currentSubject.id === 'nursing_method_3') {
@@ -3811,8 +3811,6 @@
         targetDbKey = `public_health_${currentPublicHealthMode}`;
       } else if (currentSubject.id === 'public_health_nursing') {
         targetDbKey = `public_health_nursing_${currentPHNMode}`;
-      } else if (currentSubject.id === 'pharmacology' && currentPharmacologyMode === 'nurse_national_6years') {
-        targetDbKey = 'pharmacology_nurse_national_6years';
       } else if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'keyboard') {
         targetDbKey = (window.QUIZ_DB.biochemistry_keyboard && window.QUIZ_DB.biochemistry_keyboard.length > 0) ? 'biochemistry_keyboard' : 'biochemistry';
       } else if (currentSubject.id === 'nursing_method_3') {
