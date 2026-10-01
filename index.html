@@ -3060,6 +3060,7 @@
         if (val) {
           Object.keys(val).forEach(subId => {
             if (subId === 'pharmacology_nurse_national_6years') return;
+            if (subId === 'nutrition_exercise_2026_autumn') return;
             window.QUIZ_DB[subId] = val[subId];
           });
         }
