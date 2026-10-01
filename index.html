@@ -3861,6 +3861,8 @@
         targetDbKey = (window.QUIZ_DB.biochemistry_keyboard && window.QUIZ_DB.biochemistry_keyboard.length > 0) ? 'biochemistry_keyboard' : 'biochemistry';
       } else if (currentSubject.id === 'nursing_method_3') {
         targetDbKey = `nursing_method_3_${currentNursingMethod3Mode}_${isAutumn ? '2026_autumn' : '2026_spring'}`;
+      } else if (currentSubject.id === 'pharmacology' && currentPharmacologyMode === 'nurse_national_6years') {
+        targetDbKey = 'pharmacology_nurse_national_6years';
       }
 
       let rawData = window.QUIZ_DB[targetDbKey] || [];
