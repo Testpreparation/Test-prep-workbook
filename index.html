@@ -864,30 +864,64 @@
           <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
           <span class="serif-title text-sm text-slate-300">生化学 解答形式選択</span>
         </div>
-
         <div class="space-y-3 pt-2">
           <button onclick="selectBiochemistryFormat('choice')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
             <div class="flex items-center gap-3">
               <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">BIO-1</span>
-              <div>
-                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">選択式</div>
-                <div class="text-[11px] text-slate-400 font-light mt-0.5">ボタンタップで解答する通常の四肢択一形式</div>
-              </div>
-            </div>
-            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+              <div><div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">選択式</div><div class="text-[11px] text-slate-400 font-light mt-0.5">ボタンタップで解答する通常の四肢択一形式</div></div>
+            </div><span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
           </button>
-
           <button onclick="selectBiochemistryFormat('keyboard')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
             <div class="flex items-center gap-3">
               <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-bold">BIO-2</span>
-              <div>
-                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">記述式 (キーボード入力)</div>
-                <div class="text-[11px] text-slate-400 font-light mt-0.5">キーボードで文字・用語を入力して回答する形式</div>
-              </div>
-            </div>
-            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+              <div><div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">記述式 (キーボード入力)</div><div class="text-[11px] text-slate-400 font-light mt-0.5">キーボードで文字・用語を入力して回答する形式</div></div>
+            </div><span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+          <button onclick="selectBiochemistryFormat('fill')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-sky-500/10 border border-sky-500/30 text-sky-400 font-mono text-xs font-bold">BIO-3</span>
+              <div><div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">穴埋式 (キーボード入力)</div><div class="text-[11px] text-slate-400 font-light mt-0.5">問題文の空欄にキーボードで用語を入力して回答する形式</div></div>
+            </div><span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
           </button>
         </div>
+      </div>
+
+      <!-- 生化学 出題範囲選択 -->
+      <div id="screen-biochemistry-scope-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showBiochemistryFormatSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 解答形式へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">生化学 出題範囲選択</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-2">
+          <button onclick="selectBiochemistryScope('round:1')" class="card-item p-3 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">第1回</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+          <button onclick="selectBiochemistryScope('round:2')" class="card-item p-3 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">第2回</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+          <button onclick="selectBiochemistryScope('round:3')" class="card-item p-3 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">第3回</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+          <button onclick="selectBiochemistryScope('round:4')" class="card-item p-3 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">第4回</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+          <button onclick="selectBiochemistryScope('round:5')" class="card-item p-3 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">第5回</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+          <button onclick="selectBiochemistryScope('round:6')" class="card-item p-3 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">第6回</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+          <button onclick="selectBiochemistryScope('round:7')" class="card-item p-3 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">第7回</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+          <button onclick="selectBiochemistryScope('round:8')" class="card-item p-3 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">第8回</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+          <button onclick="selectBiochemistryScope('round:9')" class="card-item p-3 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">第9回</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+          <button onclick="selectBiochemistryScope('round:10')" class="card-item p-3 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">第10回</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+          <button onclick="selectBiochemistryScope('round:11')" class="card-item p-3 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">第11回</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+          <button onclick="selectBiochemistryScope('round:12')" class="card-item p-3 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">第12回</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+          <button onclick="selectBiochemistryScope('round:13')" class="card-item p-3 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">第13回</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+          <button onclick="selectBiochemistryScope('round:14')" class="card-item p-3 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">第14回</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+          <button onclick="selectBiochemistryScope('round:15')" class="card-item p-3 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">第15回</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+          <button onclick="selectBiochemistryScope('all')" class="card-item p-3 rounded-xl text-left flex items-center justify-between group col-span-2 sm:col-span-1"><span class="text-sm font-medium text-amber-400 group-hover:text-amber-300">総合問題</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+        </div>
+        <div class="pt-1">
+          <button onclick="showBiochemistryGenreSelectionScreen()" class="w-full p-3.5 rounded-xl border border-amber-500/20 bg-amber-500/5 text-sm font-medium text-amber-400 hover:bg-amber-500/10 transition">ジャンル別から選ぶ →</button>
+        </div>
+      </div>
+
+      <!-- 生化学 ジャンル別選択 -->
+      <div id="screen-biochemistry-genre-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showBiochemistryScopeSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 出題範囲へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">生化学 ジャンル別選択</span>
+        </div>
+        <div id="biochemistry-genre-list" class="space-y-2.5 pt-2"></div>
       </div>
 
       <!-- 画面1.4: 制限時間選択 -->
@@ -1501,7 +1535,108 @@
 
     function selectBiochemistryFormat(format) {
       currentBiochemistryFormat = format;
+      currentBiochemistryScope = 'all';
+      showBiochemistryScopeSelectionScreen();
+    }
+
+    function makeBiochemistryFillQuestion(q) {
+      const correctAnswer = q && Array.isArray(q.answers) && q.answers.length > 0 && Array.isArray(q.options)
+        ? q.options[q.answers[0]]
+        : '';
+      let questionText = String((q && (q.q || q.question)) || '');
+
+      if (correctAnswer) {
+        const escaped = String(correctAnswer).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const answerPattern = new RegExp(escaped, 'i');
+        if (answerPattern.test(questionText)) {
+          questionText = questionText.replace(answerPattern, '（　　　）');
+        } else if (/どれか[。？?]?$/.test(questionText)) {
+          questionText = questionText.replace(/どれか[。？?]?$/, '（　　　）です。');
+        } else if (/何というか[。？?]?$/.test(questionText)) {
+          questionText = questionText.replace(/何というか[。？?]?$/, '（　　　）という。');
+        } else if (/何か[。？?]?$/.test(questionText)) {
+          questionText = questionText.replace(/何か[。？?]?$/, '（　　　）です。');
+        } else if (/何の[。？?]/.test(questionText)) {
+          questionText = questionText.replace(/何の/, '（　　　）の');
+        } else {
+          questionText += '（　　　）';
+        }
+      } else {
+        questionText += '（　　　）';
+      }
+
+      return {
+        ...q,
+        q: questionText,
+        enableKeyboard: true,
+        keyword: correctAnswer || q.keyword || ''
+      };
+    }
+
+    function showBiochemistryScopeSelectionScreen() {
+      hideAllScreens();
+      document.getElementById('screen-biochemistry-scope-select').classList.remove('hidden');
+    }
+
+    function getBiochemistryGenre(q) {
+      const text = String([q?.question, q?.q, q?.exp, ...(Array.isArray(q?.options) ? q.options : [])].filter(Boolean).join(' ')).toLowerCase();
+      const rules = [
+        ['糖質・糖代謝', ['糖質','グルコース','ブドウ糖','グリコーゲン','解糖系','糖新生','ペントース','インスリン','グルカゴン']],
+        ['脂質・脂質代謝', ['脂質','脂肪酸','トリグリセリド','中性脂肪','コレステロール','β酸化','ケトン体','リポタンパク']],
+        ['たんぱく質・アミノ酸', ['たんぱく質','タンパク質','アミノ酸','ペプチド','尿素回路','脱アミノ','トランスアミネーション']],
+        ['酵素・代謝', ['酵素','補酵素','代謝','触媒','基質','活性化エネルギー','ミカエリス','km','酵素反応']],
+        ['ビタミン・補酵素', ['ビタミン','葉酸','ナイアシン','チアミン','リボフラビン','ビオチン','ビタミンb','ビタミンc','ビタミンd','ビタミンe','ビタミンk']],
+        ['ミネラル・電解質', ['ミネラル','無機質','カルシウム','リン','鉄','ナトリウム','カリウム','マグネシウム','電解質','亜鉛','銅']],
+        ['エネルギー・ATP', ['atp','エネルギー','電子伝達系','酸化的リン酸化','クエン酸回路','tca回路','ミトコンドリア','nad','fadh','酸化還元']],
+        ['核酸・遺伝情報', ['dna','rna','mrna','trna','rrna','核酸','ヌクレオチド','複製','転写','翻訳','遺伝子','コドン','塩基']],
+        ['細胞・生体膜', ['細胞膜','生体膜','リン脂質','受容体','細胞質','核','小胞体','ゴルジ体','リソソーム','膜輸送']],
+        ['血液・体液', ['血液','ヘモグロビン','血漿','血清','酸塩基','pH','緩衝','浸透圧','体液']],
+        ['ホルモン・シグナル', ['ホルモン','受容体','シグナル','cAMP','セカンドメッセンジャー','甲状腺','副腎','ステロイドホルモン']],
+        ['消化・吸収', ['消化','吸収','消化酵素','胃','小腸','膵液','胆汁','胆のう','腸管']]
+      ];
+      for (const [genre, keywords] of rules) {
+        if (keywords.some(k => text.includes(k.toLowerCase()))) return genre;
+      }
+      return 'その他';
+    }
+
+    function showBiochemistryGenreSelectionScreen() {
+      hideAllScreens();
+      const list = document.getElementById('biochemistry-genre-list');
+      const data = getCurrentBiochemistrySourceData();
+      const genres = [];
+      data.forEach(q => {
+        const genre = getBiochemistryGenre(q);
+        if (!genres.includes(genre)) genres.push(genre);
+      });
+      list.innerHTML = genres.length ? genres.map(genre => `
+        <button onclick="selectBiochemistryScope(${JSON.stringify('genre:')}${JSON.stringify(genre)})" class="card-item w-full p-3.5 rounded-xl text-left flex items-center justify-between group">
+          <span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">${escapeHtml(genre)}</span><span class="text-slate-500 group-hover:text-amber-400">→</span>
+        </button>`).join('') : '<div class="p-5 text-center text-xs text-slate-500">生化学の問題が登録されていません。</div>';
+      document.getElementById('screen-biochemistry-genre-select').classList.remove('hidden');
+    }
+
+    function getCurrentBiochemistrySourceData() {
+      const key = currentBiochemistryFormat === 'keyboard' ? 'biochemistry_keyboard' : 'biochemistry';
+      let data = window.QUIZ_DB[key] || [];
+      if ((!data || data.length === 0)) {
+        const fn = currentSemester === '2026_autumn' ? 'getBiochemistryQuestionsAutumn' : 'getBiochemistryQuestions';
+        if (typeof window[fn] === 'function') data = window[fn]() || [];
+      }
+      return Array.isArray(data) ? data : [];
+    }
+
+    function selectBiochemistryScope(scope) {
+      currentBiochemistryScope = scope;
+      currentRound = null;
       showStartScreen();
+    }
+
+    function getBiochemistryRoundValue(q) {
+      if (q && q.round !== undefined && q.round !== null) return String(q.round);
+      const text = String((q && (q.question || q.q)) || '');
+      const m = text.match(/(?:【|\[)?第\s*(\d+)\s*回/);
+      return m ? m[1] : null;
     }
 
     // =========================================================
@@ -1737,6 +1872,7 @@
     let currentNursingMethod3Mode = 'practice';
     let currentNutritionMode = 'exercise';
     let currentBiochemistryFormat = 'choice';
+    let currentBiochemistryScope = 'all';
     let activeQuestions = [];
     let currentQIndex = 0;
     let score = 0;
@@ -3287,6 +3423,8 @@
       document.getElementById('screen-nursing-method-3-mode-select').classList.add('hidden');
       document.getElementById('screen-nutrition-mode-select').classList.add('hidden');
       document.getElementById('screen-biochemistry-format-select').classList.add('hidden');
+      document.getElementById('screen-biochemistry-scope-select').classList.add('hidden');
+      document.getElementById('screen-biochemistry-genre-select').classList.add('hidden');
       document.getElementById('screen-time-select').classList.add('hidden');
       document.getElementById('screen-round-select').classList.add('hidden');
       document.getElementById('screen-count-select').classList.add('hidden');
@@ -3546,13 +3684,14 @@
       const backBtn = document.getElementById('start-back-btn');
 
       if (currentSubject.id === 'biochemistry' || currentSubject.hasBiochemistryFormats) {
-        backBtn.onclick = () => showBiochemistryFormatSelectionScreen();
-        const fmtTitle = currentBiochemistryFormat === 'keyboard' ? '記述式' : '選択式';
-        titleEl.textContent = `${currentSubject.name} - ${fmtTitle}`;
-        headingEl.textContent = `${currentSubject.name}（${fmtTitle}）`;
-        descEl.textContent = currentBiochemistryFormat === 'keyboard'
-          ? `生化学のキーボード入力（記述式）問題が出題されます。`
-          : `生化学の選択式問題が出題されます。`;
+        backBtn.onclick = () => showBiochemistryScopeSelectionScreen();
+        const fmtTitle = currentBiochemistryFormat === 'keyboard' ? '記述式' : (currentBiochemistryFormat === 'fill' ? '穴埋式' : '選択式');
+        let scopeTitle = '総合問題';
+        if (currentBiochemistryScope.startsWith('round:')) scopeTitle = `第${currentBiochemistryScope.split(':')[1]}回`;
+        else if (currentBiochemistryScope.startsWith('genre:')) scopeTitle = currentBiochemistryScope.slice(6);
+        titleEl.textContent = `${currentSubject.name} - ${fmtTitle} - ${scopeTitle}`;
+        headingEl.textContent = `${currentSubject.name}（${scopeTitle}）`;
+        descEl.textContent = `${fmtTitle}の${scopeTitle}を出題します。次へ進んで時間と問題数を選択してください。`;
         countContainer.classList.add('hidden');
 
       } else if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) {
@@ -3673,6 +3812,7 @@
       }
       if (currentSubject.id === 'biochemistry' || currentSubject.hasBiochemistryFormats) {
         modeSuffix += `_${currentBiochemistryFormat}`;
+        if (currentBiochemistryScope && currentBiochemistryScope !== 'all') modeSuffix += `_${currentBiochemistryScope.replace(/[^a-zA-Z0-9:_-]/g, '_')}`;
       } else if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) {
         modeSuffix += `_${currentPhysiologyMode}`;
       } else if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) {
@@ -3890,6 +4030,17 @@
         list = [...rawData];
       }
 
+      if (currentSubject.id === 'biochemistry' && currentBiochemistryScope !== 'all') {
+        if (currentBiochemistryScope.startsWith('round:')) {
+          const targetRound = currentBiochemistryScope.split(':')[1];
+          const filtered = list.filter(q => getBiochemistryRoundValue(q) === targetRound);
+          list = filtered;
+        } else if (currentBiochemistryScope.startsWith('genre:')) {
+          const targetGenre = currentBiochemistryScope.slice(6);
+          list = list.filter(q => getBiochemistryGenre(q) === targetGenre);
+        }
+      }
+
       list = list.map(q => normalizeQuestion(q)).filter(Boolean);
 
       if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'keyboard') {
@@ -3897,6 +4048,8 @@
           ...q,
           enableKeyboard: true
         }));
+      } else if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'fill') {
+        list = list.map(q => makeBiochemistryFillQuestion(q));
       }
 
       list = list.map(q => {
@@ -4242,6 +4395,7 @@
       }
       if (currentSubject.id === 'biochemistry' || currentSubject.hasBiochemistryFormats) {
         modeSuffix += `_${currentBiochemistryFormat}`;
+        if (currentBiochemistryScope && currentBiochemistryScope !== 'all') modeSuffix += `_${currentBiochemistryScope.replace(/[^a-zA-Z0-9:_-]/g, '_')}`;
       } else if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) {
         modeSuffix += `_${currentPhysiologyMode}`;
       } else if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) {
