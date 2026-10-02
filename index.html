@@ -3926,7 +3926,8 @@
       if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'fill') {
         list = list.map(q => ({
           ...q,
-          enableKeyboard: true
+          enableKeyboard: true,
+          fillAnswers: String(q.answer || '').split('、').map(v => v.trim())
         }));
       }
 
@@ -3976,7 +3977,16 @@
      
       const qNumText = `Q${currentQIndex + 1}` + (q.isMultiple ? ` 【複数選択問題 (${q.answers.length}つ選択)】` : '');
       document.getElementById('quiz-question-number').textContent = qNumText;
-      document.getElementById('quiz-question-text').textContent = q.q;
+      if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'fill') {
+        let fillIndex = 0;
+        const fillQuestionText = String(q.q || '').replace(/（([①②③④⑤⑥⑦⑧⑨⑩]+)）/g, (m, n) => {
+          const index = fillIndex++;
+          return `（<input type="text" id="biochemistry-fill-input-${index}" data-fill-answer-input="true" placeholder="${n}" class="inline-block w-28 mx-1 px-2 py-1 rounded-lg bg-slate-950 border border-slate-700 text-slate-100 text-xs text-center align-middle focus:outline-none focus:border-amber-500" onkeydown="if(event.key==='Enter') submitKeyboardAnswer()" />）`;
+        });
+        document.getElementById('quiz-question-text').innerHTML = fillQuestionText;
+      } else {
+        document.getElementById('quiz-question-text').textContent = q.q;
+      }
 
       const imgContainer = document.getElementById('quiz-image-container');
       const imgEl = document.getElementById('quiz-image');
@@ -4013,9 +4023,21 @@
         container.classList.add('hidden');
         submitBtn.classList.add('hidden');
         kbContainer.classList.remove('hidden');
-        const kbInput = document.getElementById('quiz-keyboard-input');
-        kbInput.value = '';
-        kbInput.disabled = false;
+        if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'fill') {
+          kbContainer.classList.add('hidden');
+          const firstFillInput = document.querySelector('[data-fill-answer-input="true"]');
+          if (firstFillInput) firstFillInput.focus();
+        } else {
+          kbContainer.innerHTML = `
+            <p class="text-xs text-amber-400 font-medium">正しい用語・文字を入力してください。</p>
+            <div class="flex gap-2">
+              <input type="text" id="quiz-keyboard-input" placeholder="例: 用語または文字を入力" onkeydown="if(event.key==='Enter') submitKeyboardAnswer()" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-xs focus:outline-none focus:border-amber-500">
+              <button onclick="submitKeyboardAnswer()" class="px-5 py-2.5 bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold rounded-xl text-xs transition shadow-lg shrink-0">解答</button>
+            </div>`;
+          const kbInput = document.getElementById('quiz-keyboard-input');
+          kbInput.value = '';
+          kbInput.disabled = false;
+        }
       } else {
         container.classList.remove('hidden');
         kbContainer.classList.add('hidden');
@@ -4132,6 +4154,17 @@
 
     function submitKeyboardAnswer() {
       if (isAnswered) return;
+      if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'fill') {
+        const inputs = Array.from(document.querySelectorAll('[data-fill-answer-input="true"]'));
+        const values = inputs.map(input => input.value.trim());
+        if (values.some(v => !v)) {
+          alert("すべての空欄に回答を入力してください。");
+          return;
+        }
+        stopQuizTimer();
+        evaluateBiochemistryFillAnswers(values, false);
+        return;
+      }
       const inputEl = document.getElementById('quiz-keyboard-input');
       const val = inputEl.value.trim();
       if (!val) {
@@ -4140,6 +4173,34 @@
       }
       stopQuizTimer();
       evaluateKeyboardAnswer(val, false);
+    }
+
+    function evaluateBiochemistryFillAnswers(userValues, isTimeout) {
+      isAnswered = true;
+      const q = activeQuestions[currentQIndex];
+      const inputs = Array.from(document.querySelectorAll('[data-fill-answer-input="true"]'));
+      const fbBox = document.getElementById('quiz-feedback-box');
+      const fbTitle = document.getElementById('quiz-feedback-title');
+      const fbDesc = document.getElementById('quiz-feedback-desc');
+      const answers = Array.isArray(q.fillAnswers) ? q.fillAnswers : String(q.answer || '').split('、').map(v => v.trim());
+      const normalizeStr = (str) => String(str || '').replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xfee0)).toLowerCase().replace(/\s+/g, '');
+      const isCorrect = !isTimeout && userValues.length === answers.length && userValues.every((value, idx) => normalizeStr(value) === normalizeStr(answers[idx]));
+
+      inputs.forEach(input => { input.disabled = true; });
+      saveWeakQuestionResult(q, isCorrect);
+
+      if (isCorrect) {
+        score++;
+        fbBox.className = "p-4 rounded-xl border border-emerald-500/40 bg-emerald-950/30 text-emerald-200 text-xs leading-relaxed space-y-2 block";
+        fbTitle.textContent = "✓ 正解！";
+      } else {
+        fbBox.className = "p-4 rounded-xl border border-rose-500/40 bg-rose-950/30 text-rose-200 text-xs leading-relaxed space-y-2 block";
+        fbTitle.textContent = isTimeout ? "⌛ 時間切れ..." : "✕ 不正解...";
+      }
+
+      fbDesc.textContent = q.exp || (answers.length ? `正解：${answers.join(' ／ ')}` : "解説はありません。");
+      document.getElementById('quiz-score-live').textContent = `正解: ${score}`;
+      document.getElementById('quiz-next-btn').textContent = (currentQIndex + 1 >= activeQuestions.length) ? "結果を見る →" : "次へ進む →";
     }
 
     function evaluateKeyboardAnswer(userText, isTimeout) {
