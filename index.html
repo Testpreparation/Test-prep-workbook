@@ -3978,16 +3978,13 @@
       const qNumText = `Q${currentQIndex + 1}` + (q.isMultiple ? ` 【複数選択問題 (${q.answers.length}つ選択)】` : '');
       document.getElementById('quiz-question-number').textContent = qNumText;
       const fillNumbers = ['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'];
-      const replaceFillPlaceholders = (text, answers) => {
-        let answerIndex = 0;
-        return String(text || '').replace(/（[①②③④⑤⑥⑦⑧⑨⑩]）|\((?:10|[1-9])\)/g, (match) => {
-          const answer = answers && answers[answerIndex] !== undefined ? String(answers[answerIndex]).trim() : '';
-          answerIndex++;
-          return answer ? `（${answer}）` : match;
-        });
-      };
       if (currentBiochemistryFormat === 'fill' && currentSubject.id === 'biochemistry') {
-        document.getElementById('quiz-question-text').textContent = replaceFillPlaceholders(String(q.q || ''), null);
+        let fillIndex = 0;
+        const fillQuestionText = String(q.q || '').replace(/（[①②③④⑤⑥⑦⑧⑨⑩]）|\([①②③④⑤⑥⑦⑧⑨⑩]\)/g, () => {
+          const num = fillNumbers[fillIndex++];
+          return num ? `（${num}）` : '（　）';
+        });
+        document.getElementById('quiz-question-text').textContent = fillQuestionText;
       } else {
         document.getElementById('quiz-question-text').textContent = q.q;
       }
@@ -4030,14 +4027,14 @@
           kbContainer.classList.remove('hidden');
           const fillTargets = String(q.answer || '').split('、').map(v => v.trim()).filter(Boolean);
           kbContainer.innerHTML = `
-            <p class="text-xs text-slate-400 mb-3">空欄の番号ごとに入力してください。</p>
-            <div class="space-y-2">
+            <p class="text-xs text-amber-400 font-medium">（①）などの空欄に入力してください。</p>
+            <div class="space-y-2 mt-3">
               ${fillTargets.map((_, i) => {
                 const num = fillNumbers[i];
-                return `<div class="flex items-center gap-2"><label for="fill-answer-${num}" class="w-8 shrink-0 text-sm font-semibold text-amber-300">${num}</label><input type="text" id="fill-answer-${num}" data-fill-number="${num}" class="flex-1 px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-amber-500" aria-label="${num}の解答" autocomplete="off" onkeydown="if(event.key==='Enter') submitKeyboardAnswer()"></div>`;
+                return `<label for="fill-answer-${num}" class="flex items-center gap-2 text-sm text-slate-200"><span class="shrink-0 font-semibold text-amber-300">${num}</span><input type="text" id="fill-answer-${num}" data-fill-number="${num}" class="flex-1 px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-amber-500" aria-label="${num}の解答" autocomplete="off" onkeydown="if(event.key==='Enter') submitKeyboardAnswer()"></label>`;
               }).join('')}
             </div>
-            <button onclick="submitKeyboardAnswer()" class="w-full px-4 py-2.5 bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold rounded-lg text-sm transition shadow-lg mt-3">解答する</button>
+            <button onclick="submitKeyboardAnswer()" class="w-full px-5 py-3 bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold rounded-xl text-sm transition shadow-lg mt-4">解答する</button>
           `;
           const firstFillInput = kbContainer.querySelector('[id^="fill-answer-"]');
           if (firstFillInput) firstFillInput.focus();
@@ -4229,7 +4226,12 @@
       const fbBox = document.getElementById('quiz-feedback-box');
       const fbTitle = document.getElementById('quiz-feedback-title');
       const fbDesc = document.getElementById('quiz-feedback-desc');
-      const answeredQuestionText = replaceFillPlaceholders(String(q.q || ''), targets);
+      let answerIndex = 0;
+      const answeredQuestionText = String(q.q || '').replace(/（[①②③④⑤⑥⑦⑧⑨⑩]）|\([①②③④⑤⑥⑦⑧⑨⑩]\)/g, () => {
+        const correct = targets[answerIndex] || '';
+        answerIndex++;
+        return `（${correct}）`;
+      });
       document.getElementById('quiz-question-text').textContent = answeredQuestionText;
 
       if (isCorrect) {
