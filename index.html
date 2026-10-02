@@ -4227,6 +4227,14 @@
       const fbBox = document.getElementById('quiz-feedback-box');
       const fbTitle = document.getElementById('quiz-feedback-title');
       const fbDesc = document.getElementById('quiz-feedback-desc');
+      let answerIndex = 0;
+      const answeredQuestionText = String(q.q || '').replace(/（[^）]*）|\([^)]*\)/g, (match) => {
+        const correct = targets[answerIndex] || '';
+        answerIndex++;
+        return `（${correct}）`;
+      });
+      document.getElementById('quiz-question-text').textContent = answeredQuestionText;
+
       if (isCorrect) {
         score++;
         fbBox.className = "p-4 rounded-xl border border-emerald-500/40 bg-emerald-950/30 text-emerald-200 text-xs leading-relaxed space-y-2 block";
