@@ -3977,8 +3977,8 @@
      
       const qNumText = `Q${currentQIndex + 1}` + (q.isMultiple ? ` 【複数選択問題 (${q.answers.length}つ選択)】` : '');
       document.getElementById('quiz-question-number').textContent = qNumText;
+      const fillNumbers = ['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'];
       if (currentBiochemistryFormat === 'fill' && currentSubject.id === 'biochemistry') {
-        const fillNumbers = ['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'];
         let fillIndex = 0;
         const fillQuestionText = String(q.q || '').replace(/（[^）]*）|\([^)]*\)/g, (match) => {
           const num = fillNumbers[fillIndex++];
