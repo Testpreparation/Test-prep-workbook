@@ -3083,6 +3083,7 @@
           Object.keys(val).forEach(subId => {
             if (subId === 'pharmacology_nurse_national_6years') return;
             if (subId === 'nutrition_exercise_2026_autumn') return;
+            if (subId === 'biochemistry_fill') return;
             window.QUIZ_DB[subId] = val[subId];
           });
         }
@@ -3978,7 +3979,7 @@
       document.getElementById('quiz-question-number').textContent = qNumText;
       if (currentBiochemistryFormat === 'fill' && currentSubject.id === 'biochemistry') {
         const fillQuestionText = String(q.q || '').replace(/（(①|②|③|④|⑤|⑥|⑦|⑧|⑨|⑩)）/g, (match, num) => {
-          return `<input type="text" id="fill-answer-${num}" data-fill-number="${num}" class="inline-block w-24 mx-1 px-2 py-0.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-100 text-xs text-center focus:outline-none focus:border-amber-500 align-middle" aria-label="${num}の解答" onkeydown="if(event.key==='Enter') submitKeyboardAnswer()">`;
+          return `<span class="inline-block align-middle">（${num}）</span><input type="text" id="fill-answer-${num}" data-fill-number="${num}" class="inline-block w-24 mx-1 px-2 py-0.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-100 text-xs text-center focus:outline-none focus:border-amber-500 align-middle" aria-label="${num}の解答" onkeydown="if(event.key==='Enter') submitKeyboardAnswer()">`;
         });
         document.getElementById('quiz-question-text').innerHTML = fillQuestionText;
       } else {
