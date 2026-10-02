@@ -32,6 +32,7 @@
     window.QUIZ_DB.physiology = [];
     window.QUIZ_DB.biochemistry = []; // 生化学（選択式）
     window.QUIZ_DB.biochemistry_keyboard = []; // 生化学（記述式）
+    window.QUIZ_DB.biochemistry_fill = []; // 生化学（穴埋式）
     window.QUIZ_DB.nursing_method = []; // 看護学方法論Ⅰ用
     window.QUIZ_DB.public_health_nursing = []; // 公衆衛生看護学概論（共通）
     window.QUIZ_DB.public_health_nursing_basic = []; // 公衆衛生看護学概論（練習問題）
@@ -91,6 +92,7 @@
   <!-- 各科目の外部問題データベースJSの読み込み（秋学期） -->
   <script src="anatomy2026akigakki.js"></script>
   <script src="biochemistry2026akigakki.js"></script>
+  <script src="biochemistry_fill.js" onerror="console.log('biochemistry_fill.js 未検出。')"></script>
   <script src="Medicine2026akigakki.js"></script>
   <script src="microbiology2026akigakki.js"></script>
   <script src="mindbehavior2026akigakki.js"></script>
@@ -883,6 +885,17 @@
               <div>
                 <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">記述式 (キーボード入力)</div>
                 <div class="text-[11px] text-slate-400 font-light mt-0.5">キーボードで文字・用語を入力して回答する形式</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+
+          <button onclick="selectBiochemistryFormat('fill')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-sky-500/10 border border-sky-500/30 text-sky-400 font-mono text-xs font-bold">BIO-3</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">穴埋式 (キーボード入力)</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">文章中の空欄に答えを入力する形式</div>
               </div>
             </div>
             <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
@@ -3547,12 +3560,14 @@
 
       if (currentSubject.id === 'biochemistry' || currentSubject.hasBiochemistryFormats) {
         backBtn.onclick = () => showBiochemistryFormatSelectionScreen();
-        const fmtTitle = currentBiochemistryFormat === 'keyboard' ? '記述式' : '選択式';
+        const fmtTitle = currentBiochemistryFormat === 'keyboard' ? '記述式' : (currentBiochemistryFormat === 'fill' ? '穴埋式' : '選択式');
         titleEl.textContent = `${currentSubject.name} - ${fmtTitle}`;
         headingEl.textContent = `${currentSubject.name}（${fmtTitle}）`;
         descEl.textContent = currentBiochemistryFormat === 'keyboard'
           ? `生化学のキーボード入力（記述式）問題が出題されます。`
-          : `生化学の選択式問題が出題されます。`;
+          : (currentBiochemistryFormat === 'fill'
+            ? `生化学の穴埋式（キーボード入力）問題が出題されます。`
+            : `生化学の選択式問題が出題されます。`);
         countContainer.classList.add('hidden');
 
       } else if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) {
@@ -3841,6 +3856,13 @@
         }
       }
 
+      if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'fill') {
+        if (typeof window.getBiochemistryFillQuestions === 'function') {
+          const fillData = window.getBiochemistryFillQuestions();
+          if (Array.isArray(fillData)) window.QUIZ_DB.biochemistry_fill = fillData;
+        }
+      }
+
       if (currentSubject.id === 'anatomy') {
         if (currentAnatomyMode === 'applied') {
           const fnName = isAutumn ? 'getAnatomyAppliedQuestionsAutumn' : 'getAnatomyAppliedQuestions';
@@ -3870,6 +3892,8 @@
         targetDbKey = `public_health_nursing_${currentPHNMode}`;
       } else if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'keyboard') {
         targetDbKey = (window.QUIZ_DB.biochemistry_keyboard && window.QUIZ_DB.biochemistry_keyboard.length > 0) ? 'biochemistry_keyboard' : 'biochemistry';
+      } else if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'fill') {
+        targetDbKey = 'biochemistry_fill';
       } else if (currentSubject.id === 'nursing_method_3') {
         targetDbKey = `nursing_method_3_${currentNursingMethod3Mode}_${isAutumn ? '2026_autumn' : '2026_spring'}`;
       } else if (currentSubject.id === 'pharmacology' && currentPharmacologyMode === 'nurse_national_6years') {
@@ -3893,6 +3917,13 @@
       list = list.map(q => normalizeQuestion(q)).filter(Boolean);
 
       if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'keyboard') {
+        list = list.map(q => ({
+          ...q,
+          enableKeyboard: true
+        }));
+      }
+
+      if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'fill') {
         list = list.map(q => ({
           ...q,
           enableKeyboard: true
