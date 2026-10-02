@@ -113,5 +113,9 @@ window.QUIZ_DB.biochemistry_fill = [
 ];
 
 window.getBiochemistryFillQuestions = function() {
-  return window.QUIZ_DB.biochemistry_fill || [];
+  return (window.QUIZ_DB.biochemistry_fill || []).map(q => ({
+    ...q,
+    correctAnswer: q.correctAnswer || q.answer || "",
+    explanation: q.explanation || q.exp || ""
+  }));
 };
