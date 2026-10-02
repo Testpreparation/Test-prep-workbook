@@ -4235,7 +4235,11 @@
         fbBox.className = "p-4 rounded-xl border border-rose-500/40 bg-rose-950/30 text-rose-200 text-xs leading-relaxed space-y-2 block";
         fbTitle.textContent = isTimeout ? "⌛ 時間切れ..." : "✕ 不正解...";
       }
-      fbDesc.textContent = q.exp || "解説はありません。";
+      if (currentBiochemistryFormat === 'fill' && currentSubject.id === 'biochemistry') {
+        fbDesc.innerHTML = `<div class="font-semibold text-amber-300">正解：${q.correctAnswer || q.answer || ""}</div><div class="mt-1">解説：${q.explanation || q.exp || "解説はありません。"}</div>`;
+      } else {
+        fbDesc.textContent = q.exp || "解説はありません。";
+      }
       document.getElementById('quiz-score-live').textContent = `正解: ${score}`;
       document.getElementById('quiz-next-btn').textContent = (currentQIndex + 1 >= activeQuestions.length) ? "結果を見る →" : "次へ進む →";
     }
