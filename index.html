@@ -278,113 +278,8 @@
   .evo-chip{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .55rem;border-radius:999px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.18);color:#fbbf24;font-size:10px}
   @media(max-width:480px){.evo-grid{grid-template-columns:1fr}}
 </style>
-
-<style id="theme-switch-css">
-  /* ===== テーマ切替：ダークは既存デザインを維持、ライトのみ水色系に上書き ===== */
-  body.theme-light {
-    background: linear-gradient(135deg, #f0fbff 0%, #e6f7fc 48%, #f7fcff 100%) !important;
-    color: #36566b !important;
-  }
-  body.theme-light .glass-card {
-    background: rgba(255,255,255,.88) !important;
-    border-color: rgba(125,211,232,.34) !important;
-    box-shadow: 0 18px 45px rgba(91,174,198,.13) !important;
-  }
-  body.theme-light .card-item {
-    background: rgba(255,255,255,.78) !important;
-    border-color: rgba(125,211,232,.30) !important;
-  }
-  body.theme-light .card-item:hover:not(:disabled) {
-    background: #f2fcff !important;
-    border-color: rgba(56,189,214,.55) !important;
-  }
-  body.theme-light .flashcard-paper {
-    background: linear-gradient(145deg,#ffffff,#eafaff) !important;
-    background-image: radial-gradient(circle at 50% 50%, #f8fdff 0%, #e5f8fd 100%) !important;
-    box-shadow: inset 0 0 0 1px rgba(56,189,214,.18), 0 16px 32px -8px rgba(67,142,166,.22) !important;
-  }
-  body.theme-light .flashcard-hole { background:#dff6fc !important; border-color:#67c9df !important; box-shadow:inset 0 2px 4px rgba(63,145,166,.18) !important; }
-  body.theme-light .flashcard-ring-wire { border-color:#76bfd0 !important; box-shadow:0 4px 6px rgba(63,145,166,.18) !important; }
-  body.theme-light .custom-scrollbar::-webkit-scrollbar-track { background:rgba(186,230,242,.30) !important; }
-  body.theme-light .custom-scrollbar::-webkit-scrollbar-thumb { background:#a9dce9 !important; border-color:rgba(255,255,255,.8) !important; }
-  body.theme-light .custom-scrollbar::-webkit-scrollbar-thumb:hover { background:#7dd3e8 !important; }
-  body.theme-light .custom-scrollbar { scrollbar-color:#a9dce9 rgba(186,230,242,.30) !important; }
-
-  /* Tailwindの既存カラーをライトテーマへ統一 */
-  body.theme-light [class*="bg-slate"] { background-color:rgba(255,255,255,.72) !important; }
-  body.theme-light [class*="bg-slate-950"] { background-color:#eefaff !important; }
-  body.theme-light [class*="bg-slate-900"] { background-color:#f5fcff !important; }
-  body.theme-light [class*="bg-slate-800"] { background-color:#e7f8fc !important; }
-  body.theme-light [class*="bg-slate-700"] { background-color:#d9f1f7 !important; }
-  body.theme-light [class*="text-slate-100"], body.theme-light [class*="text-slate-200"] { color:#274b61 !important; }
-  body.theme-light [class*="text-slate-300"] { color:#41677b !important; }
-  body.theme-light [class*="text-slate-400"] { color:#5e7e90 !important; }
-  body.theme-light [class*="text-slate-500"] { color:#7393a2 !important; }
-  body.theme-light [class*="text-slate-600"] { color:#89a5b2 !important; }
-  body.theme-light [class*="border-slate"] { border-color:rgba(102,190,213,.28) !important; }
-
-  /* 水色ベース＋やわらかいコーラルをアクセントに */
-  body.theme-light [class*="bg-gradient-to-r"] { background-image:linear-gradient(90deg,#62cfe3 0%,#82dbe8 48%,#ff9b88 100%) !important; }
-  body.theme-light [class*="bg-amber"] { background-color:#ff9b88 !important; }
-  body.theme-light [class*="hover:bg-amber"]:hover { background-color:#ff8872 !important; }
-  body.theme-light [class*="text-amber"] { color:#e87360 !important; }
-  body.theme-light [class*="border-amber"] { border-color:rgba(255,145,126,.48) !important; }
-  body.theme-light [class*="bg-emerald"] { background-color:#bcefe3 !important; }
-  body.theme-light [class*="hover:bg-emerald"]:hover { background-color:#a6e6d8 !important; }
-  body.theme-light [class*="text-emerald"] { color:#2f9c8b !important; }
-  body.theme-light [class*="border-emerald"] { border-color:rgba(73,181,160,.40) !important; }
-  body.theme-light [class*="bg-rose"] { background-color:#ffe0e5 !important; }
-  body.theme-light [class*="hover:bg-rose"]:hover { background-color:#ffd0d8 !important; }
-  body.theme-light [class*="text-rose"] { color:#d9687c !important; }
-  body.theme-light [class*="border-rose"] { border-color:rgba(221,112,132,.38) !important; }
-  body.theme-light [class*="bg-red"] { background-color:#ffdfe4 !important; }
-  body.theme-light [class*="text-red"] { color:#d9687c !important; }
-  body.theme-light [class*="border-red"] { border-color:rgba(221,112,132,.38) !important; }
-
-  body.theme-light input, body.theme-light textarea, body.theme-light select {
-    background-color:#f9feff !important; color:#31566b !important; border-color:#b7e4ef !important;
-  }
-  body.theme-light input::placeholder, body.theme-light textarea::placeholder { color:#8aa9b5 !important; }
-  body.theme-light input[type=range]::-webkit-slider-runnable-track { background:rgba(56,189,214,.24) !important; }
-  body.theme-light input[type=range]::-webkit-slider-thumb { background:#ff9b88 !important; box-shadow:0 0 10px rgba(255,145,126,.25) !important; }
-  body.theme-light input[type=range]::-webkit-slider-thumb:hover { background:#ff806b !important; }
-
-  /* 学習ホーム・科目別コンディション */
-  body.theme-light .evo-card {
-    background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(233,249,253,.96)) !important;
-    border-color:rgba(102,190,213,.28) !important;
-    box-shadow:0 12px 30px rgba(91,174,198,.12) !important;
-  }
-  body.theme-light .evo-glow { box-shadow:0 0 0 1px rgba(56,189,214,.12),0 18px 50px rgba(56,189,214,.08) !important; }
-  body.theme-light .evo-progress { background:#d8f1f7 !important; }
-  body.theme-light .evo-progress>span { background:linear-gradient(90deg,#55c9df,#ff9b88) !important; }
-  body.theme-light .evo-chip { background:rgba(56,189,214,.09) !important; border-color:rgba(56,189,214,.22) !important; color:#319bb1 !important; }
-
-  /* 暗記カードの進行状況・枚数選択背景を白水色系へ */
-  body.theme-light #fc-step-2-dashboard > div:first-of-type,
-  body.theme-light #fc-step-3-time > div.p-6,
-  body.theme-light #fc-step-3-count > div.p-6,
-  body.theme-light #fc-step-4-play #fc-completed-msg {
-    background:linear-gradient(145deg,#ffffff,#eafaff) !important;
-    border-color:rgba(56,189,214,.25) !important;
-  }
-  body.theme-light #fc-step-2-dashboard .bg-slate-950 { background:#dff6fb !important; }
-  body.theme-light #flashcard-back { background:linear-gradient(145deg,#f7fdff,#e6f8fc) !important; border-color:rgba(255,145,126,.40) !important; }
-
-  /* ライトテーマ切替ボタン */
-  #theme-toggle-button { transition:all .2s ease; }
-  body.theme-light #theme-toggle-button { background:rgba(255,255,255,.88) !important; border-color:rgba(56,189,214,.35) !important; color:#328da2 !important; box-shadow:0 8px 24px rgba(56,189,214,.12) !important; }
-</style>
-
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative selection:bg-amber-500/30 selection:text-amber-200">
-
-  <!-- テーマ切替 -->
-  <div class="fixed top-4 right-4 sm:top-6 sm:right-6 z-40">
-    <button id="theme-toggle-button" onclick="toggleTheme()" class="px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white transition backdrop-blur-md shadow-lg text-[11px] font-medium" aria-label="ダークモードとホワイトモードを切り替える">
-      <span id="theme-toggle-icon">☀️</span><span id="theme-toggle-text">ホワイト</span>
-    </button>
-  </div>
 
   <!-- 左上 ハンバーガーボタン -->
   <div class="fixed top-4 left-4 sm:top-6 sm:left-6 z-40">
@@ -442,7 +337,7 @@
           <h2 class="serif-title text-xl text-slate-100 mt-1">学習ホーム</h2>
           <p class="text-[11px] text-slate-400 mt-1">現在の学習状況を確認できます。</p>
           <button onclick="showSubjectScreen()" class="w-full mt-3 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition">
-            科目一覧へ
+            科目一覧
           </button>
         </div>
 
@@ -567,7 +462,7 @@
 
                 <!-- メインアクションボタン -->
                 <button id="fc-go-step3-btn" onclick="goToFlashcardTimeSetting()" class="w-full py-3.5 bg-gradient-to-r from-amber-700 via-amber-600 to-amber-500 hover:from-amber-600 hover:to-amber-400 disabled:from-slate-800 disabled:to-slate-900 disabled:text-slate-600 disabled:border-slate-800 disabled:cursor-not-allowed text-amber-50 rounded-xl text-xs font-semibold transition duration-200 transform active:scale-95 shadow-[0_4px_15px_rgba(217,119,6,0.3)] border border-amber-400/30 tracking-widest flex items-center justify-center gap-2">
-                  <span>学習条件を設定する</span>
+                  <span>学習条件を設定</span>
                   <span>→</span>
                 </button>
               </div>
@@ -1076,9 +971,9 @@
             <div class="text-4xl font-bold text-amber-500 font-mono"><span id="slider-count-display">10</span> <span class="text-sm font-normal text-slate-500">問</span></div>
           </div>
           <div class="px-2">
-            <input type="range" id="quiz-count-slider" min="10" max="30" step="10" value="10" oninput="updateSliderValue(this.value)" class="w-full">
+            <input type="range" id="quiz-count-slider" min="5" max="30" step="5" value="10" oninput="updateSliderValue(this.value)" class="w-full">
             <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
-              <span>10問</span><span>20問</span><span>30問</span>
+              <span>5問</span><span>10問</span><span>15問</span><span>20問</span><span>25問</span><span>30問</span>
             </div>
           </div>
           <label class="flex items-center justify-center gap-2 text-xs text-slate-300 cursor-pointer">
@@ -1111,16 +1006,16 @@
             <div class="text-4xl font-bold text-amber-500 font-mono"><span id="slider-count-display-deprecated">10</span> <span class="text-sm font-normal text-slate-500">問</span></div>
           </div>
           <div class="px-2">
-            <input type="range" id="quiz-count-slider-deprecated" min="10" max="30" step="10" value="10" oninput="updateSliderValue(this.value)" class="w-full">
+            <input type="range" id="quiz-count-slider-deprecated" min="5" max="30" step="5" value="10" oninput="updateSliderValue(this.value)" class="w-full">
             <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
-              <span>10問</span><span>20問</span><span>30問</span>
+              <span>5問</span><span>10問</span><span>15問</span><span>20問</span><span>25問</span><span>30問</span>
             </div>
           </div>
         </div>
 
         <div id="highscore-badge" class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs flex justify-between items-center max-w-xs mx-auto">
           <span class="text-slate-400 font-light flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.8１.588-1.8１h3.46１a1 １ ０ ００.９５１-.６９l１.０７-３.２９２z"/></svg>
             最高記録:
           </span>
           <span id="start-screen-highscore" class="font-bold text-amber-400">未挑戦</span>
@@ -1478,7 +1373,7 @@
       </div>
 
       <button onclick="resetAllDataToDefault()" class="w-full py-2 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/50 text-[11px] rounded-lg transition flex items-center justify-center gap-1.5 font-light">
-        <span>平均正答率データをリセット</span>
+        <span>平均正答率をリセット</span>
       </button>
 
       <button onclick="closeAdminModal()" class="w-full py-2.5 bg-slate-800 text-slate-300 rounded-lg text-xs hover:bg-slate-700 transition">閉じる</button>
@@ -4879,25 +4774,5 @@
       showSubjectScreen();
     }
   </script>
-<script id="theme-switch-script">
-  (function(){
-    const savedTheme = localStorage.getItem('nurse_plus_theme');
-    if (savedTheme === 'light') document.body.classList.add('theme-light');
-    function updateThemeButton(){
-      const light = document.body.classList.contains('theme-light');
-      const icon = document.getElementById('theme-toggle-icon');
-      const text = document.getElementById('theme-toggle-text');
-      if(icon) icon.textContent = light ? '🌙' : '☀️';
-      if(text) text.textContent = light ? 'ダーク' : 'ホワイト';
-    }
-    window.toggleTheme = function(){
-      const light = document.body.classList.toggle('theme-light');
-      localStorage.setItem('nurse_plus_theme', light ? 'light' : 'dark');
-      updateThemeButton();
-    };
-    window.addEventListener('DOMContentLoaded', updateThemeButton);
-  })();
-</script>
-
 </body>
 </html>
