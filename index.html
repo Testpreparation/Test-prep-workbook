@@ -279,163 +279,112 @@
   @media(max-width:480px){.evo-grid{grid-template-columns:1fr}}
 </style>
 
-  <style id="theme-mode-css">
-    /* ==============================
-       Theme switch: Dark / Aqua Light
-       ※既存の機能・レイアウトは変更せず、色とテーマだけを切替
-       ============================== */
-    body.light-mode {
-      background: linear-gradient(180deg, #f0fbff 0%, #eaf8fc 48%, #f8fdff 100%) !important;
-      color: #35556a !important;
-    }
-    body.light-mode::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: -1;
-      background: radial-gradient(circle at 15% 10%, rgba(125,211,252,.18), transparent 34%), radial-gradient(circle at 85% 85%, rgba(186,230,253,.22), transparent 38%);
-    }
-    body.light-mode .glass-card {
-      background: rgba(255,255,255,.88) !important;
-      border-color: rgba(125,211,252,.38) !important;
-      box-shadow: 0 18px 50px rgba(56,189,248,.10) !important;
-    }
-    body.light-mode .card-item {
-      background: rgba(255,255,255,.78) !important;
-      border-color: rgba(125,211,252,.42) !important;
-      color: #35556a !important;
-    }
-    body.light-mode .card-item:hover:not(:disabled) {
-      background: #f0fbff !important;
-      border-color: rgba(56,189,248,.55) !important;
-    }
-    body.light-mode .evo-card {
-      background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(240,249,255,.94)) !important;
-      border-color: rgba(125,211,252,.42) !important;
-      box-shadow: 0 12px 30px rgba(56,189,248,.10) !important;
-    }
-    body.light-mode .evo-progress {
-      background: #dff4fb !important;
-    }
-    body.light-mode .evo-progress > span {
-      background: linear-gradient(90deg, #38bdf8, #67e8f9) !important;
-    }
-    body.light-mode .evo-chip {
-      background: rgba(56,189,248,.10) !important;
-      border-color: rgba(56,189,248,.25) !important;
-      color: #0891b2 !important;
-    }
+<style id="theme-switch-css">
+  /* ===== テーマ切替：ダークは既存デザインを維持、ライトのみ水色系に上書き ===== */
+  body.theme-light {
+    background: linear-gradient(135deg, #f0fbff 0%, #e6f7fc 48%, #f7fcff 100%) !important;
+    color: #36566b !important;
+  }
+  body.theme-light .glass-card {
+    background: rgba(255,255,255,.88) !important;
+    border-color: rgba(125,211,232,.34) !important;
+    box-shadow: 0 18px 45px rgba(91,174,198,.13) !important;
+  }
+  body.theme-light .card-item {
+    background: rgba(255,255,255,.78) !important;
+    border-color: rgba(125,211,232,.30) !important;
+  }
+  body.theme-light .card-item:hover:not(:disabled) {
+    background: #f2fcff !important;
+    border-color: rgba(56,189,214,.55) !important;
+  }
+  body.theme-light .flashcard-paper {
+    background: linear-gradient(145deg,#ffffff,#eafaff) !important;
+    background-image: radial-gradient(circle at 50% 50%, #f8fdff 0%, #e5f8fd 100%) !important;
+    box-shadow: inset 0 0 0 1px rgba(56,189,214,.18), 0 16px 32px -8px rgba(67,142,166,.22) !important;
+  }
+  body.theme-light .flashcard-hole { background:#dff6fc !important; border-color:#67c9df !important; box-shadow:inset 0 2px 4px rgba(63,145,166,.18) !important; }
+  body.theme-light .flashcard-ring-wire { border-color:#76bfd0 !important; box-shadow:0 4px 6px rgba(63,145,166,.18) !important; }
+  body.theme-light .custom-scrollbar::-webkit-scrollbar-track { background:rgba(186,230,242,.30) !important; }
+  body.theme-light .custom-scrollbar::-webkit-scrollbar-thumb { background:#a9dce9 !important; border-color:rgba(255,255,255,.8) !important; }
+  body.theme-light .custom-scrollbar::-webkit-scrollbar-thumb:hover { background:#7dd3e8 !important; }
+  body.theme-light .custom-scrollbar { scrollbar-color:#a9dce9 rgba(186,230,242,.30) !important; }
 
-    /* Dark slate → soft aqua/white */
-    body.light-mode [class*="bg-slate-"] { background-color: #f7fcff !important; background-image: none !important; }
-    body.light-mode [class*="bg-slate-900"] { background-color: #eefaff !important; }
-    body.light-mode [class*="bg-slate-800"] { background-color: #e4f6fb !important; }
-    body.light-mode [class*="bg-slate-700"] { background-color: #d8f1f8 !important; }
-    body.light-mode [class*="bg-slate-950"] { background-color: #eaf8fc !important; }
-    body.light-mode [class*="hover:bg-slate-"]:hover { background-color: #dff5fb !important; }
-    body.light-mode [class*="text-slate-"] { color: #496b7e !important; }
-    body.light-mode [class*="text-slate-100"],
-    body.light-mode [class*="text-slate-200"] { color: #24485d !important; }
-    body.light-mode [class*="text-slate-300"] { color: #3d6073 !important; }
-    body.light-mode [class*="text-slate-400"] { color: #5f7f90 !important; }
-    body.light-mode [class*="text-slate-500"],
-    body.light-mode [class*="text-slate-600"] { color: #71909e !important; }
-    body.light-mode [class*="border-slate-"] { border-color: rgba(125,211,252,.38) !important; }
-    body.light-mode [class*="hover:border-slate-"]:hover { border-color: rgba(56,189,248,.55) !important; }
+  /* Tailwindの既存カラーをライトテーマへ統一 */
+  body.theme-light [class*="bg-slate"] { background-color:rgba(255,255,255,.72) !important; }
+  body.theme-light [class*="bg-slate-950"] { background-color:#eefaff !important; }
+  body.theme-light [class*="bg-slate-900"] { background-color:#f5fcff !important; }
+  body.theme-light [class*="bg-slate-800"] { background-color:#e7f8fc !important; }
+  body.theme-light [class*="bg-slate-700"] { background-color:#d9f1f7 !important; }
+  body.theme-light [class*="text-slate-100"], body.theme-light [class*="text-slate-200"] { color:#274b61 !important; }
+  body.theme-light [class*="text-slate-300"] { color:#41677b !important; }
+  body.theme-light [class*="text-slate-400"] { color:#5e7e90 !important; }
+  body.theme-light [class*="text-slate-500"] { color:#7393a2 !important; }
+  body.theme-light [class*="text-slate-600"] { color:#89a5b2 !important; }
+  body.theme-light [class*="border-slate"] { border-color:rgba(102,190,213,.28) !important; }
 
-    /* Amber/orange accents → aqua blue, so the whole light theme is coherent */
-    body.light-mode [class*="text-amber-"] { color: #0891b2 !important; }
-    body.light-mode [class*="hover:text-amber-"]:hover { color: #0284c7 !important; }
-    body.light-mode [class*="bg-amber-"] { background-color: rgba(56,189,248,.12) !important; background-image: none !important; }
-    body.light-mode [class*="hover:bg-amber-"]:hover { background-color: rgba(56,189,248,.20) !important; }
-    body.light-mode [class*="border-amber-"] { border-color: rgba(56,189,248,.38) !important; }
-    body.light-mode [class*="hover:border-amber-"]:hover { border-color: rgba(14,165,233,.55) !important; }
-    body.light-mode [class*="from-amber-"],
-    body.light-mode [class*="via-amber-"],
-    body.light-mode [class*="to-amber-"],
-    body.light-mode [class*="from-yellow-"],
-    body.light-mode [class*="to-yellow-"] { background-image: linear-gradient(90deg, #38bdf8, #67e8f9) !important; }
-    body.light-mode [class*="shadow-[0_4px_15px_rgba(217,119,6"],
-    body.light-mode [class*="shadow-[0_4px_15px_rgba(245,158,11"] { box-shadow: 0 4px 15px rgba(56,189,248,.22) !important; }
+  /* 水色ベース＋やわらかいコーラルをアクセントに */
+  body.theme-light [class*="bg-gradient-to-r"] { background-image:linear-gradient(90deg,#62cfe3 0%,#82dbe8 48%,#ff9b88 100%) !important; }
+  body.theme-light [class*="bg-amber"] { background-color:#ff9b88 !important; }
+  body.theme-light [class*="hover:bg-amber"]:hover { background-color:#ff8872 !important; }
+  body.theme-light [class*="text-amber"] { color:#e87360 !important; }
+  body.theme-light [class*="border-amber"] { border-color:rgba(255,145,126,.48) !important; }
+  body.theme-light [class*="bg-emerald"] { background-color:#bcefe3 !important; }
+  body.theme-light [class*="hover:bg-emerald"]:hover { background-color:#a6e6d8 !important; }
+  body.theme-light [class*="text-emerald"] { color:#2f9c8b !important; }
+  body.theme-light [class*="border-emerald"] { border-color:rgba(73,181,160,.40) !important; }
+  body.theme-light [class*="bg-rose"] { background-color:#ffe0e5 !important; }
+  body.theme-light [class*="hover:bg-rose"]:hover { background-color:#ffd0d8 !important; }
+  body.theme-light [class*="text-rose"] { color:#d9687c !important; }
+  body.theme-light [class*="border-rose"] { border-color:rgba(221,112,132,.38) !important; }
+  body.theme-light [class*="bg-red"] { background-color:#ffdfe4 !important; }
+  body.theme-light [class*="text-red"] { color:#d9687c !important; }
+  body.theme-light [class*="border-red"] { border-color:rgba(221,112,132,.38) !important; }
 
-    /* Success green → mint/aqua, danger stays soft pink */
-    body.light-mode [class*="bg-emerald-"] { background-color: rgba(45,212,191,.12) !important; background-image: none !important; }
-    body.light-mode [class*="hover:bg-emerald-"]:hover { background-color: rgba(45,212,191,.20) !important; }
-    body.light-mode [class*="text-emerald-"] { color: #0f9f9a !important; }
-    body.light-mode [class*="border-emerald-"] { border-color: rgba(45,212,191,.35) !important; }
-    body.light-mode [class*="from-emerald-"],
-    body.light-mode [class*="via-emerald-"],
-    body.light-mode [class*="to-emerald-"],
-    body.light-mode [class*="from-teal-"],
-    body.light-mode [class*="via-teal-"],
-    body.light-mode [class*="to-teal-"] { background-image: linear-gradient(90deg, #22c7c0, #67e8d8) !important; }
+  body.theme-light input, body.theme-light textarea, body.theme-light select {
+    background-color:#f9feff !important; color:#31566b !important; border-color:#b7e4ef !important;
+  }
+  body.theme-light input::placeholder, body.theme-light textarea::placeholder { color:#8aa9b5 !important; }
+  body.theme-light input[type=range]::-webkit-slider-runnable-track { background:rgba(56,189,214,.24) !important; }
+  body.theme-light input[type=range]::-webkit-slider-thumb { background:#ff9b88 !important; box-shadow:0 0 10px rgba(255,145,126,.25) !important; }
+  body.theme-light input[type=range]::-webkit-slider-thumb:hover { background:#ff806b !important; }
 
-    /* Flashcard surfaces */
-    body.light-mode .flashcard-paper {
-      background: #ffffff !important;
-      background-image: radial-gradient(circle at 50% 50%, #f7fdff 0%, #eaf8fc 100%) !important;
-      box-shadow: inset 0 0 0 1px rgba(56,189,248,.18), 0 16px 32px -8px rgba(56,189,248,.16) !important;
-    }
-    body.light-mode .flashcard-hole { background: #dff5fb !important; border-color: #7dd3fc !important; box-shadow: inset 0 2px 4px rgba(14,116,144,.12) !important; }
-    body.light-mode .flashcard-ring-wire { border-color: #67c9e8 !important; box-shadow: 0 4px 6px rgba(56,189,248,.16) !important; }
+  /* 学習ホーム・科目別コンディション */
+  body.theme-light .evo-card {
+    background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(233,249,253,.96)) !important;
+    border-color:rgba(102,190,213,.28) !important;
+    box-shadow:0 12px 30px rgba(91,174,198,.12) !important;
+  }
+  body.theme-light .evo-glow { box-shadow:0 0 0 1px rgba(56,189,214,.12),0 18px 50px rgba(56,189,214,.08) !important; }
+  body.theme-light .evo-progress { background:#d8f1f7 !important; }
+  body.theme-light .evo-progress>span { background:linear-gradient(90deg,#55c9df,#ff9b88) !important; }
+  body.theme-light .evo-chip { background:rgba(56,189,214,.09) !important; border-color:rgba(56,189,214,.22) !important; color:#319bb1 !important; }
 
-    /* Progress/status card: no black feeling in light mode */
-    body.light-mode #fc-dash-progress-bar { background: linear-gradient(90deg, #38bdf8, #67e8f9) !important; box-shadow: 0 0 12px rgba(56,189,248,.35) !important; }
-    body.light-mode #fc-dash-progress-bar + * { color: inherit; }
-    body.light-mode #fc-step-2-dashboard .bg-gradient-to-br { background: linear-gradient(145deg, #ffffff, #eefaff) !important; }
-    body.light-mode #fc-step-2-dashboard [class*="bg-slate-950"] { background-color: #dff5fb !important; }
+  /* 暗記カードの進行状況・枚数選択背景を白水色系へ */
+  body.theme-light #fc-step-2-dashboard > div:first-of-type,
+  body.theme-light #fc-step-3-time > div.p-6,
+  body.theme-light #fc-step-3-count > div.p-6,
+  body.theme-light #fc-step-4-play #fc-completed-msg {
+    background:linear-gradient(145deg,#ffffff,#eafaff) !important;
+    border-color:rgba(56,189,214,.25) !important;
+  }
+  body.theme-light #fc-step-2-dashboard .bg-slate-950 { background:#dff6fb !important; }
+  body.theme-light #flashcard-back { background:linear-gradient(145deg,#f7fdff,#e6f8fc) !important; border-color:rgba(255,145,126,.40) !important; }
 
-    /* Slider / question count / time setting */
-    body.light-mode input[type=range]::-webkit-slider-runnable-track { background: rgba(56,189,248,.22) !important; }
-    body.light-mode input[type=range]::-webkit-slider-thumb { background: #38bdf8 !important; box-shadow: 0 0 10px rgba(56,189,248,.25) !important; }
-    body.light-mode input[type=range]::-webkit-slider-thumb:hover { background: #0ea5e9 !important; }
-    body.light-mode input[type=range]::-moz-range-track { background: rgba(56,189,248,.22) !important; }
-    body.light-mode input[type=range]::-moz-range-thumb { background: #38bdf8 !important; border: 0; }
-
-    /* Theme toggle */
-    #theme-toggle {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      z-index: 60;
-      display: inline-flex;
-      align-items: center;
-      gap: .45rem;
-      padding: .55rem .75rem;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,.35);
-      background: rgba(15,23,42,.82);
-      color: #cbd5e1;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 8px 24px rgba(0,0,0,.18);
-      font-size: 11px;
-      font-weight: 600;
-      transition: all .2s ease;
-      cursor: pointer;
-    }
-    #theme-toggle:hover { transform: translateY(-1px); }
-    body.light-mode #theme-toggle {
-      background: rgba(255,255,255,.88);
-      border-color: rgba(56,189,248,.35);
-      color: #087f9c;
-      box-shadow: 0 8px 24px rgba(56,189,248,.12);
-    }
-    #theme-toggle .theme-icon { font-size: 14px; line-height: 1; }
-
-    @media (max-width: 640px) {
-      #theme-toggle { top: .75rem; right: .75rem; padding: .5rem .65rem; }
-    }
-  </style>
+  /* ライトテーマ切替ボタン */
+  #theme-toggle-button { transition:all .2s ease; }
+  body.theme-light #theme-toggle-button { background:rgba(255,255,255,.88) !important; border-color:rgba(56,189,214,.35) !important; color:#328da2 !important; box-shadow:0 8px 24px rgba(56,189,214,.12) !important; }
+</style>
 
 </head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative selection:bg-amber-500/30 selection:text-amber-200">
 
-  <button id="theme-toggle" type="button" onclick="toggleThemeMode()" aria-label="テーマを切り替える">
-    <span class="theme-icon" id="theme-toggle-icon">☀️</span>
-    <span id="theme-toggle-label">ライト</span>
-  </button>
-
-  <body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative selection:bg-amber-500/30 selection:text-amber-200">
+  <!-- テーマ切替 -->
+  <div class="fixed top-4 right-4 sm:top-6 sm:right-6 z-40">
+    <button id="theme-toggle-button" onclick="toggleTheme()" class="px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white transition backdrop-blur-md shadow-lg text-[11px] font-medium" aria-label="ダークモードとホワイトモードを切り替える">
+      <span id="theme-toggle-icon">☀️</span><span id="theme-toggle-text">ホワイト</span>
+    </button>
+  </div>
 
   <!-- 左上 ハンバーガーボタン -->
   <div class="fixed top-4 left-4 sm:top-6 sm:left-6 z-40">
@@ -4930,27 +4879,25 @@
       showSubjectScreen();
     }
   </script>
-
-  <script id="theme-mode-js">
-    function applyThemeMode(mode) {
-      const light = mode === 'light';
-      document.body.classList.toggle('light-mode', light);
-      document.documentElement.style.colorScheme = light ? 'light' : 'dark';
+<script id="theme-switch-script">
+  (function(){
+    const savedTheme = localStorage.getItem('nurse_plus_theme');
+    if (savedTheme === 'light') document.body.classList.add('theme-light');
+    function updateThemeButton(){
+      const light = document.body.classList.contains('theme-light');
       const icon = document.getElementById('theme-toggle-icon');
-      const label = document.getElementById('theme-toggle-label');
-      if (icon) icon.textContent = light ? '🌙' : '☀️';
-      if (label) label.textContent = light ? 'ダーク' : 'ライト';
+      const text = document.getElementById('theme-toggle-text');
+      if(icon) icon.textContent = light ? '🌙' : '☀️';
+      if(text) text.textContent = light ? 'ダーク' : 'ホワイト';
     }
-    function toggleThemeMode() {
-      const next = document.body.classList.contains('light-mode') ? 'dark' : 'light';
-      localStorage.setItem('nurse_theme_mode', next);
-      applyThemeMode(next);
-    }
-    (function initThemeMode() {
-      const saved = localStorage.getItem('nurse_theme_mode');
-      applyThemeMode(saved === 'light' ? 'light' : 'dark');
-    })();
-  </script>
+    window.toggleTheme = function(){
+      const light = document.body.classList.toggle('theme-light');
+      localStorage.setItem('nurse_plus_theme', light ? 'light' : 'dark');
+      updateThemeButton();
+    };
+    window.addEventListener('DOMContentLoaded', updateThemeButton);
+  })();
+</script>
 
 </body>
 </html>
