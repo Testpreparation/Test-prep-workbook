@@ -278,8 +278,164 @@
   .evo-chip{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .55rem;border-radius:999px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.18);color:#fbbf24;font-size:10px}
   @media(max-width:480px){.evo-grid{grid-template-columns:1fr}}
 </style>
+
+  <style id="theme-mode-css">
+    /* ==============================
+       Theme switch: Dark / Aqua Light
+       ※既存の機能・レイアウトは変更せず、色とテーマだけを切替
+       ============================== */
+    body.light-mode {
+      background: linear-gradient(180deg, #f0fbff 0%, #eaf8fc 48%, #f8fdff 100%) !important;
+      color: #35556a !important;
+    }
+    body.light-mode::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      background: radial-gradient(circle at 15% 10%, rgba(125,211,252,.18), transparent 34%), radial-gradient(circle at 85% 85%, rgba(186,230,253,.22), transparent 38%);
+    }
+    body.light-mode .glass-card {
+      background: rgba(255,255,255,.88) !important;
+      border-color: rgba(125,211,252,.38) !important;
+      box-shadow: 0 18px 50px rgba(56,189,248,.10) !important;
+    }
+    body.light-mode .card-item {
+      background: rgba(255,255,255,.78) !important;
+      border-color: rgba(125,211,252,.42) !important;
+      color: #35556a !important;
+    }
+    body.light-mode .card-item:hover:not(:disabled) {
+      background: #f0fbff !important;
+      border-color: rgba(56,189,248,.55) !important;
+    }
+    body.light-mode .evo-card {
+      background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(240,249,255,.94)) !important;
+      border-color: rgba(125,211,252,.42) !important;
+      box-shadow: 0 12px 30px rgba(56,189,248,.10) !important;
+    }
+    body.light-mode .evo-progress {
+      background: #dff4fb !important;
+    }
+    body.light-mode .evo-progress > span {
+      background: linear-gradient(90deg, #38bdf8, #67e8f9) !important;
+    }
+    body.light-mode .evo-chip {
+      background: rgba(56,189,248,.10) !important;
+      border-color: rgba(56,189,248,.25) !important;
+      color: #0891b2 !important;
+    }
+
+    /* Dark slate → soft aqua/white */
+    body.light-mode [class*="bg-slate-"] { background-color: #f7fcff !important; background-image: none !important; }
+    body.light-mode [class*="bg-slate-900"] { background-color: #eefaff !important; }
+    body.light-mode [class*="bg-slate-800"] { background-color: #e4f6fb !important; }
+    body.light-mode [class*="bg-slate-700"] { background-color: #d8f1f8 !important; }
+    body.light-mode [class*="bg-slate-950"] { background-color: #eaf8fc !important; }
+    body.light-mode [class*="hover:bg-slate-"]:hover { background-color: #dff5fb !important; }
+    body.light-mode [class*="text-slate-"] { color: #496b7e !important; }
+    body.light-mode [class*="text-slate-100"],
+    body.light-mode [class*="text-slate-200"] { color: #24485d !important; }
+    body.light-mode [class*="text-slate-300"] { color: #3d6073 !important; }
+    body.light-mode [class*="text-slate-400"] { color: #5f7f90 !important; }
+    body.light-mode [class*="text-slate-500"],
+    body.light-mode [class*="text-slate-600"] { color: #71909e !important; }
+    body.light-mode [class*="border-slate-"] { border-color: rgba(125,211,252,.38) !important; }
+    body.light-mode [class*="hover:border-slate-"]:hover { border-color: rgba(56,189,248,.55) !important; }
+
+    /* Amber/orange accents → aqua blue, so the whole light theme is coherent */
+    body.light-mode [class*="text-amber-"] { color: #0891b2 !important; }
+    body.light-mode [class*="hover:text-amber-"]:hover { color: #0284c7 !important; }
+    body.light-mode [class*="bg-amber-"] { background-color: rgba(56,189,248,.12) !important; background-image: none !important; }
+    body.light-mode [class*="hover:bg-amber-"]:hover { background-color: rgba(56,189,248,.20) !important; }
+    body.light-mode [class*="border-amber-"] { border-color: rgba(56,189,248,.38) !important; }
+    body.light-mode [class*="hover:border-amber-"]:hover { border-color: rgba(14,165,233,.55) !important; }
+    body.light-mode [class*="from-amber-"],
+    body.light-mode [class*="via-amber-"],
+    body.light-mode [class*="to-amber-"],
+    body.light-mode [class*="from-yellow-"],
+    body.light-mode [class*="to-yellow-"] { background-image: linear-gradient(90deg, #38bdf8, #67e8f9) !important; }
+    body.light-mode [class*="shadow-[0_4px_15px_rgba(217,119,6"],
+    body.light-mode [class*="shadow-[0_4px_15px_rgba(245,158,11"] { box-shadow: 0 4px 15px rgba(56,189,248,.22) !important; }
+
+    /* Success green → mint/aqua, danger stays soft pink */
+    body.light-mode [class*="bg-emerald-"] { background-color: rgba(45,212,191,.12) !important; background-image: none !important; }
+    body.light-mode [class*="hover:bg-emerald-"]:hover { background-color: rgba(45,212,191,.20) !important; }
+    body.light-mode [class*="text-emerald-"] { color: #0f9f9a !important; }
+    body.light-mode [class*="border-emerald-"] { border-color: rgba(45,212,191,.35) !important; }
+    body.light-mode [class*="from-emerald-"],
+    body.light-mode [class*="via-emerald-"],
+    body.light-mode [class*="to-emerald-"],
+    body.light-mode [class*="from-teal-"],
+    body.light-mode [class*="via-teal-"],
+    body.light-mode [class*="to-teal-"] { background-image: linear-gradient(90deg, #22c7c0, #67e8d8) !important; }
+
+    /* Flashcard surfaces */
+    body.light-mode .flashcard-paper {
+      background: #ffffff !important;
+      background-image: radial-gradient(circle at 50% 50%, #f7fdff 0%, #eaf8fc 100%) !important;
+      box-shadow: inset 0 0 0 1px rgba(56,189,248,.18), 0 16px 32px -8px rgba(56,189,248,.16) !important;
+    }
+    body.light-mode .flashcard-hole { background: #dff5fb !important; border-color: #7dd3fc !important; box-shadow: inset 0 2px 4px rgba(14,116,144,.12) !important; }
+    body.light-mode .flashcard-ring-wire { border-color: #67c9e8 !important; box-shadow: 0 4px 6px rgba(56,189,248,.16) !important; }
+
+    /* Progress/status card: no black feeling in light mode */
+    body.light-mode #fc-dash-progress-bar { background: linear-gradient(90deg, #38bdf8, #67e8f9) !important; box-shadow: 0 0 12px rgba(56,189,248,.35) !important; }
+    body.light-mode #fc-dash-progress-bar + * { color: inherit; }
+    body.light-mode #fc-step-2-dashboard .bg-gradient-to-br { background: linear-gradient(145deg, #ffffff, #eefaff) !important; }
+    body.light-mode #fc-step-2-dashboard [class*="bg-slate-950"] { background-color: #dff5fb !important; }
+
+    /* Slider / question count / time setting */
+    body.light-mode input[type=range]::-webkit-slider-runnable-track { background: rgba(56,189,248,.22) !important; }
+    body.light-mode input[type=range]::-webkit-slider-thumb { background: #38bdf8 !important; box-shadow: 0 0 10px rgba(56,189,248,.25) !important; }
+    body.light-mode input[type=range]::-webkit-slider-thumb:hover { background: #0ea5e9 !important; }
+    body.light-mode input[type=range]::-moz-range-track { background: rgba(56,189,248,.22) !important; }
+    body.light-mode input[type=range]::-moz-range-thumb { background: #38bdf8 !important; border: 0; }
+
+    /* Theme toggle */
+    #theme-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 60;
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      padding: .55rem .75rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,.35);
+      background: rgba(15,23,42,.82);
+      color: #cbd5e1;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 24px rgba(0,0,0,.18);
+      font-size: 11px;
+      font-weight: 600;
+      transition: all .2s ease;
+      cursor: pointer;
+    }
+    #theme-toggle:hover { transform: translateY(-1px); }
+    body.light-mode #theme-toggle {
+      background: rgba(255,255,255,.88);
+      border-color: rgba(56,189,248,.35);
+      color: #087f9c;
+      box-shadow: 0 8px 24px rgba(56,189,248,.12);
+    }
+    #theme-toggle .theme-icon { font-size: 14px; line-height: 1; }
+
+    @media (max-width: 640px) {
+      #theme-toggle { top: .75rem; right: .75rem; padding: .5rem .65rem; }
+    }
+  </style>
+
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative selection:bg-amber-500/30 selection:text-amber-200">
+
+  <button id="theme-toggle" type="button" onclick="toggleThemeMode()" aria-label="テーマを切り替える">
+    <span class="theme-icon" id="theme-toggle-icon">☀️</span>
+    <span id="theme-toggle-label">ライト</span>
+  </button>
+
+  <body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative selection:bg-amber-500/30 selection:text-amber-200">
 
   <!-- 左上 ハンバーガーボタン -->
   <div class="fixed top-4 left-4 sm:top-6 sm:left-6 z-40">
@@ -4774,5 +4930,27 @@
       showSubjectScreen();
     }
   </script>
+
+  <script id="theme-mode-js">
+    function applyThemeMode(mode) {
+      const light = mode === 'light';
+      document.body.classList.toggle('light-mode', light);
+      document.documentElement.style.colorScheme = light ? 'light' : 'dark';
+      const icon = document.getElementById('theme-toggle-icon');
+      const label = document.getElementById('theme-toggle-label');
+      if (icon) icon.textContent = light ? '🌙' : '☀️';
+      if (label) label.textContent = light ? 'ダーク' : 'ライト';
+    }
+    function toggleThemeMode() {
+      const next = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+      localStorage.setItem('nurse_theme_mode', next);
+      applyThemeMode(next);
+    }
+    (function initThemeMode() {
+      const saved = localStorage.getItem('nurse_theme_mode');
+      applyThemeMode(saved === 'light' ? 'light' : 'dark');
+    })();
+  </script>
+
 </body>
 </html>
