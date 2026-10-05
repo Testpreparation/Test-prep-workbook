@@ -155,4 +155,9 @@
   window.getPublicHealthNursingExerciseQuestionsAutumn = function () {
     return questions.map(shuffleOptions);
   };
+
+  // 秋学期「練習問題」からも、このJSの問題データを読み込む
+  window.getPublicHealthNursingBasicQuestionsAutumn = function () {
+    return questions.map(shuffleOptions);
+  };
 })();
