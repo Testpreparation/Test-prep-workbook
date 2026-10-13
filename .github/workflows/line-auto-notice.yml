@@ -24,7 +24,6 @@ jobs:
         run: |
           node scripts/line-notice.js
 
-      # 変更された状態ファイル (line-notice-state.json など) を自動でコミット＆プッシュして保持
       - name: Commit & Push changes
         run: |
           git config --global user.name "github-actions[bot]"
