@@ -12,7 +12,30 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - name: Check workflow
+      - name: Check Firebase notices
+        env:
+          FIREBASE_DATABASE_URL: ${{ vars.FIREBASE_DATABASE_URL }}
         run: |
-          echo "Nurse+ LINE自動通知ワークフローが起動しました。"
-          echo "LINE配信はまだ実行していません。"
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          base = os.environ["FIREBASE_DATABASE_URL"].rstrip("/")
+          url = base + "/notices.json"
+
+          request = urllib.request.Request(
+              url,
+              headers={"Accept": "application/json"}
+          )
+
+          with urllib.request.urlopen(request, timeout=20) as response:
+              notices = json.load(response)
+
+          if not isinstance(notices, dict):
+              print("お知らせはまだありません。")
+          else:
+              print("Firebaseのお知らせ取得に成功しました。")
+              print("お知らせ件数:", len(notices))
+          PY
