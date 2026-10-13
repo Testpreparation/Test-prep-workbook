@@ -50,5 +50,13 @@ window.QUIZ_DB.nutrition_exercise_2026_autumn = [
   { id: 47, question: "Stunting、Wasting、Overweightのうち、過剰栄養に該当するのはどれか。", options: ["Stunting", "Wasting", "Overweight", "Malnutrition"], answer: 2 },
   { id: 48, question: "Stunting、Wasting、Overweightのうち、成長が阻害される状態はどれか。", options: ["Stunting", "Wasting", "Overweight", "Malnutrition"], answer: 0 },
   { id: 49, question: "Stunting、Wasting、Overweightのうち、痩せ・消耗が起こる状態はどれか。", options: ["Stunting", "Wasting", "Overweight", "Malnutrition"], answer: 1 },
-  { id: 50, question: "栄養学で扱う内容として正しいものはどれか。", options: ["栄養スクリーニング・アセスメント", "建築構造計算", "プログラミング言語", "天文学"], answer: 0 }
+  { id: 50, question: "栄養学で扱う内容として正しいものはどれか。", options: ["栄養スクリーニング・アセスメント", "建築構造計算", "プログラミング言語", "天文学"], answer: 0 },
+  { id: 51, question: "栄養素と消化酵素の組合せとして、正しいものを選べ。", options: ["炭水化物 － リパーゼ", "蛋白質 － トリプシン", "脂肪 － マルターゼ", "ビタミン － アミノペプチダーゼ"], answer: 1 },
+  { id: 52, question: "膵リパーゼによって消化される栄養素を選べ。", options: ["脂肪", "蛋白質", "炭水化物", "ビタミン"], answer: 0 },
+  { id: 53, question: "食事に由来するトリグリセリドの輸送を主に担うものを選べ。", options: ["HDL", "LDL", "VLDL", "カイロミクロン"], answer: 3 },
+  { id: 54, question: "脂肪の乳化に働く物質を選べ。", options: ["胆汁酸塩", "トリプシン", "ビリルビン"], answer: 0 },
+  { id: 55, question: "小腸で単糖として、そのまま吸収できるものを2つ選べ。", options: ["グルコース", "スクロース", "マルトース", "ラクトース", "ガラクトース"], answer: [0, 4] },
+  { id: 56, question: "小腸で吸収された後、リンパ管を通る栄養素を選べ。", options: ["糖質", "蛋白質", "電解質", "中性脂肪", "水溶性ビタミン"], answer: 3 },
+  { id: 57, question: "大腸の主な吸収対象として正しいものを選べ。", options: ["脂質", "水分", "糖質", "蛋白質"], answer: 1 },
+  { id: 58, question: "脂肪を分解する酵素を選べ。", options: ["ペプシン", "リパーゼ", "マルターゼ", "ラクターゼ"], answer: 1 }
 ];
