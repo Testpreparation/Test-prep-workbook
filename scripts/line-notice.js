@@ -8,12 +8,12 @@ const FIREBASE_DATABASE_URL =
 const LINE_CHANNEL_ACCESS_TOKEN =
   process.env.LINE_CHANNEL_ACCESS_TOKEN;
 
-const MAX_MESSAGE_LENGTH = 5000;
-
 const STATE_FILE = path.join(
   process.cwd(),
   "line-notice-state.json"
 );
+
+const MAX_MESSAGE_LENGTH = 5000;
 
 async function sendLine(text) {
   const response = await fetch(
@@ -37,10 +37,11 @@ async function sendLine(text) {
   );
 
   if (!response.ok) {
-    const errorText = await response.text();
-
     throw new Error(
-      `LINE一斉送信失敗: HTTP ${response.status} ${errorText}`
+      "LINE送信失敗: HTTP " +
+      response.status +
+      " " +
+      await response.text()
     );
   }
 
@@ -69,19 +70,12 @@ function loadState() {
     state = JSON.parse(
       fs.readFileSync(STATE_FILE, "utf8")
     );
-  } catch {
-    throw new Error(
-      "通知履歴を読み取れません。安全のため送信を停止しました。"
-    );
+  } catch (error) {
+    throw new Error("通知履歴のJSONが壊れています。");
   }
 
-  if (
-    !state ||
-    !Array.isArray(state.sentIds)
-  ) {
-    throw new Error(
-      "通知履歴の形式が正しくありません。"
-    );
+  if (!state || !Array.isArray(state.sentIds)) {
+    throw new Error("通知履歴の形式が正しくありません。");
   }
 
   return {
@@ -93,14 +87,14 @@ function loadState() {
 async function main() {
   if (!LINE_CHANNEL_ACCESS_TOKEN) {
     throw new Error(
-      "LINE_CHANNEL_ACCESS_TOKEN が設定されていません。GitHub Secretsを確認してください。"
+      "LINE_CHANNEL_ACCESS_TOKEN が設定されていません。"
     );
   }
 
   console.log("Firebaseのお知らせを確認します。");
 
   const response = await fetch(
-    `${FIREBASE_DATABASE_URL}/notices.json`,
+    FIREBASE_DATABASE_URL + "/notices.json",
     {
       signal: AbortSignal.timeout(20000)
     }
@@ -108,38 +102,24 @@ async function main() {
 
   if (!response.ok) {
     throw new Error(
-      `Firebase取得失敗: HTTP ${response.status} ${await response.text()}`
+      "Firebase取得失敗: HTTP " + response.status
     );
   }
 
   const notices = await response.json();
-
   const state = loadState();
 
-  if (
-    !notices ||
-    typeof notices !== "object" ||
-    Array.isArray(notices)
-  ) {
-    console.log("Firebaseにお知らせがありません。");
+  const entries =
+    notices && typeof notices === "object" && !Array.isArray(notices)
+      ? Object.entries(notices).filter(
+          ([id, notice]) =>
+            id &&
+            notice &&
+            typeof notice === "object" &&
+            !Array.isArray(notice)
+        )
+      : [];
 
-    if (!state.initialized) {
-      state.initialized = true;
-      saveState(state);
-    }
-
-    return;
-  }
-
-  const entries = Object.entries(notices).filter(
-    ([id, notice]) =>
-      id &&
-      notice &&
-      typeof notice === "object" &&
-      !Array.isArray(notice)
-  );
-
-  // 初回は既存のお知らせを送らず、履歴だけ記録する
   if (!state.initialized) {
     state.initialized = true;
     state.sentIds = [
@@ -150,11 +130,7 @@ async function main() {
     ];
 
     saveState(state);
-
-    console.log(
-      "初回初期化が完了しました。既存のお知らせは送信していません。"
-    );
-
+    console.log("初回初期化完了。過去のお知らせは送信しません。");
     return;
   }
 
@@ -169,16 +145,11 @@ async function main() {
     );
 
   if (newNotices.length === 0) {
-    console.log(
-      "新しいお知らせはありません。送信をスキップします。"
-    );
-
+    console.log("新しいお知らせはありません。");
     return;
   }
 
-  console.log(
-    `新しいお知らせが ${newNotices.length} 件あります。`
-  );
+  console.log("新しいお知らせ: " + newNotices.length + "件");
 
   for (const [id, notice] of newNotices) {
     const title = String(
@@ -186,45 +157,28 @@ async function main() {
     );
 
     const content = String(notice.content || "");
-
-    const message = `${title}\n\n${content}`.trim();
+    const message = (title + "\n\n" + content).trim();
 
     if (!message) {
-      console.log(
-        `内容が空のため送信をスキップします: ${id}`
-      );
-
-      state.sentIds.push(id);
-      state.sentIds = [...new Set(state.sentIds)];
-      saveState(state);
-
+      console.log("内容が空のためスキップ: " + id);
       continue;
     }
 
-    console.log(`送信対象のお知らせID: ${id}`);
+    console.log("送信対象ID: " + id);
 
-    // LINE送信が成功するまで送信済みには記録しない
     await sendLine(message);
 
     state.sentIds.push(id);
     state.sentIds = [...new Set(state.sentIds)];
-
     saveState(state);
 
-    console.log(
-      `通知履歴を保存しました: ${id}`
-    );
+    console.log("通知履歴を保存: " + id);
   }
 
-  console.log("すべてのお知らせの処理が完了しました。");
+  console.log("通知処理が完了しました。");
 }
 
 main().catch((error) => {
-  console.error(
-    "LINE通知処理エラー:",
-    error.message
-  );
-
+  console.error("LINE通知エラー:", error.message);
   process.exitCode = 1;
 });
-```
