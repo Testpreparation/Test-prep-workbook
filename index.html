@@ -4031,26 +4031,10 @@
 
 
     let rawData = window.QUIZ_DB[targetDbKey] || [];
-
-if (rawData.length === 0) {
-  alert("該当科目の問題が登録されていません。");
-  return;
-}
-
-// 出題する問題一覧を作成
-if (
-  (currentSubject.hasRounds ||
-   currentSubject.hasNursingModes ||
-   currentSubject.id === 'pathology') &&
-  currentRound !== null
-) {
-  list = rawData.filter(q => q.round == currentRound);
-  if (list.length === 0) list = [...rawData];
-} else {
-  list = [...rawData];
-}
-
-// 病理学の小テスト練習に○・×の選択肢を追加
+      if (rawData.length === 0) {
+        alert("該当科目の問題が登録されていません。");
+        return;
+      }
 if (targetDbKey.startsWith('pathology_practice_')) {
   list = list.map(q => ({
     ...q,
@@ -4058,9 +4042,7 @@ if (targetDbKey.startsWith('pathology_practice_')) {
   }));
 }
 
-// 問題データを整える
 list = list.map(q => normalizeQuestion(q)).filter(Boolean);
-
       if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'keyboard') {
         list = list.map(q => ({
           ...q,
