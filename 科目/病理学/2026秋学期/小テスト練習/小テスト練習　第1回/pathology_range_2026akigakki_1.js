@@ -1,12 +1,13 @@
 // 病理学：2026秋学期・小テスト練習　第1回
 // 循環器の疾患：全37問・各3パターン（合計111問）
 
+
 window.QUIZ_DB = window.QUIZ_DB || {};
 
-window.QUIZ_DB.pathology_range_2026_autumn_round1 =
-  window.QUIZ_DB.pathology_range_2026_autumn_round1 || [];
+window.QUIZ_DB.pathology_practice_2026_autumn_round1 =
+  window.QUIZ_DB.pathology_practice_2026_autumn_round1 || [];
 
-window.QUIZ_DB.pathology_range_2026_autumn_round1.push(
+window.QUIZ_DB.pathology_practice_2026_autumn_round1.push(
   // 1. 成人の心臓重量
   {
     question: "成人の心臓重量は、およそ300g程度である。",
