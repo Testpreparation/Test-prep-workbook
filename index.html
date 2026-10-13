@@ -761,6 +761,39 @@
         </div>
       </div>
 
+      <!-- 病理学 モード選択 -->
+      <div id="screen-pathology-mode-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">病理学 モード選択</span>
+        </div>
+        <div class="space-y-3 pt-2">
+          <button onclick="selectPathologyMode('quiz')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">小テスト</span><span class="text-slate-500 group-hover:text-amber-400">→</span>
+          </button>
+          <button onclick="selectPathologyMode('range')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">小テスト範囲</span><span class="text-slate-500 group-hover:text-amber-400">→</span>
+          </button>
+          <button onclick="selectPathologyMode('exercise')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">演習問題</span><span class="text-slate-500 group-hover:text-amber-400">→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 病理学 回数選択 -->
+      <div id="screen-pathology-round-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showPathologyModeSelectionScreen()" class="text-xs text-amber-500 hover:underline">← モード選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">病理学 回数選択</span>
+        </div>
+        <div id="pathology-round-select-label" class="text-sm text-slate-300 pt-2">回数を選択してください</div>
+        <div class="grid grid-cols-3 gap-3">
+          <button onclick="selectPathologyRound(1)" class="card-item p-4 rounded-xl text-sm">第1回</button>
+          <button onclick="selectPathologyRound(2)" class="card-item p-4 rounded-xl text-sm">第2回</button>
+          <button onclick="selectPathologyRound(3)" class="card-item p-4 rounded-xl text-sm">第3回</button>
+        </div>
+      </div>
+
       <!-- 薬理学 モード選択 -->
       <div id="screen-pharmacology-mode-select" class="hidden space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
@@ -1751,6 +1784,8 @@
     let currentPHNMode = 'basic';
     let currentNursingMode = 'rounds';
     let currentPharmacologyMode = 'exercise';
+    let currentPathologyMode = 'exercise';
+    let currentPathologyRound = null;
     let currentNursingMethod3Mode = 'practice';
     let currentNutritionMode = 'exercise';
     let currentBiochemistryFormat = 'choice';
@@ -3406,6 +3441,8 @@
         showBiochemistryFormatSelectionScreen();
       } else if (currentSubject.id === 'pharmacology') {
         showPharmacologyModeSelectionScreen();
+      } else if (currentSubject.id === 'pathology') {
+        showPathologyModeSelectionScreen();
       } else if (currentSubject.id === 'nursing_method_3') {
         showNursingMethod3ModeSelectionScreen();
       } else if (currentSubject.id === 'nutrition') {
@@ -3462,6 +3499,29 @@
 
     function selectPHNMode(mode) {
       currentPHNMode = mode;
+      showStartScreen();
+    }
+
+    function showPathologyModeSelectionScreen() {
+      hideAllScreens();
+      document.getElementById('screen-pathology-mode-select').classList.remove('hidden');
+    }
+
+    function showPathologyRoundSelectionScreen() {
+      hideAllScreens();
+      const modeLabel = currentPathologyMode === 'quiz' ? '小テスト' : (currentPathologyMode === 'range' ? '小テスト範囲' : '演習問題');
+      document.getElementById('pathology-round-select-label').textContent = `${modeLabel}：回数を選択してください`;
+      document.getElementById('screen-pathology-round-select').classList.remove('hidden');
+    }
+
+    function selectPathologyMode(mode) {
+      currentPathologyMode = mode;
+      showPathologyRoundSelectionScreen();
+    }
+
+    function selectPathologyRound(round) {
+      currentPathologyRound = round;
+      currentRound = round;
       showStartScreen();
     }
 
@@ -3609,6 +3669,14 @@
         titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
         headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
         descEl.textContent = `公衆衛生看護学概論の${modeTitle}が出題されます。`;
+        countContainer.classList.add('hidden');
+
+      } else if (currentSubject.id === 'pathology') {
+        backBtn.onclick = () => showPathologyRoundSelectionScreen();
+        const modeTitle = currentPathologyMode === 'quiz' ? '小テスト' : (currentPathologyMode === 'range' ? '小テスト範囲' : '演習問題');
+        titleEl.textContent = `${currentSubject.name} - 第${currentPathologyRound}回${modeTitle}`;
+        headingEl.textContent = `${currentSubject.name}（第${currentPathologyRound}回${modeTitle}）`;
+        descEl.textContent = `病理学の第${currentPathologyRound}回${modeTitle}が出題されます。`;
         countContainer.classList.add('hidden');
 
       } else if (currentSubject.id === 'pharmacology') {
@@ -3901,6 +3969,8 @@
         targetDbKey = 'biochemistry_fill';
       } else if (currentSubject.id === 'nursing_method_3') {
         targetDbKey = `nursing_method_3_${currentNursingMethod3Mode}_${isAutumn ? '2026_autumn' : '2026_spring'}`;
+      } else if (currentSubject.id === 'pathology') {
+        targetDbKey = `pathology_${currentPathologyMode}_${isAutumn ? '2026_autumn' : '2026_spring'}`;
       } else if (currentSubject.id === 'pharmacology' && currentPharmacologyMode === 'nurse_national_6years') {
         targetDbKey = 'pharmacology_nurse_national_6years';
       }
@@ -3912,7 +3982,7 @@
       }
 
       let list = [];
-      if ((currentSubject.hasRounds || currentSubject.hasNursingModes) && currentRound !== null) {
+      if ((currentSubject.hasRounds || currentSubject.hasNursingModes || currentSubject.id === 'pathology') && currentRound !== null) {
         list = rawData.filter(q => q.round == currentRound);
         if (list.length === 0) list = [...rawData];
       } else {
