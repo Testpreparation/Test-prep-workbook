@@ -1,32 +1,48 @@
+
 name: LINE Auto Notice
 
 on:
   schedule:
-    # 毎日午前9時（JST）に実行 (UTC 0:00)
-    - cron: '0 0 * * *'
+    # 15分ごとに実行
+    - cron: "*/15 * * * *"
   workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: line-auto-notice
+  cancel-in-progress: false
 
 jobs:
   notify:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Run LINE notice script
         env:
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
-        run: |
-          node scripts/line-notice.js
+          LINE_TEST_USER_ID: ${{ secrets.LINE_TEST_USER_ID }}
+        run: node scripts/line-notice.js
 
-      - name: Commit & Push changes
+      - name: Save notification state
+        if: success()
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add line-notice-state.json
-          git diff --staged --quiet || (git commit -m "Chore: Update LINE notice state [skip ci]" && git push)
+          if ! git diff --cached --quiet; then
+            git commit -m "Update LINE notice state [skip ci]"
+            git push
+          fi
