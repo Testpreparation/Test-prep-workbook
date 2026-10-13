@@ -23,6 +23,7 @@
   <!-- Firebase SDK (リアルタイム同期用) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+　<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 
   <!-- データベース用の共通オブジェクトを先に初期化 -->
   <script>
@@ -1319,6 +1320,10 @@
         <div class="en-title text-[10px] text-amber-500/80 tracking-widest uppercase font-semibold">AUTHENTICATION</div>
         <h3 class="serif-title text-lg text-slate-100">管理者認証</h3>
       </div>
+
+
+<input type="email" id="admin-email-input" placeholder="管理者のメールアドレス" class="w-full px-3.5 py-2.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-100 text-sm text-center focus:outline-none focus:border-amber-600">
+      
       <input type="password" id="admin-password-input" placeholder="パスワードを入力" onkeydown="if(event.key==='Enter') submitPassword()" class="w-full px-3.5 py-2.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-100 text-sm text-center tracking-widest focus:outline-none focus:border-amber-600">
       <div id="auth-error-msg" class="text-center text-[11px] text-rose-400 font-light hidden">パスワードが正しくありません</div>
       <div class="flex gap-2.5">
@@ -1568,19 +1573,18 @@
     // =========================================================
     //  1. Firebase 設定
     // =========================================================
-    const firebaseConfig = {
-      databaseURL: "https://test-taisaku-7e433-default-rtdb.firebaseio.com/"
-    };
-
+const firebaseConfig = {
+  apiKey: "AIzaSyDfKIr9n4zMaUO5Z4DyyGvfYbKI7C7MrBs",
+  authDomain: "test-taisaku-7e433.firebaseapp.com",
+  databaseURL: "https://test-taisaku-7e433-default-rtdb.firebaseio.com",
+  projectId: "test-taisaku-7e433",
+  storageBucket: "test-taisaku-7e433.firebasestorage.app",
+  messagingSenderId: "191118511573",
+  appId: "1:191118511573:web:1700a21739c69a0995c15c",
+  measurementId: "G-XDWXS6NDS1"
+};
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    let myPlayerId = sessionStorage.getItem('my_player_id');
-    if (!myPlayerId) {
-      myPlayerId = 'usr_' + Math.random().toString(36).substring(2, 9);
-      sessionStorage.setItem('my_player_id', myPlayerId);
-    }
-
+const db = firebase.database();
     // ---------------------------------------------------------
     // 閲覧人数管理機能
     // ---------------------------------------------------------
@@ -2293,27 +2297,49 @@
     // =========================================================
     //  管理者モーダル制御機能
     // =========================================================
-    function openAuthModal() {
-      document.getElementById('modal-auth').classList.remove('hidden');
-      document.getElementById('admin-password-input').value = '';
-      document.getElementById('auth-error-msg').classList.add('hidden');
-    }
+ 
+function openAuthModal() {
+  document.getElementById('modal-auth').classList.remove('hidden');
+  document.getElementById('admin-email-input').value = '';
+  document.getElementById('admin-password-input').value = '';
 
-    function closeAuthModal() {
-      document.getElementById('modal-auth').classList.add('hidden');
-    }
+  const errorMsg = document.getElementById('auth-error-msg');
+  errorMsg.textContent = 'パスワードが正しくありません';
+  errorMsg.classList.add('hidden');
+}
 
-    function submitPassword() {
-      const pwd = document.getElementById('admin-password-input').value;
-      if (pwd === "2721") {
-        closeAuthModal();
-        openAdminModal();
-      } else {
-        document.getElementById('auth-error-msg').classList.remove('hidden');
-      }
-    }
+function closeAuthModal() {
+  document.getElementById('modal-auth').classList.add('hidden');
+}
 
+function submitPassword() {
+  const email = document.getElementById('admin-email-input').value.trim();
+  const pwd = document.getElementById('admin-password-input').value;
+  const errorMsg = document.getElementById('auth-error-msg');
+
+  errorMsg.classList.add('hidden');
+
+  if (!email || !pwd) {
+    errorMsg.textContent = 'メールアドレスとパスワードを入力してください';
+    errorMsg.classList.remove('hidden');
+    return;
+  }
+
+  firebase.auth().signInWithEmailAndPassword(email, pwd)
+    .then(() => {
+      closeAuthModal();
+      openAdminModal();
+    })
+    .catch((error) => {
+      console.error('管理者認証エラー:', error);
+      errorMsg.textContent = 'メールアドレスまたはパスワードが正しくありません';
+      errorMsg.classList.remove('hidden');
+    });
+}
+
+    
     function openAdminModal() {
+    
       document.getElementById('modal-admin').classList.remove('hidden');
       renderAdminDragList();
     }
