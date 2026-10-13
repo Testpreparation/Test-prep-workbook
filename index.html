@@ -4044,7 +4044,16 @@
         list = [...rawData];
       }
 
-      list = list.map(q => normalizeQuestion(q)).filter(Boolean);
+      if (currentSubject.id === 'pathology' && currentPathologyMode === 'practice') {
+  list = list.map(q => ({
+    ...q,
+    options: (Array.isArray(q.options) && q.options.length > 0)
+      ? q.options
+      : ['○', '×']
+  }));
+}
+
+list = list.map(q => normalizeQuestion(q)).filter(Boolean);
 
       if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'keyboard') {
         list = list.map(q => ({
