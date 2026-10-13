@@ -8,11 +8,9 @@ const FIREBASE_DATABASE_URL =
 const LINE_CHANNEL_ACCESS_TOKEN =
   process.env.LINE_CHANNEL_ACCESS_TOKEN;
 
-const STATE_FILE = path.join(
-  process.cwd(),
-  "line-notice-state.json"
-);
+const LINE_TEST_USER_ID = process.env.LINE_TEST_USER_ID;
 
+const STATE_FILE = path.join(process.cwd(), "line-notice-state.json");
 const MAX_MESSAGE_LENGTH = 4500;
 
 function readState() {
@@ -20,164 +18,97 @@ function readState() {
     return { initialized: false, sentIds: [] };
   }
 
-  try {
-    const parsed = JSON.parse(
-      fs.readFileSync(STATE_FILE, "utf8")
-    );
+  const data = JSON.parse(fs.readFileSync(STATE_FILE, "utf8"));
 
-    return {
-      initialized: parsed.initialized === true,
-      sentIds: Array.isArray(parsed.sentIds)
-        ? parsed.sentIds.filter((id) => typeof id === "string")
-        : []
-    };
-  } catch (error) {
-    throw new Error(
-      "通知状態ファイルを読み取れません。JSONを確認してください。"
-    );
-  }
+  return {
+    initialized: data.initialized === true,
+    sentIds: Array.isArray(data.sentIds) ? data.sentIds : []
+  };
 }
 
 function saveState(state) {
-  fs.writeFileSync(
-    STATE_FILE,
-    JSON.stringify(state, null, 2) + "\n",
-    "utf8"
-  );
+  fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2) + "\n");
 }
 
-async function getFirebaseNotices() {
-  const url = `${FIREBASE_DATABASE_URL}/notices.json`;
-
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      Accept: "application/json"
-    },
+async function getNotices() {
+  const response = await fetch(`${FIREBASE_DATABASE_URL}/notices.json`, {
     signal: AbortSignal.timeout(20000)
   });
 
   if (!response.ok) {
-    throw new Error(
-      `Firebaseの取得に失敗しました: HTTP ${response.status}`
-    );
+    throw new Error(`Firebase取得失敗: HTTP ${response.status}`);
   }
 
   const data = await response.json();
 
-  if (data === null) {
-    return [];
-  }
-
+  if (data === null) return [];
   if (typeof data !== "object" || Array.isArray(data)) {
-    throw new Error("Firebaseのお知らせデータの形式が不正です。");
+    throw new Error("Firebaseのお知らせ形式が不正です。");
   }
 
   return Object.entries(data)
-    .filter(([id, notice]) =>
-      typeof id === "string" &&
-      notice !== null &&
-      typeof notice === "object" &&
-      !Array.isArray(notice)
+    .filter(([, value]) =>
+      value && typeof value === "object" && !Array.isArray(value)
     )
-    .map(([id, notice]) => ({
+    .map(([id, value]) => ({
       id,
-      title: String(notice.title || "Nurse+のお知らせ"),
-      content: String(notice.content || ""),
-      timestamp: notice.timestamp ?? null
+      title: String(value.title || "Nurse+のお知らせ"),
+      content: String(value.content || ""),
+      timestamp: Number(value.timestamp) || 0
     }))
-    .sort((a, b) => {
-      const timeA = Number(a.timestamp) || 0;
-      const timeB = Number(b.timestamp) || 0;
-      return timeA - timeB || a.id.localeCompare(b.id);
-    });
+    .sort((a, b) => a.timestamp - b.timestamp || a.id.localeCompare(b.id));
 }
 
-async function sendLineMessage(text) {
-  const response = await fetch(
-    "https://api.line.me/v2/bot/message/broadcast",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}`
-      },
-      body: JSON.stringify({
-        messages: [
-          {
-            type: "text",
-            text: text.slice(0, MAX_MESSAGE_LENGTH)
-          }
-        ]
-      }),
-      signal: AbortSignal.timeout(20000)
-    }
-  );
+async function sendLine(text) {
+  const response = await fetch("https://api.line.me/v2/bot/message/push", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}`
+    },
+    body: JSON.stringify({
+      to: LINE_TEST_USER_ID,
+      messages: [{ type: "text", text: text.slice(0, MAX_MESSAGE_LENGTH) }]
+    }),
+    signal: AbortSignal.timeout(20000)
+  });
 
   if (!response.ok) {
-    const details = await response.text();
-
-    throw new Error(
-      `LINE送信に失敗しました: HTTP ${response.status} ${details}`
-    );
+    throw new Error(`LINE送信失敗: HTTP ${response.status} ${await response.text()}`);
   }
-}
-
-function formatNotice(notice) {
-  const text =
-    `【Nurse+ 新着お知らせ】\n\n` +
-    `${notice.title}\n\n` +
-    `${notice.content}\n\n` +
-    `Nurse+を確認してください。`;
-
-  return text.slice(0, MAX_MESSAGE_LENGTH);
 }
 
 async function main() {
-  if (!LINE_CHANNEL_ACCESS_TOKEN) {
+  if (!LINE_CHANNEL_ACCESS_TOKEN || !LINE_TEST_USER_ID) {
     throw new Error(
-      "LINE_CHANNEL_ACCESS_TOKEN がGitHub Secretsに設定されていません。"
+      "LINE_CHANNEL_ACCESS_TOKEN と LINE_TEST_USER_ID をGitHub Secretsに設定してください。"
     );
   }
 
-  console.log("Firebaseのお知らせを確認しています。");
-
-  const notices = await getFirebaseNotices();
+  const notices = await getNotices();
   const state = readState();
 
-  console.log(`お知らせ件数: ${notices.length}`);
+  console.log(`Firebaseのお知らせ: ${notices.length}件`);
 
-  // 初回は既存のお知らせを記録するだけにして、
-  // 過去のお知らせが大量送信されるのを防ぐ。
   if (!state.initialized) {
     state.sentIds = notices.map((notice) => notice.id);
     state.initialized = true;
     saveState(state);
-
-    console.log(
-      "初回の基準を記録しました。次回から新着を通知します。"
-    );
+    console.log("初回基準を保存しました。次回から新着を通知します。");
     return;
   }
 
   const sentIds = new Set(state.sentIds);
-  const newNotices = notices.filter(
-    (notice) => !sentIds.has(notice.id)
-  );
 
-  if (newNotices.length === 0) {
-    console.log("新着のお知らせはありません。");
-    return;
-  }
+  for (const notice of notices) {
+    if (sentIds.has(notice.id)) continue;
 
-  console.log(`新着のお知らせ: ${newNotices.length}件`);
+    const message =
+      `【Nurse+ 新着お知らせ】\n\n${notice.title}\n\n` +
+      `${notice.content}\n\nNurse+を確認してください。`;
 
-  for (const notice of newNotices) {
-    const message = formatNotice(notice);
+    await sendLine(message);
 
-    await sendLineMessage(message);
-
-    // 送信成功後にだけ通知済みとして記録する。
     sentIds.add(notice.id);
     state.sentIds = [...sentIds];
     saveState(state);
@@ -185,7 +116,7 @@ async function main() {
     console.log(`通知成功: ${notice.id}`);
   }
 
-  console.log("新着お知らせの通知が完了しました。");
+  console.log("確認完了");
 }
 
 main().catch((error) => {
