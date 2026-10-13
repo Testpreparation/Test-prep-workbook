@@ -1,4 +1,4 @@
-```javascript
+
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -22,7 +22,7 @@ async function sendLine(text) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}`
+        "Authorization": "Bearer " + LINE_CHANNEL_ACCESS_TOKEN
       },
       body: JSON.stringify({
         messages: [
@@ -37,18 +37,63 @@ async function sendLine(text) {
   );
 
   if (!response.ok) {
+    const errorText = await response.text();
+
     throw new Error(
-      `LINE一斉送信失敗: HTTP ${response.status} ${await response.text()}`
+      `LINE一斉送信失敗: HTTP ${response.status} ${errorText}`
     );
   }
 
   console.log("LINE一斉送信に成功しました。");
 }
 
+function saveState(state) {
+  fs.writeFileSync(
+    STATE_FILE,
+    JSON.stringify(state, null, 2) + "\n",
+    "utf8"
+  );
+}
+
+function loadState() {
+  if (!fs.existsSync(STATE_FILE)) {
+    return {
+      initialized: false,
+      sentIds: []
+    };
+  }
+
+  let state;
+
+  try {
+    state = JSON.parse(
+      fs.readFileSync(STATE_FILE, "utf8")
+    );
+  } catch {
+    throw new Error(
+      "通知履歴を読み取れません。安全のため送信を停止しました。"
+    );
+  }
+
+  if (
+    !state ||
+    !Array.isArray(state.sentIds)
+  ) {
+    throw new Error(
+      "通知履歴の形式が正しくありません。"
+    );
+  }
+
+  return {
+    initialized: state.initialized === true,
+    sentIds: [...new Set(state.sentIds)]
+  };
+}
+
 async function main() {
   if (!LINE_CHANNEL_ACCESS_TOKEN) {
     throw new Error(
-      "LINE_CHANNEL_ACCESS_TOKEN が設定されていません。"
+      "LINE_CHANNEL_ACCESS_TOKEN が設定されていません。GitHub Secretsを確認してください。"
     );
   }
 
@@ -69,91 +114,117 @@ async function main() {
 
   const notices = await response.json();
 
-  if (!notices || typeof notices !== "object") {
-    console.log("お知らせがありません。");
+  const state = loadState();
+
+  if (
+    !notices ||
+    typeof notices !== "object" ||
+    Array.isArray(notices)
+  ) {
+    console.log("Firebaseにお知らせがありません。");
+
+    if (!state.initialized) {
+      state.initialized = true;
+      saveState(state);
+    }
+
     return;
   }
 
-  let state = {
-    initialized: false,
-    sentIds: []
-  };
+  const entries = Object.entries(notices).filter(
+    ([id, notice]) =>
+      id &&
+      notice &&
+      typeof notice === "object" &&
+      !Array.isArray(notice)
+  );
 
-  if (fs.existsSync(STATE_FILE)) {
-    try {
-      state = JSON.parse(
-        fs.readFileSync(STATE_FILE, "utf8")
-      );
-    } catch {
-      throw new Error(
-        "通知履歴を読み取れません。安全のため送信を停止しました。"
-      );
-    }
-  }
-
-  if (!state || !Array.isArray(state.sentIds)) {
-    throw new Error("通知履歴の形式が正しくありません。");
-  }
-
-  const entries = Object.entries(notices);
-
-  // 初回は過去のお知らせを送信しない
+  // 初回は既存のお知らせを送らず、履歴だけ記録する
   if (!state.initialized) {
     state.initialized = true;
-    state.sentIds = [...new Set(state.sentIds)];
+    state.sentIds = [
+      ...new Set([
+        ...state.sentIds,
+        ...entries.map(([id]) => id)
+      ])
+    ];
+
     saveState(state);
-    console.log("初期化しました。今回は送信しません。");
+
+    console.log(
+      "初回初期化が完了しました。既存のお知らせは送信していません。"
+    );
+
     return;
   }
 
   const sentIds = new Set(state.sentIds);
 
   const newNotices = entries
-    .filter(([id, notice]) =>
-      !sentIds.has(id) &&
-      notice &&
-      typeof notice === "object"
-    )
-    .sort((a, b) =>
-      (a[1].timestamp || 0) - (b[1].timestamp || 0)
+    .filter(([id]) => !sentIds.has(id))
+    .sort(
+      (a, b) =>
+        Number(a[1].timestamp || 0) -
+        Number(b[1].timestamp || 0)
     );
 
   if (newNotices.length === 0) {
-    console.log("新しいお知らせはありません。");
+    console.log(
+      "新しいお知らせはありません。送信をスキップします。"
+    );
+
     return;
   }
+
+  console.log(
+    `新しいお知らせが ${newNotices.length} 件あります。`
+  );
 
   for (const [id, notice] of newNotices) {
     const title = String(
       notice.title || "Nurse+からのお知らせ"
     );
+
     const content = String(notice.content || "");
-    const message = `${title}\n\n${content}`;
 
-    console.log(`送信対象: ${id}`);
+    const message = `${title}\n\n${content}`.trim();
 
+    if (!message) {
+      console.log(
+        `内容が空のため送信をスキップします: ${id}`
+      );
+
+      state.sentIds.push(id);
+      state.sentIds = [...new Set(state.sentIds)];
+      saveState(state);
+
+      continue;
+    }
+
+    console.log(`送信対象のお知らせID: ${id}`);
+
+    // LINE送信が成功するまで送信済みには記録しない
     await sendLine(message);
 
     state.sentIds.push(id);
     state.sentIds = [...new Set(state.sentIds)];
+
     saveState(state);
 
-    console.log(`送信済みとして記録: ${id}`);
+    console.log(
+      `通知履歴を保存しました: ${id}`
+    );
   }
 
-  console.log("通知処理が完了しました。");
+  console.log("すべてのお知らせの処理が完了しました。");
 }
 
-function saveState(state) {
-  fs.writeFileSync(
-    STATE_FILE,
-    JSON.stringify(state, null, 2) + "\n",
-    "utf8"
+main().catch((error) => {
+  console.error(
+    "LINE通知処理エラー:",
+    error.message
   );
-}
 
-main().catch(error => {
-  console.error("LINE通知エラー:", error.message);
   process.exitCode = 1;
 });
 ```
