@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Check Firebase notices
         env:
-          FIREBASE_DATABASE_URL: ${{ vars.FIREBASE_DATABASE_URL }}
+          FIREBASE_DATABASE_URL: https://test-taisaku-7e433-default-rtdb.firebaseio.com
         run: |
           set -euo pipefail
           python - <<'PY'
