@@ -4035,26 +4035,14 @@
         alert("該当科目の問題が登録されていません。");
         return;
       }
-
-      let list = [];
-      if ((currentSubject.hasRounds || currentSubject.hasNursingModes || currentSubject.id === 'pathology') && currentRound !== null) {
-        list = rawData.filter(q => q.round == currentRound);
-        if (list.length === 0) list = [...rawData];
-      } else {
-        list = [...rawData];
-      }
-
-      if (currentSubject.id === 'pathology' && currentPathologyMode === 'practice') {
+if (targetDbKey.startsWith('pathology_practice_')) {
   list = list.map(q => ({
     ...q,
-    options: (Array.isArray(q.options) && q.options.length > 0)
-      ? q.options
-      : ['○', '×']
+    options: ['○', '×']
   }));
 }
 
 list = list.map(q => normalizeQuestion(q)).filter(Boolean);
-
       if (currentSubject.id === 'biochemistry' && currentBiochemistryFormat === 'keyboard') {
         list = list.map(q => ({
           ...q,
