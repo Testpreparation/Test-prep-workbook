@@ -1,211 +1,192 @@
-
-const fs = require("node:fs");
-const path = require("node:path");
+const fs = require("node");
+const path = require("node");
 
 const FIREBASE_DATABASE_URL =
-  "https://test-taisaku-7e433-default-rtdb.firebaseio.com";
+"https://test-taisaku-7e433-default-rtdb.firebaseio.com";
 
 const LINE_CHANNEL_ACCESS_TOKEN =
-  process.env.LINE_CHANNEL_ACCESS_TOKEN;
+process.env.LINE_CHANNEL_ACCESS_TOKEN;
 
 const LINE_TEST_USER_ID =
-  process.env.LINE_TEST_USER_ID;
+process.env.LINE_TEST_USER_ID;
 
 const LINE_NOTICE_MODE =
-  process.env.LINE_NOTICE_MODE === "production"
-    ? "production"
-    : "test";
+process.env.LINE_NOTICE_MODE === "production"
+? "production"
+: "test";
 
 const STATE_FILE = path.join(
-  process.cwd(),
-  "line-notice-state.json"
+process.cwd(),
+"line-notice-state.json"
 );
 
 const MAX_MESSAGE_LENGTH = 5000;
 
 async function sendLine(text) {
-  const isProduction = LINE_NOTICE_MODE === "production";
+const isProduction = LINE_NOTICE_MODE === "production";
 
-  const endpoint = isProduction
-    ? "https://api.line.me/v2/bot/message/broadcast"
-    : "https://api.line.me/v2/bot/message/push";
+const endpoint = isProduction
+? "https://api.line.me/v2/bot/message/broadcast"
+: "https://api.line.me/v2/bot/message/push";
 
-  const messageData = isProduction
-    ? { messages: [{ type: "text", text: text.slice(0, MAX_MESSAGE_LENGTH) }] }
-    : {
-        to: LINE_TEST_USER_ID,
-        messages: [{ type: "text", text: text.slice(0, MAX_MESSAGE_LENGTH) }]
-      };
+const messageData = isProduction
+? { messages: [{ type: "text", text: text.slice(0, MAX_MESSAGE_LENGTH) }] }
+: {
+to: LINE_TEST_USER_ID,
+messages: [{ type: "text", text: text.slice(0, MAX_MESSAGE_LENGTH) }]
+};
 
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer " + LINE_CHANNEL_ACCESS_TOKEN
-    },
-    body: JSON.stringify(messageData),
-    signal: AbortSignal.timeout(20000)
-  });
+const response = await fetch(endpoint, {
+method: "POST",
+headers: {
+"Content-Type": "application/json",
+"Authorization": "Bearer " + LINE_CHANNEL_ACCESS_TOKEN
+},
+body: JSON.stringify(messageData),
+signal: AbortSignal.timeout(20000)
+});
 
-  if (!response.ok) {
-    throw new Error(
-      "LINE送信失敗: HTTP " +
-      response.status +
-      " " +
-      await response.text()
-    );
-  }
+if (!response.ok) {
+throw new Error(
+"LINE送信失敗: HTTP " +
+response.status +
+" " +
+await response.text()
+);
+}
 
-  console.log(
-    isProduction
-      ? "LINE全員向け送信に成功しました。"
-      : "LINEテスト送信に成功しました（指定した1人のみ）。"
-  );
+console.log(
+isProduction
+? "LINE全員向け送信に成功しました。"
+: "LINEテスト送信に成功しました（指定した1人のみ）。"
+);
 }
 
 function saveState(state) {
-  fs.writeFileSync(
-    STATE_FILE,
-    JSON.stringify(state, null, 2) + "\n",
-    "utf8"
-  );
+fs.writeFileSync(
+STATE_FILE,
+JSON.stringify(state, null, 2) + "\n",
+"utf8"
+);
 }
 
 function loadState() {
-  if (!fs.existsSync(STATE_FILE)) {
-    return {
-      initialized: false,
-      sentIds: []
-    };
-  }
+if (!fs.existsSync(STATE_FILE)) {
+return { initialized: false, sentIds: [] };
+}
 
-  let state;
+let state;
 
-  try {
-    state = JSON.parse(
-      fs.readFileSync(STATE_FILE, "utf8")
-    );
-  } catch {
-    throw new Error("通知履歴のJSONが壊れています。");
-  }
+try {
+state = JSON.parse(fs.readFileSync(STATE_FILE, "utf8"));
+} catch {
+throw new Error("通知履歴のJSONが壊れています。");
+}
 
-  if (!state || !Array.isArray(state.sentIds)) {
-    throw new Error("通知履歴の形式が正しくありません。");
-  }
+if (!state || !Array.isArray(state.sentIds)) {
+throw new Error("通知履歴の形式が正しくありません。");
+}
 
-  return {
-    initialized: state.initialized === true,
-    sentIds: [...new Set(state.sentIds)]
-  };
+return {
+initialized: state.initialized === true,
+sentIds: [...new Set(state.sentIds)]
+};
 }
 
 async function main() {
-  if (!LINE_CHANNEL_ACCESS_TOKEN) {
-    throw new Error(
-      "LINE_CHANNEL_ACCESS_TOKEN が設定されていません。"
-    );
-  }
+if (!LINE_CHANNEL_ACCESS_TOKEN) {
+throw new Error("LINE_CHANNEL_ACCESS_TOKEN が設定されていません。");
+}
 
-  if (
-    LINE_NOTICE_MODE !== "production" &&
-    !LINE_TEST_USER_ID
-  ) {
-    throw new Error(
-      "テスト用のLINE_TEST_USER_IDが設定されていません。送信を中止します。"
-    );
-  }
+if (LINE_NOTICE_MODE === "test" && !LINE_TEST_USER_ID) {
+throw new Error("LINE_TEST_USER_ID が設定されていません。送信を中止します。");
+}
 
-  console.log("通知モード: " + LINE_NOTICE_MODE);
-  console.log("Firebaseのお知らせを確認します。");
+console.log("通知モード: " + LINE_NOTICE_MODE);
 
-  const response = await fetch(
-    FIREBASE_DATABASE_URL + "/notices.json",
-    { signal: AbortSignal.timeout(20000) }
-  );
+// テストモードでは実際のお知らせを処理せず、テスト文だけを送信する
+if (LINE_NOTICE_MODE === "test") {
+await sendLine(
+"【Nurse+ LINEテスト】\n\nテスト通知が正常に届きました。\nこの通知は自分宛てのテスト送信です。"
+);
+console.log("テスト送信のみ実行しました。実際のお知らせ履歴は変更していません。");
+return;
+}
 
-  if (!response.ok) {
-    throw new Error(
-      "Firebase取得失敗: HTTP " + response.status
-    );
-  }
+console.log("Firebaseのお知らせを確認します。");
 
-  const notices = await response.json();
-  const state = loadState();
+const response = await fetch(
+FIREBASE_DATABASE_URL + "/notices.json",
+{ signal: AbortSignal.timeout(20000) }
+);
 
-  const entries =
-    notices && typeof notices === "object" && !Array.isArray(notices)
-      ? Object.entries(notices).filter(
-          ([id, notice]) =>
-            id &&
-            notice &&
-            typeof notice === "object" &&
-            !Array.isArray(notice) &&
-            notice.published === true
-        )
-      : [];
+if (!response.ok) {
+throw new Error("Firebase取得失敗: HTTP " + response.status);
+}
 
-  // 初回は過去のお知らせを登録するだけで、送信しない
-  if (!state.initialized) {
-    state.initialized = true;
-    state.sentIds = [
-      ...new Set([
-        ...state.sentIds,
-        ...entries.map(([id]) => id)
-      ])
-    ];
+const notices = await response.json();
+const state = loadState();
 
-    saveState(state);
-    console.log("初回初期化完了。過去のお知らせは送信しません。");
-    return;
-  }
+const entries =
+notices && typeof notices === "object" && !Array.isArray(notices)
+? Object.entries(notices).filter(
+([id, notice]) =>
+id &&
+notice &&
+typeof notice === "object" &&
+!Array.isArray(notice) &&
+notice.published === true
+)
+: [];
 
-  const sentIds = new Set(state.sentIds);
+if (!state.initialized) {
+state.initialized = true;
+state.sentIds = [
+...new Set([...state.sentIds, ...entries.map(([id]) => id)])
+];
+saveState(state);
+console.log("初回初期化完了。過去のお知らせは送信しません。");
+return;
+}
 
-  const newNotices = entries
-    .filter(([id]) => !sentIds.has(id))
-    .sort(
-      (a, b) =>
-        Number(a[1].timestamp || 0) -
-        Number(b[1].timestamp || 0)
-    );
+const sentIds = new Set(state.sentIds);
 
-  console.log("公開済みのお知らせ数: " + entries.length);
-  console.log("未処理のお知らせ数: " + newNotices.length);
+const newNotices = entries
+.filter(([id]) => !sentIds.has(id))
+.sort(
+(a, b) =>
+Number(a[1].timestamp || 0) -
+Number(b[1].timestamp || 0)
+);
 
-  if (newNotices.length === 0) {
-    console.log("新しいお知らせはありません。");
-    return;
-  }
+console.log("公開済みのお知らせ数: " + entries.length);
+console.log("未処理のお知らせ数: " + newNotices.length);
 
-  for (const [id, notice] of newNotices) {
-    const title = String(
-      notice.title || "Nurse+からのお知らせ"
-    );
+for (const [id, notice] of newNotices) {
+const title = String(notice.title || "Nurse+からのお知らせ");
+const content = String(notice.content || "");
+const message = (title + "\n\n" + content).trim();
 
-    const content = String(notice.content || "");
-    const message = (title + "\n\n" + content).trim();
+if (!content.trim()) {
+  console.log("本文が空のため送信しません: " + id);
+  continue;
+}
 
-    if (!content.trim()) {
-      console.log("本文が空のため送信しません: " + id);
-      continue;
-    }
+console.log("処理対象ID: " + id);
+await sendLine(message);
 
-    console.log("処理対象ID: " + id);
+state.sentIds.push(id);
+state.sentIds = [...new Set(state.sentIds)];
+saveState(state);
 
-    // LINE送信が成功した後にのみ処理済みとして保存する
-    await sendLine(message);
+console.log("処理済みIDを保存しました: " + id);
 
-    state.sentIds.push(id);
-    state.sentIds = [...new Set(state.sentIds)];
-    saveState(state);
+}
 
-    console.log("処理済みIDを保存しました: " + id);
-  }
-
-  console.log("通知処理が完了しました。");
+console.log("通知処理が完了しました。");
 }
 
 main().catch((error) => {
-  console.error("LINE通知エラー:", error.message);
-  process.exitCode = 1;
+console.error("LINE通知エラー:", error.message);
+process.exitCode = 1;
 });
