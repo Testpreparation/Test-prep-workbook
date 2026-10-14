@@ -1,3 +1,4 @@
+```yaml
 name: LINE Auto Notice
 
 on:
@@ -32,7 +33,7 @@ jobs:
         env:
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
           LINE_TEST_USER_ID: ${{ secrets.LINE_TEST_USER_ID }}
-          LINE_NOTICE_MODE: ${{ vars.LINE_NOTICE_MODE }}
+          LINE_NOTICE_MODE: production
         run: |
           set -e
 
@@ -41,25 +42,13 @@ jobs:
             exit 1
           fi
 
-          MODE="${LINE_NOTICE_MODE:-test}"
-
-          if [ "$MODE" != "test" ] && [ "$MODE" != "production" ]; then
-            echo "::error::LINE_NOTICE_MODE は test または production にしてください。"
-            exit 1
-          fi
-
-          if [ "$MODE" = "test" ] && [ -z "$LINE_TEST_USER_ID" ]; then
-            echo "::error::テスト送信先の LINE_TEST_USER_ID が設定されていません。"
-            exit 1
-          fi
-
-          echo "LINE_NOTICE_MODE=$MODE"
+          echo "LINE_NOTICE_MODE=$LINE_NOTICE_MODE"
 
       - name: Run LINE notice script
         env:
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
           LINE_TEST_USER_ID: ${{ secrets.LINE_TEST_USER_ID }}
-          LINE_NOTICE_MODE: ${{ vars.LINE_NOTICE_MODE }}
+          LINE_NOTICE_MODE: production
         run: node scripts/line-notice.js
 
       - name: Save notification state
@@ -72,3 +61,4 @@ jobs:
             git commit -m "Update LINE notice state [skip ci]"
             git push
           fi
+```
