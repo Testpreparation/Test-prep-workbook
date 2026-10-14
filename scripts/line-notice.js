@@ -1,5 +1,5 @@
-const fs = require("node");
-const path = require("node");
+const fs = require("fs");
+const path = require("path");
 
 const FIREBASE_DATABASE_URL =
 "https://test-taisaku-7e433-default-rtdb.firebaseio.com";
@@ -57,7 +57,7 @@ const response = await fetch(endpoint, {
 method: "POST",
 headers: {
 "Content-Type": "application/json",
-"Authorization": "Bearer " + LINE_CHANNEL_ACCESS_TOKEN
+Authorization: "Bearer " + LINE_CHANNEL_ACCESS_TOKEN
 },
 body: JSON.stringify(body),
 signal: AbortSignal.timeout(20000)
@@ -81,10 +81,7 @@ isProduction
 
 function loadState() {
 if (!fs.existsSync(STATE_FILE)) {
-return {
-initialized: false,
-sentIds: []
-};
+return { initialized: false, sentIds: [] };
 }
 
 let state;
@@ -124,8 +121,8 @@ throw new Error(
 
 console.log("通知モード: " + LINE_NOTICE_MODE);
 
-// テストモードでは固定メッセージだけを自分に送信する。
-// Firebaseのお知らせ取得も通知履歴の変更も行わない。
+// テストでは固定メッセージだけを自分に送る。
+// Firebaseのお知らせと通知履歴には触れない。
 if (LINE_NOTICE_MODE === "test") {
 if (!LINE_TEST_USER_ID) {
 throw new Error(
@@ -139,21 +136,17 @@ await sendLine(
   "この通知はテスト用で、実際のお知らせではありません。"
 );
 
-console.log(
-  "テスト完了。実際のお知らせと通知履歴は変更していません。"
-);
+console.log("テスト完了。通知履歴は変更していません。");
 return;
 
 }
 
-// ここから下は本番モードのみ。
+// 本番モード
 console.log("Firebaseのお知らせを確認します。");
 
 const response = await fetch(
 FIREBASE_DATABASE_URL + "/notices.json",
-{
-signal: AbortSignal.timeout(20000)
-}
+{ signal: AbortSignal.timeout(20000) }
 );
 
 if (!response.ok) {
@@ -179,7 +172,7 @@ notice.published === true
 )
 : [];
 
-// 本番初回は過去のお知らせを登録するだけで配信しない。
+// 初回は過去のお知らせを記録するだけで送信しない。
 if (!state.initialized) {
 state.initialized = true;
 state.sentIds = [
@@ -190,10 +183,7 @@ state.sentIds = [
 ];
 
 saveState(state);
-
-console.log(
-  "本番初期化完了。過去のお知らせは配信していません。"
-);
+console.log("初回初期化完了。過去のお知らせは送信しません。");
 return;
 
 }
@@ -220,7 +210,6 @@ for (const [id, notice] of newNotices) {
 const title = String(
 notice.title || "Nurse+からのお知らせ"
 );
-
 const content = String(notice.content || "");
 const message = (title + "\n\n" + content).trim();
 
@@ -231,7 +220,6 @@ if (!content.trim()) {
 
 console.log("処理対象ID: " + id);
 
-// 配信成功後にのみ処理済みとして記録する。
 await sendLine(message);
 
 state.sentIds.push(id);
