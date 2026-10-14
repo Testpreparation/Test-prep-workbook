@@ -1,0 +1,83 @@
+
+name: LINE Auto Notice
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nurseplus-line-production
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    name: Check notices and notify LINE
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Confirm scheduled execution
+        run: |
+          set -euo pipefail
+          echo "NURSEPLUS_LINE_WORKFLOW_STARTED"
+          echo "Event: $GITHUB_EVENT_NAME"
+          echo "Branch: $GITHUB_REF_NAME"
+          echo "UTC: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+
+      - name: Validate secrets
+        env:
+          LINE_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          FIREBASE_URL: ${{ secrets.FIREBASE_DATABASE_URL }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "$LINE_TOKEN" ]; then
+            echo "::error::LINE_CHANNEL_ACCESS_TOKEN is missing."
+            exit 1
+          fi
+
+          if [ -z "$FIREBASE_URL" ]; then
+            echo "::error::FIREBASE_DATABASE_URL is missing."
+            exit 1
+          fi
+
+          echo "Required secrets are configured."
+
+      - name: Process published notices
+        env:
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          FIREBASE_DATABASE_URL: ${{ secrets.FIREBASE_DATABASE_URL }}
+          LINE_NOTICE_MODE: production
+        run: node scripts/line-notice.js
+
+      - name: Save notification history
+        if: always()
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add line-notice-state.json
+
+          if git diff --cached --quiet; then
+            echo "No history changes."
+            exit 0
+          fi
+
+          git commit -m "Update LINE notice history [skip ci]"
+          git push origin HEAD:main
