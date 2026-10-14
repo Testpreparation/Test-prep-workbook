@@ -1,3 +1,4 @@
+```js
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -7,6 +8,14 @@ const FIREBASE_DATABASE_URL =
 const LINE_CHANNEL_ACCESS_TOKEN =
   process.env.LINE_CHANNEL_ACCESS_TOKEN;
 
+const LINE_TEST_USER_ID =
+  process.env.LINE_TEST_USER_ID;
+
+const LINE_NOTICE_MODE =
+  process.env.LINE_NOTICE_MODE === "production"
+    ? "production"
+    : "test";
+
 const STATE_FILE = path.join(
   process.cwd(),
   "line-notice-state.json"
@@ -15,25 +24,28 @@ const STATE_FILE = path.join(
 const MAX_MESSAGE_LENGTH = 5000;
 
 async function sendLine(text) {
-  const response = await fetch(
-    "https://api.line.me/v2/bot/message/broadcast",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + LINE_CHANNEL_ACCESS_TOKEN
-      },
-      body: JSON.stringify({
-        messages: [
-          {
-            type: "text",
-            text: text.slice(0, MAX_MESSAGE_LENGTH)
-          }
-        ]
-      }),
-      signal: AbortSignal.timeout(20000)
-    }
-  );
+  const isProduction = LINE_NOTICE_MODE === "production";
+
+  const endpoint = isProduction
+    ? "https://api.line.me/v2/bot/message/broadcast"
+    : "https://api.line.me/v2/bot/message/push";
+
+  const messageData = isProduction
+    ? { messages: [{ type: "text", text: text.slice(0, MAX_MESSAGE_LENGTH) }] }
+    : {
+        to: LINE_TEST_USER_ID,
+        messages: [{ type: "text", text: text.slice(0, MAX_MESSAGE_LENGTH) }]
+      };
+
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + LINE_CHANNEL_ACCESS_TOKEN
+    },
+    body: JSON.stringify(messageData),
+    signal: AbortSignal.timeout(20000)
+  });
 
   if (!response.ok) {
     throw new Error(
@@ -44,7 +56,11 @@ async function sendLine(text) {
     );
   }
 
-  console.log("LINE一斉送信に成功しました。");
+  console.log(
+    isProduction
+      ? "LINE全員向け送信に成功しました。"
+      : "LINEテスト送信に成功しました（指定した1人のみ）。"
+  );
 }
 
 function saveState(state) {
@@ -69,7 +85,7 @@ function loadState() {
     state = JSON.parse(
       fs.readFileSync(STATE_FILE, "utf8")
     );
-  } catch (error) {
+  } catch {
     throw new Error("通知履歴のJSONが壊れています。");
   }
 
@@ -90,13 +106,21 @@ async function main() {
     );
   }
 
+  if (
+    LINE_NOTICE_MODE !== "production" &&
+    !LINE_TEST_USER_ID
+  ) {
+    throw new Error(
+      "テスト用のLINE_TEST_USER_IDが設定されていません。送信を中止します。"
+    );
+  }
+
+  console.log("通知モード: " + LINE_NOTICE_MODE);
   console.log("Firebaseのお知らせを確認します。");
 
   const response = await fetch(
     FIREBASE_DATABASE_URL + "/notices.json",
-    {
-      signal: AbortSignal.timeout(20000)
-    }
+    { signal: AbortSignal.timeout(20000) }
   );
 
   if (!response.ok) {
@@ -120,6 +144,7 @@ async function main() {
         )
       : [];
 
+  // 初回は過去のお知らせを登録するだけで、送信しない
   if (!state.initialized) {
     state.initialized = true;
     state.sentIds = [
@@ -145,14 +170,12 @@ async function main() {
     );
 
   console.log("公開済みのお知らせ数: " + entries.length);
-  console.log("未送信のお知らせ数: " + newNotices.length);
+  console.log("未処理のお知らせ数: " + newNotices.length);
 
   if (newNotices.length === 0) {
     console.log("新しいお知らせはありません。");
     return;
   }
-
-  console.log("新しいお知らせ: " + newNotices.length + "件");
 
   for (const [id, notice] of newNotices) {
     const title = String(
@@ -162,20 +185,21 @@ async function main() {
     const content = String(notice.content || "");
     const message = (title + "\n\n" + content).trim();
 
-    if (!message) {
-      console.log("内容が空のためスキップ: " + id);
+    if (!content.trim()) {
+      console.log("本文が空のため送信しません: " + id);
       continue;
     }
 
-    console.log("送信対象ID: " + id);
+    console.log("処理対象ID: " + id);
 
+    // LINE送信が成功した後にのみ処理済みとして保存する
     await sendLine(message);
 
     state.sentIds.push(id);
     state.sentIds = [...new Set(state.sentIds)];
     saveState(state);
 
-    console.log("通知履歴を保存: " + id);
+    console.log("処理済みIDを保存しました: " + id);
   }
 
   console.log("通知処理が完了しました。");
@@ -185,3 +209,4 @@ main().catch((error) => {
   console.error("LINE通知エラー:", error.message);
   process.exitCode = 1;
 });
+```
