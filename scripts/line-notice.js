@@ -23,17 +23,34 @@ process.cwd(),
 const MAX_MESSAGE_LENGTH = 5000;
 
 async function sendLine(text) {
+if (!LINE_CHANNEL_ACCESS_TOKEN) {
+throw new Error(
+"LINE_CHANNEL_ACCESS_TOKEN が設定されていません。"
+);
+}
+
 const isProduction = LINE_NOTICE_MODE === "production";
+
+if (!isProduction && !LINE_TEST_USER_ID) {
+throw new Error(
+"LINE_TEST_USER_ID が設定されていません。送信を中止します。"
+);
+}
 
 const endpoint = isProduction
 ? "https://api.line.me/v2/bot/message/broadcast"
 : "https://api.line.me/v2/bot/message/push";
 
-const messageData = isProduction
-? { messages: [{ type: "text", text: text.slice(0, MAX_MESSAGE_LENGTH) }] }
+const message = {
+type: "text",
+text: String(text).slice(0, MAX_MESSAGE_LENGTH)
+};
+
+const body = isProduction
+? { messages: [message] }
 : {
 to: LINE_TEST_USER_ID,
-messages: [{ type: "text", text: text.slice(0, MAX_MESSAGE_LENGTH) }]
+messages: [message]
 };
 
 const response = await fetch(endpoint, {
@@ -42,7 +59,7 @@ headers: {
 "Content-Type": "application/json",
 "Authorization": "Bearer " + LINE_CHANNEL_ACCESS_TOKEN
 },
-body: JSON.stringify(messageData),
+body: JSON.stringify(body),
 signal: AbortSignal.timeout(20000)
 });
 
@@ -62,23 +79,20 @@ isProduction
 );
 }
 
-function saveState(state) {
-fs.writeFileSync(
-STATE_FILE,
-JSON.stringify(state, null, 2) + "\n",
-"utf8"
-);
-}
-
 function loadState() {
 if (!fs.existsSync(STATE_FILE)) {
-return { initialized: false, sentIds: [] };
+return {
+initialized: false,
+sentIds: []
+};
 }
 
 let state;
 
 try {
-state = JSON.parse(fs.readFileSync(STATE_FILE, "utf8"));
+state = JSON.parse(
+fs.readFileSync(STATE_FILE, "utf8")
+);
 } catch {
 throw new Error("通知履歴のJSONが壊れています。");
 }
@@ -93,42 +107,68 @@ sentIds: [...new Set(state.sentIds)]
 };
 }
 
-async function main() {
-if (!LINE_CHANNEL_ACCESS_TOKEN) {
-throw new Error("LINE_CHANNEL_ACCESS_TOKEN が設定されていません。");
+function saveState(state) {
+fs.writeFileSync(
+STATE_FILE,
+JSON.stringify(state, null, 2) + "\n",
+"utf8"
+);
 }
 
-if (LINE_NOTICE_MODE === "test" && !LINE_TEST_USER_ID) {
-throw new Error("LINE_TEST_USER_ID が設定されていません。送信を中止します。");
+async function main() {
+if (!LINE_CHANNEL_ACCESS_TOKEN) {
+throw new Error(
+"LINE_CHANNEL_ACCESS_TOKEN が設定されていません。"
+);
 }
 
 console.log("通知モード: " + LINE_NOTICE_MODE);
 
-// テストモードでは実際のお知らせを処理せず、テスト文だけを送信する
+// テストモードでは固定メッセージだけを自分に送信する。
+// Firebaseのお知らせ取得も通知履歴の変更も行わない。
 if (LINE_NOTICE_MODE === "test") {
-await sendLine(
-"【Nurse+ LINEテスト】\n\nテスト通知が正常に届きました。\nこの通知は自分宛てのテスト送信です。"
+if (!LINE_TEST_USER_ID) {
+throw new Error(
+"LINE_TEST_USER_ID が設定されていません。送信を中止します。"
 );
-console.log("テスト送信のみ実行しました。実際のお知らせ履歴は変更していません。");
-return;
 }
 
+await sendLine(
+  "【Nurse+ LINEテスト】\n\n" +
+  "テスト通知が正常に届きました。\n" +
+  "この通知はテスト用で、実際のお知らせではありません。"
+);
+
+console.log(
+  "テスト完了。実際のお知らせと通知履歴は変更していません。"
+);
+return;
+
+}
+
+// ここから下は本番モードのみ。
 console.log("Firebaseのお知らせを確認します。");
 
 const response = await fetch(
 FIREBASE_DATABASE_URL + "/notices.json",
-{ signal: AbortSignal.timeout(20000) }
+{
+signal: AbortSignal.timeout(20000)
+}
 );
 
 if (!response.ok) {
-throw new Error("Firebase取得失敗: HTTP " + response.status);
+throw new Error(
+"Firebase取得失敗: HTTP " + response.status
+);
 }
 
 const notices = await response.json();
 const state = loadState();
 
 const entries =
-notices && typeof notices === "object" && !Array.isArray(notices)
+notices &&
+typeof notices === "object" &&
+!Array.isArray(notices)
 ? Object.entries(notices).filter(
 ([id, notice]) =>
 id &&
@@ -139,14 +179,23 @@ notice.published === true
 )
 : [];
 
+// 本番初回は過去のお知らせを登録するだけで配信しない。
 if (!state.initialized) {
 state.initialized = true;
 state.sentIds = [
-...new Set([...state.sentIds, ...entries.map(([id]) => id)])
+...new Set([
+...state.sentIds,
+...entries.map(([id]) => id)
+])
 ];
+
 saveState(state);
-console.log("初回初期化完了。過去のお知らせは送信しません。");
+
+console.log(
+  "本番初期化完了。過去のお知らせは配信していません。"
+);
 return;
+
 }
 
 const sentIds = new Set(state.sentIds);
@@ -162,8 +211,16 @@ Number(b[1].timestamp || 0)
 console.log("公開済みのお知らせ数: " + entries.length);
 console.log("未処理のお知らせ数: " + newNotices.length);
 
+if (newNotices.length === 0) {
+console.log("新しいお知らせはありません。");
+return;
+}
+
 for (const [id, notice] of newNotices) {
-const title = String(notice.title || "Nurse+からのお知らせ");
+const title = String(
+notice.title || "Nurse+からのお知らせ"
+);
+
 const content = String(notice.content || "");
 const message = (title + "\n\n" + content).trim();
 
@@ -173,6 +230,8 @@ if (!content.trim()) {
 }
 
 console.log("処理対象ID: " + id);
+
+// 配信成功後にのみ処理済みとして記録する。
 await sendLine(message);
 
 state.sentIds.push(id);
@@ -183,7 +242,7 @@ console.log("処理済みIDを保存しました: " + id);
 
 }
 
-console.log("通知処理が完了しました。");
+console.log("本番通知処理が完了しました。");
 }
 
 main().catch((error) => {
