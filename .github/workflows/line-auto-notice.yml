@@ -1,4 +1,4 @@
-```yaml
+
 name: LINE Auto Notice
 
 on:
@@ -78,4 +78,3 @@ jobs:
 
           git commit -m "Update LINE notice history [skip ci]"
           git push origin HEAD:main
-```
