@@ -1401,6 +1401,53 @@
         </button>
       </div>
 
+      <!-- AIお知らせ・LINE配信管理（既存のお知らせ機能に追加） -->
+      <div class="p-4 rounded-xl bg-slate-900/80 border border-cyan-500/20 space-y-3">
+        <div class="text-xs font-semibold text-cyan-300 flex items-center justify-between uppercase tracking-widest">
+          <div class="flex items-center gap-1.5"><span>✦</span><span>AIお知らせ・LINE配信</span></div>
+          <span class="text-[9px] tracking-normal text-slate-500">DRAFT → REVIEW → APPROVE</span>
+        </div>
+        <p class="text-[10px] text-slate-400 leading-relaxed">AIが作成した文章は下書きとして表示されます。内容を確認・修正し、管理者が承認するまで公開・LINE配信されません。</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <label class="text-[10px] text-slate-400 space-y-1">文章のトーン
+            <select id="ai-notice-tone" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-cyan-500">
+              <option value="polite">丁寧</option><option value="friendly">親しみやすい</option><option value="concise">簡潔</option>
+            </select>
+          </label>
+          <label class="text-[10px] text-slate-400 space-y-1">問題数（必要な場合）
+            <input type="number" id="ai-notice-problem-count" min="0" step="1" placeholder="自動取得・未指定可" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-cyan-500">
+          </label>
+        </div>
+        <label class="block text-[10px] text-slate-400 space-y-1">AIへの指示・お知らせの目的
+          <textarea id="ai-notice-instruction" placeholder="例：追加された病理学の問題について、利用者に簡潔に案内する" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-cyan-500 h-16"></textarea>
+        </label>
+        <button id="ai-notice-generate-btn" onclick="generateAiNoticeDraft()" class="w-full py-2 rounded-lg bg-cyan-900/50 hover:bg-cyan-800/70 border border-cyan-700/50 text-cyan-100 text-xs font-medium transition">✦ AIで下書きを作成</button>
+        <div class="space-y-2 pt-2 border-t border-slate-800">
+          <label class="block text-[10px] text-slate-400 space-y-1">タイトル（編集可）
+            <input id="ai-notice-title" type="text" maxlength="100" placeholder="AIが作成したタイトル" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-cyan-500">
+          </label>
+          <label class="block text-[10px] text-slate-400 space-y-1">本文（編集可）
+            <textarea id="ai-notice-content" maxlength="2000" placeholder="AIが作成した本文" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-cyan-500 h-24"></textarea>
+          </label>
+          <div class="flex justify-between items-center text-[10px] text-slate-500"><span id="ai-notice-length-status">本文 0 / 2000文字</span><span id="ai-notice-draft-status">未保存</span></div>
+          <label class="block text-[10px] text-slate-400 space-y-1">配信予定日時（空欄ならサーバー側の即時配信設定に従う）
+            <input id="ai-notice-scheduled-at" type="datetime-local" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-cyan-500">
+          </label>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="saveAiNoticeDraft()" class="py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs transition">下書きを保存</button>
+            <button onclick="previewAiNoticeDraft()" class="py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs transition">配信プレビュー</button>
+          </div>
+          <div id="ai-notice-preview" class="hidden p-3 rounded-xl bg-slate-950 border border-cyan-900/50 space-y-1">
+            <div class="text-[9px] text-cyan-300 tracking-widest">PREVIEW</div>
+            <div id="ai-notice-preview-title" class="text-xs font-semibold text-slate-100 whitespace-pre-wrap"></div>
+            <p id="ai-notice-preview-content" class="text-[11px] text-slate-300 whitespace-pre-wrap"></p>
+            <div id="ai-notice-preview-schedule" class="text-[10px] text-slate-500"></div>
+          </div>
+          <button onclick="approveAndQueueAiNotice()" class="w-full py-2.5 rounded-lg bg-amber-700/90 hover:bg-amber-600 border border-amber-500/30 text-amber-50 text-xs font-semibold transition">確認して承認・公開／LINE配信予約</button>
+          <p class="text-[9px] text-slate-500 leading-relaxed">※ AI生成とLINE配信には、別リポジトリのサーバーAPI設定が必要です。API未接続時は安全のためAI生成・承認配信を実行しません。既存の手動お知らせ投稿は従来どおり利用できます。</p>
+        </div>
+      </div>
+
       <!-- 投稿済みお知らせ一覧・削除管理エリア -->
       <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 space-y-3">
         <div class="text-xs font-semibold text-amber-400 flex items-center justify-between uppercase tracking-widest">
@@ -1689,6 +1736,152 @@
       document.getElementById('modal-notice').classList.add('hidden');
     }
 
+    // Nurse＋ AI/LINE連携API。サーバーURLのみ設定し、秘密鍵やLINEトークンは絶対に置かない。
+    // 別リポジトリのAPI公開後、ここにHTTPSのAPIベースURLを設定する。
+    const NURSE_LINE_API_BASE_URL = "";
+    let aiNoticeCurrentDraftId = null;
+
+    function updateAiNoticeLengthStatus() {
+      const content = document.getElementById('ai-notice-content');
+      const status = document.getElementById('ai-notice-length-status');
+      if (!content || !status) return;
+      status.textContent = `本文 ${content.value.length} / 2000文字`;
+      status.className = content.value.length > 2000 ? 'text-[10px] text-rose-400' : 'text-[10px] text-slate-500';
+    }
+
+    async function callNurseLineApi(path, payload) {
+      if (!NURSE_LINE_API_BASE_URL) {
+        throw new Error('AI・LINEサーバーAPIが未設定です。別リポジトリのサーバーを構築してから接続してください。');
+      }
+      const sessionToken = sessionStorage.getItem('nurse_line_admin_session');
+      if (!sessionToken) {
+        throw new Error('サーバー管理者認証がありません。安全な管理者ログインを先に設定してください。');
+      }
+      const response = await fetch(`${NURSE_LINE_API_BASE_URL.replace(/\/$/, '')}${path}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionToken}` },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || `サーバーエラー (${response.status})`);
+      return data;
+    }
+
+    async function generateAiNoticeDraft() {
+      const btn = document.getElementById('ai-notice-generate-btn');
+      const instruction = document.getElementById('ai-notice-instruction').value.trim();
+      const tone = document.getElementById('ai-notice-tone').value;
+      const countValue = document.getElementById('ai-notice-problem-count').value;
+      const problemCount = countValue === '' ? null : Number(countValue);
+      if (!instruction) { alert('AIへの指示・お知らせの目的を入力してください。'); return; }
+      if (problemCount !== null && (!Number.isInteger(problemCount) || problemCount < 0)) { alert('問題数は0以上の整数で入力してください。'); return; }
+      btn.disabled = true;
+      const originalText = btn.textContent;
+      btn.textContent = '下書きを作成中…';
+      try {
+        const result = await callNurseLineApi('/api/notices/draft', { instruction, tone, problemCount, appUrl: 'https://testpreparation.github.io/Test-prep-workbook/' });
+        const draft = result.draft || result;
+        document.getElementById('ai-notice-title').value = String(draft.title || '').slice(0, 100);
+        document.getElementById('ai-notice-content').value = String(draft.content || '').slice(0, 2000);
+        aiNoticeCurrentDraftId = draft.id || result.draftId || null;
+        document.getElementById('ai-notice-draft-status').textContent = 'AI下書き・未承認';
+        updateAiNoticeLengthStatus();
+        saveAiNoticeDraft(false);
+        alert('AI下書きを作成しました。公開・LINE配信前に内容を確認してください。');
+      } catch (err) {
+        console.error('AIお知らせ下書きの作成に失敗しました:', err);
+        alert(err.message || 'AI下書きを作成できませんでした。');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    }
+
+    function saveAiNoticeDraft(showMessage = true) {
+      const title = document.getElementById('ai-notice-title').value.trim();
+      const content = document.getElementById('ai-notice-content').value.trim();
+      if (!title && !content) { if (showMessage) alert('保存する下書きがありません。'); return; }
+      const draft = {
+        id: aiNoticeCurrentDraftId || `local_${Date.now()}`,
+        title, content,
+        tone: document.getElementById('ai-notice-tone').value,
+        instruction: document.getElementById('ai-notice-instruction').value.trim(),
+        scheduledAt: document.getElementById('ai-notice-scheduled-at').value || null,
+        updatedAt: Date.now(),
+        status: 'draft'
+      };
+      aiNoticeCurrentDraftId = draft.id;
+      try {
+        localStorage.setItem('nurse_plus_ai_notice_draft', JSON.stringify(draft));
+        document.getElementById('ai-notice-draft-status').textContent = 'この端末に下書き保存済み';
+        if (showMessage) alert('下書きをこの端末に保存しました。※端末・ブラウザ間では同期されません。');
+      } catch (err) {
+        console.error('下書き保存に失敗しました:', err);
+        if (showMessage) alert('下書きを保存できませんでした。');
+      }
+    }
+
+    function restoreAiNoticeDraft() {
+      try {
+        const raw = localStorage.getItem('nurse_plus_ai_notice_draft');
+        if (!raw) return;
+        const draft = JSON.parse(raw);
+        if (!draft || typeof draft !== 'object') return;
+        document.getElementById('ai-notice-title').value = draft.title || '';
+        document.getElementById('ai-notice-content').value = draft.content || '';
+        document.getElementById('ai-notice-tone').value = draft.tone || 'polite';
+        document.getElementById('ai-notice-instruction').value = draft.instruction || '';
+        document.getElementById('ai-notice-scheduled-at').value = draft.scheduledAt || '';
+        aiNoticeCurrentDraftId = draft.id || null;
+        document.getElementById('ai-notice-draft-status').textContent = '保存済み下書きを復元';
+        updateAiNoticeLengthStatus();
+      } catch (err) { console.warn('AIお知らせ下書きを復元できませんでした:', err); }
+    }
+
+    function previewAiNoticeDraft() {
+      const title = document.getElementById('ai-notice-title').value.trim();
+      const content = document.getElementById('ai-notice-content').value.trim();
+      if (!title || !content) { alert('プレビューするタイトルと本文を入力してください。'); return; }
+      if (content.length > 2000) { alert('本文が2000文字を超えています。短くしてください。'); return; }
+      document.getElementById('ai-notice-preview-title').textContent = title;
+      document.getElementById('ai-notice-preview-content').textContent = content;
+      const schedule = document.getElementById('ai-notice-scheduled-at').value;
+      document.getElementById('ai-notice-preview-schedule').textContent = schedule ? `配信予定：${schedule.replace('T', ' ')}` : '配信予定：サーバー側の即時配信設定に従う';
+      document.getElementById('ai-notice-preview').classList.remove('hidden');
+    }
+
+    async function approveAndQueueAiNotice() {
+      const title = document.getElementById('ai-notice-title').value.trim();
+      const content = document.getElementById('ai-notice-content').value.trim();
+      const scheduledAt = document.getElementById('ai-notice-scheduled-at').value || null;
+      if (!title || !content) { alert('タイトルと本文を入力してください。'); return; }
+      if (title.length > 100 || content.length > 2000) { alert('タイトルは100文字以内、本文は2000文字以内にしてください。'); return; }
+      previewAiNoticeDraft();
+      if (!confirm('プレビューを確認しましたか？ 承認するとサーバー側で公開とLINE配信予約を行います。')) return;
+      try {
+        const result = await callNurseLineApi('/api/notices/approve', {
+          draftId: aiNoticeCurrentDraftId,
+          title, content, scheduledAt,
+          approvedAt: new Date().toISOString(),
+          appUrl: 'https://testpreparation.github.io/Test-prep-workbook/',
+          approvalRequired: true,
+          target: 'all_followers'
+        });
+        document.getElementById('ai-notice-draft-status').textContent = '承認済み・サーバー受付済み';
+        localStorage.removeItem('nurse_plus_ai_notice_draft');
+        alert(result.message || '承認を受け付けました。配信状況はサーバー側の履歴で確認してください。');
+      } catch (err) {
+        console.error('AIお知らせの承認・配信予約に失敗しました:', err);
+        alert(err.message || '承認・配信予約に失敗しました。安全のため公開処理は実行していません。');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const aiContent = document.getElementById('ai-notice-content');
+      if (aiContent) aiContent.addEventListener('input', updateAiNoticeLengthStatus);
+      restoreAiNoticeDraft();
+    });
+
     function postAdminNotice() {
       const titleInput = document.getElementById('admin-notice-title');
       const contentInput = document.getElementById('admin-notice-content');
@@ -1701,12 +1894,12 @@
         return;
       }
 
-     const noticeData = {
-  　　title: title,
- 　　 content: content,
- 　　 timestamp: Date.now(),
-  　　published: true
-　　　　};
+      const noticeData = {
+        title: title,
+        content: content,
+        timestamp: Date.now(),
+        published: true
+      };
 
       db.ref('notices').push(noticeData).then(() => {
         alert("お知らせを投稿しました。");
