@@ -1,4 +1,3 @@
-
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -109,19 +108,17 @@ async function main() {
   const notices = await response.json();
   const state = loadState();
 
-  
-const entries =
-  notices && typeof notices === "object" && !Array.isArray(notices)
-    ? Object.entries(notices).filter(
-        ([id, notice]) =>
-          id &&
-          notice &&
-          typeof notice === "object" &&
-          !Array.isArray(notice) &&
-          notice.published === true
-      )
-    : [];
-
+  const entries =
+    notices && typeof notices === "object" && !Array.isArray(notices)
+      ? Object.entries(notices).filter(
+          ([id, notice]) =>
+            id &&
+            notice &&
+            typeof notice === "object" &&
+            !Array.isArray(notice) &&
+            notice.published === true
+        )
+      : [];
 
   if (!state.initialized) {
     state.initialized = true;
@@ -146,6 +143,9 @@ const entries =
         Number(a[1].timestamp || 0) -
         Number(b[1].timestamp || 0)
     );
+
+  console.log("公開済みのお知らせ数: " + entries.length);
+  console.log("未送信のお知らせ数: " + newNotices.length);
 
   if (newNotices.length === 0) {
     console.log("新しいお知らせはありません。");
