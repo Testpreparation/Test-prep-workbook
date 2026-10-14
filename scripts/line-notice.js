@@ -1,4 +1,4 @@
-```js
+
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -209,4 +209,3 @@ main().catch((error) => {
   console.error("LINE通知エラー:", error.message);
   process.exitCode = 1;
 });
-```
