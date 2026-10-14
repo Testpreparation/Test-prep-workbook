@@ -1700,11 +1700,12 @@
         return;
       }
 
-      const noticeData = {
-        title: title,
-        content: content,
-        timestamp: Date.now()
-      };
+     const noticeData = {
+  　　title: title,
+ 　　 content: content,
+ 　　 timestamp: Date.now(),
+  　　published: true
+　　　　};
 
       db.ref('notices').push(noticeData).then(() => {
         alert("お知らせを投稿しました。");
