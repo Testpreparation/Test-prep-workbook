@@ -1,3 +1,4 @@
+```yaml
 name: LINE Auto Notice
 
 on:
@@ -31,17 +32,13 @@ jobs:
       - name: Check LINE settings
         env:
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
-          LINE_TEST_USER_ID: ${{ secrets.LINE_TEST_USER_ID }}
-          LINE_NOTICE_MODE: production
         run: |
           set -e
-
           if [ -z "$LINE_CHANNEL_ACCESS_TOKEN" ]; then
             echo "::error::LINE_CHANNEL_ACCESS_TOKEN が設定されていません。"
             exit 1
           fi
-
-          echo "LINE_NOTICE_MODE=$LINE_NOTICE_MODE"
+          echo "LINE_NOTICE_MODE=production"
 
       - name: Run LINE notice script
         env:
@@ -60,3 +57,4 @@ jobs:
             git commit -m "Update LINE notice state [skip ci]"
             git push
           fi
+```
