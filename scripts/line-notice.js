@@ -1,4 +1,3 @@
-
 const fs = require("fs");
 const path = require("path");
 
@@ -34,7 +33,7 @@ async function sendLine(text) {
 
   if (!isProduction && !LINE_TEST_USER_ID) {
     throw new Error(
-      "LINE_TEST_USER_ID が設定されていません。送信を中止します。"
+      "LINE_TEST_USER_ID が設定されていません。"
     );
   }
 
@@ -113,6 +112,34 @@ function saveState(state) {
   );
 }
 
+async function getPublishedNotices() {
+  const response = await fetch(
+    FIREBASE_DATABASE_URL + "/notices.json",
+    { signal: AbortSignal.timeout(20000) }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Firebase取得失敗: HTTP " + response.status
+    );
+  }
+
+  const notices = await response.json();
+
+  return notices &&
+    typeof notices === "object" &&
+    !Array.isArray(notices)
+    ? Object.entries(notices).filter(
+        ([id, notice]) =>
+          id &&
+          notice &&
+          typeof notice === "object" &&
+          !Array.isArray(notice) &&
+          notice.published === true
+      )
+    : [];
+}
+
 async function main() {
   if (!LINE_CHANNEL_ACCESS_TOKEN) {
     throw new Error(
@@ -122,12 +149,9 @@ async function main() {
 
   console.log("通知モード: " + LINE_NOTICE_MODE);
 
-  // テストでは固定メッセージだけを自分に送る。
-  // Firebaseのお知らせと通知履歴には触れない。
+  // テストモードは手動実行時のみ自分に送信する。
+  // Firebaseの通知履歴には触れない。
   if (LINE_NOTICE_MODE === "test") {
-
-    // テストモードの定期実行では通知を送らない。
-    // 手動実行時だけテスト通知を送る。
     if (process.env.GITHUB_EVENT_NAME === "schedule") {
       console.log(
         "テストモードの定期実行では送信しません。"
@@ -137,7 +161,7 @@ async function main() {
 
     if (!LINE_TEST_USER_ID) {
       throw new Error(
-        "LINE_TEST_USER_ID が設定されていません。送信を中止します。"
+        "LINE_TEST_USER_ID が設定されていません。"
       );
     }
 
@@ -152,37 +176,11 @@ async function main() {
   }
 
   // 本番モード
-  console.log("Firebaseのお知らせを確認します。");
-
-  const response = await fetch(
-    FIREBASE_DATABASE_URL + "/notices.json",
-    { signal: AbortSignal.timeout(20000) }
-  );
-
-  if (!response.ok) {
-    throw new Error(
-      "Firebase取得失敗: HTTP " + response.status
-    );
-  }
-
-  const notices = await response.json();
+  const entries = await getPublishedNotices();
   const state = loadState();
 
-  const entries =
-    notices &&
-    typeof notices === "object" &&
-    !Array.isArray(notices)
-      ? Object.entries(notices).filter(
-          ([id, notice]) =>
-            id &&
-            notice &&
-            typeof notice === "object" &&
-            !Array.isArray(notice) &&
-            notice.published === true
-        )
-      : [];
-
-  // 初回は過去のお知らせを記録するだけで送信しない。
+  // 初回は既存のお知らせをすべて記録するだけ。
+  // 過去のお知らせは一斉送信しない。
   if (!state.initialized) {
     state.initialized = true;
     state.sentIds = [
@@ -194,7 +192,7 @@ async function main() {
 
     saveState(state);
     console.log(
-      "初回初期化完了。過去のお知らせは送信しません。"
+      "初回初期化完了。既存のお知らせは送信しません。"
     );
     return;
   }
@@ -223,12 +221,13 @@ async function main() {
     );
 
     const content = String(notice.content || "");
-    const message = (title + "\n\n" + content).trim();
 
     if (!content.trim()) {
       console.log("本文が空のため送信しません: " + id);
       continue;
     }
+
+    const message = (title + "\n\n" + content).trim();
 
     console.log("処理対象ID: " + id);
 
