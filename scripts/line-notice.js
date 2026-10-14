@@ -109,16 +109,19 @@ async function main() {
   const notices = await response.json();
   const state = loadState();
 
-  const entries =
-    notices && typeof notices === "object" && !Array.isArray(notices)
-      ? Object.entries(notices).filter(
-          ([id, notice]) =>
-            id &&
-            notice &&
-            typeof notice === "object" &&
-            !Array.isArray(notice)
-        )
-      : [];
+  
+const entries =
+  notices && typeof notices === "object" && !Array.isArray(notices)
+    ? Object.entries(notices).filter(
+        ([id, notice]) =>
+          id &&
+          notice &&
+          typeof notice === "object" &&
+          !Array.isArray(notice) &&
+          notice.published === true
+      )
+    : [];
+
 
   if (!state.initialized) {
     state.initialized = true;
