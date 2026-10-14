@@ -10,10 +10,9 @@ const LINE_CHANNEL_ACCESS_TOKEN =
 const LINE_TEST_USER_ID =
   process.env.LINE_TEST_USER_ID;
 
-const LINE_NOTICE_MODE =
-  process.env.LINE_NOTICE_MODE === "production"
-    ? "production"
-    : "test";
+const LINE_NOTICE_MODE = String(
+  process.env.LINE_NOTICE_MODE || ""
+).trim().toLowerCase();
 
 const STATE_FILE = path.join(
   process.cwd(),
@@ -147,10 +146,22 @@ async function main() {
     );
   }
 
-  console.log("通知モード: " + LINE_NOTICE_MODE);
+  if (
+    LINE_NOTICE_MODE !== "test" &&
+    LINE_NOTICE_MODE !== "production"
+  ) {
+    throw new Error(
+      "LINE_NOTICE_MODE が正しく設定されていません。" +
+      " GitHub Repository variables で test または production を設定してください。"
+    );
+  }
 
-  // テストモードは手動実行時のみ自分に送信する。
-  // Firebaseの通知履歴には触れない。
+  console.log("通知モード: " + LINE_NOTICE_MODE);
+  console.log(
+    "実行方法: " +
+    (process.env.GITHUB_EVENT_NAME || "local")
+  );
+
   if (LINE_NOTICE_MODE === "test") {
     if (process.env.GITHUB_EVENT_NAME === "schedule") {
       console.log(
@@ -175,12 +186,9 @@ async function main() {
     return;
   }
 
-  // 本番モード
   const entries = await getPublishedNotices();
   const state = loadState();
 
-  // 初回は既存のお知らせをすべて記録するだけ。
-  // 過去のお知らせは一斉送信しない。
   if (!state.initialized) {
     state.initialized = true;
     state.sentIds = [
@@ -191,6 +199,7 @@ async function main() {
     ];
 
     saveState(state);
+
     console.log(
       "初回初期化完了。既存のお知らせは送信しません。"
     );
