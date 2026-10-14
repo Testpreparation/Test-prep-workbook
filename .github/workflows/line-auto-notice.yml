@@ -1,4 +1,4 @@
-```yaml
+
 name: LINE Auto Notice
 
 on:
@@ -57,4 +57,4 @@ jobs:
             git commit -m "Update LINE notice state [skip ci]"
             git push
           fi
-```
+
