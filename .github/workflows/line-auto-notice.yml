@@ -1,9 +1,8 @@
-
+```yaml
 name: LINE Auto Notice
 
 on:
   schedule:
-    # 5分ごとに自動確認
     - cron: "*/5 * * * *"
   workflow_dispatch:
 
@@ -30,19 +29,38 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Check LINE token
+      - name: Check LINE settings
         env:
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          LINE_TEST_USER_ID: ${{ secrets.LINE_TEST_USER_ID }}
+          LINE_NOTICE_MODE: ${{ vars.LINE_NOTICE_MODE }}
         run: |
+          set -e
+
           if [ -z "$LINE_CHANNEL_ACCESS_TOKEN" ]; then
-            echo "::error::LINE_CHANNEL_ACCESS_TOKEN がGitHub Secretsに設定されていません。"
+            echo "::error::LINE_CHANNEL_ACCESS_TOKEN が設定されていません。"
             exit 1
           fi
-          echo "LINE_CHANNEL_ACCESS_TOKEN is configured."
+
+          MODE="${LINE_NOTICE_MODE:-test}"
+
+          if [ "$MODE" != "test" ] && [ "$MODE" != "production" ]; then
+            echo "::error::LINE_NOTICE_MODE は test または production にしてください。"
+            exit 1
+          fi
+
+          if [ "$MODE" = "test" ] && [ -z "$LINE_TEST_USER_ID" ]; then
+            echo "::error::テスト送信先の LINE_TEST_USER_ID が設定されていません。"
+            exit 1
+          fi
+
+          echo "LINE_NOTICE_MODE=$MODE"
 
       - name: Run LINE notice script
         env:
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          LINE_TEST_USER_ID: ${{ secrets.LINE_TEST_USER_ID }}
+          LINE_NOTICE_MODE: ${{ vars.LINE_NOTICE_MODE }}
         run: node scripts/line-notice.js
 
       - name: Save notification state
@@ -55,3 +73,4 @@ jobs:
             git commit -m "Update LINE notice state [skip ci]"
             git push
           fi
+```
