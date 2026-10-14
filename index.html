@@ -116,6 +116,10 @@
   <script src="./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第1回/pathology_range_2026akigakki_1.js"></script>
 <script src="./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第2回/pathology_range_2026akigakki_2.js"></script>
 <script src="./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第3回/pathology_range_2026akigakki_3.js"></script>
+<script src="./科目/病理学/2026秋学期/演習問題/演習問題　第1回/pathology_exercise_2026akigakki_1.js"></script>
+<script src="./科目/病理学/2026秋学期/演習問題/演習問題　第2回/pathology_exercise_2026akigakki_2.js"></script>
+<script src="./科目/病理学/2026秋学期/演習問題/演習問題　第3回/pathology_exercise_2026akigakki_3.js"></script>
+
 
   <script src="./科目/薬理学/看護師国家試験過去6年/pharmacology_nurse_national_6years.js"></script>
 
@@ -4019,12 +4023,17 @@
         targetDbKey = 'biochemistry_fill';
       } else if (currentSubject.id === 'nursing_method_3') {
         targetDbKey = `nursing_method_3_${currentNursingMethod3Mode}_${isAutumn ? '2026_autumn' : '2026_spring'}`;
-      } else if (currentSubject.id === 'pathology') {
-        if (currentPathologyMode === 'practice') {
-          targetDbKey = `pathology_practice_${isAutumn ? '2026_autumn' : '2026_spring'}_round${currentPathologyRound}`;
-        } else {
-          targetDbKey = `pathology_${currentPathologyMode}_${isAutumn ? '2026_autumn' : '2026_spring'}`;
-        }
+     
+} else if (currentSubject.id === 'pathology') {
+  if (currentPathologyMode === 'practice') {
+    targetDbKey = `pathology_practice_${isAutumn ? '2026_autumn' : '2026_spring'}_round${currentPathologyRound}`;
+  } else if (currentPathologyMode === 'exercise') {
+    targetDbKey = `pathology_exercise_${isAutumn ? '2026_autumn' : '2026_spring'}_round${currentPathologyRound}`;
+  } else {
+    targetDbKey = `pathology_${currentPathologyMode}_${isAutumn ? '2026_autumn' : '2026_spring'}`;
+  }
+}
+
       } else if (currentSubject.id === 'pharmacology' && currentPharmacologyMode === 'nurse_national_6years') {
         targetDbKey = 'pharmacology_nurse_national_6years';
       }
