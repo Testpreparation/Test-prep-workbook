@@ -1737,7 +1737,7 @@
     }
 
     // Nurse＋ AI/LINE連携API。サーバーURLのみ設定し、秘密鍵やLINEトークンは絶対に置かない。
-    // 別リポジトリのAPI公開後、ここにHTTPSのAPIベースURLを設定する。
+    // デプロイしたサーバーのHTTPS URLを設定してください。
     const NURSE_LINE_API_BASE_URL = "";
     let aiNoticeCurrentDraftId = null;
 
@@ -1894,11 +1894,6 @@
         return;
       }
 
-      if (!NURSE_LINE_API_BASE_URL) {
-        alert("LINE通知サーバーのURLが未設定です。NURSE_LINE_API_BASE_URL にデプロイ済みサーバーのURLを設定してください。");
-        return;
-      }
-
       const fullContent = `【${title}】\\n${content}`;
       const noticeData = {
         title: title,
@@ -1908,25 +1903,17 @@
       };
 
       try {
-        const response = await fetch(`${NURSE_LINE_API_BASE_URL.replace(/\\/$/, '')}/api/generate-notice`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: fullContent })
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text().catch(() => '');
-          throw new Error(`LINE通知サーバーがエラーを返しました (${response.status}) ${errorText}`);
-        }
-
+        // サーバーAPIへの送信が成功した場合のみ、従来のFirebase保存を行う。
+        // 認証は既存のcallNurseLineApi()で処理し、秘密情報をHTMLに埋め込まない。
+        await callNurseLineApi('/api/generate-notice', { content: fullContent });
         await db.ref('notices').push(noticeData);
 
-        alert("お知らせを投稿し、LINE通知サーバーへ送信しました。");
+        alert("お知らせを投稿し、サーバーへ送信しました。");
         titleInput.value = '';
         contentInput.value = '';
       } catch (err) {
         console.error("お知らせの送信に失敗しました:", err);
-        alert("お知らせの送信に失敗しました。\\n" + (err && err.message ? err.message : '通信エラー'));
+        alert(err.message || "お知らせの送信に失敗しました。");
       }
     }
 
