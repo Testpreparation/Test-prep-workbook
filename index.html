@@ -2527,6 +2527,8 @@
     function submitPassword() {
       const pwd = document.getElementById('admin-password-input').value;
       if (pwd === "2721") {
+        // 管理者認証成功時にセッショントークンをセットする
+        sessionStorage.setItem('nurse_line_admin_session', 'admin_logged_in_token');
         closeAuthModal();
         openAdminModal();
       } else {
