@@ -1080,7 +1080,7 @@
 
         <div id="highscore-badge" class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs flex justify-between items-center max-w-xs mx-auto">
           <span class="text-slate-400 font-light flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.8１.588-1.8１h3.46１a1 １ ０ ００.９５１-.６９l１.０７-３.２９２z"/></svg>
+            <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1.1 1.0 0 00.951-.69l1.07-3.292z"/></svg>
             最高記録:
           </span>
           <span id="start-screen-highscore" class="font-bold text-amber-400">未挑戦</span>
@@ -1613,3 +1613,944 @@
           const roundNum = isNaN(parseInt(key, 10)) ? key : parseInt(key, 10);
           results = lessonData[key].map(q => ({ ...q, round: roundNum }));
         }
+      }
+      return results;
+    };
+
+    function selectNursingRound(selectedValue) {
+      currentRound = (selectedValue === "all") ? null : selectedValue;
+      if (typeof window.getNursingQuestions === "function") {
+        const currentQuestions = window.getNursingQuestions(selectedValue);
+        if (Array.isArray(currentQuestions) && currentQuestions.length > 0) {
+          window.QUIZ_DB.nursing_method = currentQuestions;
+        }
+      }
+      showStartScreen();
+    }
+
+    function selectBiochemistryFormat(format) {
+      currentBiochemistryFormat = format;
+      showStartScreen();
+    }
+
+    // =========================================================
+    //  1. Firebase 設定
+    // =========================================================
+    const firebaseConfig = {
+      databaseURL: "https://test-taisaku-7e433-default-rtdb.firebaseio.com/"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let myPlayerId = sessionStorage.getItem('my_player_id');
+    if (!myPlayerId) {
+      myPlayerId = 'usr_' + Math.random().toString(36).substring(2, 9);
+      sessionStorage.setItem('my_player_id', myPlayerId);
+    }
+
+    // ---------------------------------------------------------
+    // 閲覧人数管理機能
+    // ---------------------------------------------------------
+    function getVisitorDeviceName() {
+      const ua = navigator.userAgent || '';
+      if (/iPhone/i.test(ua)) return 'iPhone';
+      if (/iPad/i.test(ua)) return 'iPad';
+      if (/Android/i.test(ua)) {
+        const m = ua.match(/Android[^;)]*;\s*(?:[a-z]{2}(?:-[A-Z]{2})?;\s*)?([^;)]+?)(?:\s+Build\/[^;)]+)?[;)]/i);
+        return m && m[1] ? `Android: ${m[1].trim()}` : 'Android端末';
+      }
+      if (/Windows/i.test(ua)) return 'Windows PC';
+      if (/Macintosh|Mac OS X/i.test(ua)) return 'Mac';
+      if (/CrOS/i.test(ua)) return 'Chromebook';
+      return '不明な端末';
+    }
+
+    function renderVisitorHistory(data) {
+      const el = document.getElementById('admin-visitor-history');
+      if (!el) return;
+      const rows = Object.entries(data || {}).map(([id, v]) => ({id, ...v}))
+        .sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0)).slice(0, 100);
+      if (!rows.length) {
+        el.innerHTML = '<div class="text-[11px] text-slate-500 text-center py-3">閲覧履歴はありません。</div>';
+        return;
+      }
+      el.innerHTML = rows.map(v => {
+        const d = v.timestamp ? new Date(v.timestamp) : null;
+        const time = d && !isNaN(d) ? d.toLocaleString('ja-JP', {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}) : '--';
+        return `<div class="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-slate-950 border border-slate-800">
+          <div class="min-w-0"><div class="text-[11px] text-slate-200 truncate">${v.deviceName || '不明な端末'}</div><div class="text-[9px] text-slate-600 font-mono truncate">${v.visitorId || ''}</div></div>
+          <div class="text-[9px] text-slate-500 whitespace-nowrap">${time}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function initVisitorTracking() {
+      const now = new Date();
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      const deviceName = getVisitorDeviceName();
+
+      const onlineRef = db.ref(`presence/online/${myPlayerId}`);
+      const connectedRef = db.ref('.info/connected');
+
+      connectedRef.on('value', (snap) => {
+        if (snap.val() === true) {
+          onlineRef.onDisconnect().remove();
+          onlineRef.set(true);
+        }
+      });
+
+      db.ref(`presence/daily/${todayStr}/${myPlayerId}`).set(true);
+      db.ref(`presence/history/${myPlayerId}`).set({ visitorId: myPlayerId, deviceName, timestamp: firebase.database.ServerValue.TIMESTAMP });
+      db.ref('presence/history').push({ visitorId: myPlayerId, deviceName, timestamp: firebase.database.ServerValue.TIMESTAMP });
+
+      db.ref('presence/online').on('value', (snap) => {
+        const count = snap.val() ? Object.keys(snap.val()).length : 0;
+        const el = document.getElementById('admin-current-online-count');
+        if (el) el.textContent = `${count} 人`;
+      });
+
+      db.ref(`presence/daily/${todayStr}`).on('value', (snap) => {
+        const count = snap.val() ? Object.keys(snap.val()).length : 0;
+        const el = document.getElementById('admin-today-visitor-count');
+        if (el) el.textContent = `${count} 人`;
+      });
+
+      db.ref('presence/history').on('value', (snap) => {
+        renderVisitorHistory(snap.val());
+      });
+    }
+
+    // ---------------------------------------------------------
+    // お知らせモーダル表示制御
+    // ---------------------------------------------------------
+    function openNoticeModal() {
+      document.getElementById('modal-notice').classList.remove('hidden');
+      const redDot = document.getElementById('notice-red-dot');
+      if (redDot) {
+        redDot.classList.add('hidden');
+      }
+      localStorage.setItem('notice_read_status', 'read');
+    }
+    function closeNoticeModal() {
+      document.getElementById('modal-notice').classList.add('hidden');
+    }
+
+    // Nurse＋ AI/LINE連携API。サーバーURLのみ設定。
+    const NURSE_LINE_API_BASE_URL = "";
+    let aiNoticeCurrentDraftId = null;
+
+    function updateAiNoticeLengthStatus() {
+      const content = document.getElementById('ai-notice-content');
+      const status = document.getElementById('ai-notice-length-status');
+      if (!content || !status) return;
+      status.textContent = `本文 ${content.value.length} / 2000文字`;
+      status.className = content.value.length > 2000 ? 'text-[10px] text-rose-400' : 'text-[10px] text-slate-500';
+    }
+
+    async function callNurseLineApi(path, payload) {
+      if (!NURSE_LINE_API_BASE_URL) {
+        throw new Error('AI・LINEサーバーAPIが未設定です。別リポジトリのサーバーを構築してから接続してください。');
+      }
+      const sessionToken = sessionStorage.getItem('nurse_line_admin_session');
+      if (!sessionToken) {
+        throw new Error('サーバー管理者認証がありません。安全な管理者ログインを先に設定してください。');
+      }
+      const response = await fetch(`${NURSE_LINE_API_BASE_URL.replace(/\/$/, '')}${path}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionToken}` },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || `サーバーエラー (${response.status})`);
+      return data;
+    }
+
+    async function generateAiNoticeDraft() {
+      const btn = document.getElementById('ai-notice-generate-btn');
+      const instruction = document.getElementById('ai-notice-instruction').value.trim();
+      const tone = document.getElementById('ai-notice-tone').value;
+      const countValue = document.getElementById('ai-notice-problem-count').value;
+      const problemCount = countValue === '' ? null : Number(countValue);
+      if (!instruction) { alert('AIへの指示・お知らせの目的を入力してください。'); return; }
+      if (problemCount !== null && (!Number.isInteger(problemCount) || problemCount < 0)) { alert('問題数は0以上の整数で入力してください。'); return; }
+      btn.disabled = true;
+      const originalText = btn.textContent;
+      btn.textContent = '下書きを作成中…';
+      try {
+        const result = await callNurseLineApi('/api/notices/draft', { instruction, tone, problemCount, appUrl: 'https://testpreparation.github.io/Test-prep-workbook/' });
+        const draft = result.draft || result;
+        document.getElementById('ai-notice-title').value = String(draft.title || '').slice(0, 100);
+        document.getElementById('ai-notice-content').value = String(draft.content || '').slice(0, 2000);
+        aiNoticeCurrentDraftId = draft.id || result.draftId || null;
+        document.getElementById('ai-notice-draft-status').textContent = 'AI下書き・未承認';
+        updateAiNoticeLengthStatus();
+        saveAiNoticeDraft(false);
+        alert('AI下書きを作成しました。公開・LINE配信前に内容を確認してください。');
+      } catch (err) {
+        console.error('AIお知らせ下書きの作成に失敗しました:', err);
+        alert(err.message || 'AI下書きを作成できませんでした。');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    }
+
+    function saveAiNoticeDraft(showMessage = true) {
+      const title = document.getElementById('ai-notice-title').value.trim();
+      const content = document.getElementById('ai-notice-content').value.trim();
+      if (!title && !content) { if (showMessage) alert('保存する下書きがありません。'); return; }
+      const draft = {
+        id: aiNoticeCurrentDraftId || `local_${Date.now()}`,
+        title, content,
+        tone: document.getElementById('ai-notice-tone').value,
+        instruction: document.getElementById('ai-notice-instruction').value.trim(),
+        scheduledAt: document.getElementById('ai-notice-scheduled-at').value || null,
+        updatedAt: Date.now(),
+        status: 'draft'
+      };
+      aiNoticeCurrentDraftId = draft.id;
+      try {
+        localStorage.setItem('nurse_plus_ai_notice_draft', JSON.stringify(draft));
+        document.getElementById('ai-notice-draft-status').textContent = 'この端末に下書き保存済み';
+        if (showMessage) alert('下書きをこの端末に保存しました。');
+      } catch (err) {
+        console.error('下書き保存に失敗しました:', err);
+        if (showMessage) alert('下書きを保存できませんでした。');
+      }
+    }
+
+    function restoreAiNoticeDraft() {
+      try {
+        const raw = localStorage.getItem('nurse_plus_ai_notice_draft');
+        if (!raw) return;
+        const draft = JSON.parse(raw);
+        if (!draft || typeof draft !== 'object') return;
+        document.getElementById('ai-notice-title').value = draft.title || '';
+        document.getElementById('ai-notice-content').value = draft.content || '';
+        document.getElementById('ai-notice-tone').value = draft.tone || 'polite';
+        document.getElementById('ai-notice-instruction').value = draft.instruction || '';
+        document.getElementById('ai-notice-scheduled-at').value = draft.scheduledAt || '';
+        aiNoticeCurrentDraftId = draft.id || null;
+        document.getElementById('ai-notice-draft-status').textContent = '保存済み下書きを復元';
+        updateAiNoticeLengthStatus();
+      } catch (err) { console.warn('AIお知らせ下書きを復元できませんでした:', err); }
+    }
+
+    function previewAiNoticeDraft() {
+      const title = document.getElementById('ai-notice-title').value.trim();
+      const content = document.getElementById('ai-notice-content').value.trim();
+      if (!title || !content) { alert('プレビューするタイトルと本文を入力してください。'); return; }
+      if (content.length > 2000) { alert('本文が2000文字を超えています。短くしてください。'); return; }
+      document.getElementById('ai-notice-preview-title').textContent = title;
+      document.getElementById('ai-notice-preview-content').textContent = content;
+      const schedule = document.getElementById('ai-notice-scheduled-at').value;
+      document.getElementById('ai-notice-preview-schedule').textContent = schedule ? `配信予定：${schedule.replace('T', ' ')}` : '配信予定：サーバー側の即時配信設定に従う';
+      document.getElementById('ai-notice-preview').classList.remove('hidden');
+    }
+
+    async function approveAndQueueAiNotice() {
+      const title = document.getElementById('ai-notice-title').value.trim();
+      const content = document.getElementById('ai-notice-content').value.trim();
+      const scheduledAt = document.getElementById('ai-notice-scheduled-at').value || null;
+      if (!title || !content) { alert('タイトルと本文を入力してください。'); return; }
+      if (title.length > 100 || content.length > 2000) { alert('タイトルは100文字以内、本文は2000文字以内にしてください。'); return; }
+      previewAiNoticeDraft();
+      if (!confirm('プレビューを確認しましたか？ 承認するとサーバー側で公開とLINE配信予約を行います。')) return;
+      try {
+        const result = await callNurseLineApi('/api/notices/approve', {
+          draftId: aiNoticeCurrentDraftId,
+          title, content, scheduledAt,
+          approvedAt: new Date().toISOString(),
+          appUrl: 'https://testpreparation.github.io/Test-prep-workbook/',
+          approvalRequired: true,
+          target: 'all_followers'
+        });
+        document.getElementById('ai-notice-draft-status').textContent = '承認済み・サーバー受付済み';
+        localStorage.removeItem('nurse_plus_ai_notice_draft');
+        alert(result.message || '承認を受け付けました。');
+      } catch (err) {
+        console.error('AIお知らせの承認・配信予約に失敗しました:', err);
+        alert(err.message || '承認・配信予約に失敗しました。');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const aiContent = document.getElementById('ai-notice-content');
+      if (aiContent) aiContent.addEventListener('input', updateAiNoticeLengthStatus);
+      restoreAiNoticeDraft();
+    });
+
+    // ★ 修正箇所：サーバー（アーカイブ）へもデータを送り、LINE通知キューに追加できるように拡張
+    async function postAdminNotice() {
+      const titleInput = document.getElementById('admin-notice-title');
+      const contentInput = document.getElementById('admin-notice-content');
+
+      const title = titleInput.value.trim();
+      const content = contentInput.value.trim();
+
+      if (!title || !content) {
+        alert("お知らせのタイトルと本文を入力してください。");
+        return;
+      }
+
+      const fullContent = `【${title}】\n${content}`;
+
+      try {
+        // 1. サーバー側のアーカイブAPIエンドポイントへ送信（未設定でなければ実行）
+        if (NURSE_LINE_API_BASE_URL) {
+          await fetch(`${NURSE_LINE_API_BASE_URL.replace(/\/$/, '')}/api/generate-notice`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: fullContent })
+          });
+        }
+
+        // 2. 従来のFirebase保存
+        const noticeData = {
+          title: title,
+          content: content,
+          timestamp: Date.now(),
+          published: true
+        };
+
+        await db.ref('notices').push(noticeData);
+
+        alert("お知らせを投稿し、LINE通知の送信キューに追加しました！");
+        titleInput.value = '';
+        contentInput.value = '';
+      } catch (err) {
+        console.error("お知らせの送信に失敗しました:", err);
+        alert("お知らせの送信に失敗しました。");
+      }
+    }
+
+    function deleteAdminNotice(noticeId) {
+      if (!confirm("このお知らせを消去しますか？")) return;
+
+      db.ref(`notices/${noticeId}`).remove().then(() => {
+        alert("お知らせを削除しました。");
+      }).catch(err => {
+        console.error("お知らせの削除に失敗しました:", err);
+        alert("削除に失敗しました。");
+      });
+    }
+
+    // ---------------------------------------------------------
+    // データ形式の自動補正ヘルパー
+    // ---------------------------------------------------------
+    function normalizeQuestion(item) {
+      if (!item) return null;
+
+      const qText = item.q || item.question || item.title || item.text || "問題文がありません";
+
+      let opts = item.options || item.opts || item.choices || item.answers || [];
+      if (!Array.isArray(opts)) {
+        opts = [];
+      }
+
+      let correctAnswers = [];
+      const rawAns = item.correctAnswers !== undefined ? item.correctAnswers : (item.answers !== undefined ? item.answers : (item.answer !== undefined ? item.answer : (item.correct !== undefined ? item.correct : (item.ans !== undefined ? item.ans : item.correctIndex))));
+     
+      if (Array.isArray(rawAns)) {
+        if (rawAns.length > 0 && typeof rawAns[0] === 'string' && opts.length > 0) {
+          correctAnswers = rawAns.map(ansText => opts.indexOf(ansText)).filter(idx => idx !== -1);
+          if (correctAnswers.length === 0) {
+            correctAnswers = rawAns.map(v => parseInt(v, 10)).filter(v => !isNaN(v));
+          }
+        } else {
+          correctAnswers = rawAns.map(v => parseInt(v, 10)).filter(v => !isNaN(v));
+        }
+      } else if (typeof rawAns === 'number') {
+        correctAnswers = [rawAns];
+      } else if (typeof rawAns === 'string') {
+        const parsed = parseInt(rawAns, 10);
+        if (!isNaN(parsed)) {
+          correctAnswers = [parsed];
+        } else if (opts.length > 0) {
+          const foundIdx = opts.indexOf(rawAns);
+          if (foundIdx !== -1) correctAnswers = [foundIdx];
+        }
+      }
+
+      let wordBoxData = item.wordBox || item.wordGroup || item.words || null;
+      let imgData = item.image || item.img || null;
+
+      const expText = item.exp || item.explanation || item.desc || item.detail || "解説はありません。";
+
+      return {
+        ...item,
+        id: item.id || `q_${Math.random().toString(36).substring(2, 9)}`,
+        q: qText,
+        options: opts,
+        answers: correctAnswers,
+        image: imgData,
+        wordBox: wordBoxData,
+        isMultiple: correctAnswers.length > 1,
+        exp: expText,
+        enableKeyboard: !!item.enableKeyboard,
+        keyword: item.keyword || (typeof rawAns === 'string' && isNaN(parseInt(rawAns, 10)) ? rawAns : "")
+      };
+    }
+
+    const defaultSubjects = [
+      { id: "psychology", name: "心理学", code: "PSY", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: true, hasRounds: true, fixedCount: null },
+      { id: "mind_behavior", name: "こころと行動", code: "MND", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: true, hasRounds: false, fixedCount: null },
+      { id: "medical_intro", name: "医療概論", code: "MED", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "physiology", name: "生理学", code: "PHY", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, hasPhysiologyModes: true, fixedCount: null },
+      { id: "biochemistry", name: "生化学", code: "BIO", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, hasBiochemistryFormats: true, fixedCount: null },
+      { id: "microbiology", name: "微生物学", code: "MIC", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: true, hasRounds: false, fixedCount: null },
+      { id: "anatomy", name: "解剖学", code: "ANA", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, hasAnatomyModes: true, fixedCount: null },
+      { id: "nursing_method", name: "看護学方法論Ⅰ", code: "NUR Ⅰ", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: true, hasRounds: false, hasNursingModes: true, fixedCount: null },
+      { id: "public_health_nursing", name: "公衆衛生看護学概論", code: "PHN", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, hasPHNModes: true, fixedCount: null },
+      { id: "public_health", name: "公衆衛生学", code: "PUB", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, hasPublicHealthModes: true, fixedCount: null },
+      { id: "nutrition", name: "栄養学", code: "NUT", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "pathology", name: "病理学", code: "PAT", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "medical_welfare", name: "医療福祉概論", code: "MWL", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "constitution", name: "日本国憲法", code: "CON", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "pharmacology", name: "薬理学", code: "PHA", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "statistics", name: "統計学", code: "STA", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "nursing_method_3", name: "看護学方法論Ⅲ", code: "NUR Ⅲ", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null },
+      { id: "nursing_method_4", name: "看護学方法論Ⅳ", code: "NUR Ⅳ", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null }
+    ];
+
+    let subjects = [...defaultSubjects];
+    let currentSubject = null;
+    let currentSemester = null;
+    let currentRound = null;
+    let currentPhysiologyMode = 'past';
+    let currentAnatomyMode = 'basic';
+    let currentPublicHealthMode = 'past';
+    let currentPHNMode = 'basic';
+    let currentNursingMode = 'rounds';
+    let currentPharmacologyMode = 'exercise';
+    let currentPathologyMode = 'exercise';
+    let currentPathologyRound = null;
+    let currentNursingMethod3Mode = 'practice';
+    let currentNutritionMode = 'exercise';
+    let currentBiochemistryFormat = 'choice';
+    let activeQuestions = [];
+    let currentQIndex = 0;
+    let score = 0;
+    let isAnswered = false;
+    let prioritizeWeakQuestions = false;
+    let selectedIndices = new Set();
+    let dragulaInstance = null;
+
+    let quizTimer = null;
+    let timeLeft = 30;
+    let QUIZ_LIMIT_TIME = 30;
+
+    let currentRoomCode = null;
+    let isHost = false;
+    let roomRef = null;
+    let roomData = null;
+
+    let editingSubjectId = null;
+    let editingCategory = 'quiz';
+    let editingQuestionsList = [];
+    let editingSelectedRound = 'choice';
+
+    let currentSubjectPageIndex = 0;
+    let flashcardAllList = [];
+    let flashcardUnlearnedList = [];
+    let flashcardCurrentIndex = 0;
+    let isFlashcardFlipped = false;
+    let currentFlashcardSubject = null;
+    let flashcardMode = 0;
+    let flashcardSubjectLocked = false;
+
+    function getAverageAccuracy(subjectId) {
+      const historyKey = `history_accuracy_${subjectId}`;
+      const records = JSON.parse(localStorage.getItem(historyKey) || '[]');
+      if (!records || records.length === 0) return null;
+      const sum = records.reduce((acc, curr) => acc + curr, 0);
+      return Math.round(sum / records.length);
+    }
+
+    function switchSubjectPage(pageIdx) {
+      currentSubjectPageIndex = pageIdx;
+      const track = document.getElementById('subjects-slider-track');
+      const dot1 = document.getElementById('dot-page-1');
+      const dot2 = document.getElementById('dot-page-2');
+
+      if (track) {
+        track.style.transform = `translateX(-${pageIdx * 50}%)`;
+      }
+
+      if (pageIdx === 0) {
+        dot1.className = "w-2.5 h-2.5 rounded-full bg-amber-500 transition-all duration-300";
+        dot2.className = "w-2.5 h-2.5 rounded-full bg-slate-700 hover:bg-slate-600 transition-all duration-300";
+      } else {
+        dot1.className = "w-2.5 h-2.5 rounded-full bg-slate-700 hover:bg-slate-600 transition-all duration-300";
+        dot2.className = "w-2.5 h-2.5 rounded-full bg-amber-500 transition-all duration-300";
+        backToFlashcardStep(1);
+      }
+    }
+
+    function initSubjectPageSwipe() {
+      const screenEl = document.getElementById('screen-subjects');
+      if (!screenEl) return;
+
+      let startX = 0;
+      let startY = 0;
+      let isDragging = false;
+
+      screenEl.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        isDragging = true;
+      }, { passive: true });
+
+      screenEl.addEventListener('touchend', (e) => {
+        if (!isDragging) return;
+        if (flashcardSubjectLocked) { isDragging = false; return; }
+        isDragging = false;
+        const endX = e.changedTouches[0].clientX;
+        const endY = e.changedTouches[0].clientY;
+        const diffX = endX - startX;
+        const diffY = endY - startY;
+
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
+          if (diffX < 0 && currentSubjectPageIndex === 0) {
+            switchSubjectPage(1);
+          } else if (diffX > 0 && currentSubjectPageIndex === 1) {
+            switchSubjectPage(0);
+          }
+        }
+      }, { passive: true });
+    }
+
+    function fetchFlashcardDataForSubject(subjectId) {
+      if (subjectId === 'nutrition' && (!window.FLASHCARD_DB || !Array.isArray(window.FLASHCARD_DB.nutrition) || window.FLASHCARD_DB.nutrition.length === 0) && Array.isArray(window.NUTRITION_FLASHCARD_DATA) && window.NUTRITION_FLASHCARD_DATA.length > 0) {
+        return window.NUTRITION_FLASHCARD_DATA;
+      }
+      if (subjectId === 'biochemistry' && typeof window.getBiochemistryFlashcardQuestions === 'function') {
+        const bioFC = window.getBiochemistryFlashcardQuestions();
+        if (Array.isArray(bioFC) && bioFC.length > 0) {
+          return bioFC;
+        }
+      }
+      if (subjectId === 'nutrition' && typeof window.getNutritionFlashcardQuestions === 'function') {
+        const nutritionFC = window.getNutritionFlashcardQuestions();
+        if (Array.isArray(nutritionFC) && nutritionFC.length > 0) {
+          return nutritionFC;
+        }
+      }
+      if (window.FLASHCARD_DB && Array.isArray(window.FLASHCARD_DB[subjectId]) && window.FLASHCARD_DB[subjectId].length > 0) {
+        return window.FLASHCARD_DB[subjectId];
+      }
+      return [];
+    }
+
+    function backToFlashcardStep(stepNum) {
+      document.getElementById('fc-step-1-subject-select').classList.add('hidden');
+      document.getElementById('fc-step-2-dashboard').classList.add('hidden');
+      document.getElementById('fc-step-3-time').classList.add('hidden');
+      document.getElementById('fc-step-3-count').classList.add('hidden');
+      
+      const step4 = document.getElementById('fc-step-4-play');
+      step4.classList.add('hidden');
+      step4.classList.remove('flex');
+
+      if (stepNum === 1) {
+        flashcardSubjectLocked = false;
+        const dots = document.getElementById('subject-page-dots');
+        if (dots) dots.classList.remove('hidden');
+        document.getElementById('fc-step-1-subject-select').classList.remove('hidden');
+        renderFlashcardSubjectList();
+      } else if (stepNum === 2) {
+        document.getElementById('fc-step-2-dashboard').classList.remove('hidden');
+        updateFlashcardDashboardUI();
+      }
+    }
+
+    function renderFlashcardSubjectList() {
+      const container = document.getElementById('flashcard-subject-list-container');
+      if (!container) return;
+
+      const visibleSubjects = subjects.filter(s => s.status !== 'preparing' && s.visible !== false && s.flashcardVisible !== false);
+      
+      if (visibleSubjects.length === 0) {
+        container.innerHTML = `<div class="text-center py-8 text-xs text-slate-500">利用可能な暗記カード科目がありません。</div>`;
+        return;
+      }
+
+      container.innerHTML = visibleSubjects.map(s => {
+        const fcData = fetchFlashcardDataForSubject(s.id).filter(item => item.visible !== false);
+        const learnedSet = getLearnedWordsSet(s.id);
+        const totalCount = fcData.length;
+        const learnedCount = Math.min(learnedSet.size, totalCount);
+        const progressPercent = totalCount > 0 ? Math.round((learnedCount / totalCount) * 100) : 0;
+
+        return `
+          <button onclick="selectFlashcardSubject('${s.id}')" class="card-item w-full p-3.5 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-[11px] font-bold">${s.code}</span>
+              <div>
+                <div class="text-xs font-medium text-slate-100 group-hover:text-amber-300 transition">${s.name}</div>
+                <div class="text-[10px] text-slate-400 font-light mt-0.5">全${totalCount}単語 (達成率: ${progressPercent}%)</div>
+              </div>
+            </div>
+            <span class="text-amber-500/80 group-hover:text-amber-400 transition text-xs font-medium">選択 →</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectFlashcardSubject(subjectId) {
+      flashcardSubjectLocked = true;
+      const dots = document.getElementById('subject-page-dots');
+      if (dots) dots.classList.add('hidden');
+      currentFlashcardSubject = subjects.find(s => s.id === subjectId);
+      if (!currentFlashcardSubject) return;
+
+      loadFlashcardData();
+      backToFlashcardStep(2);
+    }
+
+    function getLearnedStorageKey(subjectId) {
+      return `flashcard_learned_${subjectId}`;
+    }
+
+    function getLearnedWordsSet(subjectId) {
+      const raw = localStorage.getItem(getLearnedStorageKey(subjectId));
+      return new Set(raw ? JSON.parse(raw) : []);
+    }
+
+    function saveLearnedWordsSet(subjectId, setObj) {
+      localStorage.setItem(getLearnedStorageKey(subjectId), JSON.stringify(Array.from(setObj)));
+    }
+
+    function loadFlashcardData() {
+      if (!currentFlashcardSubject) return;
+      const subId = currentFlashcardSubject.id;
+
+      const rawFcData = fetchFlashcardDataForSubject(subId);
+
+      flashcardAllList = rawFcData.map((item, i) => ({
+        id: item.id || `card_${i}_${(item.word || '').substring(0, 8)}`,
+        word: item.word || "単語",
+        meaning: item.meaning || "意味",
+        exp: item.exp || "解説はありません。",
+        visible: item.visible !== false
+      }));
+
+      const learnedSet = getLearnedWordsSet(subId);
+      flashcardUnlearnedList = flashcardAllList.filter(item => item.visible !== false && !learnedSet.has(item.id));
+    }
+
+    function updateFlashcardDashboardUI() {
+      if (!currentFlashcardSubject) return;
+
+      document.getElementById('fc-dash-subject-title').textContent = currentFlashcardSubject.name;
+
+      const validList = flashcardAllList.filter(item => item.visible !== false);
+      const total = validList.length;
+      const learnedSet = getLearnedWordsSet(currentFlashcardSubject.id);
+      const learnedCount = Math.min(learnedSet.size, total);
+      const progressPercent = total > 0 ? Math.round((learnedCount / total) * 100) : 0;
+
+      document.getElementById('fc-dash-learned-count').textContent = learnedCount;
+      document.getElementById('fc-dash-total-count').textContent = total;
+      document.getElementById('fc-dash-progress-percent').textContent = `${progressPercent}%`;
+      document.getElementById('fc-dash-progress-bar').style.width = `${progressPercent}%`;
+
+      const goBtn = document.getElementById('fc-go-step3-btn');
+      const warningEl = document.getElementById('fc-no-questions-warning');
+
+      if (total === 0) {
+        if (goBtn) goBtn.disabled = true;
+        if (warningEl) warningEl.classList.remove('hidden');
+      } else {
+        if (goBtn) goBtn.disabled = false;
+        if (warningEl) warningEl.classList.add('hidden');
+      }
+
+      const toggleSwitch = document.getElementById('fc-mode-toggle-switch');
+      if (toggleSwitch) {
+        toggleSwitch.checked = (flashcardMode === 1);
+      }
+      updateToggleLabelUI(flashcardMode);
+    }
+
+    function toggleFlashcardModeSwitch(isChecked) {
+      flashcardMode = isChecked ? 1 : 0;
+      updateToggleLabelUI(flashcardMode);
+    }
+
+    function updateToggleLabelUI(mode) {
+      const titleEl = document.getElementById('fc-toggle-status-title');
+      if (!titleEl) return;
+      if (mode === 0) {
+        titleEl.textContent = "表: 単語 → 裏: 意味";
+        titleEl.className = "text-xs font-bold text-slate-200";
+      } else {
+        titleEl.textContent = "表: 意味 → 裏: 単語";
+        titleEl.className = "text-xs font-bold text-amber-400";
+      }
+    }
+
+    function goToFlashcardTimeSetting() {
+      const validList = flashcardAllList.filter(item => item.visible !== false);
+      if (validList.length === 0) {
+        alert("この科目には暗記カードが登録されていません。");
+        return;
+      }
+
+      document.getElementById('fc-step-2-dashboard').classList.add('hidden');
+      document.getElementById('fc-step-3-count').classList.add('hidden');
+      document.getElementById('fc-step-3-time').classList.remove('hidden');
+      document.getElementById('fc-time-subject-title').textContent = `${currentFlashcardSubject.name} - 秒数設定`;
+    }
+
+    function goToFlashcardCountSetting() {
+      document.getElementById('fc-step-3-time').classList.add('hidden');
+      document.getElementById('fc-step-3-count').classList.remove('hidden');
+      document.getElementById('fc-count-subject-title').textContent = `${currentFlashcardSubject.name} - 枚数設定`;
+    }
+
+    function startFlashcardPlay() {
+      const validList = flashcardAllList.filter(item => item.visible !== false);
+      if (validList.length === 0) {
+        alert("この科目には暗記カードが登録されていません。");
+        backToFlashcardStep(2);
+        return;
+      }
+
+      document.getElementById('fc-step-3-count').classList.add('hidden');
+      const playStep = document.getElementById('fc-step-4-play');
+      playStep.classList.remove('hidden');
+      playStep.classList.add('flex');
+
+      const reqCount = parseInt(document.getElementById('fc-count-slider').value, 10) || 10;
+      
+      let list = [...flashcardUnlearnedList];
+      if (list.length === 0) {
+        const shouldReset = confirm(`「${currentFlashcardSubject.name}」はすべての単語を覚えています。記憶状態をリセットして、もう一度学習しますか？`);
+        if (!shouldReset) {
+          document.getElementById('fc-step-4-play').classList.add('hidden');
+          document.getElementById('fc-step-4-play').classList.remove('flex');
+          document.getElementById('fc-step-3-count').classList.remove('hidden');
+          return;
+        }
+        localStorage.removeItem(getLearnedStorageKey(currentFlashcardSubject.id));
+        loadFlashcardData();
+        list = [...flashcardUnlearnedList];
+      }
+
+      const countToTake = Math.min(reqCount, list.length);
+      list = list.sort(() => Math.random() - 0.5).slice(0, countToTake);
+      flashcardUnlearnedList = list;
+
+      flashcardCurrentIndex = 0;
+      isFlashcardFlipped = false;
+
+      renderFlashcardUI();
+    }
+
+    function renderFlashcardUI() {
+      const cardEl = document.getElementById('flashcard-card');
+      const qText = document.getElementById('flashcard-question-text');
+      const aText = document.getElementById('flashcard-answer-text');
+      const expText = document.getElementById('flashcard-exp-text');
+      const progressNum = document.getElementById('flashcard-progress-num');
+
+      const frontLabel = document.getElementById('fc-front-label');
+      const backLabel = document.getElementById('fc-back-label');
+
+      if (cardEl) {
+        cardEl.classList.remove('rotate-y-180');
+        isFlashcardFlipped = false;
+      }
+
+      const cardContainer = document.querySelector('#fc-step-4-play .perspective-1000');
+      const buttons = document.getElementById('fc-action-buttons');
+      const completedMsg = document.getElementById('fc-completed-msg');
+
+      if (!flashcardUnlearnedList || flashcardUnlearnedList.length === 0) {
+        if (cardContainer) cardContainer.classList.add('hidden');
+        if (buttons) buttons.classList.add('hidden');
+        if (completedMsg) completedMsg.classList.remove('hidden');
+        return;
+      } else {
+        if (cardContainer) cardContainer.classList.remove('hidden');
+        if (buttons) buttons.classList.remove('hidden');
+        if (completedMsg) completedMsg.classList.add('hidden');
+      }
+
+      const item = flashcardUnlearnedList[flashcardCurrentIndex];
+      if (!item) return;
+
+      if (progressNum) {
+        progressNum.textContent = `${flashcardCurrentIndex + 1} /${flashcardUnlearnedList.length}`;
+      }
+
+      const wordStr = item.word || "単語";
+      const meaningStr = item.meaning || "意味";
+      const expStr = item.exp || "解説はありません。";
+
+      if (flashcardMode === 0) {
+        if (frontLabel) frontLabel.textContent = "WORD";
+        if (backLabel) backLabel.textContent = "MEANING";
+
+        if (qText) qText.textContent = wordStr;
+        if (aText) aText.textContent = meaningStr;
+        if (expText) expText.textContent = expStr;
+      } else {
+        if (frontLabel) frontLabel.textContent = "MEANING";
+        if (backLabel) backLabel.textContent = "WORD";
+
+        if (qText) qText.textContent = meaningStr;
+        if (aText) aText.textContent = wordStr;
+        if (expText) expText.textContent = expStr;
+      }
+    }
+
+    function flipFlashcard() {
+      const cardEl = document.getElementById('flashcard-card');
+      if (!cardEl || flashcardUnlearnedList.length === 0) return;
+
+      isFlashcardFlipped = !isFlashcardFlipped;
+      if (isFlashcardFlipped) {
+        cardEl.classList.add('rotate-y-180');
+      } else {
+        cardEl.classList.remove('rotate-y-180');
+      }
+    }
+
+    function markCurrentCardLearned() {
+      if (!currentFlashcardSubject || flashcardUnlearnedList.length === 0) return;
+
+      const currentCard = flashcardUnlearnedList[flashcardCurrentIndex];
+      if (!currentCard) return;
+
+      const subId = currentFlashcardSubject.id;
+      const learnedSet = getLearnedWordsSet(subId);
+      learnedSet.add(currentCard.id);
+      saveLearnedWordsSet(subId, learnedSet);
+
+      nextFlashcard();
+    }
+
+    function nextFlashcard() {
+      if (flashcardUnlearnedList.length === 0) return;
+      if (flashcardCurrentIndex + 1 >= flashcardUnlearnedList.length) {
+        const cardContainer = document.querySelector('#fc-step-4-play .perspective-1000');
+        const buttons = document.getElementById('fc-action-buttons');
+        const completedMsg = document.getElementById('fc-completed-msg');
+        if (cardContainer) cardContainer.classList.add('hidden');
+        if (buttons) buttons.classList.add('hidden');
+        if (completedMsg) completedMsg.classList.remove('hidden');
+        return;
+      }
+      flashcardCurrentIndex = flashcardCurrentIndex + 1;
+      renderFlashcardUI();
+    }
+
+    function resetLearnedWordsForCurrentSubject() {
+      if (!currentFlashcardSubject) return;
+      if (confirm(`科目「${currentFlashcardSubject.name}」の記憶状態をリセットしますか？`)) {
+        localStorage.removeItem(getLearnedStorageKey(currentFlashcardSubject.id));
+        loadFlashcardData();
+        updateFlashcardDashboardUI();
+        alert("記憶状態をリセットしました。");
+      }
+    }
+
+    function openLearnedWordsModal() {
+      if (!currentFlashcardSubject) return;
+
+      const subId = currentFlashcardSubject.id;
+      const learnedSet = getLearnedWordsSet(subId);
+      const learnedList = flashcardAllList.filter(item => learnedSet.has(item.id));
+
+      const container = document.getElementById('learned-words-list-container');
+      
+      if (learnedList.length === 0) {
+        container.innerHTML = `<div class="text-center py-6 text-slate-500">まだ覚えた単語はありません。「覚えた！」ボタンを押すと一覧に追加されます。</div>`;
+      } else {
+        container.innerHTML = learnedList.map(item => `
+          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center gap-2">
+            <div class="space-y-0.5 overflow-hidden">
+              <div class="font-bold text-amber-400 text-xs truncate">${item.word}</div>
+              <div class="text-[11px] text-slate-300 font-light truncate">${item.meaning}</div>
+            </div>
+            <button onclick="unmarkLearnedWord('${item.id}')" class="px-2 py-1 bg-slate-800 hover:bg-rose-900 text-rose-300 border border-slate-700 rounded text-[10px] shrink-0 transition">
+              未修得に戻す
+            </button>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('modal-learned-words').classList.remove('hidden');
+    }
+
+    function unmarkLearnedWord(cardId) {
+      if (!currentFlashcardSubject) return;
+      const subId = currentFlashcardSubject.id;
+      const learnedSet = getLearnedWordsSet(subId);
+      learnedSet.delete(cardId);
+      saveLearnedWordsSet(subId, learnedSet);
+
+      openLearnedWordsModal();
+      loadFlashcardData();
+      updateFlashcardDashboardUI();
+    }
+
+    function closeLearnedWordsModal() {
+      document.getElementById('modal-learned-words').classList.add('hidden');
+    }
+
+    function openAuthModal() {
+      document.getElementById('modal-auth').classList.remove('hidden');
+      document.getElementById('admin-password-input').value = '';
+      document.getElementById('auth-error-msg').classList.add('hidden');
+    }
+
+    function closeAuthModal() {
+      document.getElementById('modal-auth').classList.add('hidden');
+    }
+
+    function submitPassword() {
+      const pwd = document.getElementById('admin-password-input').value;
+      if (pwd === "2721") {
+        closeAuthModal();
+        openAdminModal();
+      } else {
+        document.getElementById('auth-error-msg').classList.remove('hidden');
+      }
+    }
+
+    function openAdminModal() {
+      document.getElementById('modal-admin').classList.remove('hidden');
+      renderAdminDragList();
+    }
+
+    function closeAdminModal() {
+      document.getElementById('modal-admin').classList.add('hidden');
+    }
+
+    function saveSubjectsToStorage() {
+      db.ref('subjects').set(subjects);
+    }
+
+    function renderAdminDragList() {
+      const container = document.getElementById('admin-drag-container');
+      if (!container) return;
+
+      container.innerHTML = subjects.map((s, idx) => {
+        const semSetting = s.semesterSetting || 'all';
+        const isFcVisible = (s.flashcardVisible !== false);
+
+        return `
+        <div data-id="${s.id}" class="drag-item p-3 rounded-xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <span class="drag-handle cursor-grab active:cursor-grabbing text-slate-500 hover:text-amber-400 text-base">☰</span>
+            <span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-[10px] font-bold">${s.code}</span>
+            <span class="text-xs font-medium text-slate-200">${s.name}</span>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <select onchange="updateSubjectSemesterSetting(${idx}, this.value)" class="bg-slate-900 border border-slate-700 text-slate-300 text-[11px] rounded-lg px-2 py-1 focus:outline-none focus:border-amber-500">
+              <option value="all" ${semSetting === 'all' ? 'selected' : ''}>学期: 両方</option>
+              <option value="spring" ${semSetting === 'spring' ? '
