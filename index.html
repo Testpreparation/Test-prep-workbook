@@ -1413,6 +1413,20 @@
           <span class="text-[9px] tracking-normal text-slate-500">DRAFT → REVIEW → APPROVE</span>
         </div>
         <p class="text-[10px] text-slate-400 leading-relaxed">AIが作成した文章は下書きとして表示されます。内容を確認・修正し、管理者が承認するまで公開・LINE配信されません。</p>
+
+        <!-- LINE送信モード切り替え（今回の追加機能） -->
+        <div class="p-3 rounded-xl bg-slate-950/80 border border-cyan-900/50 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[11px] font-semibold text-slate-200">LINE送信モード</span>
+            <span id="line-send-mode-status" class="text-[10px] text-emerald-300">テスト送信（初期設定）</span>
+          </div>
+          <p class="text-[10px] text-slate-400 leading-relaxed">テスト送信は管理者本人だけに届きます。全員送信に切り替えた場合のみ、友だち全員へ配信されます。</p>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" id="line-send-mode-test-btn" onclick="setLineSendMode('test')" class="py-2 rounded-lg bg-emerald-900/60 hover:bg-emerald-800/80 border border-emerald-700/60 text-emerald-200 text-xs font-medium transition">テスト送信</button>
+            <button type="button" id="line-send-mode-all-btn" onclick="setLineSendMode('all')" class="py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-medium transition">全員送信</button>
+          </div>
+        </div>
+
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <label class="text-[10px] text-slate-400 space-y-1">文章のトーン
             <select id="ai-notice-tone" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-cyan-500">
@@ -1775,7 +1789,7 @@
       status.className = content.value.length > 2000 ? 'text-[10px] text-rose-400' : 'text-[10px] text-slate-500';
     }
 
-    async function callNurseLineApi(path, payload) {
+    async function callNurseLineApi(path, payload, method = 'POST') {
       if (!NURSE_LINE_API_BASE_URL) {
         throw new Error('AI・LINEサーバーAPIが未設定です。別リポジトリのサーバーを構築してから接続してください。');
       }
@@ -1783,14 +1797,71 @@
       if (!sessionToken) {
         throw new Error('サーバー管理者認証がありません。安全な管理者ログインを先に設定してください。');
       }
-      const response = await fetch(`${NURSE_LINE_API_BASE_URL.replace(/\/$/, '')}${path}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionToken}` },
-        body: JSON.stringify(payload)
-      });
+      const options = {
+        method,
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionToken}` }
+      };
+      if (method !== 'GET') options.body = JSON.stringify(payload || {});
+      const response = await fetch(`${NURSE_LINE_API_BASE_URL.replace(/\/$/, '')}${path}`, options);
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.message || `サーバーエラー (${response.status})`);
+      if (!response.ok) throw new Error(data.message || data.error || `サーバーエラー (${response.status})`);
       return data;
+    }
+
+    async function loadLineSendMode() {
+      const status = document.getElementById('line-send-mode-status');
+      try {
+        const result = await callNurseLineApi('/api/line/send-mode', null, 'GET');
+        renderLineSendMode(result.mode);
+      } catch (err) {
+        if (status) {
+          status.textContent = 'モード取得失敗';
+          status.className = 'text-[10px] text-rose-300';
+        }
+        console.error('LINE送信モードの取得に失敗しました:', err);
+      }
+    }
+
+    function renderLineSendMode(mode) {
+      const status = document.getElementById('line-send-mode-status');
+      const testButton = document.getElementById('line-send-mode-test-btn');
+      const allButton = document.getElementById('line-send-mode-all-btn');
+      if (!status || !testButton || !allButton) return;
+
+      if (mode === 'all') {
+        status.textContent = '全員送信';
+        status.className = 'text-[10px] text-rose-300 font-semibold';
+        testButton.className = 'py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-medium transition';
+        allButton.className = 'py-2 rounded-lg bg-rose-900/60 hover:bg-rose-800/80 border border-rose-700/60 text-rose-200 text-xs font-semibold transition';
+      } else {
+        status.textContent = 'テスト送信';
+        status.className = 'text-[10px] text-emerald-300 font-semibold';
+        testButton.className = 'py-2 rounded-lg bg-emerald-900/60 hover:bg-emerald-800/80 border border-emerald-700/60 text-emerald-200 text-xs font-semibold transition';
+        allButton.className = 'py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-medium transition';
+      }
+    }
+
+    async function setLineSendMode(mode) {
+      if (mode !== 'test' && mode !== 'all') return;
+      if (mode === 'all' && !confirm('LINEの送信先を友だち全員に切り替えます。よろしいですか？')) return;
+      if (mode === 'test' && !confirm('LINEの送信先を管理者本人だけに切り替えます。よろしいですか？')) return;
+
+      const testButton = document.getElementById('line-send-mode-test-btn');
+      const allButton = document.getElementById('line-send-mode-all-btn');
+      if (testButton) testButton.disabled = true;
+      if (allButton) allButton.disabled = true;
+
+      try {
+        const result = await callNurseLineApi('/api/line/send-mode', { mode });
+        renderLineSendMode(result.mode);
+        alert(result.message || 'LINE送信モードを変更しました。');
+      } catch (err) {
+        console.error('LINE送信モードの変更に失敗しました:', err);
+        alert(err.message || 'LINE送信モードを変更できませんでした。');
+      } finally {
+        if (testButton) testButton.disabled = false;
+        if (allButton) allButton.disabled = false;
+      }
     }
 
     async function generateAiNoticeDraft() {
@@ -2550,21 +2621,39 @@
       document.getElementById('modal-auth').classList.add('hidden');
     }
 
-    function submitPassword() {
+    async function submitPassword() {
       const pwd = document.getElementById('admin-password-input').value;
-      if (pwd === "2721") {
-        // 管理者認証成功時にセッショントークンをセットする
-        sessionStorage.setItem('nurse_line_admin_session', 'admin_logged_in_token');
+      const errorMessage = document.getElementById('auth-error-msg');
+
+      try {
+        const response = await fetch(`${NURSE_LINE_API_BASE_URL.replace(/\/$/, '')}/api/admin/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pwd })
+        });
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok || !result.token) {
+          errorMessage.textContent = result.message || 'パスワードが正しくありません';
+          errorMessage.classList.remove('hidden');
+          return;
+        }
+
+        sessionStorage.setItem('nurse_line_admin_session', result.token);
+        errorMessage.classList.add('hidden');
         closeAuthModal();
         openAdminModal();
-      } else {
-        document.getElementById('auth-error-msg').classList.remove('hidden');
+      } catch (err) {
+        console.error('管理者認証に失敗しました:', err);
+        errorMessage.textContent = 'サーバーに接続できません。時間をおいて再度お試しください。';
+        errorMessage.classList.remove('hidden');
       }
     }
 
     function openAdminModal() {
       document.getElementById('modal-admin').classList.remove('hidden');
       renderAdminDragList();
+      loadLineSendMode();
     }
 
     function closeAdminModal() {
