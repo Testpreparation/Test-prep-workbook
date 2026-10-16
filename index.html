@@ -1400,9 +1400,13 @@
         <div class="space-y-2">
           <input type="text" id="admin-notice-title" placeholder="お知らせのタイトル" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
           <textarea id="admin-notice-content" placeholder="お知らせの本文" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-20"></textarea>
+          <label class="block text-[10px] text-slate-400 space-y-1">LINE配信日時（空欄なら今すぐ配信）
+            <input id="admin-notice-scheduled-at" type="datetime-local" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
+          </label>
+          <p class="text-[9px] text-slate-500 leading-relaxed">カレンダーから日付を選択できます。予約日時を指定した場合、Nurse＋内のお知らせは通常どおり投稿され、LINEだけ指定日時に配信されます。</p>
         </div>
         <button onclick="postAdminNotice()" class="w-full py-2 bg-amber-700/90 hover:bg-amber-600 text-amber-50 text-xs font-medium rounded-lg transition shadow tracking-widest">
-          お知らせを送信する
+          お知らせを投稿／LINE配信
         </button>
       </div>
 
@@ -1943,14 +1947,15 @@
       document.getElementById('ai-notice-preview-title').textContent = title;
       document.getElementById('ai-notice-preview-content').textContent = content;
       const schedule = document.getElementById('ai-notice-scheduled-at').value;
-      document.getElementById('ai-notice-preview-schedule').textContent = schedule ? `配信予定：${schedule.replace('T', ' ')}` : '配信予定：サーバー側の即時配信設定に従う';
+      document.getElementById('ai-notice-preview-schedule').textContent = schedule ? `配信予定：${new Date(schedule).toLocaleString('ja-JP')}` : '配信予定：今すぐ（LINE送信モードに従う）';
       document.getElementById('ai-notice-preview').classList.remove('hidden');
     }
 
     async function approveAndQueueAiNotice() {
       const title = document.getElementById('ai-notice-title').value.trim();
       const content = document.getElementById('ai-notice-content').value.trim();
-      const scheduledAt = document.getElementById('ai-notice-scheduled-at').value || null;
+      const scheduledValue = document.getElementById('ai-notice-scheduled-at').value || '';
+      const scheduledAt = scheduledValue ? new Date(scheduledValue).toISOString() : null;
       if (!title || !content) { alert('タイトルと本文を入力してください。'); return; }
       if (title.length > 100 || content.length > 2000) { alert('タイトルは100文字以内、本文は2000文字以内にしてください。'); return; }
       previewAiNoticeDraft();
@@ -1982,32 +1987,60 @@
     async function postAdminNotice() {
       const titleInput = document.getElementById('admin-notice-title');
       const contentInput = document.getElementById('admin-notice-content');
+      const scheduleInput = document.getElementById('admin-notice-scheduled-at');
 
       const title = titleInput.value.trim();
       const content = contentInput.value.trim();
+      const scheduleValue = scheduleInput ? scheduleInput.value : '';
 
       if (!title || !content) {
         alert("お知らせのタイトルと本文を入力してください。");
         return;
       }
 
-      const fullContent = `【${title}】\\n${content}`;
+      let scheduledAt = null;
+      if (scheduleValue) {
+        const localDate = new Date(scheduleValue);
+        if (!Number.isFinite(localDate.getTime()) || localDate.getTime() <= Date.now()) {
+          alert('LINE配信日時は現在より後の日時を選択してください。');
+          return;
+        }
+        scheduledAt = localDate.toISOString();
+      }
+
+      const fullContent = `【${title}】\n${content}`;
       const noticeData = {
         title: title,
         content: content,
         timestamp: Date.now(),
-        published: true
+        published: true,
+        scheduledAt: scheduledAt
       };
 
+      const confirmation = scheduledAt
+        ? `Nurse＋内には今すぐ投稿し、LINEは ${new Date(scheduledAt).toLocaleString('ja-JP')} に配信予約します。よろしいですか？`
+        : 'Nurse＋内に投稿し、LINEへ今すぐ配信します。よろしいですか？';
+      if (!confirm(confirmation)) return;
+
       try {
-        // サーバーAPIへの送信が成功した場合のみ、従来のFirebase保存を行う。
-        // 認証は既存のcallNurseLineApi()で処理し、秘密情報をHTMLに埋め込まない。
-        await callNurseLineApi('/api/generate-notice', { content: fullContent });
+        if (scheduledAt) {
+          await callNurseLineApi('/api/notices/schedule', {
+            title,
+            content,
+            scheduledAt,
+            appUrl: 'https://testpreparation.github.io/Test-prep-workbook/?openExternalBrowser=1'
+          });
+        } else {
+          await callNurseLineApi('/api/generate-notice', { content: fullContent });
+        }
         await db.ref('notices').push(noticeData);
 
-        alert("お知らせを投稿し、サーバーへ送信しました。");
+        alert(scheduledAt
+          ? `お知らせを投稿しました。LINE配信は ${new Date(scheduledAt).toLocaleString('ja-JP')} に予約しました。`
+          : "お知らせを投稿し、LINEへ送信しました。");
         titleInput.value = '';
         contentInput.value = '';
+        if (scheduleInput) scheduleInput.value = '';
       } catch (err) {
         console.error("お知らせの送信に失敗しました:", err);
         alert(err.message || "お知らせの送信に失敗しました。");
