@@ -1,0 +1,6 @@
+// 栄養学・小テスト（2026年度 秋学期）
+// 小テスト問題データを管理します。
+// 問題を追加する際は、既存の出題形式に合わせて配列内に追加してください。
+window.QUIZ_DB = window.QUIZ_DB || {};
+window.QUIZ_DB.nutrition_quiz_2026_autumn = [
+];
