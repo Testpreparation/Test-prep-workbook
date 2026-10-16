@@ -5172,6 +5172,32 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         if (savedName) {
           window.NURSE_LINE_USER_NAME = savedName;
           console.info('保存済みLINE表示名:', savedName);
+
+          // ログイン前に保存された同じ端末の履歴にもLINE表示名を反映する。
+          // お知らせ機能には触れず、presence/history の履歴表示データだけを更新する。
+          document.addEventListener('DOMContentLoaded', () => {
+            try {
+              if (typeof db === 'undefined' || !db || typeof myPlayerId === 'undefined') return;
+              const historyRef = db.ref('presence/history');
+              historyRef.once('value').then((snap) => {
+                const history = snap.val() || {};
+                const updates = {};
+                Object.entries(history).forEach(([key, record]) => {
+                  if (record && record.visitorId === myPlayerId && record.lineName !== savedName) {
+                    updates[`${key}/lineName`] = savedName;
+                  }
+                });
+                if (Object.keys(updates).length) {
+                  return historyRef.update(updates);
+                }
+              }).catch((error) => console.warn('訪問履歴のLINE表示名更新に失敗:', error));
+
+              db.ref(`presence/history/${myPlayerId}/lineName`).set(savedName)
+                .catch((error) => console.warn('最新訪問履歴のLINE表示名更新に失敗:', error));
+            } catch (error) {
+              console.warn('訪問履歴のLINE表示名を更新できませんでした。', error);
+            }
+          });
         }
 
         // 初回アクセス時、LINE未ログインならログイン案内を表示する。
