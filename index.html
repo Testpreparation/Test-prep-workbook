@@ -1418,10 +1418,12 @@
                 <div id="admin-notice-calendar-days" class="grid grid-cols-7 gap-1"></div>
                 <div class="flex items-center justify-between gap-2"><span class="text-[9px] text-slate-500">日付をタップして選択</span><button type="button" onclick="selectNoticeCalendarToday('admin-notice')" class="text-[10px] text-amber-200 underline underline-offset-2">今日</button></div>
               </div>
-              <label class="col-span-2 block rounded-xl border border-amber-500/25 bg-slate-900/70 p-3 space-y-2">
-                <span class="flex items-center gap-2 text-[11px] font-semibold text-slate-200"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/20 text-base">🕒</span><span>配信時刻</span><span class="ml-auto text-[9px] font-normal text-slate-500">15分単位</span></span>
-                <input id="admin-notice-schedule-time" type="time" step="900" class="w-full min-w-0 rounded-xl border border-amber-500/25 bg-slate-950 px-3 py-3 text-base font-semibold text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400 [color-scheme:dark]" onchange="syncNoticeSchedule('admin-notice')">
-              </label>
+              <div class="col-span-2 rounded-xl border border-amber-500/25 bg-slate-900/70 p-3 space-y-2">
+                <div class="flex items-center gap-2 text-[11px] font-semibold text-slate-200"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/20 text-base">🕒</span><span>配信時刻</span><span class="ml-auto text-[9px] font-normal text-slate-500">15分単位</span></div>
+                <input id="admin-notice-schedule-time" type="time" step="900" class="hidden" onchange="syncNoticeSchedule('admin-notice')">
+                <button type="button" id="admin-notice-time-open-label" onclick="toggleNoticeTimePicker('admin-notice')" aria-expanded="false" class="w-full flex items-center justify-between gap-3 rounded-xl border border-amber-500/30 bg-slate-950 px-3 py-3 text-left hover:bg-slate-800/90 transition"><span class="flex items-center gap-3"><span class="text-lg">◷</span><span id="admin-notice-time-open-value" class="text-sm font-semibold text-slate-100">時刻を選択してください</span></span><span class="text-amber-200 text-lg">⌄</span></button>
+                <div id="admin-notice-time-panel" class="hidden rounded-xl border border-amber-500/25 bg-slate-950/90 p-2 shadow-inner"><div class="mb-2 flex items-center justify-between"><span class="text-[10px] text-slate-300">配信時刻を選択</span><span class="text-[9px] text-slate-500">15分ごと</span></div><div id="admin-notice-time-options" class="grid grid-cols-3 sm:grid-cols-4 gap-1 max-h-44 overflow-y-auto pr-1"></div></div>
+              </div>
             </div>
             <input id="admin-notice-scheduled-at" type="datetime-local" class="hidden">
             <button type="button" onclick="clearNoticeSchedule('admin-notice')" class="w-full py-1.5 rounded-lg border border-slate-700 bg-slate-900 text-slate-300 text-[10px]">予約を解除して今すぐ配信</button>
@@ -1495,10 +1497,12 @@
                 <div id="ai-notice-calendar-days" class="grid grid-cols-7 gap-1"></div>
                 <div class="flex items-center justify-between gap-2"><span class="text-[9px] text-slate-500">日付をタップして選択</span><button type="button" onclick="selectNoticeCalendarToday('ai-notice')" class="text-[10px] text-cyan-200 underline underline-offset-2">今日</button></div>
               </div>
-              <label class="col-span-2 block rounded-xl border border-cyan-500/25 bg-slate-900/70 p-3 space-y-2">
-                <span class="flex items-center gap-2 text-[11px] font-semibold text-slate-200"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-base">🕒</span><span>配信時刻</span><span class="ml-auto text-[9px] font-normal text-slate-500">15分単位</span></span>
-                <input id="ai-notice-schedule-time" type="time" step="900" class="w-full min-w-0 rounded-xl border border-cyan-500/25 bg-slate-950 px-3 py-3 text-base font-semibold text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-400 [color-scheme:dark]" onchange="syncNoticeSchedule('ai-notice')">
-              </label>
+              <div class="col-span-2 rounded-xl border border-cyan-500/25 bg-slate-900/70 p-3 space-y-2">
+                <div class="flex items-center gap-2 text-[11px] font-semibold text-slate-200"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-base">🕒</span><span>配信時刻</span><span class="ml-auto text-[9px] font-normal text-slate-500">15分単位</span></div>
+                <input id="ai-notice-schedule-time" type="time" step="900" class="hidden" onchange="syncNoticeSchedule('ai-notice')">
+                <button type="button" id="ai-notice-time-open-label" onclick="toggleNoticeTimePicker('ai-notice')" aria-expanded="false" class="w-full flex items-center justify-between gap-3 rounded-xl border border-cyan-500/30 bg-slate-950 px-3 py-3 text-left hover:bg-slate-800/90 transition"><span class="flex items-center gap-3"><span class="text-lg">◷</span><span id="ai-notice-time-open-value" class="text-sm font-semibold text-slate-100">時刻を選択してください</span></span><span class="text-cyan-200 text-lg">⌄</span></button>
+                <div id="ai-notice-time-panel" class="hidden rounded-xl border border-cyan-500/25 bg-slate-950/90 p-2 shadow-inner"><div class="mb-2 flex items-center justify-between"><span class="text-[10px] text-slate-300">配信時刻を選択</span><span class="text-[9px] text-slate-500">15分ごと</span></div><div id="ai-notice-time-options" class="grid grid-cols-3 sm:grid-cols-4 gap-1 max-h-44 overflow-y-auto pr-1"></div></div>
+              </div>
             </div>
             <input id="ai-notice-scheduled-at" type="datetime-local" class="hidden">
             <button type="button" onclick="clearNoticeSchedule('ai-notice')" class="w-full py-1.5 rounded-lg border border-slate-700 bg-slate-900 text-slate-300 text-[10px]">予約を解除して即時配信設定に戻す</button>
@@ -2031,6 +2035,49 @@
       selectNoticeCalendarDate(prefix, noticeCalendarDateKey(today.getFullYear(), today.getMonth(), today.getDate()));
     }
 
+    function renderNoticeTimePicker(prefix) {
+      const input = document.getElementById(`${prefix}-schedule-time`);
+      const options = document.getElementById(`${prefix}-time-options`);
+      const valueLabel = document.getElementById(`${prefix}-time-open-value`);
+      if (!input || !options || !valueLabel) return;
+      const accent = prefix === 'admin-notice' ? 'amber' : 'cyan';
+      valueLabel.textContent = input.value || '時刻を選択してください';
+      let html = '';
+      for (let hour = 0; hour < 24; hour++) {
+        for (let minute = 0; minute < 60; minute += 15) {
+          const value = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+          const selected = value === input.value;
+          const classes = selected
+            ? `bg-${accent}-500 text-slate-950 border-${accent}-300 font-bold`
+            : `bg-slate-800/80 text-slate-200 border-slate-700 hover:bg-slate-700`;
+          html += `<button type="button" onclick="selectNoticeTime('${prefix}','${value}')" aria-pressed="${selected}" class="rounded-lg border px-1 py-2 text-xs transition ${classes}">${value}</button>`;
+        }
+      }
+      options.innerHTML = html;
+    }
+
+    function toggleNoticeTimePicker(prefix) {
+      const panel = document.getElementById(`${prefix}-time-panel`);
+      const trigger = document.getElementById(`${prefix}-time-open-label`);
+      if (!panel || !trigger) return;
+      const willOpen = panel.classList.contains('hidden');
+      panel.classList.toggle('hidden', !willOpen);
+      trigger.setAttribute('aria-expanded', String(willOpen));
+      if (willOpen) renderNoticeTimePicker(prefix);
+    }
+
+    function selectNoticeTime(prefix, value) {
+      const input = document.getElementById(`${prefix}-schedule-time`);
+      const panel = document.getElementById(`${prefix}-time-panel`);
+      const trigger = document.getElementById(`${prefix}-time-open-label`);
+      if (!input) return;
+      input.value = value;
+      if (panel) panel.classList.add('hidden');
+      if (trigger) trigger.setAttribute('aria-expanded', 'false');
+      renderNoticeTimePicker(prefix);
+      syncNoticeSchedule(prefix);
+    }
+
     function syncNoticeSchedule(prefix) {
       const dateInput = document.getElementById(`${prefix}-schedule-date`);
       const timeInput = document.getElementById(`${prefix}-schedule-time`);
@@ -2038,6 +2085,7 @@
       const preview = document.getElementById(`${prefix}-schedule-preview`);
       if (!dateInput || !timeInput || !hiddenInput) return;
       renderNoticeCalendar(prefix);
+      renderNoticeTimePicker(prefix);
       if (dateInput.value && timeInput.value) {
         hiddenInput.value = `${dateInput.value}T${timeInput.value}`;
         if (preview) preview.textContent = `配信予定：${new Date(hiddenInput.value).toLocaleString('ja-JP', { dateStyle: 'full', timeStyle: 'short' })}`;
@@ -2062,6 +2110,7 @@
       if (dateInput) dateInput.value = '';
       if (timeInput) timeInput.value = '';
       renderNoticeCalendar(prefix);
+      renderNoticeTimePicker(prefix);
       syncNoticeSchedule(prefix);
     }
 
@@ -2083,6 +2132,7 @@
         timeInput.value = '';
       }
       renderNoticeCalendar(prefix);
+      renderNoticeTimePicker(prefix);
       syncNoticeSchedule(prefix);
     }
 
