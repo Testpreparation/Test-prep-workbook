@@ -1409,7 +1409,7 @@
           <input type="text" id="admin-notice-title" placeholder="お知らせのタイトル" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
           <textarea id="admin-notice-content" placeholder="お知らせの本文" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-20"></textarea>
           <div class="space-y-1">
-            <label for="admin-notice-image" class="block text-[10px] text-slate-400">画像のみをLINEへ送信（JPEG・PNG／1MB以下）</label>
+            <label for="admin-notice-image" class="block text-[10px] text-slate-400">画像のみをLINEへ送信（JPEG・PNG／10MB以下）</label>
             <input type="file" id="admin-notice-image" accept="image/jpeg,image/png" class="w-full text-[10px] text-slate-300 file:mr-2 file:rounded-lg file:border-0 file:bg-slate-800 file:px-3 file:py-2 file:text-slate-200">
           </div>
           <div class="rounded-xl border border-amber-500/30 bg-slate-950/80 p-3 space-y-2">
@@ -2303,8 +2303,8 @@
           alert('JPEGまたはPNG画像を選択してください。');
           return;
         }
-        if (selectedImage.size > 1024 * 1024) {
-          alert('画像は1MB以下にしてください。');
+        if (selectedImage.size > 10 * 1024 * 1024) {
+          alert('画像は10MB以下にしてください。');
           return;
         }
         let imageScheduledAt = null;
