@@ -1648,11 +1648,13 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let myPlayerId = sessionStorage.getItem('my_player_id');
+    // OAuthで別ページを経由しても同じブラウザの訪問者IDを維持する
+    let myPlayerId = localStorage.getItem('my_player_id') || sessionStorage.getItem('my_player_id');
     if (!myPlayerId) {
       myPlayerId = 'usr_' + Math.random().toString(36).substring(2, 9);
-      sessionStorage.setItem('my_player_id', myPlayerId);
     }
+    localStorage.setItem('my_player_id', myPlayerId);
+    sessionStorage.setItem('my_player_id', myPlayerId);
 
     // ---------------------------------------------------------
     // 閲覧人数管理機能
@@ -5173,31 +5175,41 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
           window.NURSE_LINE_USER_NAME = savedName;
           console.info('保存済みLINE表示名:', savedName);
 
-          // ログイン前に保存された同じ端末の履歴にもLINE表示名を反映する。
-          // お知らせ機能には触れず、presence/history の履歴表示データだけを更新する。
-          document.addEventListener('DOMContentLoaded', () => {
+          // LINEログイン後、訪問履歴の該当レコードを更新する。
+          // お知らせ機能には触れず、presence/history のみを扱う。
+          const updateLineNameInVisitorHistory = async () => {
             try {
               if (typeof db === 'undefined' || !db || typeof myPlayerId === 'undefined') return;
               const historyRef = db.ref('presence/history');
-              historyRef.once('value').then((snap) => {
-                const history = snap.val() || {};
-                const updates = {};
-                Object.entries(history).forEach(([key, record]) => {
-                  if (record && record.visitorId === myPlayerId && record.lineName !== savedName) {
-                    updates[`${key}/lineName`] = savedName;
-                  }
-                });
-                if (Object.keys(updates).length) {
-                  return historyRef.update(updates);
+              const snap = await historyRef.once('value');
+              const history = snap.val() || {};
+              const updates = {};
+              Object.entries(history).forEach(([key, record]) => {
+                if (record && record.visitorId === myPlayerId && record.lineName !== savedName) {
+                  updates[`${key}/lineName`] = savedName;
                 }
-              }).catch((error) => console.warn('訪問履歴のLINE表示名更新に失敗:', error));
+              });
 
-              db.ref(`presence/history/${myPlayerId}/lineName`).set(savedName)
-                .catch((error) => console.warn('最新訪問履歴のLINE表示名更新に失敗:', error));
+              // ID指定の最新履歴は必ずLINE表示名付きで保存
+              updates[`${myPlayerId}/visitorId`] = myPlayerId;
+              updates[`${myPlayerId}/lineName`] = savedName;
+              updates[`${myPlayerId}/deviceName`] = (history[myPlayerId] && history[myPlayerId].deviceName) || getVisitorDeviceName();
+              updates[`${myPlayerId}/timestamp`] = firebase.database.ServerValue.TIMESTAMP;
+              await historyRef.update(updates);
+
+              // この端末の履歴を再描画
+              const refreshed = await historyRef.once('value');
+              if (typeof renderVisitorHistory === 'function') renderVisitorHistory(refreshed.val());
+              console.info('LINE表示名を訪問履歴に反映しました。');
             } catch (error) {
-              console.warn('訪問履歴のLINE表示名を更新できませんでした。', error);
+              console.warn('訪問履歴のLINE表示名更新に失敗:', error);
             }
-          });
+          };
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', updateLineNameInVisitorHistory, { once: true });
+          } else {
+            updateLineNameInVisitorHistory();
+          }
         }
 
         // 初回アクセス時、LINE未ログインならログイン案内を表示する。
