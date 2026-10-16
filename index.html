@@ -321,6 +321,10 @@
           <span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 font-mono text-amber-400 text-[10px] font-bold">ADM</span>
           <span class="font-medium">管理者メニュー</span>
         </button>
+        <a href="https://nurse-line-system.onrender.com/auth/line" class="w-full text-left px-4 py-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs transition flex items-center gap-3 group">
+          <span class="px-2 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/40 font-mono text-emerald-300 text-[10px] font-bold">LINE</span>
+          <span class="font-medium">LINEでログインして名前を連携</span>
+        </a>
       </div>
     </div>
     <div class="text-[11px] text-slate-500 font-light text-center border-t border-slate-800/80 pt-4">
@@ -5127,6 +5131,33 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       }
       showSubjectScreen();
     }
+  </script>
+
+  <!-- LINE連携：Render側から戻された表示名を保存（識別・認証の根拠にはしない） -->
+  <script id="nurse-line-link-integration">
+    (() => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const lineName = params.get('line_name');
+
+        if (lineName) {
+          localStorage.setItem('nurse_line_user_name', lineName);
+          params.delete('line_name');
+          const query = params.toString();
+          const cleanUrl = window.location.pathname + (query ? '?' + query : '') + window.location.hash;
+          window.history.replaceState({}, document.title, cleanUrl);
+          console.info('LINE表示名をこの端末に保存しました。');
+        }
+
+        const savedName = localStorage.getItem('nurse_line_user_name');
+        if (savedName) {
+          window.NURSE_LINE_USER_NAME = savedName;
+          console.info('保存済みLINE表示名:', savedName);
+        }
+      } catch (error) {
+        console.warn('LINE連携情報を保存できませんでした。', error);
+      }
+    })();
   </script>
 </body>
 </html>
