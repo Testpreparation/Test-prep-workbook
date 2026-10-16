@@ -2047,27 +2047,38 @@
       const selectedMinute = input.value ? Number(input.value.slice(3, 5)) : 0;
       noticeTimePickerHours[prefix] = selectedHour;
       valueLabel.textContent = input.value || '時刻を選択してください';
-      let hoursHtml = '<div><div class="mb-1.5 text-[10px] text-slate-400">① 時（24時間表記）</div><div class="grid grid-cols-6 gap-1">';
+
+      // D design: two independent vertical scroll wheels. Minutes are selectable in 1-minute increments.
+      let hoursHtml = `<section class="min-w-0"><div class="mb-2 text-center"><span class="text-xs font-medium text-slate-400">時</span></div><div id="${prefix}-hours-scroll" class="h-56 overflow-y-auto overscroll-contain rounded-xl border border-slate-700 bg-slate-950/70 p-2">`;
       for (let hour = 0; hour < 24; hour++) {
         const selected = hour === selectedHour;
         const value = String(hour).padStart(2, '0');
         const classes = selected
-          ? `bg-${accent}-500 text-slate-950 border-${accent}-300 font-bold`
-          : 'bg-slate-800/80 text-slate-200 border-slate-700 hover:bg-slate-700';
-        hoursHtml += `<button type="button" onclick="chooseNoticeTimeHour('${prefix}',${hour})" aria-pressed="${selected}" class="rounded-lg border py-2 text-xs transition ${classes}">${value}</button>`;
+          ? `bg-${accent}-500 text-slate-950 border-${accent}-300 font-bold text-base shadow-sm`
+          : 'bg-transparent text-slate-400 border-transparent hover:bg-slate-800';
+        hoursHtml += `<button type="button" onclick="chooseNoticeTimeHour('${prefix}',${hour})" aria-pressed="${selected}" class="mb-1 block w-full rounded-lg border py-3 text-sm transition ${classes}">${value}</button>`;
       }
-      hoursHtml += '</div></div>';
-      let minutesHtml = '<div><div class="mb-1.5 text-[10px] text-slate-400">② 分（15分単位）</div><div class="grid grid-cols-4 gap-1">';
-      for (const minute of [0, 15, 30, 45]) {
-        const selected = input.value && selectedHour === Number(input.value.slice(0, 2)) && minute === selectedMinute;
+      hoursHtml += '</div></section>';
+
+      let minutesHtml = `<section class="min-w-0"><div class="mb-2 text-center"><span class="text-xs font-medium text-slate-400">分</span></div><div id="${prefix}-minutes-scroll" class="h-56 overflow-y-auto overscroll-contain rounded-xl border border-slate-700 bg-slate-950/70 p-2">`;
+      for (let minute = 0; minute < 60; minute++) {
+        const selected = Boolean(input.value) && selectedHour === Number(input.value.slice(0, 2)) && minute === selectedMinute;
         const value = String(minute).padStart(2, '0');
         const classes = selected
-          ? `bg-${accent}-500 text-slate-950 border-${accent}-300 font-bold`
-          : 'bg-slate-800/80 text-slate-200 border-slate-700 hover:bg-slate-700';
-        minutesHtml += `<button type="button" onclick="selectNoticeTime('${prefix}','${String(selectedHour).padStart(2, '0')}:${value}')" aria-pressed="${Boolean(selected)}" class="rounded-lg border py-2.5 text-sm transition ${classes}">${value}分</button>`;
+          ? `bg-${accent}-500 text-slate-950 border-${accent}-300 font-bold text-base shadow-sm`
+          : 'bg-transparent text-slate-400 border-transparent hover:bg-slate-800';
+        minutesHtml += `<button type="button" onclick="selectNoticeTime('${prefix}','${String(selectedHour).padStart(2, '0')}:${value}')" aria-pressed="${selected}" class="mb-1 block w-full rounded-lg border py-3 text-sm transition ${classes}">${value}</button>`;
       }
-      minutesHtml += '</div></div>';
-      options.innerHTML = hoursHtml + minutesHtml;
+      minutesHtml += '</div></section>';
+      options.innerHTML = `<div class="grid grid-cols-2 gap-3">${hoursHtml}${minutesHtml}</div><p class="mt-2 text-center text-[10px] text-slate-500">左右のリストを上下にスクロールして選択</p>`;
+
+      // Center the selected value in each vertical scroll list without moving the page.
+      for (const [id, value] of [[`${prefix}-hours-scroll`, String(selectedHour).padStart(2, '0')], [`${prefix}-minutes-scroll`, String(selectedMinute).padStart(2, '0')]]) {
+        const list = document.getElementById(id);
+        if (!list) continue;
+        const selectedButton = Array.from(list.querySelectorAll('button')).find(button => button.textContent.trim() === value);
+        if (selectedButton) list.scrollTop = Math.max(0, selectedButton.offsetTop - list.offsetTop - (list.clientHeight / 2) + (selectedButton.offsetHeight / 2));
+      }
     }
 
     function chooseNoticeTimeHour(prefix, hour) {
