@@ -2299,10 +2299,6 @@
           alert('画像のみを送る場合は、タイトルと本文を空欄にしてください。');
           return;
         }
-        if (scheduleValue) {
-          alert('画像のみの送信は今すぐ配信のみ対応しています。予約を解除してください。');
-          return;
-        }
         if (!['image/jpeg', 'image/png'].includes(selectedImage.type)) {
           alert('JPEGまたはPNG画像を選択してください。');
           return;
@@ -2311,22 +2307,38 @@
           alert('画像は1MB以下にしてください。');
           return;
         }
-        if (!confirm('画像のみをLINEへ送信します。Nurse＋内や送信履歴には保存されません。よろしいですか？')) return;
+        let imageScheduledAt = null;
+        if (scheduleValue) {
+          const localDate = new Date(scheduleValue);
+          if (!Number.isFinite(localDate.getTime()) || localDate.getTime() <= Date.now()) {
+            alert('LINE配信日時は現在より後の日時を選択してください。');
+            return;
+          }
+          imageScheduledAt = localDate.toISOString();
+        }
+        const imageConfirmText = imageScheduledAt
+          ? `画像のみをLINEへ配信予約します。配信日時：${new Date(imageScheduledAt).toLocaleString('ja-JP')}。Nurse＋内や送信履歴には保存されません。よろしいですか？`
+          : '画像のみをLINEへ送信します。Nurse＋内や送信履歴には保存されません。よろしいですか？';
+        if (!confirm(imageConfirmText)) return;
         try {
           const sessionToken = sessionStorage.getItem('nurse_line_admin_session');
           if (!sessionToken) throw new Error('サーバー管理者認証がありません。再度ログインしてください。');
-          const response = await fetch(`${NURSE_LINE_API_BASE_URL.replace(/\/$/, '')}/api/notices/send-image`, {
+          const apiPath = imageScheduledAt ? '/api/notices/schedule-image' : '/api/notices/send-image';
+          const requestHeaders = {
+            'Content-Type': selectedImage.type,
+            'Authorization': `Bearer ${sessionToken}`
+          };
+          if (imageScheduledAt) requestHeaders['X-Scheduled-At'] = imageScheduledAt;
+          const response = await fetch(`${NURSE_LINE_API_BASE_URL.replace(/\/$/, '')}${apiPath}`, {
             method: 'POST',
-            headers: {
-              'Content-Type': selectedImage.type,
-              'Authorization': `Bearer ${sessionToken}`
-            },
+            headers: requestHeaders,
             body: selectedImage
           });
           const result = await response.json().catch(() => ({}));
           if (!response.ok) throw new Error(result.message || result.error || `サーバーエラー (${response.status})`);
-          alert(result.message || '画像のみをLINEへ送信しました。');
+          alert(result.message || (imageScheduledAt ? '画像のみの配信を予約しました。' : '画像のみをLINEへ送信しました。'));
           imageInput.value = '';
+          clearNoticeSchedule('admin-notice');
           return;
         } catch (err) {
           console.error('画像のみのLINE送信に失敗しました:', err);
