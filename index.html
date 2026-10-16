@@ -1408,6 +1408,10 @@
         <div class="space-y-2">
           <input type="text" id="admin-notice-title" placeholder="お知らせのタイトル" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
           <textarea id="admin-notice-content" placeholder="お知らせの本文" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-20"></textarea>
+          <div class="space-y-1">
+            <label for="admin-notice-image" class="block text-[10px] text-slate-400">画像のみをLINEへ送信（JPEG・PNG／1MB以下）</label>
+            <input type="file" id="admin-notice-image" accept="image/jpeg,image/png" class="w-full text-[10px] text-slate-300 file:mr-2 file:rounded-lg file:border-0 file:bg-slate-800 file:px-3 file:py-2 file:text-slate-200">
+          </div>
           <div class="rounded-xl border border-amber-500/30 bg-slate-950/80 p-3 space-y-2">
             <div class="flex items-center justify-between gap-2"><span class="text-[11px] font-semibold text-amber-200">LINE配信日時</span><span class="text-[9px] text-slate-500">任意設定</span></div>
             <div class="grid grid-cols-2 gap-2">
@@ -2286,6 +2290,50 @@
       const title = titleInput.value.trim();
       const content = contentInput.value.trim();
       const scheduleValue = scheduleInput ? scheduleInput.value : '';
+      const imageInput = document.getElementById('admin-notice-image');
+      const selectedImage = imageInput && imageInput.files ? imageInput.files[0] : null;
+
+      // 画像のみの場合はLINEへ送信するだけ。Nurse＋内や送信履歴には保存しない。
+      if (selectedImage) {
+        if (title || content) {
+          alert('画像のみを送る場合は、タイトルと本文を空欄にしてください。');
+          return;
+        }
+        if (scheduleValue) {
+          alert('画像のみの送信は今すぐ配信のみ対応しています。予約を解除してください。');
+          return;
+        }
+        if (!['image/jpeg', 'image/png'].includes(selectedImage.type)) {
+          alert('JPEGまたはPNG画像を選択してください。');
+          return;
+        }
+        if (selectedImage.size > 1024 * 1024) {
+          alert('画像は1MB以下にしてください。');
+          return;
+        }
+        if (!confirm('画像のみをLINEへ送信します。Nurse＋内や送信履歴には保存されません。よろしいですか？')) return;
+        try {
+          const sessionToken = sessionStorage.getItem('nurse_line_admin_session');
+          if (!sessionToken) throw new Error('サーバー管理者認証がありません。再度ログインしてください。');
+          const response = await fetch(`${NURSE_LINE_API_BASE_URL.replace(/\/$/, '')}/api/notices/send-image`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': selectedImage.type,
+              'Authorization': `Bearer ${sessionToken}`
+            },
+            body: selectedImage
+          });
+          const result = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(result.message || result.error || `サーバーエラー (${response.status})`);
+          alert(result.message || '画像のみをLINEへ送信しました。');
+          imageInput.value = '';
+          return;
+        } catch (err) {
+          console.error('画像のみのLINE送信に失敗しました:', err);
+          alert(err.message || '画像送信に失敗しました。');
+          return;
+        }
+      }
 
       if (!title || !content) {
         alert("お知らせのタイトルと本文を入力してください。");
