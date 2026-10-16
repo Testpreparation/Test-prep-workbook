@@ -1404,7 +1404,7 @@
             <div class="flex items-center justify-between gap-2"><span class="text-[11px] font-semibold text-amber-200">LINE配信日時</span><span class="text-[9px] text-slate-500">任意設定</span></div>
             <div class="grid grid-cols-2 gap-2">
               <button type="button" id="admin-notice-calendar-open-label" onclick="toggleNoticeCalendar('admin-notice')" aria-expanded="false" class="col-span-2 w-full flex items-center justify-between gap-3 rounded-xl border border-amber-500/30 bg-slate-900/80 px-3 py-3 text-left hover:bg-slate-800/90 transition">
-                <span class="flex items-center gap-3"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20 text-lg">📅</span><span class="flex flex-col gap-1"><span class="text-[11px] font-semibold text-slate-100">配信日</span><span id="admin-notice-calendar-open-value" class="text-[10px] text-slate-400">日付を選択してください</span></span></span><span class="text-amber-200 text-lg">⌄</span>
+                <span class="flex items-center gap-3"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20 text-lg">📅</span><span class="flex flex-col gap-1"><span class="text-[11px] font-semibold text-slate-100">配信日時</span><span id="admin-notice-calendar-open-value" class="text-[10px] text-slate-400">日付を選択してください</span></span></span><span class="text-amber-200 text-lg">⌄</span>
               </button>
               <div id="admin-notice-calendar-panel" class="hidden col-span-2 rounded-xl border border-amber-500/25 bg-slate-950/90 p-3 space-y-3 shadow-inner">
                 <div class="flex items-center justify-between gap-2"><span class="text-[10px] font-medium text-slate-300">📅 カレンダー</span><span id="admin-notice-calendar-selected" class="text-[10px] text-amber-200">日付未選択</span></div>
@@ -1416,13 +1416,20 @@
                 </div>
                 <div class="grid grid-cols-7 gap-1 text-center text-[9px] text-slate-500"><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span class="text-sky-300">土</span><span class="text-rose-300">日</span></div>
                 <div id="admin-notice-calendar-days" class="grid grid-cols-7 gap-1"></div>
-                <div class="flex items-center justify-between gap-2"><span class="text-[9px] text-slate-500">日付をタップして選択</span><button type="button" onclick="selectNoticeCalendarToday('admin-notice')" class="text-[10px] text-amber-200 underline underline-offset-2">今日</button></div>
-              </div>
-              <div class="col-span-2 rounded-xl border border-amber-500/25 bg-slate-900/70 p-3 space-y-2">
-                <div class="flex items-center gap-2 text-[11px] font-semibold text-slate-200"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/20 text-base">🕒</span><span>配信時刻</span><span class="ml-auto text-[9px] font-normal text-slate-500">15分単位</span></div>
-                <input id="admin-notice-schedule-time" type="time" step="900" class="hidden" onchange="syncNoticeSchedule('admin-notice')">
-                <button type="button" id="admin-notice-time-open-label" onclick="toggleNoticeTimePicker('admin-notice')" aria-expanded="false" class="w-full flex items-center justify-between gap-3 rounded-xl border border-amber-500/30 bg-slate-950 px-3 py-3 text-left hover:bg-slate-800/90 transition"><span class="flex items-center gap-3"><span class="text-lg">◷</span><span id="admin-notice-time-open-value" class="text-sm font-semibold text-slate-100">時刻を選択してください</span></span><span class="text-amber-200 text-lg">⌄</span></button>
-                <div id="admin-notice-time-panel" class="hidden rounded-xl border border-amber-500/25 bg-slate-950/90 p-3 shadow-inner"><div class="mb-2 flex items-center justify-between"><span class="text-[10px] font-semibold text-slate-300">時刻を選択</span><span class="text-[9px] text-slate-500">① 時  ② 分</span></div><div id="admin-notice-time-options" class="space-y-3"></div></div>
+                <div class="flex items-center justify-between gap-2"><span class="text-[9px] text-slate-500">日付を選択し、時刻も設定してください</span><button type="button" onclick="selectNoticeCalendarToday('admin-notice')" class="text-[10px] text-amber-200 underline underline-offset-2">今日</button></div>
+                <div class="mt-2 rounded-xl border border-amber-500/25 bg-slate-900/70 p-3 space-y-2">
+                  <div class="flex items-center gap-2 text-[11px] font-semibold text-slate-200"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/20 text-base">🕒</span><span>配信時刻</span><span class="ml-auto text-[9px] font-normal text-slate-500">1分単位</span></div>
+                  <input id="admin-notice-schedule-time" type="time" step="60" class="hidden" onchange="syncNoticeSchedule('admin-notice')">
+                  <div id="admin-notice-time-options" class="grid grid-cols-2 gap-2">
+                    <label class="text-[10px] text-slate-400">時
+                      <select id="admin-notice-hour-select" onchange="updateNoticeTimeFromSelects('admin-notice')" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-3 text-sm font-semibold text-slate-100 focus:outline-none focus:border-amber-500"></select>
+                    </label>
+                    <label class="text-[10px] text-slate-400">分
+                      <select id="admin-notice-minute-select" onchange="updateNoticeTimeFromSelects('admin-notice')" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-3 text-sm font-semibold text-slate-100 focus:outline-none focus:border-amber-500"></select>
+                    </label>
+                  </div>
+                  <p class="text-center text-[10px] text-slate-500">日付と時刻を選ぶと予約日時に反映されます</p>
+                </div>
               </div>
             </div>
             <input id="admin-notice-scheduled-at" type="datetime-local" class="hidden">
@@ -1483,7 +1490,7 @@
             <div class="flex items-center justify-between gap-2"><span class="text-[11px] font-semibold text-cyan-200">LINE配信日時</span><span class="text-[9px] text-slate-500">任意設定</span></div>
             <div class="grid grid-cols-2 gap-2">
               <button type="button" id="ai-notice-calendar-open-label" onclick="toggleNoticeCalendar('ai-notice')" aria-expanded="false" class="col-span-2 w-full flex items-center justify-between gap-3 rounded-xl border border-cyan-500/30 bg-slate-900/80 px-3 py-3 text-left hover:bg-slate-800/90 transition">
-                <span class="flex items-center gap-3"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-lg">📅</span><span class="flex flex-col gap-1"><span class="text-[11px] font-semibold text-slate-100">配信日</span><span id="ai-notice-calendar-open-value" class="text-[10px] text-slate-400">日付を選択してください</span></span></span><span class="text-cyan-200 text-lg">⌄</span>
+                <span class="flex items-center gap-3"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-lg">📅</span><span class="flex flex-col gap-1"><span class="text-[11px] font-semibold text-slate-100">配信日時</span><span id="ai-notice-calendar-open-value" class="text-[10px] text-slate-400">日付を選択してください</span></span></span><span class="text-cyan-200 text-lg">⌄</span>
               </button>
               <div id="ai-notice-calendar-panel" class="hidden col-span-2 rounded-xl border border-cyan-500/25 bg-slate-950/90 p-3 space-y-3 shadow-inner">
                 <div class="flex items-center justify-between gap-2"><span class="text-[10px] font-medium text-slate-300">📅 カレンダー</span><span id="ai-notice-calendar-selected" class="text-[10px] text-cyan-200">日付未選択</span></div>
@@ -1495,13 +1502,20 @@
                 </div>
                 <div class="grid grid-cols-7 gap-1 text-center text-[9px] text-slate-500"><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span class="text-sky-300">土</span><span class="text-rose-300">日</span></div>
                 <div id="ai-notice-calendar-days" class="grid grid-cols-7 gap-1"></div>
-                <div class="flex items-center justify-between gap-2"><span class="text-[9px] text-slate-500">日付をタップして選択</span><button type="button" onclick="selectNoticeCalendarToday('ai-notice')" class="text-[10px] text-cyan-200 underline underline-offset-2">今日</button></div>
-              </div>
-              <div class="col-span-2 rounded-xl border border-cyan-500/25 bg-slate-900/70 p-3 space-y-2">
-                <div class="flex items-center gap-2 text-[11px] font-semibold text-slate-200"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-base">🕒</span><span>配信時刻</span><span class="ml-auto text-[9px] font-normal text-slate-500">15分単位</span></div>
-                <input id="ai-notice-schedule-time" type="time" step="900" class="hidden" onchange="syncNoticeSchedule('ai-notice')">
-                <button type="button" id="ai-notice-time-open-label" onclick="toggleNoticeTimePicker('ai-notice')" aria-expanded="false" class="w-full flex items-center justify-between gap-3 rounded-xl border border-cyan-500/30 bg-slate-950 px-3 py-3 text-left hover:bg-slate-800/90 transition"><span class="flex items-center gap-3"><span class="text-lg">◷</span><span id="ai-notice-time-open-value" class="text-sm font-semibold text-slate-100">時刻を選択してください</span></span><span class="text-cyan-200 text-lg">⌄</span></button>
-                <div id="ai-notice-time-panel" class="hidden rounded-xl border border-cyan-500/25 bg-slate-950/90 p-3 shadow-inner"><div class="mb-2 flex items-center justify-between"><span class="text-[10px] font-semibold text-slate-300">時刻を選択</span><span class="text-[9px] text-slate-500">① 時  ② 分</span></div><div id="ai-notice-time-options" class="space-y-3"></div></div>
+                <div class="flex items-center justify-between gap-2"><span class="text-[9px] text-slate-500">日付を選択し、時刻も設定してください</span><button type="button" onclick="selectNoticeCalendarToday('ai-notice')" class="text-[10px] text-cyan-200 underline underline-offset-2">今日</button></div>
+                <div class="mt-2 rounded-xl border border-cyan-500/25 bg-slate-900/70 p-3 space-y-2">
+                  <div class="flex items-center gap-2 text-[11px] font-semibold text-slate-200"><span class="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-base">🕒</span><span>配信時刻</span><span class="ml-auto text-[9px] font-normal text-slate-500">1分単位</span></div>
+                  <input id="ai-notice-schedule-time" type="time" step="60" class="hidden" onchange="syncNoticeSchedule('ai-notice')">
+                  <div id="ai-notice-time-options" class="grid grid-cols-2 gap-2">
+                    <label class="text-[10px] text-slate-400">時
+                      <select id="ai-notice-hour-select" onchange="updateNoticeTimeFromSelects('ai-notice')" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-3 text-sm font-semibold text-slate-100 focus:outline-none focus:border-cyan-500"></select>
+                    </label>
+                    <label class="text-[10px] text-slate-400">分
+                      <select id="ai-notice-minute-select" onchange="updateNoticeTimeFromSelects('ai-notice')" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-3 text-sm font-semibold text-slate-100 focus:outline-none focus:border-cyan-500"></select>
+                    </label>
+                  </div>
+                  <p class="text-center text-[10px] text-slate-500">日付と時刻を選ぶと予約日時に反映されます</p>
+                </div>
               </div>
             </div>
             <input id="ai-notice-scheduled-at" type="datetime-local" class="hidden">
@@ -1976,8 +1990,9 @@
         ? `${Number(selectedDate.slice(5, 7))}月${Number(selectedDate.slice(8, 10))}日を選択中`
         : '日付未選択';
       const openValue = document.getElementById(`${prefix}-calendar-open-value`);
+      const selectedTime = document.getElementById(`${prefix}-schedule-time`)?.value || '';
       if (openValue) openValue.textContent = selectedDate
-        ? `${Number(selectedDate.slice(5, 7))}月${Number(selectedDate.slice(8, 10))}日（${new Date(`${selectedDate}T12:00:00`).toLocaleDateString('ja-JP', { weekday: 'short' })}）`
+        ? `${Number(selectedDate.slice(5, 7))}月${Number(selectedDate.slice(8, 10))}日（${new Date(`${selectedDate}T12:00:00`).toLocaleDateString('ja-JP', { weekday: 'short' })}）${selectedTime ? ` ${selectedTime}` : ''}`
         : '日付を選択してください';
 
       const firstWeekday = (new Date(view.year, view.month, 1).getDay() + 6) % 7;
@@ -2006,7 +2021,7 @@
       const willOpen = panel.classList.contains('hidden');
       panel.classList.toggle('hidden', !willOpen);
       trigger.setAttribute('aria-expanded', String(willOpen));
-      if (willOpen) renderNoticeCalendar(prefix);
+      if (willOpen) { renderNoticeCalendar(prefix); renderNoticeTimePicker(prefix); }
     }
 
     function moveNoticeCalendar(prefix, amount) {
@@ -2023,10 +2038,7 @@
       const date = new Date(`${dateValue}T12:00:00`);
       noticeCalendarMonths[prefix] = { year: date.getFullYear(), month: date.getMonth() };
       renderNoticeCalendar(prefix);
-      const panel = document.getElementById(`${prefix}-calendar-panel`);
-      const trigger = document.getElementById(`${prefix}-calendar-open-label`);
-      if (panel) panel.classList.add('hidden');
-      if (trigger) trigger.setAttribute('aria-expanded', 'false');
+      // Keep the combined date-and-time panel open so the user can choose both together.
       syncNoticeSchedule(prefix);
     }
 
@@ -2035,75 +2047,47 @@
       selectNoticeCalendarDate(prefix, noticeCalendarDateKey(today.getFullYear(), today.getMonth(), today.getDate()));
     }
 
-    const noticeTimePickerHours = {};
-
     function renderNoticeTimePicker(prefix) {
       const input = document.getElementById(`${prefix}-schedule-time`);
-      const options = document.getElementById(`${prefix}-time-options`);
-      const valueLabel = document.getElementById(`${prefix}-time-open-value`);
-      if (!input || !options || !valueLabel) return;
-      const accent = prefix === 'admin-notice' ? 'amber' : 'cyan';
-      const selectedHour = input.value ? Number(input.value.slice(0, 2)) : (noticeTimePickerHours[prefix] ?? 9);
+      const hourSelect = document.getElementById(`${prefix}-hour-select`);
+      const minuteSelect = document.getElementById(`${prefix}-minute-select`);
+      if (!input || !hourSelect || !minuteSelect) return;
+      const selectedHour = input.value ? Number(input.value.slice(0, 2)) : 9;
       const selectedMinute = input.value ? Number(input.value.slice(3, 5)) : 0;
-      noticeTimePickerHours[prefix] = selectedHour;
-      valueLabel.textContent = input.value || '時刻を選択してください';
-
-      // D design: two independent vertical scroll wheels. Minutes are selectable in 1-minute increments.
-      let hoursHtml = `<section class="min-w-0"><div class="mb-2 text-center"><span class="text-xs font-medium text-slate-400">時</span></div><div id="${prefix}-hours-scroll" class="h-56 overflow-y-auto overscroll-contain rounded-xl border border-slate-700 bg-slate-950/70 p-2">`;
-      for (let hour = 0; hour < 24; hour++) {
-        const selected = hour === selectedHour;
-        const value = String(hour).padStart(2, '0');
-        const classes = selected
-          ? `bg-${accent}-500 text-slate-950 border-${accent}-300 font-bold text-base shadow-sm`
-          : 'bg-transparent text-slate-400 border-transparent hover:bg-slate-800';
-        hoursHtml += `<button type="button" onclick="chooseNoticeTimeHour('${prefix}',${hour})" aria-pressed="${selected}" class="mb-1 block w-full rounded-lg border py-3 text-sm transition ${classes}">${value}</button>`;
+      if (!hourSelect.options.length) {
+        hourSelect.innerHTML = Array.from({ length: 24 }, (_, hour) => {
+          const value = String(hour).padStart(2, '0');
+          return `<option value="${value}">${value}時</option>`;
+        }).join('');
       }
-      hoursHtml += '</div></section>';
-
-      let minutesHtml = `<section class="min-w-0"><div class="mb-2 text-center"><span class="text-xs font-medium text-slate-400">分</span></div><div id="${prefix}-minutes-scroll" class="h-56 overflow-y-auto overscroll-contain rounded-xl border border-slate-700 bg-slate-950/70 p-2">`;
-      for (let minute = 0; minute < 60; minute++) {
-        const selected = Boolean(input.value) && selectedHour === Number(input.value.slice(0, 2)) && minute === selectedMinute;
-        const value = String(minute).padStart(2, '0');
-        const classes = selected
-          ? `bg-${accent}-500 text-slate-950 border-${accent}-300 font-bold text-base shadow-sm`
-          : 'bg-transparent text-slate-400 border-transparent hover:bg-slate-800';
-        minutesHtml += `<button type="button" onclick="selectNoticeTime('${prefix}','${String(selectedHour).padStart(2, '0')}:${value}')" aria-pressed="${selected}" class="mb-1 block w-full rounded-lg border py-3 text-sm transition ${classes}">${value}</button>`;
+      if (!minuteSelect.options.length) {
+        minuteSelect.innerHTML = Array.from({ length: 60 }, (_, minute) => {
+          const value = String(minute).padStart(2, '0');
+          return `<option value="${value}">${value}分</option>`;
+        }).join('');
       }
-      minutesHtml += '</div></section>';
-      options.innerHTML = `<div class="grid grid-cols-2 gap-3">${hoursHtml}${minutesHtml}</div><p class="mt-2 text-center text-[10px] text-slate-500">左右のリストを上下にスクロールして選択</p>`;
-
-      // Center the selected value in each vertical scroll list without moving the page.
-      for (const [id, value] of [[`${prefix}-hours-scroll`, String(selectedHour).padStart(2, '0')], [`${prefix}-minutes-scroll`, String(selectedMinute).padStart(2, '0')]]) {
-        const list = document.getElementById(id);
-        if (!list) continue;
-        const selectedButton = Array.from(list.querySelectorAll('button')).find(button => button.textContent.trim() === value);
-        if (selectedButton) list.scrollTop = Math.max(0, selectedButton.offsetTop - list.offsetTop - (list.clientHeight / 2) + (selectedButton.offsetHeight / 2));
-      }
+      hourSelect.value = String(selectedHour).padStart(2, '0');
+      minuteSelect.value = String(selectedMinute).padStart(2, '0');
     }
 
-    function chooseNoticeTimeHour(prefix, hour) {
-      noticeTimePickerHours[prefix] = hour;
-      renderNoticeTimePicker(prefix);
+    function updateNoticeTimeFromSelects(prefix) {
+      const hourSelect = document.getElementById(`${prefix}-hour-select`);
+      const minuteSelect = document.getElementById(`${prefix}-minute-select`);
+      const input = document.getElementById(`${prefix}-schedule-time`);
+      if (!hourSelect || !minuteSelect || !input) return;
+      input.value = `${hourSelect.value}:${minuteSelect.value}`;
+      syncNoticeSchedule(prefix);
     }
 
     function toggleNoticeTimePicker(prefix) {
-      const panel = document.getElementById(`${prefix}-time-panel`);
-      const trigger = document.getElementById(`${prefix}-time-open-label`);
-      if (!panel || !trigger) return;
-      const willOpen = panel.classList.contains('hidden');
-      panel.classList.toggle('hidden', !willOpen);
-      trigger.setAttribute('aria-expanded', String(willOpen));
-      if (willOpen) renderNoticeTimePicker(prefix);
+      // Date and time are now selected together in the calendar panel.
+      toggleNoticeCalendar(prefix);
     }
 
     function selectNoticeTime(prefix, value) {
       const input = document.getElementById(`${prefix}-schedule-time`);
-      const panel = document.getElementById(`${prefix}-time-panel`);
-      const trigger = document.getElementById(`${prefix}-time-open-label`);
       if (!input) return;
       input.value = value;
-      if (panel) panel.classList.add('hidden');
-      if (trigger) trigger.setAttribute('aria-expanded', 'false');
       renderNoticeTimePicker(prefix);
       syncNoticeSchedule(prefix);
     }
