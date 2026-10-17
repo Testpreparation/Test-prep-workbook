@@ -1,0 +1,23 @@
+/* Nurse+ theme layer. Dark remains default. */
+:root{color-scheme:dark;--np-surface:#111c31;--np-text:#e2e8f0;--np-muted:#94a3b8;--np-border:rgba(148,163,184,.18);--np-accent:#4f72e8}
+html[data-np-theme="light"]{color-scheme:light;--np-surface:#fff;--np-text:#172033;--np-muted:#64748b;--np-border:#e2e8f0;--np-accent:#365bd6}
+html[data-np-theme="light"] body{background:#f5f7fb!important;color:#273449!important;transition:background-color .35s ease,color .35s ease}
+html[data-np-theme="light"] .glass-card,html[data-np-theme="light"] .card-item{background:#fff!important;border-color:#e2e8f0!important;color:#243047!important;box-shadow:0 4px 18px rgba(30,41,59,.05)}
+html[data-np-theme="light"] .flashcard-paper{background:#fff!important;background-image:linear-gradient(145deg,#fff,#f4f7ff)!important;color:#1e293b!important;box-shadow:inset 0 0 0 1px #e2e8f0,0 16px 32px -8px rgba(30,41,59,.12)!important}
+html[data-np-theme="light"] .flashcard-hole{background:#eef2f8!important;border-color:#cbd5e1!important}
+html[data-np-theme="light"] [class~="bg-slate-950"],html[data-np-theme="light"] [class~="bg-slate-900"],html[data-np-theme="light"] [class~="bg-slate-800"]{background-color:#fff!important}
+html[data-np-theme="light"] [class~="bg-slate-700"]{background-color:#eef2f7!important}
+html[data-np-theme="light"] [class~="text-white"],html[data-np-theme="light"] [class~="text-slate-100"],html[data-np-theme="light"] [class~="text-slate-200"]{color:#172033!important}
+html[data-np-theme="light"] [class~="text-slate-300"],html[data-np-theme="light"] [class~="text-slate-400"]{color:#526176!important}
+html[data-np-theme="light"] [class~="text-slate-500"]{color:#718096!important}
+html[data-np-theme="light"] [class~="border-slate-700"],html[data-np-theme="light"] [class~="border-slate-800"]{border-color:#dce3ed!important}
+html[data-np-theme="light"] input:not([type="checkbox"]):not([type="radio"]),html[data-np-theme="light"] textarea,html[data-np-theme="light"] select{background:#fff!important;color:#172033!important;border-color:#d8e0eb!important}
+#np-theme-header-button{position:fixed;right:14px;top:calc(env(safe-area-inset-top) + 12px);z-index:9998;width:42px;height:42px;border:1px solid rgba(148,163,184,.3);border-radius:14px;background:rgba(15,23,42,.9);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 18px rgba(0,0,0,.16);backdrop-filter:blur(12px);transition:transform .22s ease,background .3s ease}
+html[data-np-theme="light"] #np-theme-header-button{background:#fff;color:#243047;border-color:#dbe3ef}
+#np-theme-header-button:active{transform:scale(.9)}
+#np-theme-panel{position:fixed;right:14px;top:calc(env(safe-area-inset-top) + 62px);z-index:9998;width:min(290px,calc(100vw - 28px));padding:16px;border:1px solid var(--np-border);border-radius:18px;background:var(--np-surface);color:var(--np-text);box-shadow:0 16px 44px #0003;font:500 14px/1.5 'Noto Sans JP',sans-serif;opacity:0;transform:translateY(-6px);pointer-events:none;transition:opacity .22s ease,transform .22s ease}
+#np-theme-panel.np-open{opacity:1;transform:translateY(0);pointer-events:auto}
+#np-theme-panel .np-theme-option{width:100%;display:flex;align-items:center;gap:10px;padding:11px 12px;margin-top:8px;border:1px solid var(--np-border);border-radius:12px;background:transparent;color:inherit;text-align:left}
+#np-theme-panel .np-theme-option[aria-pressed="true"]{border-color:var(--np-accent);background:#4f72e81f}
+#np-theme-panel .np-theme-dot{width:18px;height:18px;border-radius:50%;border:1px solid var(--np-border);flex:none}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
