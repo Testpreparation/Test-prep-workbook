@@ -1798,7 +1798,7 @@
         const visitorId = escapeVisitorHistoryText(v.visitorId || '');
         return `<div class="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-slate-950 border border-slate-800">
           <div class="min-w-0"><div class="text-[11px] text-slate-200 truncate">${lineName || deviceName}</div>${lineName ? `<div class="text-[9px] text-slate-500 truncate">${deviceName}</div>` : ''}<div class="text-[9px] text-slate-600 font-mono truncate">${visitorId}</div></div>
-          <div class="text-[9px] text-slate-500 whitespace-nowrap">${time}</div>
+          <div class="text-[9px] text-slate-500 whitespace-nowrap text-right">${time}<br>利用 ${Math.max(1, Number(v.visitCount || 1))}回</div>
         </div>`;
       }).join('');
     }
@@ -5653,18 +5653,47 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
     (() => {
       try {
         const params = new URLSearchParams(window.location.search);
-        const lineName = params.get('line_name');
+        const hashParams = new URLSearchParams(window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '');
+        const authKeys = ['line_name', 'line_user_id', 'line_session'];
+        const hashHasAuth = authKeys.some(key => hashParams.has(key));
+        const lineName = params.get('line_name') || hashParams.get('line_name');
+        const lineUserId = params.get('line_user_id') || hashParams.get('line_user_id');
+        const lineSession = params.get('line_session') || hashParams.get('line_session');
 
-        if (lineName) {
-          localStorage.setItem('nurse_line_user_name', lineName);
-          params.delete('line_name');
+        if (lineName) localStorage.setItem('nurse_line_user_name', lineName);
+        if (lineUserId) localStorage.setItem('nurse_line_user_id', lineUserId);
+        if (lineSession) localStorage.setItem('nurse_line_user_session', lineSession);
+        if (lineName || lineUserId || lineSession) {
+          authKeys.forEach(key => { params.delete(key); hashParams.delete(key); });
           const query = params.toString();
-          const cleanUrl = window.location.pathname + (query ? '?' + query : '') + window.location.hash;
+          const cleanedHashParams = hashParams.toString();
+          const cleanedHash = hashHasAuth
+            ? (cleanedHashParams ? '#' + cleanedHashParams : '')
+            : window.location.hash;
+          const cleanUrl = window.location.pathname + (query ? '?' + query : '') + cleanedHash;
           window.history.replaceState({}, document.title, cleanUrl);
-          console.info('LINE表示名をこの端末に保存しました。');
+          console.info('LINEログイン情報をこの端末に保存しました。');
         }
 
         const savedName = localStorage.getItem('nurse_line_user_name');
+        const savedSession = localStorage.getItem('nurse_line_user_session');
+        if (savedSession) window.NURSE_LINE_SESSION = savedSession;
+
+        // 認証済みユーザーのアクセス日時・LINE表示名・アクセス回数をサーバーへ記録
+        if (savedSession) {
+          fetch('https://nurse-line-system.onrender.com/api/user/visit', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${savedSession}` }
+          }).then(async response => {
+            if (response.status === 401) {
+              localStorage.removeItem('nurse_line_user_session');
+              window.NURSE_LINE_SESSION = null;
+              return;
+            }
+            if (!response.ok) throw new Error(`アクセス履歴の保存に失敗しました (${response.status})`);
+            return response.json();
+          }).catch(error => console.warn('LINEアクセス履歴を保存できませんでした。', error));
+        }
         if (savedName) {
           window.NURSE_LINE_USER_NAME = savedName;
           console.info('保存済みLINE表示名:', savedName);
@@ -5709,7 +5738,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         // 初回アクセス時、LINE未ログインならログイン案内を表示する。
         // ログイン済みなら再表示しない。お知らせ機能には触れない。
         document.addEventListener('DOMContentLoaded', () => {
-          if (localStorage.getItem('nurse_line_user_name')) return;
+          if (localStorage.getItem('nurse_line_user_session')) return;
           if (document.getElementById('nurse-line-first-login-modal')) return;
 
           const modal = document.createElement('div');
