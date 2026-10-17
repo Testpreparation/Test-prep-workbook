@@ -190,6 +190,47 @@
       touch-action:manipulation !important;
     }
 
+    /* Keep the post-answer feedback and bottom navigation button visible */
+    #screen-quiz-play #quiz-feedback-box.block {
+      display:block !important;
+      visibility:visible !important;
+      opacity:1 !important;
+      position:relative !important;
+      overflow:visible !important;
+    }
+    #screen-quiz-play #quiz-feedback-box #quiz-next-btn {
+      display:block !important;
+      visibility:visible !important;
+      opacity:1 !important;
+      min-height:44px !important;
+      width:100% !important;
+      margin-top:12px !important;
+      position:relative !important;
+      z-index:5 !important;
+      pointer-events:auto !important;
+      touch-action:manipulation !important;
+      cursor:pointer !important;
+    }
+    html[data-np-theme="light"] body #screen-quiz-play #quiz-feedback-box.block {
+      background:#fffdfd !important;
+      color:#454057 !important;
+      border:1px solid #e5deef !important;
+      border-radius:16px !important;
+      box-shadow:0 8px 24px rgba(100,82,145,.07) !important;
+    }
+    html[data-np-theme="light"] body #screen-quiz-play #quiz-feedback-desc {
+      color:#5d586d !important;
+    }
+    html[data-np-theme="light"] body #screen-quiz-play #quiz-next-btn {
+      background:#eee7fb !important;
+      color:#51446f !important;
+      border:1px solid #dcd0f1 !important;
+    }
+    html[data-np-theme="light"] body #screen-quiz-play #quiz-next-btn:active {
+      transform:scale(.985);
+      background:#e4d8f7 !important;
+    }
+
     /* Light mode: analytics, subject condition, progress and statistics cards */
     html[data-np-theme="light"] body #screen-dashboard [class*="bg-"],
     html[data-np-theme="light"] body #screen-dashboard [class*="from-"],
