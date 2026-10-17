@@ -1,0 +1,145 @@
+/* Nurse＋ PWA app-like layout polish — visual-only overrides */
+html.np-light-theme {
+  color-scheme: light;
+  --np-app-bg: #fbf8ff;
+  --np-surface: rgba(255,255,255,.92);
+  --np-surface-soft: #f8f3ff;
+  --np-border: #e8def3;
+  --np-ink: #514766;
+  --np-muted: #8d819f;
+  --np-lavender: #b9a2dd;
+  --np-mint: #dff3eb;
+  --np-shadow: 0 12px 30px rgba(87,65,112,.08);
+}
+html.np-light-theme body {
+  min-height: 100dvh;
+  padding-bottom: max(18px, env(safe-area-inset-bottom));
+  background:
+    radial-gradient(ellipse at 5% 0%, rgba(232,220,255,.48), transparent 34rem),
+    radial-gradient(ellipse at 95% 28%, rgba(219,244,235,.52), transparent 30rem),
+    linear-gradient(160deg,#fffdfd 0%,#faf6ff 52%,#f3faf7 100%) !important;
+  color: var(--np-ink) !important;
+  -webkit-tap-highlight-color: transparent;
+}
+html.np-light-theme body :is(button,[role="button"],input,select,textarea) {
+  font-family: 'Noto Sans JP', sans-serif;
+}
+html.np-light-theme button,
+html.np-light-theme [role="button"] {
+  border-radius: 1rem;
+  transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease, border-color .18s ease, filter .18s ease;
+  touch-action: manipulation;
+}
+html.np-light-theme button:not(:disabled):active,
+html.np-light-theme [role="button"]:not([aria-disabled="true"]):active {
+  transform: scale(.975);
+}
+html.np-light-theme button:focus-visible,
+html.np-light-theme [role="button"]:focus-visible,
+html.np-light-theme input:focus-visible,
+html.np-light-theme select:focus-visible,
+html.np-light-theme textarea:focus-visible {
+  outline: 3px solid rgba(185,162,221,.5);
+  outline-offset: 3px;
+}
+html.np-light-theme button:not(:disabled):not([class*="bg-emerald"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-blue"]):not([class*="bg-cyan"]):not([class*="bg-indigo"]):not([class*="bg-purple"]) {
+  box-shadow: 0 4px 12px rgba(94,72,124,.07);
+}
+html.np-light-theme .glass-card,
+html.np-light-theme #nav-drawer,
+html.np-light-theme .evo-card,
+html.np-light-theme .card-item {
+  border-radius: 1.35rem !important;
+  box-shadow: var(--np-shadow) !important;
+}
+html.np-light-theme .glass-card {
+  background: var(--np-surface) !important;
+  border: 1px solid var(--np-border) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+html.np-light-theme .card-item {
+  background: linear-gradient(145deg,#fff 0%,#fbf8ff 100%) !important;
+  border: 1px solid var(--np-border) !important;
+}
+html.np-light-theme .card-item:hover:not(:disabled) {
+  border-color: #d7c5ef !important;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(94,72,124,.12) !important;
+}
+html.np-light-theme input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+html.np-light-theme select,
+html.np-light-theme textarea {
+  border-radius: .9rem;
+  border-color: #e4d9f0;
+  background-color: rgba(255,255,255,.94);
+  color: #514766;
+  min-height: 42px;
+}
+html.np-light-theme input[type="checkbox"],
+html.np-light-theme input[type="radio"] {
+  accent-color: #a58bcf;
+}
+html.np-light-theme header,
+html.np-light-theme nav {
+  -webkit-backdrop-filter: blur(16px);
+}
+html.np-light-theme #nav-drawer {
+  border: 1px solid var(--np-border) !important;
+  border-radius: 0 1.5rem 1.5rem 0 !important;
+  background: rgba(255,255,255,.97) !important;
+}
+html.np-light-theme #np-pwa-status {
+  border: 1px solid rgba(226,216,240,.9);
+  box-shadow: 0 6px 20px rgba(87,65,112,.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+html.np-light-theme #np-pwa-install {
+  border: 1px solid var(--np-border);
+  border-radius: 1.4rem;
+  box-shadow: 0 20px 55px rgba(87,65,112,.16);
+}
+html.np-light-theme .np-pwa-primary,
+html.np-light-theme .np-pwa-secondary {
+  border-radius: 1rem;
+  min-height: 42px;
+}
+html.np-light-theme .np-pwa-primary {
+  background: linear-gradient(135deg,#b9a2dd,#a6cdbf) !important;
+  color: #fff !important;
+  box-shadow: 0 8px 18px rgba(165,139,207,.24);
+}
+html.np-light-theme .np-pwa-secondary {
+  background: #f6f0fc !important;
+  border: 1px solid #e8def3 !important;
+  color: #75658c !important;
+}
+html.np-light-theme .flashcard-paper {
+  border-radius: 1.5rem;
+}
+html.np-light-theme .custom-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+}
+@media (max-width: 640px) {
+  html.np-light-theme body {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  html.np-light-theme button,
+  html.np-light-theme [role="button"] {
+    min-height: 40px;
+  }
+  html.np-light-theme .glass-card,
+  html.np-light-theme .card-item,
+  html.np-light-theme .evo-card {
+    border-radius: 1.1rem !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.np-light-theme button,
+  html.np-light-theme [role="button"],
+  html.np-light-theme .card-item {
+    transition-duration: .01ms !important;
+  }
+}
