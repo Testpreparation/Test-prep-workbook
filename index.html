@@ -4094,6 +4094,8 @@
       document.getElementById('screen-subjects').classList.remove('hidden');
       switchSubjectPage(0);
       renderSubjectList();
+      // ホームなどから戻ったときも暗記カードの2ページ目を再び開ける状態に戻す。
+      backToFlashcardStep(1);
     }
 
     function renderSubjectList() {
