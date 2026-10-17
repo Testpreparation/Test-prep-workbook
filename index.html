@@ -567,22 +567,26 @@
     <div class="space-y-3 pt-4" id="settings-accordion">
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
         <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-emerald-300">◉</span>アカウント</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
-        <div class="px-4 pb-4 space-y-2">
-          <div class="rounded-xl border border-slate-700 bg-slate-900/60 p-4"><div class="flex items-center gap-3"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300 font-bold text-xs">LINE</span><div class="min-w-0 flex-1"><div class="font-semibold text-sm">LINEログイン</div><p class="text-xs text-slate-400 mt-1">LINEアカウントでログインして、表示名を連携します。</p></div></div><a href="https://nurse-line-system.onrender.com/auth/line" class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-300 hover:bg-emerald-500/20 transition"><span>LINEでログイン</span><span aria-hidden="true">↗</span></a></div>
-          <button type="button" onclick="openSettingsDetail(\'sync\')" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left"><span class="font-semibold text-sm">学習記録の同期</span><span class="text-slate-400" aria-hidden="true">›</span></button>
-        </div>
+        <div class="px-4 pb-4"><button type="button" onclick="openSettingsDetail('account')" class="np-settings-entry"><span>アカウント</span><span aria-hidden="true">›</span></button></div>
       </details>
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
         <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-amber-300">⚙</span>一般</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
         <div class="px-4 pb-4 space-y-2">
           <button id="np-theme-settings-card" type="button" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left cursor-pointer hover:bg-slate-800/70 transition" aria-label="テーマ・外観を開く"><span class="font-semibold text-sm">テーマ・外観</span><span class="text-slate-400" aria-hidden="true">›</span></button>
+          <button type="button" onclick="openSettingsDetail('notifications')" class="np-settings-entry"><span>通知設定</span><span aria-hidden="true">›</span></button>
+          <button type="button" onclick="openSettingsDetail('sync')" class="np-settings-entry"><span>学習記録の同期</span><span aria-hidden="true">›</span></button>
+          <button type="button" onclick="openSettingsDetail('accessibility')" class="np-settings-entry"><span>アクセシビリティ</span><span aria-hidden="true">›</span></button>
         </div>
       </details>
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
-        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-sky-300">◇</span>プライバシー・データ管理</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-sky-300">◇</span>プライバシー</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
         <div class="px-4 pb-4 space-y-2">
-          <button type="button" onclick="openSettingsDetail(\'privacy\')" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left"><span class="font-semibold text-sm">プライバシー・データ管理</span><span class="text-slate-400" aria-hidden="true">›</span></button>
+          <button type="button" onclick="openSettingsDetail(\'privacy\')" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left"><span class="font-semibold text-sm">プライバシー</span><span class="text-slate-400" aria-hidden="true">›</span></button>
         </div>
+      </details>
+      <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-rose-300">▤</span>データ管理</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
+        <div class="px-4 pb-4"><button type="button" onclick="openSettingsDetail('data')" class="np-settings-entry"><span>データ管理</span><span aria-hidden="true">›</span></button></div>
       </details>
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
         <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-violet-300">♡</span>ヘルプ・サポート</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
@@ -626,6 +630,13 @@
     <button type="button" onclick="closeSettingsDetail()" class="mt-5 w-full rounded-xl border border-slate-200 bg-slate-50 py-3 text-sm hover:bg-slate-100 transition">戻る</button>
   </section>
 
+  <style id="np-settings-compact-style">
+    .np-settings-entry{width:100%;display:flex;align-items:center;justify-content:space-between;gap:.75rem;border:1px solid #e8def3;border-radius:.7rem;background:rgba(250,247,255,.8);padding:.55rem .7rem;text-align:left;font-size:.82rem;color:#5b506d;transition:background .2s ease,border-color .2s ease}
+    .np-settings-entry:hover{background:#f2eafb}
+    .np-settings-entry:focus-visible{outline:2px solid #b39add;outline-offset:2px}
+    html.np-accessibility-large-text{font-size:110%}
+    html.np-accessibility-reduced-motion *,html.np-accessibility-reduced-motion *::before,html.np-accessibility-reduced-motion *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  </style>
   <style id="drawer-settings-dropdown-style">
     #nav-drawer{will-change:transform,opacity}
     #drawer-settings-accordion{display:block;border-radius:14px}
@@ -4484,6 +4495,10 @@
       closeUserSettings();
     }
 
+    try {
+      document.documentElement.classList.toggle('np-accessibility-large-text', localStorage.getItem('nurse_plus_large_text') === 'on');
+      document.documentElement.classList.toggle('np-accessibility-reduced-motion', localStorage.getItem('nurse_plus_reduced_motion') === 'on');
+    } catch (_) {}
     document.addEventListener('DOMContentLoaded', prepareDrawerSettingsDropdown, { once: true });
 
     const evoModeDefs = s => {
@@ -6516,6 +6531,12 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
     color:#5b506d!important;
   }
 
+  /* Final override: compact, pastel page-switch dots. */
+  #subject-page-dots{gap:6px!important}
+  #subject-page-dots button{width:5px!important;height:5px!important;min-width:5px!important;min-height:5px!important;padding:0!important;border:0!important;border-radius:999px!important;background:#ded6e8!important;box-shadow:none!important;transform:none!important}
+  #subject-page-dots button.bg-amber-500{background:#b39add!important;transform:scale(1.12)!important}
+  #subject-page-dots button.bg-slate-700{background:#ded6e8!important}
+  #subject-page-dots button:hover{background:#c9b8e4!important}
   /* Smaller, softer page-switch dots; never use the previous orange/charcoal colors. */
   #subject-page-dots #dot-page-1,
   #subject-page-dots #dot-page-2{
