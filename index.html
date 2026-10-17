@@ -314,19 +314,19 @@
     </div>
     <div class="space-y-3 pt-4" id="settings-accordion">
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden" open>
-        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-emerald-300">◉</span>アカウント</span><span class="settings-chevron text-slate-400 transition-transform">⌄</span></summary>
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-emerald-300">◉</span>アカウント</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
         <div class="px-4 pb-4"><div class="rounded-xl border border-slate-700 bg-slate-900/60 p-4"><div class="flex items-center gap-3"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300 font-bold text-xs">LINE</span><div class="min-w-0 flex-1"><div class="font-semibold text-sm">LINEログイン</div><p class="text-xs text-slate-400 mt-1">LINEアカウントでログインして、表示名を連携します。</p></div></div><a href="https://nurse-line-system.onrender.com/auth/line" class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-300 hover:bg-emerald-500/20 transition"><span>LINEでログイン</span><span aria-hidden="true">↗</span></a></div></div>
       </details>
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
-        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-amber-300">⚙</span>一般</span><span class="settings-chevron text-slate-400 transition-transform">⌄</span></summary>
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-amber-300">⚙</span>一般</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
         <div class="px-4 pb-4"><div class="rounded-xl border border-slate-700 bg-slate-900/60 p-4"><div class="font-semibold text-sm">テーマ・外観</div><p class="text-xs text-slate-400 mt-1">ホワイトモード／ダークモードは画面右上のテーマボタンから切り替えできます。</p></div></div>
       </details>
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
-        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-sky-300">◇</span>プライバシー</span><span class="settings-chevron text-slate-400 transition-transform">⌄</span></summary>
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-sky-300">◇</span>プライバシー</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
         <div class="px-4 pb-4"><div class="rounded-xl border border-slate-700 bg-slate-900/60 p-4"><div class="font-semibold text-sm">学習履歴について</div><p class="text-xs text-slate-400 mt-1">学習記録の保存方法は、現在のアプリおよび連携サービスの設定に従います。</p></div></div>
       </details>
       <details class="group rounded-xl border border-amber-500/25 bg-amber-500/5 overflow-hidden">
-        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-amber-200"><span class="flex items-center gap-2"><span>♙</span>管理者</span><span class="settings-chevron text-amber-300 transition-transform">⌄</span></summary>
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-amber-200"><span class="flex items-center gap-2"><span>♙</span>管理者</span><span class="settings-chevron text-amber-300 transition-transform group-open:rotate-180">⌄</span></summary>
         <div class="px-4 pb-4"><div class="rounded-xl border border-amber-500/25 bg-slate-900/60 p-4"><div class="font-semibold text-sm">管理者メニュー</div><p class="text-xs text-slate-400 mt-1">管理者パスワードを入力して、管理者機能を開きます。</p><button type="button" onclick="openAdminAuthFromSettings()" class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-300 hover:bg-amber-500/20 transition"><span>管理者メニューを開く</span><span aria-hidden="true">→</span></button></div></div>
       </details>
     </div>
@@ -3221,17 +3221,20 @@
         const newOrderIds = Array.from(container.children).map(child => child.getAttribute('data-id'));
         subjects.sort((a, b) => newOrderIds.indexOf(a.id) - newOrderIds.indexOf(b.id));
         saveSubjectsToStorage();
+        recordAdminOperation('科目の並び替え', '科目一覧の表示順を変更');
       });
     }
 
     function updateSubjectSemesterSetting(idx, value) {
       subjects[idx].semesterSetting = value;
       saveSubjectsToStorage();
+      recordAdminOperation('科目の学期設定', (subjects[idx].name || subjects[idx].id) + '：' + ({all:'春・秋',spring:'春のみ',autumn:'秋のみ'}[value] || value));
     }
 
     function toggleSubjectVisibility(idx) {
       subjects[idx].visible = !(subjects[idx].visible !== false);
       saveSubjectsToStorage();
+      recordAdminOperation('演習表示設定', (subjects[idx].name || subjects[idx].id) + '：' + (subjects[idx].visible !== false ? '表示' : '非表示'));
       renderAdminDragList();
     }
 
@@ -3239,6 +3242,7 @@
     function toggleSubjectFlashcardVisibilityDirect(idx) {
       subjects[idx].flashcardVisible = !(subjects[idx].flashcardVisible !== false);
       saveSubjectsToStorage();
+      recordAdminOperation('暗記カード表示設定', (subjects[idx].name || subjects[idx].id) + '：' + (subjects[idx].flashcardVisible !== false ? '表示' : '非表示'));
       renderAdminDragList();
       renderFlashcardSubjectList();
     }
@@ -3251,6 +3255,7 @@
         const subId = targetSubject.id;
         subjects.splice(idx, 1);
         saveSubjectsToStorage();
+        recordAdminOperation('科目削除', targetSubject.name || targetSubject.id);
 
         db.ref(`quiz_db/${subId}`).remove();
         db.ref(`flashcard_db/${subId}`).remove();
