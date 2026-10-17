@@ -238,7 +238,7 @@
         const screen = mutation.target;
         if (!screen || !screen.id || !screen.id.startsWith('screen-')) return;
         const isHidden = screen.classList.contains('hidden');
-        const wasHidden = String(mutation.oldValue || '').split(/\\s+/).includes('hidden');
+        const wasHidden = String(mutation.oldValue || '').split(/\s+/).includes('hidden');
         if (isHidden) {
           if (screen.id === 'screen-quiz-result') delete screen.dataset.npCelebrated;
           return;
@@ -268,7 +268,7 @@
         if (!title || title === previousTitle) return;
         previousTitle = title;
         if (reduceMotion || typeof feedbackBox.animate !== 'function') return;
-        const isCorrect = title.includes('正解');
+        const isCorrect = title.includes('正解') && !title.includes('不正解');
         const frames = isCorrect
           ? [{ opacity: .65, transform: 'scale(.96)' }, { opacity: 1, transform: 'scale(1)' }]
           : [{ opacity: .7, transform: 'translateX(-4px)' }, { opacity: 1, transform: 'translateX(4px)' }, { opacity: 1, transform: 'translateX(0)' }];
@@ -332,6 +332,19 @@
       });
     }
     animateProgressBars();
+    function markMotionCards(root) {
+      (root || document).querySelectorAll('.glass-card section, .glass-card [class*="rounded-xl"], .glass-card [class*="rounded-2xl"]').forEach(card => {
+        if (card.matches('button,[role="button"]') || card.closest('#' + SCREEN_ID)) return;
+        if (card.querySelector('button,[role="button"]') || card.matches('section')) card.classList.add('np-motion-card');
+      });
+    }
+    markMotionCards();
+    const cardObserver = new MutationObserver(records => {
+      records.forEach(record => record.addedNodes.forEach(node => {
+        if (node.nodeType === 1) markMotionCards(node);
+      }));
+    });
+    cardObserver.observe(document.body,{childList:true,subtree:true});
     const progressObserver = new MutationObserver(records => {
       records.forEach(record => {
         if (record.type === 'childList') record.addedNodes.forEach(node => {
