@@ -4576,6 +4576,10 @@
       if (isCorrect) stats[key].correct++;
       else stats[key].wrong++;
       localStorage.setItem(getWeakQuestionStatsKey(), JSON.stringify(stats));
+      // 問題文そのものや利用者情報は送らず、匿名の問題キーと正誤だけを集計する。
+      if (window.NursePlusCommunityStats && typeof window.NursePlusCommunityStats.recordResult === 'function') {
+        window.NursePlusCommunityStats.recordResult(q, isCorrect, currentSubject?.id, conditionMode || 'all');
+      }
     }
 
     function isWeakQuestion(q, stats) {
