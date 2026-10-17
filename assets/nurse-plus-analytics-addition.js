@@ -368,6 +368,10 @@
     const stats = getStats(rows);
     const streak = calculateStreak(rows);
     const weeklyReport = getWeeklyReport(rows);
+    const wrongQuestionRecords = (window.NursePlusWrongQuestions && typeof window.NursePlusWrongQuestions.getAll === 'function'
+      ? window.NursePlusWrongQuestions.getAll() : [])
+      .filter(item => item && item.question && Number(item.wrongCount || 0) > Number(item.correctCount || 0))
+      .sort((a,b) => (Number(b.wrongCount||0)-Number(b.correctCount||0)) - (Number(a.wrongCount||0)-Number(a.correctCount||0)));
     const subjectRows = {};
     rows.forEach(row => {
       if (!subjectRows[row.subjectId]) subjectRows[row.subjectId] = {name:row.subject, values:[]};
@@ -440,6 +444,13 @@
           ${rows.map(row=>({ ...row, modeAvg: row.accuracy.length ? Math.round(row.accuracy.reduce((sum,value)=>sum+value,0)/row.accuracy.length) : null })).filter(row=>row.modeAvg!==null).sort((a,b)=>a.modeAvg-b.modeAvg).slice(0,3).map((row,index)=>`<div class="mt-3 rounded-xl border border-slate-700/70 bg-slate-950/40 p-3"><div class="flex items-start justify-between gap-3"><div><div class="text-xs font-semibold text-slate-100">${index+1}. ${esc(row.subject)}</div><div class="text-[10px] text-slate-400 mt-1">${esc(row.mode)} ・ ${row.accuracy.length}回の記録</div></div><div class="text-sm font-mono ${row.modeAvg<70?'text-rose-400':'text-amber-300'}">${row.modeAvg}%</div></div><p class="text-[10px] leading-5 text-slate-400 mt-2">${row.modeAvg<60?'最優先で復習：解説を確認し、同じ範囲をもう一度解き直しましょう。':row.modeAvg<70?'重点復習：間違えた問題と根拠をノートにまとめましょう.':'維持・定着：数日後に再演習して正答率を確認しましょう。'}</p></div>`).join('') || '<div class="np-analytics-empty">分析できる履歴がまだありません。問題を解くと苦手傾向を表示します。</div>'}
         </section>
         <section class="np-analytics-card">
+          <div class="flex items-center justify-between gap-3">
+            <div><h3 class="text-sm font-semibold text-slate-100">間違えた問題から見る苦手分析</h3><p class="text-[10px] text-slate-400 mt-1">問題単位の間違い回数を集計し、復習の優先順位を表示します。</p></div>
+            <button type="button" id="np-open-wrong-review" class="np-analytics-back shrink-0">復習する</button>
+          </div>
+          ${wrongQuestionRecords.length ? wrongQuestionRecords.slice(0,5).map((item,index)=>`<div class="mt-3 rounded-xl border border-slate-700/70 bg-slate-950/40 p-3"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><div class="text-[10px] text-amber-300">${index+1}. ${esc(item.subjectName || item.subjectId || '科目')} ・ ${esc(item.context && item.context.modeLabel || '演習')}</div><p class="mt-1 text-xs leading-5 text-slate-200">${esc(String(item.question.q || '問題文なし').slice(0,180))}</p></div><div class="shrink-0 text-right"><div class="text-xs font-semibold text-rose-300">${Math.max(0,Number(item.wrongCount||0)-Number(item.correctCount||0))}回</div><div class="text-[9px] text-slate-500">未解消</div></div></div><div class="mt-2 text-[10px] text-slate-500">不正解 ${Number(item.wrongCount||0)}回 ・ 正解 ${Number(item.correctCount||0)}回</div></div>`).join('') : '<div class="np-analytics-empty">問題単位の記録はまだありません。これから間違えた問題が自動で集計されます。</div>'}
+        </section>
+        <section class="np-analytics-card">
           <h3 class="text-sm font-semibold text-slate-100">科目別の平均正答率</h3>
           <p class="text-[10px] text-slate-500 mt-1">記録がある科目のみ表示。低い科目から並べています。</p>
           ${subjects.length ? subjects.map(s=>`<div class="np-analytics-row"><div><div class="text-xs text-slate-200">${esc(s.name)}</div><div class="np-analytics-track"><div class="np-analytics-fill" style="width:${s.avg}%"></div></div></div><div class="text-xs font-mono ${s.avg<70?'text-rose-400':'text-amber-300'}">${s.avg}%</div></div>`).join('') : '<div class="np-analytics-empty">科目別の正答率データはまだありません。</div>'}
@@ -453,6 +464,10 @@
     const syncButton = document.getElementById('np-analytics-sync');
     const syncStatus = document.getElementById('np-analytics-sync-status');
     syncButton?.addEventListener('click', () => syncStudyData(syncStatus, syncButton));
+    document.getElementById('np-open-wrong-review')?.addEventListener('click', () => {
+      if (typeof window.evoOpenWrong === 'function') window.evoOpenWrong();
+      else alert('復習画面を開けませんでした。ページを再読み込みしてください。');
+    });
   }
   function openAnalytics() {
     if (typeof window.hideAllScreens === 'function') window.hideAllScreens();
@@ -773,12 +788,13 @@
       records.forEach(record => {
         const el = record.target;
         if (!el || el.classList.contains('hidden') || reduceMotion || typeof el.animate !== 'function') return;
+        if (el.id === 'nav-drawer' && el.classList.contains('-translate-x-full')) return;
         if (el.id && (el.id.startsWith('modal-') || el.id === 'nav-drawer')) {
           el.animate(
             el.id === 'nav-drawer'
-              ? [{opacity:.55,transform:'translateX(-18px)'},{opacity:1,transform:'translateX(0)'}]
+              ? [{opacity:.55,transform:'translateX(-100%)'},{opacity:1,transform:'translateX(0)'}]
               : [{opacity:0,transform:'translateY(8px) scale(.985)'},{opacity:1,transform:'translateY(0) scale(1)'}],
-            {duration:560,easing:'cubic-bezier(.22,1,.36,1)'}
+            {duration:el.id === 'nav-drawer' ? 480 : 560,easing:'cubic-bezier(.22,1,.36,1)'}
           );
         }
       });
