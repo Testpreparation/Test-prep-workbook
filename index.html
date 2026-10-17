@@ -7476,6 +7476,98 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
     html:not(.np-light-theme) #np-settings-detail-modal {
       color:#e2e8f0 !important;
     }
+    /* Fix remaining light utility backgrounds only on the home and settings screens. */
+    html:not(.np-light-theme) :is(
+      #screen-dashboard,
+      #user-settings-modal,
+      #np-theme-settings-modal,
+      #np-settings-detail-modal,
+      #drawer-settings-content
+    ) [class*="bg-white"],
+    html:not(.np-light-theme) :is(
+      #screen-dashboard,
+      #user-settings-modal,
+      #np-theme-settings-modal,
+      #np-settings-detail-modal,
+      #drawer-settings-content
+    ) [class*="bg-gray-50"],
+    html:not(.np-light-theme) :is(
+      #screen-dashboard,
+      #user-settings-modal,
+      #np-theme-settings-modal,
+      #np-settings-detail-modal,
+      #drawer-settings-content
+    ) [class*="bg-gray-100"],
+    html:not(.np-light-theme) :is(
+      #screen-dashboard,
+      #user-settings-modal,
+      #np-theme-settings-modal,
+      #np-settings-detail-modal,
+      #drawer-settings-content
+    ) [class*="bg-violet-50"],
+    html:not(.np-light-theme) :is(
+      #screen-dashboard,
+      #user-settings-modal,
+      #np-theme-settings-modal,
+      #np-settings-detail-modal,
+      #drawer-settings-content
+    ) [class*="bg-violet-100"],
+    html:not(.np-light-theme) :is(
+      #screen-dashboard,
+      #user-settings-modal,
+      #np-theme-settings-modal,
+      #np-settings-detail-modal,
+      #drawer-settings-content
+    ) [class*="bg-rose-50"],
+    html:not(.np-light-theme) :is(
+      #screen-dashboard,
+      #user-settings-modal,
+      #np-theme-settings-modal,
+      #np-settings-detail-modal,
+      #drawer-settings-content
+    ) [class*="bg-emerald-50"],
+    html:not(.np-light-theme) :is(
+      #screen-dashboard,
+      #user-settings-modal,
+      #np-theme-settings-modal,
+      #np-settings-detail-modal,
+      #drawer-settings-content
+    ) [class*="bg-sky-50"],
+    html:not(.np-light-theme) :is(
+      #screen-dashboard,
+      #user-settings-modal,
+      #np-theme-settings-modal,
+      #np-settings-detail-modal,
+      #drawer-settings-content
+    ) [class*="bg-amber-50"] {
+      background-color:#1e293b !important;
+      background-image:none !important;
+      border-color:#475569 !important;
+      color:#e2e8f0 !important;
+    }
+    html:not(.np-light-theme) :is(
+      #screen-dashboard,
+      #user-settings-modal,
+      #np-theme-settings-modal,
+      #np-settings-detail-modal,
+      #drawer-settings-content
+    ) [class*="text-emerald-700"],
+    html:not(.np-light-theme) :is(
+      #screen-dashboard,
+      #user-settings-modal,
+      #np-theme-settings-modal,
+      #np-settings-detail-modal,
+      #drawer-settings-content
+    ) [class*="text-rose-700"],
+    html:not(.np-light-theme) :is(
+      #screen-dashboard,
+      #user-settings-modal,
+      #np-theme-settings-modal,
+      #np-settings-detail-modal,
+      #drawer-settings-content
+    ) [class*="text-violet-800"] {
+      color:#cbd5e1 !important;
+    }
   </style>
 
 </body>
