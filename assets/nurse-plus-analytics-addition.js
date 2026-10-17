@@ -248,7 +248,7 @@
       screen.dataset.npCelebrated = '1';
       const scoreEl = document.getElementById('final-score-val');
       const accuracy = scoreEl ? Number(scoreEl.textContent) : NaN;
-      if (reduceMotion || !Number.isFinite(accuracy) || accuracy >= 100) return;
+      if (reduceMotion || !Number.isFinite(accuracy)) return;
 
       // 既存の紙吹雪ライブラリがある場合はそのまま利用する。
       if (typeof window.confetti === 'function') {
