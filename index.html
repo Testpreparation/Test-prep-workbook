@@ -2604,8 +2604,10 @@
     function switchSubjectPage(pageIdx) {
       currentSubjectPageIndex = pageIdx;
       const track = document.getElementById('subjects-slider-track');
+      const dots = document.getElementById('subject-page-dots');
       const dot1 = document.getElementById('dot-page-1');
       const dot2 = document.getElementById('dot-page-2');
+      if (dots) dots.classList.remove('hidden');
 
       if (track) {
         track.style.transform = `translateX(-${pageIdx * 50}%)`;
