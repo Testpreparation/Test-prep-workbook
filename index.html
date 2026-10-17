@@ -4225,27 +4225,26 @@
     }
 
     function prepareDrawerSettingsDropdown() {
-      /* Settings remain in the centered dialog rather than moving into the side drawer. */
+      const content = document.getElementById('drawer-settings-content');
+      const accordion = document.getElementById('settings-accordion');
       const modal = document.getElementById('user-settings-modal');
-      if (modal) {
-        modal.setAttribute('aria-modal', 'true');
-        modal.setAttribute('role', 'dialog');
+      if (content && accordion && accordion.parentElement !== content) {
+        content.appendChild(accordion);
       }
+      if (modal) modal.classList.add('hidden');
     }
 
     function openUserSettings() {
       prepareDrawerSettingsDropdown();
-      closeNavDrawer();
-      const overlay = document.getElementById('user-settings-overlay');
-      const modal = document.getElementById('user-settings-modal');
-      const accordion = document.getElementById('drawer-settings-accordion');
-      if (accordion) accordion.open = false;
-      if (overlay) overlay.classList.remove('hidden');
-      if (modal) {
-        modal.classList.remove('hidden');
-        modal.setAttribute('aria-modal', 'true');
-        modal.setAttribute('role', 'dialog');
-      }
+      const drawerSettings = document.getElementById('drawer-settings-accordion');
+      const toggle = document.getElementById('drawer-settings-toggle');
+      const content = document.getElementById('drawer-settings-content');
+      if (!drawerSettings || !content) return;
+      drawerSettings.open = !drawerSettings.open;
+      if (toggle) toggle.setAttribute('aria-expanded', String(drawerSettings.open));
+      content.setAttribute('aria-hidden', String(!drawerSettings.open));
+      const chevron = document.getElementById('drawer-settings-chevron');
+      if (chevron) chevron.style.transform = drawerSettings.open ? 'rotate(180deg)' : '';
     }
 
     function closeUserSettings() {
