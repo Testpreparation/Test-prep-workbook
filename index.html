@@ -312,18 +312,30 @@
       <div><div class="en-title text-[10px] tracking-[.2em] text-amber-400">SETTINGS</div><h2 id="user-settings-title" class="serif-title text-xl mt-1">設定</h2><p class="text-xs text-slate-400 mt-1">アカウントやアプリの表示を管理します。</p></div>
       <button type="button" onclick="closeUserSettings()" class="rounded-lg p-2 text-slate-400 hover:text-white hover:bg-slate-800" aria-label="設定を閉じる">✕</button>
     </div>
-    <div class="space-y-5 pt-4">
-      <section aria-labelledby="settings-account-title"><h3 id="settings-account-title" class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-2">アカウント</h3><div class="rounded-xl border border-slate-700 bg-slate-800/60 p-4"><div class="flex items-center gap-3"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300 font-bold text-xs">LINE</span><div class="min-w-0 flex-1"><div class="font-semibold text-sm">LINEログイン</div><p class="text-xs text-slate-400 mt-1">LINEアカウントでログインして、表示名を連携します。</p></div></div><a href="https://nurse-line-system.onrender.com/auth/line" class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-300 hover:bg-emerald-500/20 transition"><span>LINEでログイン</span><span aria-hidden="true">↗</span></a></div></section>
-      <section aria-labelledby="settings-admin-title"><h3 id="settings-admin-title" class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-2">管理者</h3><div class="rounded-xl border border-amber-500/25 bg-amber-500/5 p-4"><div class="font-semibold text-sm">管理者メニュー</div><p class="text-xs text-slate-400 mt-1">管理者パスワードを入力して、管理者機能を開きます。</p><button type="button" onclick="openAdminAuthFromSettings()" class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-300 hover:bg-amber-500/20 transition"><span>管理者メニューを開く</span><span aria-hidden="true">→</span></button></div></section>
-      <section aria-labelledby="settings-general-title"><h3 id="settings-general-title" class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-2">一般</h3><div class="rounded-xl border border-slate-700 bg-slate-800/60 p-4"><div class="font-semibold text-sm">テーマ・外観</div><p class="text-xs text-slate-400 mt-1">ホワイトモード／ダークモードは画面右上のテーマボタンから切り替えできます。</p></div></section>
-      <section aria-labelledby="settings-privacy-title"><h3 id="settings-privacy-title" class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-2">プライバシー</h3><div class="rounded-xl border border-slate-700 bg-slate-800/60 p-4"><div class="font-semibold text-sm">学習履歴について</div><p class="text-xs text-slate-400 mt-1">学習記録の保存方法は、現在のアプリおよび連携サービスの設定に従います。</p></div></section>
+    <div class="space-y-3 pt-4" id="settings-accordion">
+      <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden" open>
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-emerald-300">◉</span>アカウント</span><span class="settings-chevron text-slate-400 transition-transform">⌄</span></summary>
+        <div class="px-4 pb-4"><div class="rounded-xl border border-slate-700 bg-slate-900/60 p-4"><div class="flex items-center gap-3"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300 font-bold text-xs">LINE</span><div class="min-w-0 flex-1"><div class="font-semibold text-sm">LINEログイン</div><p class="text-xs text-slate-400 mt-1">LINEアカウントでログインして、表示名を連携します。</p></div></div><a href="https://nurse-line-system.onrender.com/auth/line" class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-300 hover:bg-emerald-500/20 transition"><span>LINEでログイン</span><span aria-hidden="true">↗</span></a></div></div>
+      </details>
+      <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-amber-300">⚙</span>一般</span><span class="settings-chevron text-slate-400 transition-transform">⌄</span></summary>
+        <div class="px-4 pb-4"><div class="rounded-xl border border-slate-700 bg-slate-900/60 p-4"><div class="font-semibold text-sm">テーマ・外観</div><p class="text-xs text-slate-400 mt-1">ホワイトモード／ダークモードは画面右上のテーマボタンから切り替えできます。</p></div></div>
+      </details>
+      <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-sky-300">◇</span>プライバシー</span><span class="settings-chevron text-slate-400 transition-transform">⌄</span></summary>
+        <div class="px-4 pb-4"><div class="rounded-xl border border-slate-700 bg-slate-900/60 p-4"><div class="font-semibold text-sm">学習履歴について</div><p class="text-xs text-slate-400 mt-1">学習記録の保存方法は、現在のアプリおよび連携サービスの設定に従います。</p></div></div>
+      </details>
+      <details class="group rounded-xl border border-amber-500/25 bg-amber-500/5 overflow-hidden">
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-amber-200"><span class="flex items-center gap-2"><span>♙</span>管理者</span><span class="settings-chevron text-amber-300 transition-transform">⌄</span></summary>
+        <div class="px-4 pb-4"><div class="rounded-xl border border-amber-500/25 bg-slate-900/60 p-4"><div class="font-semibold text-sm">管理者メニュー</div><p class="text-xs text-slate-400 mt-1">管理者パスワードを入力して、管理者機能を開きます。</p><button type="button" onclick="openAdminAuthFromSettings()" class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-300 hover:bg-amber-500/20 transition"><span>管理者メニューを開く</span><span aria-hidden="true">→</span></button></div></div>
+      </details>
     </div>
     <button type="button" onclick="closeUserSettings()" class="mt-5 w-full rounded-xl border border-slate-700 bg-slate-800/70 py-3 text-sm hover:bg-slate-700 transition">閉じる</button>
   </section>
 
   <!-- スライドメニュー -->
   <div id="nav-overlay" onclick="closeNavDrawer()" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 transition-opacity"></div>
-  <div id="nav-drawer" class="fixed top-0 left-0 h-full w-72 glass-card bg-slate-900/95 border-r border-slate-800 z-50 transform -translate-x-full transition-transform duration-300 p-6 flex flex-col justify-between shadow-2xl">
+  <div id="nav-drawer" class="fixed top-0 left-0 h-full w-72 glass-card bg-slate-900/95 border-r border-slate-800 z-50 transform -translate-x-full transition-transform duration-500 p-6 flex flex-col justify-between shadow-2xl" style="transition:transform 480ms cubic-bezier(.22,1,.36,1),opacity 480ms cubic-bezier(.22,1,.36,1);">
     <div>
       <div class="flex items-center justify-between pb-4 border-b border-slate-800">
         <span class="en-title text-xs text-amber-500/80 tracking-widest uppercase font-semibold">NAVIGATION MENU</span>
@@ -1408,6 +1420,16 @@
         </div>
       </div>
 
+      <!-- 管理者操作履歴：この端末に保存 -->
+      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <div class="text-xs font-semibold text-amber-400 flex items-center gap-1.5 uppercase tracking-widest"><span>🧾</span><span>管理者操作履歴</span></div>
+          <button type="button" onclick="clearAdminOperationLog()" class="text-[10px] text-slate-400 underline underline-offset-2 hover:text-white">履歴を消去</button>
+        </div>
+        <p class="text-[10px] text-slate-500">この端末で行った主な管理操作を最大50件表示します。サーバー全体の監査ログではありません。</p>
+        <div id="admin-operation-log" class="space-y-2 max-h-48 overflow-y-auto"><div class="text-[11px] text-slate-500 text-center py-3">履歴はまだありません。</div></div>
+      </div>
+
       <!-- お知らせ送信エリア -->
       <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 space-y-3">
         <div class="text-xs font-semibold text-amber-400 flex items-center gap-1.5 uppercase tracking-widest">
@@ -1944,6 +1966,7 @@
       try {
         const result = await callNurseLineApi('/api/line/send-mode', { mode });
         renderLineSendMode(result.mode);
+        recordAdminOperation('LINE送信モード変更', result.mode === 'all' ? '全員送信' : 'テスト送信');
         alert(result.message || 'LINE送信モードを変更しました。');
       } catch (err) {
         console.error('LINE送信モードの変更に失敗しました:', err);
@@ -2344,6 +2367,7 @@
           });
           const result = await response.json().catch(() => ({}));
           if (!response.ok) throw new Error(result.message || result.error || `サーバーエラー (${response.status})`);
+          recordAdminOperation('LINE画像配信', imageScheduledAt ? '配信予約' : '即時配信');
           alert(result.message || (imageScheduledAt ? '画像のみの配信を予約しました。' : '画像のみをLINEへ送信しました。'));
           imageInput.value = '';
           clearNoticeSchedule('admin-notice');
@@ -2396,6 +2420,7 @@
           await callNurseLineApi('/api/generate-notice', { content: fullContent });
         }
         await db.ref('notices').push(noticeData);
+        recordAdminOperation('お知らせ投稿', scheduledAt ? 'LINE配信予約：' + new Date(scheduledAt).toLocaleString('ja-JP') : '即時配信');
 
         alert(scheduledAt
           ? `お知らせを投稿しました。LINE配信は ${new Date(scheduledAt).toLocaleString('ja-JP')} に予約しました。`
@@ -3069,6 +3094,59 @@
       }
     }
 
+    const ADMIN_OPERATION_LOG_KEY = 'nurse_plus_admin_operation_log_v1';
+
+    function getAdminOperationLog() {
+      try {
+        const value = JSON.parse(localStorage.getItem(ADMIN_OPERATION_LOG_KEY) || '[]');
+        return Array.isArray(value) ? value : [];
+      } catch (_) { return []; }
+    }
+
+    function recordAdminOperation(action, detail) {
+      try {
+        const log = getAdminOperationLog();
+        log.unshift({ timestamp: new Date().toLocaleString('ja-JP'), action: String(action || '管理操作'), detail: String(detail || '') });
+        localStorage.setItem(ADMIN_OPERATION_LOG_KEY, JSON.stringify(log.slice(0, 50)));
+        renderAdminOperationLog();
+      } catch (error) { console.warn('管理者操作履歴を保存できませんでした。', error); }
+    }
+
+    function renderAdminOperationLog() {
+      const container = document.getElementById('admin-operation-log');
+      if (!container) return;
+      const entries = getAdminOperationLog();
+      container.replaceChildren();
+      if (!entries.length) {
+        const empty = document.createElement('div');
+        empty.className = 'text-[11px] text-slate-500 text-center py-3';
+        empty.textContent = '履歴はまだありません。';
+        container.appendChild(empty);
+        return;
+      }
+      entries.forEach(entry => {
+        const row = document.createElement('div');
+        row.className = 'rounded-lg border border-slate-800 bg-slate-950/60 p-2.5';
+        const time = document.createElement('div');
+        time.className = 'text-[9px] text-slate-500';
+        time.textContent = entry.timestamp || '';
+        const action = document.createElement('div');
+        action.className = 'mt-1 text-[11px] font-semibold text-slate-200';
+        action.textContent = entry.action || '管理操作';
+        const detail = document.createElement('div');
+        detail.className = 'mt-0.5 text-[10px] text-slate-400 break-words';
+        detail.textContent = entry.detail || '';
+        row.append(time, action, detail);
+        container.appendChild(row);
+      });
+    }
+
+    function clearAdminOperationLog() {
+      if (!confirm('この端末に保存された管理者操作履歴を消去しますか？')) return;
+      localStorage.removeItem(ADMIN_OPERATION_LOG_KEY);
+      renderAdminOperationLog();
+    }
+
     function openAdminModal() {
       const modal = document.getElementById('modal-admin');
       if (!modal) {
@@ -3078,6 +3156,7 @@
       modal.classList.remove('hidden');
       try { renderAdminDragList(); }
       catch (err) { console.error('管理者メニューの初期表示に失敗しました:', err); }
+      renderAdminOperationLog();
       loadLineSendMode();
     }
 
@@ -4111,9 +4190,105 @@
       if(first) selectSubject(first.id);
     }
     function evoOpenWeak(){ showSubjectScreen(); }
-    function evoOpenWrong(){
-      const st=evoGetStats();
-      alert(st.attempts?`現在 ${st.attempts} 回の演習履歴があります。各科目の結果画面から再挑戦できます。`:'まだ演習履歴がありません。まず問題を解いてみよう。');
+    function evoOpenWrong() {
+      const entries = getWrongQuestionReviewRecords().filter(item => item && Number(item.wrongCount || 0) > Number(item.correctCount || 0) && item.question);
+      const previous = document.getElementById('nurse-plus-wrong-review-modal');
+      if (previous) previous.remove();
+      const overlay = document.createElement('div');
+      overlay.id = 'nurse-plus-wrong-review-modal';
+      overlay.className = 'fixed inset-0 z-[99990] flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4';
+      overlay.setAttribute('role', 'dialog');
+      overlay.setAttribute('aria-modal', 'true');
+      const card = document.createElement('div');
+      card.className = 'w-full max-w-xl max-h-[85vh] overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 p-5 shadow-2xl';
+      const header = document.createElement('div');
+      header.className = 'flex items-center justify-between gap-3 border-b border-slate-700 pb-3';
+      const title = document.createElement('h2');
+      title.className = 'serif-title text-lg text-slate-100';
+      title.textContent = '間違えた問題の復習';
+      const close = document.createElement('button');
+      close.type = 'button'; close.className = 'rounded-lg px-3 py-2 text-slate-400 hover:bg-slate-800'; close.textContent = '✕';
+      close.addEventListener('click', () => overlay.remove());
+      header.append(title, close);
+      card.appendChild(header);
+      const intro = document.createElement('p');
+      intro.className = 'my-3 text-xs leading-5 text-slate-400';
+      intro.textContent = '間違いが正解回数を上回る問題を科目・モード別にまとめました。復習で正解を重ねると、対象から外れていきます。';
+      card.appendChild(intro);
+      if (!entries.length) {
+        const empty = document.createElement('div');
+        empty.className = 'rounded-xl border border-slate-700 bg-slate-800/50 p-5 text-center text-sm text-slate-300';
+        empty.textContent = '復習する問題はまだありません。問題演習で間違えた問題がここに保存されます。';
+        card.appendChild(empty);
+      } else {
+        const groups = new Map();
+        entries.forEach(item => {
+          const groupKey = item.context && item.context.historyKey ? item.context.historyKey : item.subjectId;
+          if (!groups.has(groupKey)) groups.set(groupKey, []);
+          groups.get(groupKey).push(item);
+        });
+        groups.forEach(group => {
+          const first = group[0];
+          const section = document.createElement('section');
+          section.className = 'mt-3 rounded-xl border border-slate-700 bg-slate-800/40 p-3';
+          const groupTitle = document.createElement('div');
+          groupTitle.className = 'text-sm font-semibold text-slate-100';
+          groupTitle.textContent = first.subjectName || first.subjectId || '科目';
+          const mode = document.createElement('div');
+          mode.className = 'mt-1 text-[10px] text-slate-400';
+          mode.textContent = (first.context && first.context.modeLabel ? first.context.modeLabel : '演習') + ' ・ 復習対象 ' + group.length + '問';
+          section.append(groupTitle, mode);
+          group.slice(0, 3).forEach(item => {
+            const preview = document.createElement('p');
+            preview.className = 'mt-2 text-[11px] leading-5 text-slate-300';
+            preview.textContent = '・' + String(item.question.q || '問題文なし').slice(0, 100);
+            section.appendChild(preview);
+          });
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'mt-3 w-full rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-xs font-semibold text-amber-200 hover:bg-amber-500/20 transition';
+          button.textContent = 'この科目・モードを復習する';
+          button.addEventListener('click', () => evoLaunchWrongReview(group, overlay));
+          section.appendChild(button);
+          card.appendChild(section);
+        });
+      }
+      overlay.addEventListener('click', event => { if (event.target === overlay) overlay.remove(); });
+      overlay.appendChild(card);
+      document.body.appendChild(overlay);
+      close.focus();
+    }
+
+    function evoLaunchWrongReview(group, overlay) {
+      if (!Array.isArray(group) || !group.length) return;
+      const first = group[0];
+      const context = first.context || {};
+      const targetSubject = (subjects || []).find(subject => subject.id === first.subjectId);
+      if (!targetSubject) {
+        alert('この問題の科目を見つけられませんでした。科目一覧を開いてください。');
+        return;
+      }
+      currentSubject = targetSubject;
+      currentSemester = context.semester || currentSemester;
+      currentRound = context.round ?? null;
+      currentPathologyRound = context.pathologyRound ?? null;
+      currentPathologyMode = context.pathologyMode || currentPathologyMode;
+      currentBiochemistryFormat = context.biochemistryFormat || currentBiochemistryFormat;
+      currentPhysiologyMode = context.physiologyMode || currentPhysiologyMode;
+      currentAnatomyMode = context.anatomyMode || currentAnatomyMode;
+      currentPublicHealthMode = context.publicHealthMode || currentPublicHealthMode;
+      currentPHNMode = context.phnMode || currentPHNMode;
+      currentPharmacologyMode = context.pharmacologyMode || currentPharmacologyMode;
+      currentNursingMethod3Mode = context.nursingMethod3Mode || currentNursingMethod3Mode;
+      activeQuestions = group.map(item => JSON.parse(JSON.stringify(item.question)));
+      currentQIndex = 0;
+      score = 0;
+      prioritizeWeakQuestions = false;
+      if (overlay) overlay.remove();
+      hideAllScreens();
+      const quizScreen = document.getElementById('screen-quiz-play');
+      if (quizScreen) quizScreen.classList.remove('hidden');
+      renderQuestion();
     }
 
     function hideAllScreens() {
@@ -4618,6 +4793,82 @@
       }
     }
 
+    const WRONG_QUESTION_REVIEW_STORAGE_KEY = 'nurse_plus_wrong_questions_v1';
+
+    function getWrongQuestionReviewRecords() {
+      try {
+        const value = JSON.parse(localStorage.getItem(WRONG_QUESTION_REVIEW_STORAGE_KEY) || '[]');
+        return Array.isArray(value) ? value : [];
+      } catch (_) { return []; }
+    }
+
+    function getQuestionReviewContext() {
+      let modeLabel = '通常';
+      if (currentSubject.id === 'biochemistry') modeLabel = currentBiochemistryFormat === 'fill' ? '穴埋め式' : currentBiochemistryFormat === 'keyboard' ? '記述式' : '選択式';
+      else if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) modeLabel = currentPhysiologyMode === 'quiz' ? '小テスト' : '過去問';
+      else if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) modeLabel = currentAnatomyMode === 'applied' ? '応用問題' : '練習問題';
+      else if (currentSubject.id === 'public_health' || currentSubject.hasPublicHealthModes) modeLabel = ({past:'過去問',exercise:'演習問題',national:'模擬国家試験'})[currentPublicHealthMode] || '演習';
+      else if (currentSubject.id === 'public_health_nursing' || currentSubject.hasPHNModes) modeLabel = currentPHNMode === 'exercise' ? '演習問題' : '練習問題';
+      else if (currentSubject.id === 'pharmacology') modeLabel = currentPharmacologyMode === 'nurse_national_6years' ? '看護師国家試験過去6年分' : currentPharmacologyMode === 'past' ? '過去問' : '演習問題';
+      else if (currentSubject.id === 'nursing_method_3') modeLabel = currentNursingMethod3Mode === 'quiz' ? '小テスト' : '練習問題';
+      else if (currentSubject.id === 'pathology') modeLabel = (currentPathologyMode === 'practice' ? '小テスト練習' : '演習問題') + (currentPathologyRound ? ' 第' + currentPathologyRound + '回' : '');
+      return {
+        subjectId: currentSubject.id,
+        subjectName: currentSubject.name || currentSubject.id,
+        historyKey: getAttemptHistoryKey(),
+        modeLabel,
+        semester: currentSemester,
+        round: currentRound,
+        pathologyRound: currentPathologyRound,
+        pathologyMode: currentPathologyMode,
+        biochemistryFormat: currentBiochemistryFormat,
+        physiologyMode: currentPhysiologyMode,
+        anatomyMode: currentAnatomyMode,
+        publicHealthMode: currentPublicHealthMode,
+        phnMode: currentPHNMode,
+        pharmacologyMode: currentPharmacologyMode,
+        nursingMethod3Mode: currentNursingMethod3Mode
+      };
+    }
+
+    function saveWrongQuestionReviewRecord(q, isCorrect) {
+      const questionId = getWeakQuestionId(q);
+      if (!questionId || !currentSubject) return;
+      const context = getQuestionReviewContext();
+      const key = context.historyKey + '::' + questionId;
+      const records = getWrongQuestionReviewRecords();
+      let record = records.find(item => item && item.key === key);
+      const question = {
+        id: q.id,
+        q: String(q.q || ''),
+        options: Array.isArray(q.options) ? q.options.slice() : [],
+        answers: Array.isArray(q.answers) ? q.answers.slice() : [],
+        answer: q.answer,
+        correctAnswer: q.correctAnswer,
+        keyword: q.keyword,
+        exp: q.exp || q.explanation || '',
+        image: q.image || '',
+        wordBox: q.wordBox || null,
+        isMultiple: !!q.isMultiple,
+        enableKeyboard: !!q.enableKeyboard
+      };
+      if (!record) {
+        record = { key, questionId, subjectId: context.subjectId, subjectName: context.subjectName, context, question, wrongCount: 0, correctCount: 0 };
+        records.unshift(record);
+      } else {
+        record.context = context;
+        record.question = question;
+        record.subjectName = context.subjectName;
+      }
+      if (isCorrect) record.correctCount = Number(record.correctCount || 0) + 1;
+      else record.wrongCount = Number(record.wrongCount || 0) + 1;
+      record.lastAnsweredAt = Date.now();
+      localStorage.setItem(WRONG_QUESTION_REVIEW_STORAGE_KEY, JSON.stringify(records.slice(0, 300)));
+    }
+
+    window.NursePlusWrongQuestions = window.NursePlusWrongQuestions || {};
+    window.NursePlusWrongQuestions.getAll = getWrongQuestionReviewRecords;
+
     function saveWeakQuestionResult(q, isCorrect) {
       const key = getWeakQuestionId(q);
       if (!key) return;
@@ -4626,6 +4877,7 @@
       if (isCorrect) stats[key].correct++;
       else stats[key].wrong++;
       localStorage.setItem(getWeakQuestionStatsKey(), JSON.stringify(stats));
+      saveWrongQuestionReviewRecord(q, isCorrect);
     }
 
     function isWeakQuestion(q, stats) {
