@@ -74,5 +74,6 @@
     }
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',install,{once:true}); else install();
-  new MutationObserver(()=>{if($('screen-dashboard')) render();}).observe(document.body,{childList:true,subtree:true});
+  // Do not observe every DOM mutation here: render() updates innerHTML and would retrigger itself indefinitely.
+  // The analytics screen is created before this deferred script runs, and dashboard navigation is handled by renderDashboard.
 })();
