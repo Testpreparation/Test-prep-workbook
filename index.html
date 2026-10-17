@@ -634,6 +634,10 @@
   <style id="np-settings-compact-style">
     .np-settings-entry,#np-theme-settings-card{width:100%;display:flex;align-items:center;justify-content:space-between;gap:.65rem;border:1px solid #e8def3;border-radius:.7rem;background:rgba(250,247,255,.8);padding:.5rem .65rem!important;text-align:left;font-size:.8rem!important;line-height:1.25;color:#5b506d;transition:background .2s ease,border-color .2s ease}
     .np-settings-entry:hover,#np-theme-settings-card:hover{background:#f2eafb}
+    /* アカウント・通知設定などの項目を「テーマ・外観」と同じ文字・矢印デザインに統一 */
+    #user-settings-modal #settings-accordion .np-settings-entry>span:first-child{font-size:.875rem!important;font-weight:600!important;color:#5b506d!important}
+    #user-settings-modal #settings-accordion .np-settings-entry>span[aria-hidden="true"]{color:#a8a0b5!important;font-size:1.1rem!important;line-height:1!important}
+    #user-settings-modal #settings-accordion .np-settings-entry:hover>span:first-child{color:#5b506d!important}
     .np-settings-entry:focus-visible,#np-theme-settings-card:focus-visible{outline:2px solid #b39add;outline-offset:2px}
     #settings-accordion>details>summary{padding:.55rem .75rem!important;font-size:.82rem!important;line-height:1.25}
     #settings-accordion>details>div{padding-left:.75rem!important;padding-right:.75rem!important;padding-bottom:.65rem!important}
