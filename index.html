@@ -5046,17 +5046,16 @@
           bars.push(`<rect x="${x}" y="${baseline - height}" width="${barWidth}" height="${height}" rx="2" fill="${colors[subjectIndex % colors.length]}" opacity="0.88"><title>${subject.name}: ${value}%（${date}）</title></rect>`);
         });
       });
-      const linePoints = chart.daily
-        .map((item, index) => item.accuracy === null ? null : `${(index + 0.5) * dayWidth},${yFor(item.accuracy)}`)
-        .filter(Boolean);
-      const line = linePoints.length > 1
-        ? `<polyline points="${linePoints.join(' ')}" fill="none" stroke="${lineColor}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polyline>`
-        : '';
-      const dots = chart.daily.map((item, index) => {
-        if (item.accuracy === null) return '';
-        const x = (index + 0.5) * dayWidth;
-        const y = yFor(item.accuracy);
-        return `<circle cx="${x}" cy="${y}" r="4.5" fill="${lineColor}" stroke="#ffffff" stroke-width="1.5" vector-effect="non-scaling-stroke"><title>${item.date} 全科目平均: ${item.accuracy}%</title></circle>`;
+      const subjectLines = data.map((subject, subjectIndex) => {
+        const color = colors[subjectIndex % colors.length];
+        const points = chart.dates.map((date, index) => Number.isFinite(subject.daily[date]) ? (index + 0.5) * dayWidth + ',' + yFor(subject.daily[date]) : null);
+        const segments = [];
+        let segment = [];
+        points.forEach(point => { if (point) segment.push(point); else { if (segment.length > 1) segments.push(segment); segment = []; } });
+        if (segment.length > 1) segments.push(segment);
+        const lines = segments.map(pointsInSegment => '<polyline points="' + pointsInSegment.join(' ') + '" fill="none" stroke="' + color + '" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polyline>').join('');
+        const dots = chart.dates.map((date, index) => { const value = subject.daily[date]; if (!Number.isFinite(value)) return ''; return '<circle cx="' + ((index + 0.5) * dayWidth) + '" cy="' + yFor(value) + '" r="3.5" fill="' + color + '" stroke="#ffffff" stroke-width="1"><title>' + subject.name + ': ' + value + '% (' + date + ')</title></circle>'; }).join('');
+        return lines + dots;
       }).join('');
       const dateLabels = chart.dates.map((date, index) => {
         const parts = date.split('/');
@@ -5072,13 +5071,13 @@
         <svg aria-label="科目別正答率の縦棒と日別平均正答率の折れ線グラフ" role="img" viewBox="0 0 ${width} 140" preserveAspectRatio="none" class="block w-full" style="height:150px;overflow:visible">
           <line x1="0" y1="${baseline}" x2="${width}" y2="${baseline}" stroke="#64748b" stroke-opacity="0.35" stroke-width="1"></line>
           ${bars.join('')}
-          ${line}
-          ${dots}
+          ${subjectLines}
+          
           ${dateLabels}
         </svg>
         <div class="flex flex-wrap gap-x-3 gap-y-1 mt-3">
           ${data.map((subject, index) => `<span class="inline-flex items-center gap-1 text-[9px] text-slate-400"><span class="inline-block w-2 h-2 rounded-sm" style="background:${colors[index % colors.length]}"></span>${subject.name}</span>`).join('')}
-          <span class="inline-flex items-center gap-1 text-[9px] text-slate-400"><span class="inline-block w-4 h-[2px]" style="background:${lineColor}"></span>日別の全科目平均</span>
+          
         </div>`;
       if (summary) {
         const best = data.reduce((a, b) => b.accuracy > a.accuracy ? b : a);
