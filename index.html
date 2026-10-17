@@ -4966,39 +4966,41 @@
     }
 
     function evoGetAccuracyTrendData() {
+      // 科目一覧の読み込みに依存せず、保存されている日別履歴をすべて収集する。
       const subjectList = Array.isArray(subjects) ? subjects : (Array.isArray(defaultSubjects) ? defaultSubjects : []);
-      const subjectData = [];
+      const subjectById = new Map(subjectList.filter(subject => subject && subject.id).map(subject => [String(subject.id), subject]));
+      const bySubject = new Map();
       const allDates = new Set();
+      const normalizeDate = value => {
+        if (!value) return '';
+        const match = String(value).trim().match(/^(\\d{4})[/-](\\d{1,2})[/-](\\d{1,2})/);
+        if (!match) return '';
+        return match[1] + '/' + String(Number(match[2])).padStart(2, '0') + '/' + String(Number(match[3])).padStart(2, '0');
+      };
+      const addRecord = (subjectId, dateValue, accuracyValue) => {
+        const date = normalizeDate(dateValue);
+        const accuracy = Number(accuracyValue);
+        if (!subjectId || !date || accuracyValue === null || accuracyValue === '' || !Number.isFinite(accuracy) || accuracy < 0 || accuracy > 100) return;
+        const id = String(subjectId);
+        if (!bySubject.has(id)) bySubject.set(id, new Map());
+        const dailyMap = bySubject.get(id);
+        if (!dailyMap.has(date)) dailyMap.set(date, []);
+        dailyMap.get(date).push(accuracy);
+        allDates.add(date);
+      };
 
-      subjectList.forEach(subject => {
-        if (!subject || !subject.id) return;
-        const byDate = {};
-        const prefix = `history_accuracy_daily_${subject.id}_`;
-        Object.keys(localStorage).forEach(key => {
-          if (!key.startsWith(prefix)) return;
-          try {
-            const records = JSON.parse(localStorage.getItem(key) || '[]');
-            if (!Array.isArray(records)) return;
-            records.forEach(record => {
-              if (!record || !record.date || !Number.isFinite(Number(record.accuracy))) return;
-              if (!byDate[record.date]) byDate[record.date] = { sum: 0, count: 0 };
-              byDate[record.date].sum += Number(record.accuracy);
-              byDate[record.date].count += 1;
-              allDates.add(record.date);
-            });
-          } catch (_) {}
-        });
-        const daily = {};
-        Object.entries(byDate).forEach(([date, item]) => {
-          daily[date] = Math.round(item.sum / item.count);
-        });
-        if (Object.keys(daily).length) {
-          subjectData.push({
-            id: subject.id,
-            name: subject.name || subject.code || subject.id,
-            daily
+      // history_accuracy_daily_<科目ID>_<モード> をキーから直接走査し、
+      // 現在の科目一覧に載っていない履歴も捨てない。
+      Object.keys(localStorage).forEach(key => {
+        const match = key.match(/^history_accuracy_daily_(.+?)_(?:all|past|quiz|basic|applied|exercise|national|nurse_national_6years|practice|r\\d+)$/);
+        if (!match) return;
+        try {
+          const records = JSON.parse(localStorage.getItem(key) || '[]');
+          if (!Array.isArray(records)) return;
+          records.forEach(record => {
+            if (record && typeof record === 'object') addRecord(match[1], record.date, record.accuracy);
           });
-        }
+        } catch (_) {}
       });
 
       const sortDate = (a, b) => {
@@ -5006,26 +5008,52 @@
         return new Date(pa[0], pa[1] - 1, pa[2]) - new Date(pb[0], pb[1] - 1, pb[2]);
       };
       const dates = Array.from(allDates).sort(sortDate).slice(-7);
-      const daily = dates.map(date => {
-        const values = subjectData
-          .filter(subject => Number.isFinite(subject.daily[date]))
-          .map(subject => subject.daily[date]);
+      const subjectData = Array.from(bySubject.entries()).map(([id, byDate]) => {
+        const subject = subjectById.get(id);
+        const daily = {};
+        byDate.forEach((values, date) => {
+          daily[date] = Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
+        });
+        const recentValues = dates.filter(date => Number.isFinite(daily[date])).map(date => daily[date]);
         return {
-          date,
-          accuracy: values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null
+          id,
+          name: subject ? (subject.name || subject.code || id) : id,
+          daily,
+          accuracy: recentValues.length ? Math.round(recentValues.reduce((sum, value) => sum + value, 0) / recentValues.length) : 0,
+          records: recentValues.length
         };
+      }).sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+
+      // セッション記録は科目IDを持たないため、科目別データに混ぜず全体推移として別集計する。
+      const sessionsByDate = new Map();
+      try {
+        const sessions = JSON.parse(localStorage.getItem('nurse_plus_study_sessions') || '[]');
+        if (Array.isArray(sessions)) sessions.forEach(session => {
+          if (!session || typeof session !== 'object') return;
+          const date = normalizeDate(session.date || session.timestamp);
+          const total = Number(session.total);
+          const score = Number(session.score);
+          let accuracy = Number(session.accuracy);
+          if ((!Number.isFinite(accuracy) || session.accuracy === null || session.accuracy === '') && Number.isFinite(total) && total > 0 && Number.isFinite(score)) {
+            accuracy = Math.round(score / total * 100);
+          }
+          if (!date || !Number.isFinite(accuracy) || accuracy < 0 || accuracy > 100) return;
+          if (!sessionsByDate.has(date)) sessionsByDate.set(date, []);
+          sessionsByDate.get(date).push(accuracy);
+          allDates.add(date);
+        });
+      } catch (_) {}
+
+      const sortedDates = Array.from(allDates).sort(sortDate).slice(-7);
+      const daily = sortedDates.map(date => {
+        const values = subjectData.filter(subject => Number.isFinite(subject.daily[date])).map(subject => subject.daily[date]);
+        const sessionValues = sessionsByDate.get(date) || [];
+        const overall = sessionValues.length
+          ? Math.round(sessionValues.reduce((sum, value) => sum + value, 0) / sessionValues.length)
+          : (values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null);
+        return { date, accuracy: overall };
       });
-      const subjectsWithAverages = subjectData.map(subject => {
-        const values = dates.filter(date => Number.isFinite(subject.daily[date])).map(date => subject.daily[date]);
-        return {
-          id: subject.id,
-          name: subject.name,
-          daily: subject.daily,
-          accuracy: values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : 0,
-          records: values.length
-        };
-      });
-      return { subjects: subjectsWithAverages, dates, daily };
+      return { subjects: subjectData, dates: sortedDates, daily };
     }
 
     function evoRenderAccuracyTrend() {
@@ -5075,6 +5103,13 @@
         const dots = chart.dates.map((date, index) => { const value = subject.daily[date]; if (!Number.isFinite(value)) return ''; return '<circle cx="' + ((index + 0.5) * dayWidth) + '" cy="' + yFor(value) + '" r="3.5" fill="' + color + '" stroke="#ffffff" stroke-width="1"><title>' + subject.name + ': ' + value + '% (' + date + ')</title></circle>'; }).join('');
         return lines + dots;
       }).join('');
+      const overallPoints = chart.daily.map((item, index) => Number.isFinite(item.accuracy) ? (index + 0.5) * dayWidth + ',' + yFor(item.accuracy) : null);
+      const overallSegments = [];
+      let overallSegment = [];
+      overallPoints.forEach(point => { if (point) overallSegment.push(point); else { if (overallSegment.length > 1) overallSegments.push(overallSegment); overallSegment = []; } });
+      if (overallSegment.length > 1) overallSegments.push(overallSegment);
+      const overallLine = overallSegments.map(pointsInSegment => '<polyline points="' + pointsInSegment.join(' ') + '" fill="none" stroke="' + lineColor + '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 3" vector-effect="non-scaling-stroke"></polyline>').join('');
+      const overallDots = chart.daily.map((item, index) => Number.isFinite(item.accuracy) ? '<circle cx="' + ((index + 0.5) * dayWidth) + '" cy="' + yFor(item.accuracy) + '" r="4" fill="' + lineColor + '" stroke="#ffffff" stroke-width="1.5"><title>全体正答率: ' + item.accuracy + '% (' + item.date + ')</title></circle>' : '').join('');
       const dateLabels = chart.dates.map((date, index) => {
         const parts = date.split('/');
         const label = parts.length === 3 ? `${parts[1]}/${parts[2]}` : date;
@@ -5090,12 +5125,13 @@
           <line x1="0" y1="${baseline}" x2="${width}" y2="${baseline}" stroke="#64748b" stroke-opacity="0.35" stroke-width="1"></line>
           ${bars.join('')}
           ${subjectLines}
-          
+          ${overallLine}
+          ${overallDots}
           ${dateLabels}
         </svg>
         <div class="flex flex-wrap gap-x-3 gap-y-1 mt-3">
           ${data.map((subject, index) => `<span class="inline-flex items-center gap-1 text-[9px] text-slate-400"><span class="inline-block w-2 h-2 rounded-sm" style="background:${colors[index % colors.length]}"></span>${subject.name}</span>`).join('')}
-          
+          <span class="inline-flex items-center gap-1 text-[9px] text-slate-400"><span class="inline-block w-3 border-t-2 border-dashed" style="border-color:${lineColor}"></span>全体正答率</span>
         </div>`;
       if (summary) {
         const best = data.reduce((a, b) => b.accuracy > a.accuracy ? b : a);
