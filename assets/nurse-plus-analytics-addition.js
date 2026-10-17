@@ -29,7 +29,7 @@
   }
   function getRows() {
     const rows = [];
-    const availableSubjects = Array.isArray(window.subjects) ? window.subjects : [];
+    const availableSubjects = typeof subjects !== 'undefined' && Array.isArray(subjects) ? subjects : (Array.isArray(window.subjects) ? window.subjects : []);
     availableSubjects.filter(s => s && s.visible !== false && s.status !== 'preparing').forEach(subject => {
       let modes = [];
       try {
