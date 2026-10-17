@@ -486,8 +486,10 @@
       const scoreEl = document.getElementById('final-score-val');
       const accuracy = scoreEl ? Number(scoreEl.textContent) : NaN;
       if (!Number.isFinite(accuracy)) return;
-      if (reduceMotion || typeof scoreEl.animate !== 'function') return;
 
+      // Reduce Motion設定やWeb Animations APIの有無で、正答率カウント自体を止めない。
+      // 視覚効果を抑える設定でも「0から実際の正答率へ」の表示は行う。
+      const canAnimate = typeof scoreEl.animate === 'function';
       const scoreLine = scoreEl.parentElement;
       const scoreCard = scoreEl.closest('.p-6');
       if (!scoreLine || !scoreCard) return;
@@ -505,29 +507,37 @@
       scoreLine.style.filter = 'blur(5px)';
       scoreLine.style.transform = 'scale(.96)';
 
-      scoreCard.animate(
-        [{ boxShadow:'0 0 0 rgba(245,158,11,0)', borderColor:'rgba(51,65,85,.65)' },
-         { boxShadow:'0 0 28px rgba(245,158,11,.18)', borderColor:'rgba(245,158,11,.55)' },
-         { boxShadow:'0 0 10px rgba(245,158,11,.08)', borderColor:'rgba(51,65,85,.65)' }],
-        { duration:1500, easing:'ease-in-out' }
-      );
+      if (canAnimate) {
+        scoreCard.animate(
+          [{ boxShadow:'0 0 0 rgba(245,158,11,0)', borderColor:'rgba(51,65,85,.65)' },
+           { boxShadow:'0 0 28px rgba(245,158,11,.18)', borderColor:'rgba(245,158,11,.55)' },
+           { boxShadow:'0 0 10px rgba(245,158,11,.08)', borderColor:'rgba(51,65,85,.65)' }],
+          { duration:1500, easing:'ease-in-out' }
+        );
+      }
 
       window.setTimeout(() => {
         if (!screen.isConnected || screen.classList.contains('hidden')) return;
         status.textContent = '結果発表！';
         status.style.opacity = '1';
-        status.animate(
-          [{ opacity:.35, transform:'translateY(5px) scale(.96)' },
-           { opacity:1, transform:'translateY(0) scale(1.06)', offset:.7 },
-           { opacity:1, transform:'translateY(0) scale(1)' }],
-          { duration:620, easing:'cubic-bezier(.22,1,.36,1)' }
-        );
-        scoreLine.animate(
-          [{ opacity:.3, filter:'blur(5px)', transform:'scale(.96)' },
-           { opacity:1, filter:'blur(0)', transform:'scale(1.12)', offset:.72 },
-           { opacity:1, filter:'blur(0)', transform:'scale(1)' }],
-          { duration:850, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' }
-        );
+        if (canAnimate) {
+          status.animate(
+            [{ opacity:.35, transform:'translateY(5px) scale(.96)' },
+             { opacity:1, transform:'translateY(0) scale(1.06)', offset:.7 },
+             { opacity:1, transform:'translateY(0) scale(1)' }],
+            { duration:620, easing:'cubic-bezier(.22,1,.36,1)' }
+          );
+          scoreLine.animate(
+            [{ opacity:.3, filter:'blur(5px)', transform:'scale(.96)' },
+             { opacity:1, filter:'blur(0)', transform:'scale(1.12)', offset:.72 },
+             { opacity:1, filter:'blur(0)', transform:'scale(1)' }],
+            { duration:850, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' }
+          );
+        } else {
+          scoreLine.style.opacity = '1';
+          scoreLine.style.filter = 'none';
+          scoreLine.style.transform = 'none';
+        }
 
         const startTime = performance.now();
         const countDuration = 1500;
