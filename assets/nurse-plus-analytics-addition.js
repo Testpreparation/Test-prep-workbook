@@ -1085,14 +1085,9 @@
       });
       streakObserver.observe(quizResultScreen, { attributes: true, attributeFilter: ['class'] });
     }
-    document.addEventListener('click', event => {
-      const screen = document.getElementById(SCREEN_ID);
-      if (!screen || screen.classList.contains('hidden')) return;
-      const analysisHost = document.getElementById('screen-data-analysis');
-      // 分析画面が表示中は、タップ位置にかかわらず追加分析パネルを閉じない。
-      if ((analysisHost && !analysisHost.classList.contains('hidden')) || screen.contains(event.target) || event.target.closest('#' + BUTTON_ID)) return;
-      screen.classList.add('hidden');
-    }, true);
+    // 追加分析パネルは親の #screen-data-analysis と一緒に表示・非表示を管理する。
+    // 画面内のタップでパネルだけを隠すと、基本の4項目だけが残るため、
+    // クリック位置に応じてパネル単体を非表示にする処理は行わない。
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, {once:true});
   else install();
