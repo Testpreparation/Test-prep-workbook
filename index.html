@@ -167,6 +167,20 @@
       cursor: not-allowed;
       filter: grayscale(0.4);
     }
+    /* Keep quiz controls reliably tappable on mobile browsers and during screen transitions. */
+    #screen-quiz-play .quiz-opt-btn,
+    #screen-quiz-play #quiz-submit-multi-btn,
+    #screen-quiz-play #quiz-keyboard-submit-btn,
+    #screen-quiz-play #quiz-next-btn {
+      position: relative;
+      z-index: 2;
+      pointer-events: auto;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: rgba(120, 100, 180, 0.16);
+    }
+    #screen-quiz-play .quiz-opt-btn:disabled {
+      pointer-events: none;
+    }
     .gu-mirror {
       position: fixed !important;
       margin: 0 !important;
@@ -4899,10 +4913,17 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
     }
 
     function renderQuestion() {
+      stopQuizTimer();
       isAnswered = false;
       selectedIndices.clear();
       const q = activeQuestions[currentQIndex];
       const total = activeQuestions.length;
+      if (!q || total === 0) {
+        console.error('[Nurse+] 問題を表示できません。activeQuestions/currentQIndex を確認してください。', { total, currentQIndex });
+        alert('問題を読み込めませんでした。科目・モードを選び直して、もう一度お試しください。');
+        showSubjectScreen();
+        return;
+      }
 
       document.getElementById('quiz-progress-text').textContent = `QUESTION ${currentQIndex + 1} / ${total}`;
       document.getElementById('quiz-score-live').textContent = `正解: ${score}`;
@@ -5010,9 +5031,10 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
     }
 
     function toggleOptionSelect(idx) {
-      if (isAnswered) return;
+      if (isAnswered || !activeQuestions[currentQIndex]) return;
       const btn = document.getElementById(`opt-btn-${idx}`);
       const check = document.getElementById(`opt-check-${idx}`);
+      if (!btn || !check || btn.disabled) return;
 
       if (selectedIndices.has(idx)) {
         selectedIndices.delete(idx);
@@ -5027,33 +5049,37 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       }
     }
 
+    let quizDeadlineAt = 0;
+
     function startQuizTimer() {
       stopQuizTimer();
       const configuredLimit = Number.parseInt(QUIZ_LIMIT_TIME, 10);
       QUIZ_LIMIT_TIME = Number.isFinite(configuredLimit) && configuredLimit > 0 ? configuredLimit : 30;
       timeLeft = QUIZ_LIMIT_TIME;
+      quizDeadlineAt = Date.now() + QUIZ_LIMIT_TIME * 1000;
       updateTimerBarUI();
 
-      const intervalMs = 100;
-      quizTimer = setInterval(() => {
-        if (isAnswered) {
+      // Mobile browsers throttle intervals in background; calculate from an absolute deadline.
+      quizTimer = window.setInterval(() => {
+        if (isAnswered || !activeQuestions[currentQIndex]) {
           stopQuizTimer();
           return;
         }
-        timeLeft = Math.max(0, timeLeft - intervalMs / 1000);
+        timeLeft = Math.max(0, (quizDeadlineAt - Date.now()) / 1000);
         updateTimerBarUI();
         if (timeLeft <= 0) {
           stopQuizTimer();
           handleTimeout();
         }
-      }, intervalMs);
+      }, 200);
     }
 
     function stopQuizTimer() {
-      if (quizTimer) {
-        clearInterval(quizTimer);
+      if (quizTimer !== null) {
+        window.clearInterval(quizTimer);
         quizTimer = null;
       }
+      quizDeadlineAt = 0;
     }
 
     function updateTimerBarUI() {
@@ -5099,7 +5125,9 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
     }
 
     function handleSingleAnswer(selectedIdx) {
-      if (isAnswered) return;
+      if (isAnswered || !activeQuestions[currentQIndex]) return;
+      const q = activeQuestions[currentQIndex];
+      if (!q.options || selectedIdx < 0 || selectedIdx >= q.options.length) return;
       stopQuizTimer();
       evaluateAnswers([selectedIdx], false);
     }
@@ -5260,8 +5288,9 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
     }
 
     function evaluateAnswers(userSelectedArray, isTimeout) {
-      isAnswered = true;
       const q = activeQuestions[currentQIndex];
+      if (isAnswered || !q || !Array.isArray(q.answers)) return;
+      isAnswered = true;
       const buttons = document.querySelectorAll('.quiz-opt-btn');
       const submitBtn = document.getElementById('quiz-submit-multi-btn');
       const fbBox = document.getElementById('quiz-feedback-box');
