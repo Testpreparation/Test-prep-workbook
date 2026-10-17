@@ -491,6 +491,35 @@
   }
   html.np-light-theme #quiz-feedback-box.border-emerald-500\/40 #quiz-feedback-title{color:#176747!important}
   html.np-light-theme #quiz-feedback-box.border-rose-500\/40 #quiz-feedback-title{color:#9f2949!important}
+  /* PWA light controls: cover all quiz and flashcard range inputs. */
+  html.np-light-theme input[type="range"]{accent-color:#9670c9}
+  html.np-light-theme input[type="range"]::-webkit-slider-runnable-track{
+    background:linear-gradient(90deg,#d7c5ef,#c4e8dc)!important;border:1px solid #e2d7f0;height:7px;border-radius:99px
+  }
+  html.np-light-theme input[type="range"]::-moz-range-track{
+    background:linear-gradient(90deg,#d7c5ef,#c4e8dc)!important;border:1px solid #e2d7f0;height:7px;border-radius:99px
+  }
+  html.np-light-theme input[type="range"]::-webkit-slider-thumb{
+    background:#9670c9!important;border:2px solid #fff!important;box-shadow:0 2px 8px rgba(112,82,155,.28)!important
+  }
+  html.np-light-theme input[type="range"]::-moz-range-thumb{
+    background:#9670c9!important;border:2px solid #fff!important;box-shadow:0 2px 8px rgba(112,82,155,.28)!important
+  }
+  /* Correct/incorrect feedback uses its runtime-applied border class. */
+  html.np-light-theme #quiz-feedback-box[class*="border-emerald-500/40"]{
+    background:linear-gradient(135deg,#d8f5e5,#c5efd9)!important;border-color:#36ad79!important;color:#155d40!important;
+    box-shadow:0 6px 18px rgba(31,145,96,.14)!important
+  }
+  html.np-light-theme #quiz-feedback-box[class*="border-rose-500/40"]{
+    background:linear-gradient(135deg,#ffe0e8,#ffcbd8)!important;border-color:#e65d7e!important;color:#8e1f3e!important;
+    box-shadow:0 6px 18px rgba(210,65,100,.14)!important
+  }
+  html.np-light-theme #quiz-feedback-box[class*="border-emerald-500/40"] #quiz-feedback-title,
+  html.np-light-theme #quiz-feedback-box[class*="border-emerald-500/40"] #quiz-feedback-desc,
+  html.np-light-theme #quiz-feedback-box[class*="border-emerald-500/40"] #np-community-question-result{color:#155d40!important}
+  html.np-light-theme #quiz-feedback-box[class*="border-rose-500/40"] #quiz-feedback-title,
+  html.np-light-theme #quiz-feedback-box[class*="border-rose-500/40"] #quiz-feedback-desc{color:#8e1f3e!important}
+  html.np-light-theme #quiz-feedback-box #quiz-next-btn{background:#eee6fa!important;border:1px solid #d7c5ef!important;color:#5e438b!important}
   html.np-light-theme #np-theme-toggle{
     background:#f3edfb;border:1px solid #d8c8f4;color:#67547e;
     box-shadow:0 5px 14px rgba(71,55,95,.08)
