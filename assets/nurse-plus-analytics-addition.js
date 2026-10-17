@@ -383,7 +383,34 @@
         box-shadow:0 8px 24px rgba(91,72,116,.08),inset 0 1px 0 rgba(255,255,255,.95) !important;
       }
       #${SCREEN_ID} [class*="bg-slate-"] {
-        background-color:#faf7ff !important;background-image:none !important;border-color:#e7def4 !important;
+        background:#fff !important;background-color:#fff !important;background-image:none !important;border-color:#e7def4 !important;
+      }
+      /* Final white override for nested metric/report/weakness items that previously looked grey. */
+      #${SCREEN_ID} [class*="bg-slate-950"],
+      #${SCREEN_ID} [class*="bg-slate-900"],
+      #${SCREEN_ID} [class*="bg-slate-800"],
+      #${SCREEN_ID} [class*="bg-slate-700"] {
+        background:#fff !important;background-color:#fff !important;background-image:none !important;
+        border-color:#e7def4 !important;color:#5b506d !important;
+      }
+      #${SCREEN_ID} .np-analytics-row,
+      #${SCREEN_ID} .np-analytics-bar-col { color:#5b506d !important; }
+      #${SCREEN_ID} .np-analytics-infographic-section {
+        animation:npInfographicReveal .72s cubic-bezier(.22,1,.36,1) both;
+      }
+      #${SCREEN_ID} .np-analytics-infographic-section:nth-of-type(2) { animation-delay:.06s; }
+      #${SCREEN_ID} .np-analytics-infographic-section:nth-of-type(3) { animation-delay:.12s; }
+      #${SCREEN_ID} .np-analytics-infographic-section:nth-of-type(4) { animation-delay:.18s; }
+      #${SCREEN_ID} .np-analytics-bar { transform-origin:bottom center; will-change:transform; }
+      #${SCREEN_ID} .np-analytics-fill { will-change:width; }
+      @keyframes npInfographicReveal {
+        from { opacity:0; transform:translateY(12px); }
+        to { opacity:1; transform:translateY(0); }
+      }
+      @media (prefers-reduced-motion:reduce) {
+        #${SCREEN_ID} .np-analytics-infographic-section { animation:none !important; }
+        #${SCREEN_ID} .np-analytics-bar { transition:none !important; transform:none !important; }
+        #${SCREEN_ID} .np-analytics-fill { transition:none !important; }
       }
       #${SCREEN_ID} .np-analytics-metric { color:#4e3e68 !important; }
       #${SCREEN_ID} .np-analytics-track { background:#e7def4 !important; }
@@ -415,6 +442,53 @@
     `;
     document.head.appendChild(style);
   }
+  function animateAnalyticsInfographics(screen) {
+    if (!screen) return;
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const sections = Array.from(screen.querySelectorAll('.np-analytics-card'));
+    sections.forEach((section, index) => {
+      section.classList.add('np-analytics-infographic-section');
+      section.style.animationDelay = Math.min(index * 55, 440) + 'ms';
+    });
+    if (reduceMotion) return;
+
+    // Bar charts: reveal each column from the baseline with a gentle stagger.
+    const bars = Array.from(screen.querySelectorAll('.np-analytics-bar'));
+    bars.forEach((bar, index) => {
+      bar.style.transform = 'scaleY(0)';
+      bar.style.transition = 'transform 1050ms cubic-bezier(.22,1,.36,1) ' + Math.min(index * 65, 420) + 'ms';
+      requestAnimationFrame(() => { bar.style.transform = 'scaleY(1)'; });
+    });
+
+    // Subject progress indicators grow from zero to their real saved percentage.
+    screen.querySelectorAll('.np-analytics-fill').forEach((fill, index) => {
+      const targetWidth = fill.style.width || '0%';
+      fill.style.width = '0%';
+      fill.style.transition = 'width 1150ms cubic-bezier(.22,1,.36,1) ' + Math.min(index * 90, 450) + 'ms';
+      requestAnimationFrame(() => { fill.style.width = targetWidth; });
+    });
+
+    // Count up the four summary metrics without changing their final values or stored data.
+    screen.querySelectorAll('.np-analytics-metric').forEach((metric, index) => {
+      const finalText = metric.textContent.trim();
+      const match = finalText.match(/^(-?\d+(?:\.\d+)?)(.*)$/);
+      if (!match) return;
+      const finalValue = Number(match[1]);
+      if (!Number.isFinite(finalValue) || finalValue === 0) return;
+      const suffix = match[2];
+      const start = performance.now() + index * 90;
+      const duration = 900;
+      const tick = now => {
+        const progress = Math.min(1, Math.max(0, (now - start) / duration));
+        const eased = 1 - Math.pow(1 - progress, 3);
+        metric.textContent = Math.round(finalValue * eased) + suffix;
+        if (progress < 1 && metric.isConnected) requestAnimationFrame(tick);
+        else if (metric.isConnected) metric.textContent = finalText;
+      };
+      requestAnimationFrame(tick);
+    });
+  }
+
   function renderAnalytics() {
     const screen = document.getElementById(SCREEN_ID);
     if (!screen) return;
@@ -511,6 +585,7 @@
         </section>
         <p class="text-[10px] text-slate-500 leading-5">※ 分析は保存済みの正答率履歴を集計します。同期機能を使うには、LINEログインとRender側のFirebase Admin設定が必要です。</p>
       </div>`;
+    animateAnalyticsInfographics(screen);
     document.getElementById('np-analytics-back')?.addEventListener('click', () => {
       document.getElementById(SCREEN_ID)?.classList.add('hidden');
       if (typeof window.showDashboard === 'function') window.showDashboard();
