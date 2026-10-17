@@ -73,8 +73,8 @@
     const style = document.createElement('style');
     style.id = STYLE_ID;
     style.textContent = `
-      #${SCREEN_ID} { animation: npAnalyticsEnter .22s ease-out both; }
-      @keyframes npAnalyticsEnter { from { opacity:0; transform:translateY(7px); } to { opacity:1; transform:translateY(0); } }
+      #${SCREEN_ID} { animation: npAnalyticsEnter .7s cubic-bezier(.22,1,.36,1) both; }
+      @keyframes npAnalyticsEnter { from { opacity:0; transform:translateY(18px) scale(.985); filter:blur(2px); } to { opacity:1; transform:translateY(0) scale(1); filter:blur(0); } }
       .np-analytics-card { background:rgba(15,23,42,.72);border:1px solid rgba(148,163,184,.18);border-radius:16px;padding:14px; }
       .np-analytics-metric { font-size:24px;line-height:1.25;font-weight:700;letter-spacing:-.04em;color:#f8fafc; }
       .np-analytics-label { color:#94a3b8;font-size:10px;margin-top:5px; }
@@ -165,7 +165,7 @@
     style.textContent = `
       /* 追加演出は既存デザインに重ねるだけ。既存の採点・画面関数は変更しない。 */
       .glass-card button:not(:disabled), .glass-card [role="button"]:not([aria-disabled="true"]) {
-        transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+        transition: transform .36s cubic-bezier(.22,1,.36,1), filter .32s ease, box-shadow .36s ease;
         -webkit-tap-highlight-color: transparent;
       }
       .glass-card button:not(:disabled):active, .glass-card [role="button"]:not([aria-disabled="true"]):active,
@@ -185,7 +185,7 @@
       @media (hover:hover) and (pointer:fine) {
         .glass-card button:not(:disabled), .glass-card [role="button"]:not([aria-disabled="true"]),
         #nav-drawer button:not(:disabled), [id^="modal-"] button:not(:disabled) {
-          transition: transform .22s cubic-bezier(.2,.8,.2,1), filter .22s ease, box-shadow .22s ease;
+          transition: transform .36s cubic-bezier(.22,1,.36,1), filter .32s ease, box-shadow .36s ease;
         }
         .glass-card button:not(:disabled):hover, .glass-card [role="button"]:not([aria-disabled="true"]):hover,
         #nav-drawer button:not(:disabled):hover, [id^="modal-"] button:not(:disabled):hover {
@@ -194,7 +194,7 @@
         }
       }
       .evo-progress > span, #evo-mission-progress, .np-analytics-fill {
-        transition: width .65s cubic-bezier(.22,1,.36,1);
+        transition: width 1.2s cubic-bezier(.22,1,.36,1);
       }
       @keyframes npScreenEnter {
         from { opacity: 0; transform: translateY(8px); }
@@ -215,22 +215,22 @@
         touch-action:manipulation;
       }
       #quiz-options-container > *, #quiz-options-container button, .quiz-option, [data-quiz-option] {
-        transition:transform .24s cubic-bezier(.2,.8,.2,1), border-color .24s ease, background-color .24s ease, box-shadow .24s ease, opacity .24s ease;
+        transition:transform .4s cubic-bezier(.22,1,.36,1), border-color .38s ease, background-color .38s ease, box-shadow .4s ease, opacity .38s ease;
         -webkit-tap-highlight-color:transparent;
       }
       #quiz-options-container button:active, .quiz-option:active, [data-quiz-option]:active {
         transform:scale(.985);
       }
-      .np-motion-card { transition:transform .28s ease, box-shadow .28s ease, border-color .28s ease; }
+      .np-motion-card { transition:transform .42s cubic-bezier(.22,1,.36,1), box-shadow .42s ease, border-color .38s ease; }
       .np-motion-card:hover { transform:translateY(-2px); }
       .np-motion-selected { box-shadow:0 0 0 2px rgba(251,191,36,.45), 0 8px 22px rgba(245,158,11,.09) !important; }
-      .np-motion-correct { animation:npPopIn .4s cubic-bezier(.2,.8,.2,1) both, npGlowPulse .9s ease-out; }
-      .np-motion-incorrect { animation:npSoftShake .38s ease-out; }
-      #screen-quiz-result .np-result-highlight { animation:npPopIn .55s cubic-bezier(.2,.8,.2,1) both; }
-      .np-motion-reveal { animation:npPopIn .48s cubic-bezier(.2,.8,.2,1) both; }
-      .np-motion-progress { transition:width .85s cubic-bezier(.22,1,.36,1), background-color .3s ease !important; }
-      .np-motion-modal { animation:npPopIn .36s cubic-bezier(.2,.8,.2,1) both; }
-      .np-motion-drawer { animation:npSlideIn .38s cubic-bezier(.22,1,.36,1) both; }
+      .np-motion-correct { animation:npPopIn .62s cubic-bezier(.22,1,.36,1) both, npGlowPulse 1.25s ease-out; }
+      .np-motion-incorrect { animation:npSoftShake .58s ease-out; }
+      #screen-quiz-result .np-result-highlight { animation:npPopIn .72s cubic-bezier(.22,1,.36,1) both; }
+      .np-motion-reveal { animation:npPopIn .68s cubic-bezier(.22,1,.36,1) both; }
+      .np-motion-progress { transition:width 1.25s cubic-bezier(.22,1,.36,1), background-color .45s ease !important; }
+      .np-motion-modal { animation:npPopIn .58s cubic-bezier(.22,1,.36,1) both; }
+      .np-motion-drawer { animation:npSlideIn .62s cubic-bezier(.22,1,.36,1) both; }
       @keyframes npSlideIn { from { opacity:.6; transform:translateX(-14px); } to { opacity:1; transform:translateX(0); } }
       .np-motion-busy { position:relative; overflow:hidden; }
       .np-motion-busy::after { content:""; position:absolute; inset:0; background:linear-gradient(100deg,transparent 25%,rgba(255,255,255,.12) 50%,transparent 75%); background-size:200% 100%; animation:npShimmer 1.25s linear infinite; pointer-events:none; }
@@ -266,10 +266,28 @@
         }
         // hiddenクラスが外れた瞬間だけ実行し、同じ表示中の再描画では繰り返さない。
         if (!wasHidden) return;
+        // 画面全体をゆっくり表示し、直下の主要パネルも少しずつ登場させる。
+        // 既存の要素・順序・機能は変えず、表示演出だけを追加。
+        if (!reduceMotion && screen.id !== SCREEN_ID) {
+          const panels = Array.from(screen.children).filter(el =>
+            el.matches('section, article, .glass-card, .card-item, .space-y-4 > div, .grid > *') &&
+            !el.matches('script,style')
+          );
+          panels.forEach((panel,index) => {
+            if (typeof panel.animate !== 'function') return;
+            panel.animate(
+              [
+                { opacity:0, transform:'translateY(18px) scale(.985)', filter:'blur(1px)' },
+                { opacity:1, transform:'translateY(0) scale(1)', filter:'blur(0)' }
+              ],
+              { duration:560, delay:Math.min(index * 85, 510), easing:'cubic-bezier(.22,1,.36,1)', fill:'both' }
+            );
+          });
+        }
         if (!reduceMotion && typeof screen.animate === 'function' && screen.id !== SCREEN_ID) {
           screen.animate(
             [{ opacity: 0, transform: 'translateY(14px) scale(.992)', filter:'blur(1.5px)' }, { opacity: 1, transform: 'translateY(0) scale(1)', filter:'blur(0)' }],
-            { duration: 430, easing: 'cubic-bezier(.22,1,.36,1)' }
+            { duration: 720, easing: 'cubic-bezier(.22,1,.36,1)' }
           );
         }
         if (screen.id === 'screen-quiz-result') celebrateResult(screen);
@@ -293,7 +311,7 @@
         const frames = isCorrect
           ? [{ opacity: .65, transform: 'scale(.96)' }, { opacity: 1, transform: 'scale(1)' }]
           : [{ opacity: .7, transform: 'translateX(-4px)' }, { opacity: 1, transform: 'translateX(4px)' }, { opacity: 1, transform: 'translateX(0)' }];
-        feedbackBox.animate(frames, { duration: isCorrect ? 360 : 390, easing: 'ease-out' });
+        feedbackBox.animate(frames, { duration: isCorrect ? 560 : 590, easing: 'cubic-bezier(.22,1,.36,1)' });
       });
       feedbackObserver.observe(feedbackTitle, { childList: true, characterData: true, subtree: true });
     }
@@ -315,7 +333,7 @@
         [{ transform:'scale(.945) translateY(1px)', boxShadow:'0 1px 2px rgba(15,23,42,.08)' },
          { transform:'scale(1.035) translateY(-1px)', boxShadow:'0 8px 20px rgba(15,23,42,.13)', offset:.62 },
          { transform:'scale(1) translateY(0)', boxShadow:'0 0 0 rgba(15,23,42,0)' }],
-        { duration:300, easing:'cubic-bezier(.2,.8,.2,1)' }
+        { duration:430, easing:'cubic-bezier(.22,1,.36,1)' }
       );
     }
     document.addEventListener('pointerdown', event => {
@@ -329,7 +347,7 @@
           if (previous) previous.cancel();
           pressAnimations.set(target, target.animate(
             [{ transform:'scale(1) translateY(0)' }, { transform:'scale(.945) translateY(1px)' }],
-            { duration:105, easing:'cubic-bezier(.2,.8,.2,1)', fill:'forwards' }
+            { duration:155, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' }
           ));
         }
       }
@@ -345,7 +363,7 @@
         if (!reduceMotion && typeof target.animate === 'function') {
           target.animate(
             [{ transform:'scale(1)' }, { transform:'scale(.965)' }, { transform:'scale(1.025)' }, { transform:'scale(1)' }],
-            { duration:280, easing:'cubic-bezier(.2,.8,.2,1)' }
+            { duration:380, easing:'cubic-bezier(.22,1,.36,1)' }
           );
         }
       }
@@ -359,7 +377,7 @@
       if (container) container.querySelectorAll('.np-motion-selected').forEach(el => el.classList.remove('np-motion-selected'));
       option.classList.add('np-motion-selected');
       if (!reduceMotion && typeof option.animate === 'function') {
-        option.animate([{ transform:'scale(.985)' }, { transform:'scale(1.012)' }, { transform:'scale(1)' }], {duration:280,easing:'ease-out'});
+        option.animate([{ transform:'scale(.985)' }, { transform:'scale(1.012)' }, { transform:'scale(1)' }], {duration:420,easing:'cubic-bezier(.22,1,.36,1)'});
       }
     }, true);
 
@@ -408,7 +426,7 @@
     if (explanation) {
       const explanationObserver = new MutationObserver(() => {
         if (!reduceMotion && explanation.textContent.trim() && typeof explanation.animate === 'function') {
-          explanation.animate([{opacity:0,transform:'translateY(5px)'},{opacity:1,transform:'translateY(0)'}],{duration:330,easing:'ease-out'});
+          explanation.animate([{opacity:0,transform:'translateY(5px)'},{opacity:1,transform:'translateY(0)'}],{duration:480,easing:'cubic-bezier(.22,1,.36,1)'});
         }
       });
       explanationObserver.observe(explanation,{childList:true,characterData:true,subtree:true});
@@ -423,14 +441,14 @@
         if (score && !score.classList.contains('np-result-highlight')) {
           score.classList.add('np-result-highlight');
           if (!reduceMotion && typeof score.animate === 'function') {
-            score.animate([{opacity:0,transform:'translateY(8px) scale(.88)'},{opacity:1,transform:'translateY(0) scale(1)'}],{duration:480,easing:'cubic-bezier(.2,.8,.2,1)'});
+            score.animate([{opacity:0,transform:'translateY(8px) scale(.88)'},{opacity:1,transform:'translateY(0) scale(1)'}],{duration:680,easing:'cubic-bezier(.22,1,.36,1)'});
           }
         }
         resultScreen.querySelectorAll('.grid > *, .space-y-4 > section').forEach((card,index) => {
           if (card.dataset.npStaggered === '1') return;
           card.dataset.npStaggered = '1';
           if (!reduceMotion && typeof card.animate === 'function') {
-            card.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],{duration:380,delay:Math.min(index*75,450),easing:'ease-out',fill:'both'});
+            card.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],{duration:520,delay:Math.min(index*100,600),easing:'cubic-bezier(.22,1,.36,1)',fill:'both'});
           }
         });
       });
@@ -447,7 +465,7 @@
             el.id === 'nav-drawer'
               ? [{opacity:.55,transform:'translateX(-18px)'},{opacity:1,transform:'translateX(0)'}]
               : [{opacity:0,transform:'translateY(8px) scale(.985)'},{opacity:1,transform:'translateY(0) scale(1)'}],
-            {duration:360,easing:'cubic-bezier(.22,1,.36,1)'}
+            {duration:560,easing:'cubic-bezier(.22,1,.36,1)'}
           );
         }
       });
@@ -500,7 +518,7 @@
         layer.appendChild(piece);
       }
       document.body.appendChild(layer);
-      window.setTimeout(() => layer.remove(), 3400);
+      window.setTimeout(() => layer.remove(), 4200);
     }
   }
 
