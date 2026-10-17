@@ -458,15 +458,36 @@
     <div class="space-y-3 pt-4" id="settings-accordion">
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
         <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-emerald-300">◉</span>アカウント</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
-        <div class="px-4 pb-4"><div class="rounded-xl border border-slate-700 bg-slate-900/60 p-4"><div class="flex items-center gap-3"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300 font-bold text-xs">LINE</span><div class="min-w-0 flex-1"><div class="font-semibold text-sm">LINEログイン</div><p class="text-xs text-slate-400 mt-1">LINEアカウントでログインして、表示名を連携します。</p></div></div><a href="https://nurse-line-system.onrender.com/auth/line" class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-300 hover:bg-emerald-500/20 transition"><span>LINEでログイン</span><span aria-hidden="true">↗</span></a></div></div>
+        <div class="px-4 pb-4 space-y-2">
+          <div class="rounded-xl border border-slate-700 bg-slate-900/60 p-4"><div class="flex items-center gap-3"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300 font-bold text-xs">LINE</span><div class="min-w-0 flex-1"><div class="font-semibold text-sm">LINEログイン</div><p class="text-xs text-slate-400 mt-1">LINEアカウントでログインして、表示名を連携します。</p></div></div><a href="https://nurse-line-system.onrender.com/auth/line" class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-300 hover:bg-emerald-500/20 transition"><span>LINEでログイン</span><span aria-hidden="true">↗</span></a></div>
+          <button type="button" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left"><span class="font-semibold text-sm">学習記録の同期</span><span class="text-slate-400" aria-hidden="true">›</span></button>
+        </div>
       </details>
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
         <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-amber-300">⚙</span>一般</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
-        <div class="px-4 pb-4"><button id="np-theme-settings-card" type="button" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left cursor-pointer hover:bg-slate-800/70 transition" aria-label="テーマ・外観を開く"><span class="font-semibold text-sm">テーマ・外観</span><span class="text-slate-400" aria-hidden="true">›</span></button></div>
+        <div class="px-4 pb-4 space-y-2">
+          <button id="np-theme-settings-card" type="button" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left cursor-pointer hover:bg-slate-800/70 transition" aria-label="テーマ・外観を開く"><span class="font-semibold text-sm">テーマ・外観</span><span class="text-slate-400" aria-hidden="true">›</span></button>
+          <button type="button" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left"><span class="font-semibold text-sm">通知設定</span><span class="text-slate-400" aria-hidden="true">›</span></button>
+          <button type="button" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left"><span class="font-semibold text-sm">アクセシビリティ</span><span class="text-slate-400" aria-hidden="true">›</span></button>
+        </div>
       </details>
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
-        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-sky-300">◇</span>プライバシー</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
-        <div class="px-4 pb-4"><div class="rounded-xl border border-slate-700 bg-slate-900/60 p-4"><div class="font-semibold text-sm">学習履歴について</div><p class="text-xs text-slate-400 mt-1">学習記録の保存方法は、現在のアプリおよび連携サービスの設定に従います。</p></div></div>
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-sky-300">◇</span>プライバシー・データ管理</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
+        <div class="px-4 pb-4 space-y-2">
+          <button type="button" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left"><span class="font-semibold text-sm">プライバシー・データ管理</span><span class="text-slate-400" aria-hidden="true">›</span></button>
+        </div>
+      </details>
+      <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-violet-300">♡</span>ヘルプ・サポート</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
+        <div class="px-4 pb-4 space-y-2">
+          <button type="button" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left"><span class="font-semibold text-sm">ヘルプ・サポート</span><span class="text-slate-400" aria-hidden="true">›</span></button>
+        </div>
+      </details>
+      <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-slate-300">ⓘ</span>アプリ情報</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
+        <div class="px-4 pb-4 space-y-2">
+          <button type="button" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left"><span class="font-semibold text-sm">アプリ情報</span><span class="text-slate-400" aria-hidden="true">›</span></button>
+        </div>
       </details>
       <details class="group rounded-xl border border-amber-500/25 bg-amber-500/5 overflow-hidden">
         <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-amber-200"><span class="flex items-center gap-2"><span>♙</span>管理者</span><span class="settings-chevron text-amber-300 transition-transform group-open:rotate-180">⌄</span></summary>
