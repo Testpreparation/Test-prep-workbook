@@ -1114,9 +1114,12 @@
           </div>
         </div>
 
-        <!-- 30秒制限時間タイマーバー -->
-        <div class="w-full bg-slate-800/80 h-2 rounded-full overflow-hidden border border-slate-700/50">
-          <div id="quiz-timer-bar" class="h-full bg-amber-500 w-full transition-all duration-100 ease-linear"></div>
+        <!-- 1問ごとの制限時間：残り秒数とタイマーバー -->
+        <div class="flex items-center gap-3" role="timer" aria-live="off" aria-label="問題の残り時間">
+          <span id="quiz-timer-text" class="shrink-0 min-w-[3.5rem] text-right text-xs font-bold font-mono text-emerald-400">30秒</span>
+          <div class="flex-1 bg-slate-800/80 h-2 rounded-full overflow-hidden border border-slate-700/50">
+            <div id="quiz-timer-bar" class="h-full bg-emerald-500 w-full transition-all duration-100 ease-linear"></div>
+          </div>
         </div>
 
         <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
@@ -4958,19 +4961,22 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
 
     function startQuizTimer() {
       stopQuizTimer();
+      const configuredLimit = Number.parseInt(QUIZ_LIMIT_TIME, 10);
+      QUIZ_LIMIT_TIME = Number.isFinite(configuredLimit) && configuredLimit > 0 ? configuredLimit : 30;
       timeLeft = QUIZ_LIMIT_TIME;
       updateTimerBarUI();
 
       const intervalMs = 100;
       quizTimer = setInterval(() => {
-        timeLeft -= intervalMs / 1000;
+        if (isAnswered) {
+          stopQuizTimer();
+          return;
+        }
+        timeLeft = Math.max(0, timeLeft - intervalMs / 1000);
+        updateTimerBarUI();
         if (timeLeft <= 0) {
-          timeLeft = 0;
-          updateTimerBarUI();
           stopQuizTimer();
           handleTimeout();
-        } else {
-          updateTimerBarUI();
         }
       }, intervalMs);
     }
@@ -4984,11 +4990,21 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
 
     function updateTimerBarUI() {
       const bar = document.getElementById('quiz-timer-bar');
-      if (!bar) return;
-     
-      const percentage = Math.max(0, (timeLeft / QUIZ_LIMIT_TIME) * 100);
-      bar.style.width = `${percentage}%`;
+      const timerText = document.getElementById('quiz-timer-text');
+      const limit = Number(QUIZ_LIMIT_TIME) > 0 ? Number(QUIZ_LIMIT_TIME) : 30;
+      const percentage = Math.max(0, Math.min(100, (timeLeft / limit) * 100));
 
+      if (timerText) {
+        timerText.textContent = `${Math.ceil(Math.max(0, timeLeft))}秒`;
+        timerText.className = percentage <= 16.6
+          ? "shrink-0 min-w-[3.5rem] text-right text-xs font-bold font-mono text-rose-400"
+          : percentage <= 33.3
+            ? "shrink-0 min-w-[3.5rem] text-right text-xs font-bold font-mono text-amber-400"
+            : "shrink-0 min-w-[3.5rem] text-right text-xs font-bold font-mono text-emerald-400";
+      }
+      if (!bar) return;
+
+      bar.style.width = `${percentage}%`;
       if (percentage <= 16.6) {
         bar.className = "h-full bg-rose-500 transition-all duration-100 ease-linear";
       } else if (percentage <= 33.3) {
