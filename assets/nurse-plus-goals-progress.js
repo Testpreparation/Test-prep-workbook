@@ -39,13 +39,12 @@
     return vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):null;
   }
   function addCard(){
-    const home=$('screen-dashboard');
+    const home=$('np-analysis-content');
     if(!home||$('np-goal-progress-card')) return;
     const card=document.createElement('section');
     card.id='np-goal-progress-card';card.className='np-goal-card space-y-4';
     card.innerHTML='<div><div class="np-goal-title">学習進捗</div><div class="np-goal-muted">科目ごとの平均正答率を確認できます。</div><div id="np-goal-subjects" class="mt-3"></div></div><div class="border-t border-slate-500/20 pt-4"><div class="np-goal-title">学習目標・達成状況</div><div class="grid grid-cols-2 gap-3"><label class="text-[11px] text-slate-300">1日の問題数目標<input id="np-goal-question-input" class="np-goal-input block mt-1" type="number" min="1" max="500" value="10"></label><label class="text-[11px] text-slate-300">目標正答率（%）<input id="np-goal-accuracy-input" class="np-goal-input block mt-1" type="number" min="1" max="100" value="80"></label></div><button id="np-goal-save" type="button" class="mt-3 rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-3 py-2 text-[11px] text-emerald-200">目標を保存</button><div id="np-goal-status" class="mt-3 space-y-3"></div><p class="np-goal-muted mt-2">目標と履歴はこの端末のブラウザに保存されます。</p></div>';
-    const existing=home.querySelector('.evo-card:last-of-type');
-    if(existing&&existing.parentNode) existing.insertAdjacentElement('afterend',card); else home.appendChild(card);
+    home.appendChild(card);
     $('np-goal-save').addEventListener('click',()=>{
       const q=Math.max(1,Math.min(500,Math.round(Number($('np-goal-question-input').value)||10)));
       const a=Math.max(1,Math.min(100,Math.round(Number($('np-goal-accuracy-input').value)||80)));
