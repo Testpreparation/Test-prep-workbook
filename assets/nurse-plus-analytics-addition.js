@@ -69,6 +69,25 @@
     };
   }
 
+  function getWeeklyReport(rows) {
+    const today = new Date();
+    const start = new Date(today.getFullYear(),today.getMonth(),today.getDate()-6);
+    const previousStart = new Date(today.getFullYear(),today.getMonth(),today.getDate()-13);
+    const previousEnd = new Date(today.getFullYear(),today.getMonth(),today.getDate()-7);
+    const current=[], previous=[], bySubject=new Map();
+    rows.forEach(row=>row.daily.forEach(item=>{
+      const p=item.date.split('/').map(Number); if(p.length!==3||p.some(n=>!Number.isFinite(n))) return;
+      const date=new Date(p[0],p[1]-1,p[2]);
+      const target=date>=start&&date<=new Date(today.getFullYear(),today.getMonth(),today.getDate(),23,59,59,999)?'current':date>=previousStart&&date<=previousEnd?'previous':'';
+      if(!target)return;
+      (target==='current'?current:previous).push(item.accuracy);
+      const stat=bySubject.get(row.subjectId)||{name:row.subject,current:[],previous:[]};
+      stat[target].push(item.accuracy); bySubject.set(row.subjectId,stat);
+    }));
+    const avg=a=>a.length?Math.round(a.reduce((s,v)=>s+v,0)/a.length):null;
+    return {currentCount:current.length,previousCount:previous.length,currentAvg:avg(current),previousAvg:avg(previous),
+      subjectChanges:[...bySubject.values()].map(x=>({name:x.name,currentAvg:avg(x.current),previousAvg:avg(x.previous),currentCount:x.current.length})).filter(x=>x.currentAvg!==null).sort((a,b)=>a.currentAvg-b.currentAvg)};
+  }
   function calculateStreak(rows) {
     const dates = new Set(rows.flatMap(row => row.daily.map(item => item.date)));
     try {
@@ -92,6 +111,39 @@
   }
 
   const SYNC_API = 'https://nurse-line-system.onrender.com';
+  const COMMUNITY_API = SYNC_API + '/api/community/question-result';
+  const COMMUNITY_MINIMUM_RESPONSES = 10;
+  async function createCommunityQuestionKey(question, subjectId, mode) {
+    const questionText = String(question && (question.q || question.question || question.text) || '').trim();
+    if (!questionText || !subjectId || !window.crypto?.subtle || typeof TextEncoder === 'undefined') return '';
+    const source = [String(subjectId), String(mode || 'all'), questionText].join('::');
+    const digest = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(source));
+    return Array.from(new Uint8Array(digest)).map(byte => byte.toString(16).padStart(2, '0')).join('');
+  }
+  async function recordCommunityResult(question, isCorrect, subjectId, mode) {
+    try {
+      const questionKey = await createCommunityQuestionKey(question, subjectId, mode);
+      if (!questionKey) return;
+      const response = await fetch(COMMUNITY_API, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({questionKey,isCorrect:Boolean(isCorrect)}) });
+      if (!response.ok) return;
+      const data = await response.json().catch(() => ({}));
+      const feedback = document.getElementById('quiz-feedback-box');
+      if (!feedback || !data.success) return;
+      let panel = document.getElementById('np-community-question-result');
+      if (!panel) {
+        panel = document.createElement('div');
+        panel.id = 'np-community-question-result';
+        panel.className = 'mt-3 pt-3 border-t border-slate-600/60 text-[11px] leading-5 text-slate-300';
+        panel.setAttribute('role','status'); panel.setAttribute('aria-live','polite');
+        feedback.appendChild(panel);
+      }
+      panel.textContent = data.published && Number(data.total) >= COMMUNITY_MINIMUM_RESPONSES
+        ? `みんなの正答率：${Math.round(Number(data.correct)/Number(data.total)*100)}%（${Number(data.total)}回答）`
+        : `みんなの正答率：集計中（あと${Math.max(0,COMMUNITY_MINIMUM_RESPONSES-Number(data.total||0))}回答で公開）`;
+    } catch (_) { /* 集計APIが利用できなくても問題演習は継続する */ }
+  }
+  window.NursePlusCommunityStats = window.NursePlusCommunityStats || {};
+  window.NursePlusCommunityStats.recordResult = recordCommunityResult;
   const SYNC_OWNED_KEY = 'nurse_plus_sync_owned_records';
   const SYNC_CLOUD_KEY = 'nurse_plus_sync_last_cloud_records';
   const SYNC_DEVICE_KEY = 'nurse_plus_sync_device_id';
@@ -266,6 +318,7 @@
     const rows = getRows();
     const stats = getStats(rows);
     const streak = calculateStreak(rows);
+    const weeklyReport = getWeeklyReport(rows);
     const subjectRows = {};
     rows.forEach(row => {
       if (!subjectRows[row.subjectId]) subjectRows[row.subjectId] = {name:row.subject, values:[]};
@@ -315,6 +368,22 @@
           <div class="flex items-center justify-between gap-2"><h3 class="text-sm font-semibold text-slate-100">直近7日間の平均正答率</h3><span class="text-[10px] text-slate-500">日別推移</span></div>
           <div class="np-analytics-bars">${days.map(d=>`<div class="np-analytics-bar-col" title="${esc(d.key)}：平均${d.count?d.avg+'%':'記録なし'}"><div class="text-[9px] text-slate-400">${d.count?d.avg+'%':''}</div><div class="np-analytics-bar" style="height:${Math.max(3,d.avg/100*82)}px;opacity:${d.count?1:.22};background:linear-gradient(180deg,#38bdf8,#2563eb)"></div><div class="np-analytics-day">${esc(d.label)}</div></div>`).join('')}</div>
           <p class="text-[10px] text-slate-500 mt-2">その日に保存された演習結果の平均です。記録がない日は空欄になります。</p>
+        </section>
+        <section class="np-analytics-card">
+          <div class="flex items-center justify-between gap-2"><h3 class="text-sm font-semibold text-slate-100">自分専用の週間学習レポート</h3><span class="text-[10px] text-slate-500">直近7日 vs 前の7日</span></div>
+          <p class="text-[10px] text-slate-400 mt-1">保存済みの演習結果から、今週の学習と成績の変化をまとめます。</p>
+          <div class="grid grid-cols-2 gap-2 mt-3">
+            <div class="rounded-xl bg-slate-950/50 border border-slate-700/60 p-3"><div class="text-[10px] text-slate-400">今週の演習記録</div><div class="text-xl font-semibold text-slate-100 mt-1">${weeklyReport.currentCount}件</div></div>
+            <div class="rounded-xl bg-slate-950/50 border border-slate-700/60 p-3"><div class="text-[10px] text-slate-400">今週の平均正答率</div><div class="text-xl font-semibold text-slate-100 mt-1">${weeklyReport.currentAvg===null?'--':weeklyReport.currentAvg+'%'}</div></div>
+          </div>
+          <div class="mt-3 rounded-xl bg-slate-950/40 p-3"><div class="text-xs text-slate-200">前の7日間との比較</div>
+            <div class="text-[11px] text-slate-400 mt-1">${weeklyReport.previousCount?'前週の平均：'+weeklyReport.previousAvg+'%':'前週の記録がないため、比較できません。'}</div>
+            <div class="text-[11px] ${weeklyReport.currentAvg!==null&&weeklyReport.previousAvg!==null?(weeklyReport.currentAvg>=weeklyReport.previousAvg?'text-emerald-300':'text-amber-300'):'text-slate-400'} mt-1">${weeklyReport.currentAvg!==null&&weeklyReport.previousAvg!==null?'正答率 '+(weeklyReport.currentAvg-weeklyReport.previousAvg>=0?'+':'')+(weeklyReport.currentAvg-weeklyReport.previousAvg)+'ポイント':'記録が増えると成績の変化を表示します。'}</div>
+          </div>
+          <div class="mt-3"><div class="text-xs font-semibold text-slate-200">今週の科目別まとめ</div>
+            ${weeklyReport.subjectChanges.length?weeklyReport.subjectChanges.map(item=>`<div class="np-analytics-row"><div><div class="text-xs text-slate-200">${esc(item.name)}</div><div class="text-[10px] text-slate-400 mt-1">${item.currentCount}件の記録${item.previousAvg!==null?' ・ 前週 '+item.previousAvg+'%':''}</div></div><div class="text-xs font-mono ${item.previousAvg!==null&&item.currentAvg>=item.previousAvg?'text-emerald-300':'text-amber-300'}">${item.currentAvg}%${item.previousAvg!==null?' ('+(item.currentAvg-item.previousAvg>=0?'+':'')+(item.currentAvg-item.previousAvg)+')':''}</div></div>`).join(''):'<div class="np-analytics-empty">今週の演習記録がまだありません。</div>'}
+          </div>
+          <p class="text-[10px] text-slate-500 mt-3">※ 保存済みの演習ごとの平均正答率です。問題単位の回答数ではありません。</p>
         </section>
         <section class="np-analytics-card">
           <h3 class="text-sm font-semibold text-slate-100">苦手分野の自動分析</h3>
