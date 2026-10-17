@@ -179,6 +179,9 @@
         from { opacity: 0; transform: translateY(8px); }
         to { opacity: 1; transform: translateY(0); }
       }
+      @keyframes npConfettiFall {
+        to { transform: translate3d(var(--np-drift), 105vh, 0) rotate(var(--np-rotate)); opacity: .15; }
+      }
       @media (prefers-reduced-motion: reduce) {
         .glass-card button:not(:disabled), .glass-card [role="button"]:not([aria-disabled="true"]),
         .evo-progress > span, #evo-mission-progress, .np-analytics-fill {
@@ -239,20 +242,51 @@
       feedbackObserver.observe(feedbackTitle, { childList: true, characterData: true, subtree: true });
     }
 
-    // 5. 完了画面で紙吹雪。満点時は既存コードの演出をそのまま利用し、二重発火を防ぐ。
+    // 5. 完了画面で紙吹雪。外部ライブラリに依存せず、二重発火も防ぐ。
     function celebrateResult(screen) {
       if (screen.dataset.npCelebrated === '1') return;
       screen.dataset.npCelebrated = '1';
       const scoreEl = document.getElementById('final-score-val');
       const accuracy = scoreEl ? Number(scoreEl.textContent) : NaN;
-      if (!Number.isFinite(accuracy) || accuracy >= 100 || typeof window.confetti !== 'function') return;
-      window.confetti({
-        particleCount: 42,
-        spread: 54,
-        startVelocity: 25,
-        scalar: 0.8,
-        origin: { y: 0.68 }
-      });
+      if (reduceMotion || !Number.isFinite(accuracy)) return;
+
+      // 既存の紙吹雪ライブラリがある場合はそのまま利用する。
+      if (typeof window.confetti === 'function') {
+        window.confetti({
+          particleCount: 42,
+          spread: 54,
+          startVelocity: 25,
+          scalar: 0.8,
+          origin: { y: 0.68 }
+        });
+        return;
+      }
+
+      // ライブラリがない場合の軽量なCSS紙吹雪。
+      const colors = ['#f59e0b', '#fcd34d', '#34d399', '#60a5fa', '#f472b6', '#c084fc'];
+      const layer = document.createElement('div');
+      layer.setAttribute('aria-hidden', 'true');
+      layer.style.cssText = 'position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:99999;';
+      for (let i = 0; i < 48; i++) {
+        const piece = document.createElement('i');
+        const duration = 1.7 + Math.random() * 1.3;
+        piece.style.cssText = [
+          'position:absolute',
+          'top:-14px',
+          'left:' + (Math.random() * 100) + '%',
+          'width:' + (5 + Math.random() * 5) + 'px',
+          'height:' + (7 + Math.random() * 7) + 'px',
+          'border-radius:2px',
+          'background:' + colors[i % colors.length],
+          'opacity:.95',
+          '--np-drift:' + ((Math.random() - .5) * 220) + 'px',
+          '--np-rotate:' + (Math.random() * 900 - 450) + 'deg',
+          'animation:npConfettiFall ' + duration + 's ease-in forwards'
+        ].join(';');
+        layer.appendChild(piece);
+      }
+      document.body.appendChild(layer);
+      window.setTimeout(() => layer.remove(), 3400);
     }
   }
 
