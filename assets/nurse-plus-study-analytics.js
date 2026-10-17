@@ -105,9 +105,39 @@
       .sort((a,b)=>b.weak-a.weak || a.accuracy-b.accuracy).slice(0,5);
   }
 
-  function addAnalyticsCards() {
+  function ensureAnalysisScreen() {
     const home=$('screen-dashboard');
-    if(!home || $('np-learning-analytics')) return;
+    if(!home) return null;
+    const parent=home.parentElement;
+    if(!parent) return null;
+    let screen=$('np-data-analysis-screen');
+    if(!screen){
+      screen=document.createElement('section');
+      screen.id='np-data-analysis-screen';
+      screen.className='hidden space-y-4';
+      screen.innerHTML='<div class="flex items-center justify-between gap-3"><div><div class="en-title text-[10px] tracking-[.22em] font-semibold text-amber-500">LEARNING INSIGHTS</div><h2 class="serif-title text-xl text-slate-100 mt-1">データ分析</h2><p class="text-[11px] text-slate-400 mt-1">学習の記録と目標の達成状況</p></div><button type="button" id="np-analysis-back" class="rounded-xl border border-slate-600/60 bg-slate-800/60 px-3 py-2 text-xs text-slate-200">ホームへ戻る</button></div><div id="np-analysis-content" class="space-y-3"></div>';
+      home.insertAdjacentElement('afterend',screen);
+      const back=$('np-analysis-back');
+      if(back) back.addEventListener('click',()=>{screen.classList.add('hidden');home.classList.remove('hidden');});
+    }
+    const header=home.firstElementChild;
+    if(header && !$('np-open-data-analysis')){
+      const button=document.createElement('button');
+      button.id='np-open-data-analysis';
+      button.type='button';
+      button.className='w-full mt-2 py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-200 text-xs font-medium transition';
+      button.textContent='データ分析';
+      button.addEventListener('click',()=>{home.classList.add('hidden');screen.classList.remove('hidden');renderAnalytics();});
+      const subjectButton=header.querySelector('button[onclick="showSubjectScreen()"]');
+      if(subjectButton) subjectButton.insertAdjacentElement('afterend',button); else header.appendChild(button);
+    }
+    return screen;
+  }
+
+  function addAnalyticsCards() {
+    const screen=ensureAnalysisScreen();
+    const home=$('np-analysis-content');
+    if(!screen || !home || $('np-learning-analytics')) return;
     const block=document.createElement('section');
     block.id='np-learning-analytics';
     block.className='space-y-3';
@@ -128,9 +158,7 @@
         <div class="np-analytics-muted">間違いが正解より多い問題を集計しています。学習履歴はこの端末内に保存されます。</div>
         <div id="np-weak-analysis" class="mt-3"><div class="np-analytics-muted">演習すると分析が表示されます。</div></div>
       </div>`;
-    const log=home.querySelector('.evo-card:last-of-type');
-    if(log && log.parentNode) log.insertAdjacentElement('afterend',block);
-    else home.appendChild(block);
+    home.appendChild(block);
   }
 
   function renderAnalytics() {
