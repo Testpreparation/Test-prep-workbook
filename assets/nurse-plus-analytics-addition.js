@@ -280,19 +280,23 @@
           );
           panels.forEach((panel,index) => {
             if (typeof panel.animate !== 'function') return;
+            // ボックスごとに登場方向・動きを変え、同じ動きの繰り返しを避ける。
+            const entranceStyles = [
+              [{ opacity:0, transform:'translateY(16px) scale(.975)', filter:'blur(1px)' }, { opacity:1, transform:'translateY(0) scale(1)', filter:'blur(0)' }],
+              [{ opacity:0, transform:'translateX(-18px) scale(.99)', filter:'blur(.5px)' }, { opacity:1, transform:'translateX(0) scale(1)', filter:'blur(0)' }],
+              [{ opacity:0, transform:'translateX(18px) scale(.99)', filter:'blur(.5px)' }, { opacity:1, transform:'translateX(0) scale(1)', filter:'blur(0)' }],
+              [{ opacity:0, transform:'translateY(10px) scale(1.025)', filter:'blur(1px)' }, { opacity:1, transform:'translateY(0) scale(1)', filter:'blur(0)' }]
+            ];
             panel.animate(
-              [
-                { opacity:0, transform:'translateY(18px) scale(.985)', filter:'blur(1px)' },
-                { opacity:1, transform:'translateY(0) scale(1)', filter:'blur(0)' }
-              ],
-              { duration:2200, delay:Math.min(index * 300, 1800), easing:'cubic-bezier(.22,1,.36,1)', fill:'both' }
+              entranceStyles[index % entranceStyles.length],
+              { duration:850 + (index % 3) * 100, delay:Math.min(index * 95, 475), easing:'cubic-bezier(.22,1,.36,1)', fill:'both' }
             );
           });
         }
         if (!reduceMotion && typeof screen.animate === 'function' && screen.id !== SCREEN_ID) {
           screen.animate(
             [{ opacity: 0, transform: 'translateY(14px) scale(.992)', filter:'blur(1.5px)' }, { opacity: 1, transform: 'translateY(0) scale(1)', filter:'blur(0)' }],
-            { duration: 2800, easing: 'cubic-bezier(.22,1,.36,1)' }
+            { duration: 1050, easing: 'cubic-bezier(.22,1,.36,1)' }
           );
         }
         if (screen.id === 'screen-quiz-result') celebrateResult(screen);
@@ -316,7 +320,7 @@
         const frames = isCorrect
           ? [{ opacity: .65, transform: 'scale(.96)' }, { opacity: 1, transform: 'scale(1)' }]
           : [{ opacity: .7, transform: 'translateX(-4px)' }, { opacity: 1, transform: 'translateX(4px)' }, { opacity: 1, transform: 'translateX(0)' }];
-        feedbackBox.animate(frames, { duration: isCorrect ? 1900 : 2000, easing: 'cubic-bezier(.22,1,.36,1)' });
+        feedbackBox.animate(frames, { duration: isCorrect ? 850 : 780, easing: 'cubic-bezier(.22,1,.36,1)' });
       });
       feedbackObserver.observe(feedbackTitle, { childList: true, characterData: true, subtree: true });
     }
@@ -453,7 +457,7 @@
           if (card.dataset.npStaggered === '1') return;
           card.dataset.npStaggered = '1';
           if (!reduceMotion && typeof card.animate === 'function') {
-            card.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],{duration:1800,delay:Math.min(index*300,1800),easing:'cubic-bezier(.22,1,.36,1)',fill:'both'});
+            card.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],{duration:950,delay:Math.min(index*140,700),easing:'cubic-bezier(.22,1,.36,1)',fill:'both'});
           }
         });
       });
