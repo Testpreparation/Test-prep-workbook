@@ -8,6 +8,16 @@
   <meta name="apple-mobile-web-app-title" content="Nurse+">
   <meta name="mobile-web-app-capable" content="yes">
   <title>Nurse+</title>
+  <script>
+    (() => {
+      try {
+        const savedTheme = localStorage.getItem('nurse_plus_theme');
+        document.documentElement.classList.toggle('np-light-theme', savedTheme !== 'dark');
+      } catch (_) {
+        document.documentElement.classList.add('np-light-theme');
+      }
+    })();
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -295,6 +305,102 @@
   .notice-time-wheel-item.is-selected{background:rgba(245,158,11,.14);color:#fbbf24;border-top:1px solid rgba(245,158,11,.35);border-bottom:1px solid rgba(245,158,11,.35)}
   #ai-notice-hour-wheel .notice-time-wheel-item.is-selected,#ai-notice-minute-wheel .notice-time-wheel-item.is-selected{background:rgba(34,211,238,.12);color:#67e8f9;border-color:rgba(34,211,238,.35)}
 </style>
+
+<style id="nurse-plus-pwa-white-theme">
+  html.np-light-theme body{
+    background:linear-gradient(145deg,#fffdfd 0%,#f8f3ff 58%,#f0f9f6 100%) !important;
+    color:#475569 !important;
+  }
+  html.np-light-theme .glass-card,
+  html.np-light-theme #nav-drawer{
+    background:rgba(255,255,255,.94) !important;
+    border-color:#e8def3 !important;
+    color:#475569 !important;
+    box-shadow:0 18px 48px rgba(71,55,95,.12) !important;
+  }
+  html.np-light-theme .card-item,
+  html.np-light-theme .evo-card{
+    background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(248,243,255,.94)) !important;
+    border-color:#e8def3 !important;
+    color:#475569 !important;
+    box-shadow:0 10px 28px rgba(71,55,95,.07) !important;
+  }
+  html.np-light-theme .flashcard-paper{
+    background:#fffdfd !important;
+    background-image:linear-gradient(145deg,#fffdfd,#f8f3ff) !important;
+    color:#475569 !important;
+    box-shadow:inset 0 0 0 1px #e8def3,0 16px 32px -8px rgba(71,55,95,.16) !important;
+  }
+  html.np-light-theme .flashcard-hole{background:#f8f3ff!important;border-color:#d8c8f4!important;box-shadow:inset 0 2px 4px rgba(71,55,95,.12)!important}
+  html.np-light-theme .custom-scrollbar::-webkit-scrollbar-track{background:#f8f3ff}
+  html.np-light-theme .custom-scrollbar::-webkit-scrollbar-thumb{background:#d8c8f4;border-color:#fff}
+  html.np-light-theme .custom-scrollbar{scrollbar-color:#d8c8f4 #f8f3ff}
+  html.np-light-theme .evo-progress{background:#eee7f7}
+  html.np-light-theme .evo-chip{background:rgba(216,200,244,.24);border-color:#e2d8f0;color:#79629e}
+  html.np-light-theme .notice-time-wheel{background:#fff;border-color:#e2d8f0}
+  html.np-light-theme .notice-time-wheel-item{color:#81758f}
+  html.np-light-theme .notice-time-wheel-item.is-selected{background:#f3edfb;color:#67547e;border-color:#d8c8f4}
+  html.np-light-theme #ai-notice-hour-wheel .notice-time-wheel-item.is-selected,
+  html.np-light-theme #ai-notice-minute-wheel .notice-time-wheel-item.is-selected{background:#eaf7f2;color:#357d69;border-color:#bfe4d7}
+  html.np-light-theme [class*="bg-slate-950"],
+  html.np-light-theme [class*="bg-slate-900"],
+  html.np-light-theme [class*="bg-slate-800"],
+  html.np-light-theme [class*="bg-slate-700"]{
+    background-color:rgba(255,255,255,.88)!important;
+  }
+  html.np-light-theme [class*="text-slate-100"],
+  html.np-light-theme [class*="text-slate-200"],
+  html.np-light-theme [class*="text-slate-300"]{color:#475569!important}
+  html.np-light-theme [class*="text-slate-400"]{color:#81758f!important}
+  html.np-light-theme [class*="text-slate-500"],
+  html.np-light-theme [class*="text-slate-600"]{color:#9486a5!important}
+  html.np-light-theme [class*="border-slate-800"],
+  html.np-light-theme [class*="border-slate-700"],
+  html.np-light-theme [class*="border-slate-600"]{border-color:#e8def3!important}
+  html.np-light-theme [class*="hover:bg-slate-800"]:hover,
+  html.np-light-theme [class*="hover:bg-slate-700"]:hover{background-color:#f3edfb!important}
+  html.np-light-theme [class*="bg-amber-500/10"],
+  html.np-light-theme [class*="bg-amber-500/5"]{background-color:rgba(216,200,244,.22)!important}
+  html.np-light-theme [class*="bg-amber-500/20"]{background-color:rgba(216,200,244,.36)!important}
+  html.np-light-theme [class*="border-amber-500"]{border-color:#d8c8f4!important}
+  html.np-light-theme [class*="text-amber-300"],
+  html.np-light-theme [class*="text-amber-400"],
+  html.np-light-theme [class*="text-amber-500"],
+  html.np-light-theme [class*="text-amber-200"]{color:#79629e!important}
+  html.np-light-theme [class*="hover:bg-amber-500"]:hover{background-color:#eee5fa!important}
+  html.np-light-theme [class*="bg-emerald-500/10"],
+  html.np-light-theme [class*="bg-emerald-500/15"],
+  html.np-light-theme [class*="bg-emerald-900/50"]{background-color:#eaf7f2!important}
+  html.np-light-theme [class*="border-emerald-500"]{border-color:#bfe4d7!important}
+  html.np-light-theme [class*="text-emerald-300"],
+  html.np-light-theme [class*="text-emerald-400"]{color:#357d69!important}
+  html.np-light-theme [class*="bg-violet-500/15"]{background-color:#f0e8fb!important}
+  html.np-light-theme [class*="text-violet-300"]{color:#79629e!important}
+  html.np-light-theme [class*="text-sky-300"]{color:#477f9b!important}
+  html.np-light-theme [class*="bg-black/70"]{background-color:rgba(71,55,95,.42)!important}
+  html.np-light-theme #user-settings-overlay{background:rgba(71,55,95,.28)!important}
+  html.np-light-theme #user-settings-modal{
+    background:rgba(255,255,255,.98)!important;border-color:#e8def3!important;color:#475569!important;
+    box-shadow:0 20px 60px rgba(71,55,95,.18)!important;
+  }
+  html.np-light-theme #nav-overlay{background:rgba(71,55,95,.24)!important}
+  html.np-light-theme #drawer-settings-content #settings-accordion>details{background:rgba(248,243,255,.7)!important}
+  html.np-light-theme #drawer-settings-content .rounded-xl{border-color:#e8def3}
+  html.np-light-theme #np-theme-toggle{
+    background:rgba(255,255,255,.92);border:1px solid #e8def3;color:#79629e;
+    box-shadow:0 8px 24px rgba(71,55,95,.1);backdrop-filter:blur(12px)
+  }
+  #np-theme-toggle{
+    position:fixed;top:1rem;right:1rem;z-index:45;display:flex;align-items:center;gap:.45rem;
+    padding:.65rem .85rem;border-radius:999px;background:rgba(15,23,42,.82);
+    border:1px solid rgba(71,85,105,.7);color:#e2e8f0;font:600 11px/1.2 'Noto Sans JP',sans-serif;
+    box-shadow:0 8px 24px rgba(0,0,0,.14);backdrop-filter:blur(12px);transition:transform .2s,background .2s,border-color .2s
+  }
+  #np-theme-toggle:active{transform:scale(.96)}
+  @media(max-width:480px){#np-theme-toggle{top:.75rem;right:.75rem;padding:.58rem .72rem;font-size:10px}}
+  @media(prefers-reduced-motion:reduce){#np-theme-toggle{transition:none}}
+</style>
+
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative selection:bg-amber-500/30 selection:text-amber-200">
 
@@ -304,6 +410,9 @@
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
     </button>
   </div>
+  <button id="np-theme-toggle" type="button" aria-pressed="false" aria-label="ダークモードに切り替え" title="テーマを切り替え">
+    <span id="np-theme-icon" aria-hidden="true">☾</span><span id="np-theme-label">ダーク</span>
+  </button>
 
   <!-- 設定モーダル：アカウント・一般・プライバシー -->
   <div id="user-settings-overlay" onclick="closeUserSettings()" class="hidden fixed inset-0 bg-slate-950/65 backdrop-blur-sm z-[70]"></div>
@@ -6194,6 +6303,31 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       window.addEventListener('load', () => {
         if (!isStandalone && !deferredInstallPrompt) window.setTimeout(() => showInstallCard(false), 1600);
       }, { once: true });
+    })();
+  </script>
+
+
+  <script id="nurse-plus-theme-toggle">
+    (() => {
+      const key = 'nurse_plus_theme';
+      const root = document.documentElement;
+      const button = document.getElementById('np-theme-toggle');
+      const icon = document.getElementById('np-theme-icon');
+      const label = document.getElementById('np-theme-label');
+      if (!button) return;
+      const applyTheme = theme => {
+        const isLight = theme !== 'dark';
+        root.classList.toggle('np-light-theme', isLight);
+        try { localStorage.setItem(key, isLight ? 'light' : 'dark'); } catch (_) {}
+        button.setAttribute('aria-pressed', String(!isLight));
+        button.setAttribute('aria-label', isLight ? 'ダークモードに切り替え' : 'ホワイトモードに切り替え');
+        icon.textContent = isLight ? '☾' : '☀';
+        label.textContent = isLight ? 'ダーク' : 'ホワイト';
+      };
+      let initial = 'light';
+      try { initial = localStorage.getItem(key) === 'dark' ? 'dark' : 'light'; } catch (_) {}
+      applyTheme(initial);
+      button.addEventListener('click', () => applyTheme(root.classList.contains('np-light-theme') ? 'dark' : 'light'));
     })();
   </script>
 
