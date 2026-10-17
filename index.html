@@ -444,12 +444,14 @@
 
   <style id="drawer-settings-dropdown-style">
     #nav-drawer{will-change:transform,opacity}
-    #drawer-settings-content.drawer-settings-dropdown{max-height:0;opacity:0;overflow:hidden;transform:translateY(-8px);pointer-events:none;transition:max-height 520ms cubic-bezier(.16,1,.3,1),opacity 320ms ease,transform 520ms cubic-bezier(.16,1,.3,1)}
-    #drawer-settings-content.drawer-settings-dropdown.is-open{max-height:65vh;opacity:1;overflow-y:auto;transform:translateY(0);pointer-events:auto}
+    #drawer-settings-accordion{display:block;border-radius:14px}
+    #drawer-settings-accordion>summary::-webkit-details-marker{display:none}
+    #drawer-settings-content.drawer-settings-dropdown{max-height:0;opacity:0;overflow:hidden;pointer-events:none;transition:max-height 420ms cubic-bezier(.16,1,.3,1),opacity 260ms ease}
+    #drawer-settings-accordion[open] #drawer-settings-content.drawer-settings-dropdown{max-height:65vh;opacity:1;overflow-y:auto;pointer-events:auto}
     #drawer-settings-content #settings-accordion{padding-top:.55rem;gap:.5rem}
     #drawer-settings-content #settings-accordion>details{background:rgba(255,255,255,.035)}
     #drawer-settings-chevron{transition:transform 320ms cubic-bezier(.16,1,.3,1)}
-    #drawer-settings-toggle[aria-expanded="true"] #drawer-settings-chevron{transform:rotate(180deg)}
+    #drawer-settings-accordion[open] #drawer-settings-chevron{transform:rotate(180deg)}
     @media(prefers-reduced-motion:reduce){#nav-drawer,#drawer-settings-content.drawer-settings-dropdown,#drawer-settings-chevron{transition:none!important}}
   </style>
 
@@ -473,8 +475,10 @@
           <span class="px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 font-mono text-amber-400 text-[10px] font-bold">2P</span>
           <span class="font-medium">早押し対戦（2人マルチ）</span>
         </button>
-        <button id="drawer-settings-toggle" type="button" aria-expanded="false" aria-controls="drawer-settings-content" onclick="toggleDrawerSettings()" class="w-full text-left px-4 py-3 rounded-xl bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/50 text-slate-200 text-xs transition flex items-center gap-3 group"><span class="flex h-6 w-6 items-center justify-center rounded-lg bg-violet-500/15 text-violet-300" aria-hidden="true">⚙</span><span class="font-medium flex-1">設定</span><span id="drawer-settings-chevron" class="text-slate-400 transition-transform duration-300" aria-hidden="true">⌄</span></button>
-        <div id="drawer-settings-content" class="drawer-settings-dropdown" aria-hidden="true"></div>
+        <details id="drawer-settings-accordion" class="drawer-settings-accordion">
+          <summary id="drawer-settings-toggle" aria-expanded="false" aria-controls="drawer-settings-content" onclick="toggleDrawerSettings(event)" class="list-none cursor-pointer w-full text-left px-4 py-3 rounded-xl bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/50 text-slate-200 text-xs transition flex items-center gap-3 group"><span class="flex h-6 w-6 items-center justify-center rounded-lg bg-violet-500/15 text-violet-300" aria-hidden="true">⚙</span><span class="font-medium flex-1">設定</span><span id="drawer-settings-chevron" class="text-slate-400 transition-transform duration-300" aria-hidden="true">⌄</span></summary>
+          <div id="drawer-settings-content" class="drawer-settings-dropdown" aria-hidden="true"></div>
+        </details>
       </div>   </div>
     <div class="text-[11px] text-slate-500 font-light text-center border-t border-slate-800/80 pt-4">
       Classy Learning System
@@ -4186,28 +4190,33 @@
     function openUserSettings() {
       prepareDrawerSettingsDropdown();
       const dropdown = document.getElementById('drawer-settings-content');
+      const accordion = document.getElementById('drawer-settings-accordion');
       const toggle = document.getElementById('drawer-settings-toggle');
-      if (!dropdown) return;
-      dropdown.classList.add('is-open');
+      if (!dropdown || !accordion) return;
+      accordion.open = true;
       dropdown.setAttribute('aria-hidden', 'false');
       if (toggle) toggle.setAttribute('aria-expanded', 'true');
     }
 
     function closeUserSettings() {
       const dropdown = document.getElementById('drawer-settings-content');
+      const accordion = document.getElementById('drawer-settings-accordion');
       const toggle = document.getElementById('drawer-settings-toggle');
-      if (dropdown) {
-        dropdown.classList.remove('is-open');
-        dropdown.setAttribute('aria-hidden', 'true');
-      }
+      if (dropdown) dropdown.setAttribute('aria-hidden', 'true');
+      if (accordion) accordion.open = false;
       if (toggle) toggle.setAttribute('aria-expanded', 'false');
     }
 
-    function toggleDrawerSettings() {
+    function toggleDrawerSettings(event) {
+      if (event) event.preventDefault();
+      const accordion = document.getElementById('drawer-settings-accordion');
       const dropdown = document.getElementById('drawer-settings-content');
-      if (!dropdown) return;
-      if (dropdown.classList.contains('is-open')) closeUserSettings();
-      else openUserSettings();
+      const toggle = document.getElementById('drawer-settings-toggle');
+      if (!accordion || !dropdown) return;
+      const willOpen = !accordion.open;
+      accordion.open = willOpen;
+      dropdown.setAttribute('aria-hidden', String(!willOpen));
+      if (toggle) toggle.setAttribute('aria-expanded', String(willOpen));
     }
 
     function toggleNavDrawer() {
