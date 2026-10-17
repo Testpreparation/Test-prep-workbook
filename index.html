@@ -377,6 +377,12 @@
   html.np-light-theme [class*="bg-violet-500/15"]{background-color:#f0e8fb!important}
   html.np-light-theme [class*="text-violet-300"]{color:#79629e!important}
   html.np-light-theme [class*="text-sky-300"]{color:#477f9b!important}
+  /* Replace remaining dark amber action buttons (e.g. next/continue) with the pastel theme. */
+  html.np-light-theme [class*="bg-amber-700"],
+  html.np-light-theme [class*="bg-amber-600"]{background-color:#d8c8f4!important;color:#67547e!important;border-color:#cdb8ec!important}
+  html.np-light-theme [class*="hover:bg-amber-700"]:hover,
+  html.np-light-theme [class*="hover:bg-amber-600"]:hover{background-color:#cdb8ec!important;color:#514166!important}
+  html.np-light-theme [class*="text-amber-50"]{color:#67547e!important}
   html.np-light-theme [class*="bg-black/70"]{background-color:rgba(71,55,95,.42)!important}
   html.np-light-theme #user-settings-overlay{background:rgba(71,55,95,.28)!important}
   html.np-light-theme #user-settings-modal{
@@ -385,19 +391,33 @@
   }
   html.np-light-theme #nav-overlay{background:rgba(71,55,95,.24)!important}
   html.np-light-theme #drawer-settings-content #settings-accordion>details{background:rgba(248,243,255,.7)!important}
-  html.np-light-theme #drawer-settings-content .rounded-xl{border-color:#e8def3}
+  html.np-light-theme #drawer-settings-content .rounded-xl,
+  html.np-light-theme #user-settings-modal .rounded-xl{border-color:#e8def3}
   html.np-light-theme #np-theme-toggle{
-    background:rgba(255,255,255,.92);border:1px solid #e8def3;color:#79629e;
-    box-shadow:0 8px 24px rgba(71,55,95,.1);backdrop-filter:blur(12px)
+    background:#f3edfb;border:1px solid #d8c8f4;color:#67547e;
+    box-shadow:0 5px 14px rgba(71,55,95,.08)
   }
+  /* Keep page and inner-panel scrollbars soft and unobtrusive. */
+  html.np-light-theme,html.np-light-theme body{scrollbar-color:#d8c8f4 transparent;scrollbar-width:thin}
+  html.np-light-theme::-webkit-scrollbar,html.np-light-theme body::-webkit-scrollbar,
+  html.np-light-theme *::-webkit-scrollbar{width:8px;height:8px}
+  html.np-light-theme::-webkit-scrollbar-track,html.np-light-theme body::-webkit-scrollbar-track,
+  html.np-light-theme *::-webkit-scrollbar-track{background:transparent;border-radius:999px}
+  html.np-light-theme::-webkit-scrollbar-thumb,html.np-light-theme body::-webkit-scrollbar-thumb,
+  html.np-light-theme *::-webkit-scrollbar-thumb{background:rgba(205,184,236,.62);border:2px solid transparent;background-clip:padding-box;border-radius:999px}
+  html.np-light-theme::-webkit-scrollbar-thumb:hover,html.np-light-theme body::-webkit-scrollbar-thumb:hover,
+  html.np-light-theme *::-webkit-scrollbar-thumb:hover{background:rgba(184,157,222,.82);border:2px solid transparent;background-clip:padding-box}
+  html.np-light-theme #user-settings-modal #settings-accordion>details>summary{padding:.65rem .8rem;font-size:.84rem;line-height:1.3}
+  html.np-light-theme #user-settings-modal #settings-accordion>details>div{padding:0 .8rem .75rem}
+  html.np-light-theme #user-settings-modal #settings-accordion>details>div>.rounded-xl{padding:.75rem;border-radius:.8rem}
   #np-theme-toggle{
-    position:fixed;top:1rem;right:1rem;z-index:45;display:flex;align-items:center;gap:.45rem;
-    padding:.65rem .85rem;border-radius:999px;background:rgba(15,23,42,.82);
-    border:1px solid rgba(71,85,105,.7);color:#e2e8f0;font:600 11px/1.2 'Noto Sans JP',sans-serif;
-    box-shadow:0 8px 24px rgba(0,0,0,.14);backdrop-filter:blur(12px);transition:transform .2s,background .2s,border-color .2s
+    display:inline-flex;align-items:center;justify-content:center;gap:.55rem;width:100%;
+    padding:.7rem .9rem;border-radius:.85rem;background:#f3edfb;border:1px solid #d8c8f4;
+    color:#67547e;font:600 12px/1.3 'Noto Sans JP',sans-serif;box-shadow:0 5px 14px rgba(71,55,95,.08);
+    transition:transform .2s,background .2s,border-color .2s
   }
-  #np-theme-toggle:active{transform:scale(.96)}
-  @media(max-width:480px){#np-theme-toggle{top:.75rem;right:.75rem;padding:.58rem .72rem;font-size:10px}}
+  #np-theme-toggle:active{transform:scale(.985)}
+  html:not(.np-light-theme) #np-theme-toggle{background:#334155;border-color:#475569;color:#e2e8f0}
   @media(prefers-reduced-motion:reduce){#np-theme-toggle{transition:none}}
 </style>
 
@@ -410,10 +430,6 @@
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
     </button>
   </div>
-  <button id="np-theme-toggle" type="button" aria-pressed="false" aria-label="ダークモードに切り替え" title="テーマを切り替え">
-    <span id="np-theme-icon" aria-hidden="true">☾</span><span id="np-theme-label">ダーク</span>
-  </button>
-
   <!-- 設定モーダル：アカウント・一般・プライバシー -->
   <div id="user-settings-overlay" onclick="closeUserSettings()" class="hidden fixed inset-0 bg-slate-950/65 backdrop-blur-sm z-[70]"></div>
   <section id="user-settings-modal" role="dialog" aria-modal="true" aria-labelledby="user-settings-title" class="hidden fixed z-[71] inset-x-4 top-1/2 -translate-y-1/2 max-w-md mx-auto rounded-2xl border border-slate-700 bg-slate-900/95 backdrop-blur-xl shadow-2xl p-5 text-slate-200 max-h-[85vh] overflow-y-auto">
@@ -428,7 +444,7 @@
       </details>
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
         <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-amber-300">⚙</span>一般</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
-        <div class="px-4 pb-4"><div class="rounded-xl border border-slate-700 bg-slate-900/60 p-4"><div class="font-semibold text-sm">テーマ・外観</div><p class="text-xs text-slate-400 mt-1">ホワイトモード／ダークモードは画面右上のテーマボタンから切り替えできます。</p></div></div>
+        <div class="px-4 pb-4"><div class="rounded-xl border border-slate-700 bg-slate-900/60 p-4"><div class="font-semibold text-sm">テーマ・外観</div><p class="text-xs text-slate-400 mt-1 mb-3">アプリ全体の表示モードを切り替えます。初期設定はホワイトです。</p><button id="np-theme-toggle" type="button" aria-pressed="false" aria-label="ダークモードに切り替え" title="テーマを切り替え"><span id="np-theme-icon" aria-hidden="true">☾</span><span id="np-theme-label">ダーク</span></button></div></div>
       </details>
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
         <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-sky-300">◇</span>プライバシー</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
@@ -4182,49 +4198,39 @@
     }
 
     function prepareDrawerSettingsDropdown() {
-      const dropdown = document.getElementById('drawer-settings-content');
-      const accordion = document.getElementById('settings-accordion');
+      /* Settings remain in the centered dialog rather than moving into the side drawer. */
       const modal = document.getElementById('user-settings-modal');
-      if (!dropdown || !accordion || dropdown.contains(accordion)) return;
-      dropdown.appendChild(accordion);
-      accordion.classList.remove('pt-4');
       if (modal) {
-        modal.classList.add('hidden');
-        modal.setAttribute('aria-modal', 'false');
-        modal.setAttribute('role', 'region');
+        modal.setAttribute('aria-modal', 'true');
+        modal.setAttribute('role', 'dialog');
       }
     }
 
     function openUserSettings() {
       prepareDrawerSettingsDropdown();
-      const dropdown = document.getElementById('drawer-settings-content');
+      closeNavDrawer();
+      const overlay = document.getElementById('user-settings-overlay');
+      const modal = document.getElementById('user-settings-modal');
       const accordion = document.getElementById('drawer-settings-accordion');
-      const toggle = document.getElementById('drawer-settings-toggle');
-      if (!dropdown || !accordion) return;
-      accordion.open = true;
-      dropdown.setAttribute('aria-hidden', 'false');
-      if (toggle) toggle.setAttribute('aria-expanded', 'true');
+      if (accordion) accordion.open = false;
+      if (overlay) overlay.classList.remove('hidden');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.setAttribute('aria-modal', 'true');
+        modal.setAttribute('role', 'dialog');
+      }
     }
 
     function closeUserSettings() {
-      const dropdown = document.getElementById('drawer-settings-content');
-      const accordion = document.getElementById('drawer-settings-accordion');
-      const toggle = document.getElementById('drawer-settings-toggle');
-      if (dropdown) dropdown.setAttribute('aria-hidden', 'true');
-      if (accordion) accordion.open = false;
-      if (toggle) toggle.setAttribute('aria-expanded', 'false');
+      const overlay = document.getElementById('user-settings-overlay');
+      const modal = document.getElementById('user-settings-modal');
+      if (overlay) overlay.classList.add('hidden');
+      if (modal) modal.classList.add('hidden');
     }
 
     function toggleDrawerSettings(event) {
       if (event) event.preventDefault();
-      const accordion = document.getElementById('drawer-settings-accordion');
-      const dropdown = document.getElementById('drawer-settings-content');
-      const toggle = document.getElementById('drawer-settings-toggle');
-      if (!accordion || !dropdown) return;
-      const willOpen = !accordion.open;
-      accordion.open = willOpen;
-      dropdown.setAttribute('aria-hidden', String(!willOpen));
-      if (toggle) toggle.setAttribute('aria-expanded', String(willOpen));
+      openUserSettings();
     }
 
     function toggleNavDrawer() {
