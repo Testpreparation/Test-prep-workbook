@@ -4435,22 +4435,50 @@
       const title = document.getElementById('np-settings-detail-title');
       const body = document.getElementById('np-settings-detail-body');
       if (!overlay || !modal || !title || !body) return;
+      const loggedIn = Boolean(localStorage.getItem('nurse_line_user_session'));
+      const noticeEnabled = localStorage.getItem('nurse_plus_in_app_notices') !== 'off';
+      const largeText = document.documentElement.classList.contains('np-accessibility-large-text');
+      const reducedMotion = document.documentElement.classList.contains('np-accessibility-reduced-motion');
+      const getStudyKeys = () => {
+        const keys = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.startsWith('history_accuracy_') || ['study_days','study_streak','study_last_date','evo_today_done'].includes(key))) keys.push(key);
+        }
+        return keys;
+      };
       const pages = {
+        account: {
+          title: 'アカウント',
+          body: '<div class="rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-semibold text-slate-700">LINEログイン状態</div><p class="mt-1 text-sm">' + (loggedIn ? 'LINEログイン情報がこの端末に保存されています。' : '未ログインです。') + '</p><a href="https://nurse-line-system.onrender.com/auth/line" class="mt-3 inline-flex rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm text-emerald-700">LINEログイン／連携 ↗</a></div><p class="mt-3 text-xs text-slate-500">ログイン状態は端末に保存されたセッション情報をもとに表示しています。</p>'
+        },
+        notifications: {
+          title: '通知設定',
+          body: '<p>アプリ内のお知らせ表示に関する設定です。</p><label class="mt-3 flex items-center justify-between gap-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><span><span class="block font-medium text-slate-700">アプリ内のお知らせ</span><span class="block text-xs text-slate-500 mt-1">この端末の設定を保存します。</span></span><input id="np-notice-toggle" type="checkbox" class="h-4 w-4 accent-violet-500" ' + (noticeEnabled ? 'checked' : '') + '></label><p class="mt-3 text-xs text-slate-500">公式LINEからの配信設定は変更しません。</p>'
+        },
         sync: {
           title: '学習記録の同期',
-          body: '<p>学習記録の同期に関する項目です。</p><p class="mt-3 rounded-xl bg-violet-50 p-3 text-slate-600">現在、この画面からクラウド同期の有効化・解除はできません。実際の同期機能が追加されるまでは、端末内の学習記録を引き続きご利用ください。</p>'
+          body: '<p>LINEログインした端末間で、保存済みの学習記録を同期できます。</p><div class="mt-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><p class="font-medium text-slate-700">同期状態</p><p class="mt-1">' + (loggedIn ? 'LINEログイン済みです。データ分析画面の「今すぐ同期」から同期を実行できます。' : '同期するには先にLINEログインしてください。') + '</p></div><button type="button" onclick="closeSettingsDetail();openSettingsDetail(\'account\')" class="mt-3 np-settings-entry"><span>アカウント設定を開く</span><span aria-hidden="true">›</span></button>'
         },
         privacy: {
-          title: 'プライバシー・データ管理',
-          body: '<p>学習記録やアカウント情報の取り扱いに関する項目です。</p><p class="mt-3">LINE連携で利用する情報や、端末内に保存されるデータは、各機能の説明と連携サービスの設定に従います。</p>'
+          title: 'プライバシー',
+          body: '<p>学習履歴は、問題演習の結果や学習状況の表示に利用されます。</p><div class="mt-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-medium text-slate-700">保存データ</div><p class="mt-1">この端末の学習記録キー：' + getStudyKeys().length + '件</p><p class="mt-2 text-xs text-slate-500">LINE連携情報と学習履歴は別のデータとして扱われます。</p></div><button type="button" onclick="openSettingsDetail(\'data\')" class="mt-3 np-settings-entry"><span>データ管理を開く</span><span aria-hidden="true">›</span></button>'
+        },
+        data: {
+          title: 'データ管理',
+          body: '<p>この端末に保存された学習記録を確認・削除できます。</p><div class="mt-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-medium text-slate-700">学習記録</div><p class="mt-1">保存項目数：' + getStudyKeys().length + '件</p></div><button type="button" id="np-delete-study-data" class="mt-3 w-full rounded-lg border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm text-rose-700">この端末の学習記録を削除</button><p class="mt-2 text-xs text-slate-500">削除すると対象記録を元に戻せません。LINEログイン情報は削除しません。</p>'
+        },
+        accessibility: {
+          title: 'アクセシビリティ',
+          body: '<p>文字の見やすさやアニメーションを調整します。</p><label class="mt-3 flex items-center justify-between gap-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><span class="font-medium text-slate-700">文字を少し大きくする</span><input id="np-large-text-toggle" type="checkbox" class="h-4 w-4 accent-violet-500" ' + (largeText ? 'checked' : '') + '></label><label class="mt-2 flex items-center justify-between gap-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><span class="font-medium text-slate-700">アニメーションを減らす</span><input id="np-reduced-motion-toggle" type="checkbox" class="h-4 w-4 accent-violet-500" ' + (reducedMotion ? 'checked' : '') + '></label>'
         },
         help: {
           title: 'ヘルプ・サポート',
-          body: '<p>Nurse＋の利用中に困ったときのための項目です。</p><p class="mt-3">お問い合わせ先や操作ガイドは、準備ができ次第この画面に追加できます。</p>'
+          body: '<div class="rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-medium text-slate-700">基本的な使い方</div><p class="mt-1">メニューから科目を選択し、演習モードを選んで学習できます。データ分析では保存された演習履歴を確認できます。</p></div><p class="mt-3 text-xs text-slate-500">問い合わせ先は、公式の案内が設定された際にこの画面へ追加します。</p>'
         },
         info: {
           title: 'アプリ情報',
-          body: '<div class="rounded-xl bg-violet-50 p-4"><div class="font-semibold text-slate-700">Nurse＋</div><p class="mt-1">看護学習サポートアプリ</p><p class="mt-2 text-xs text-slate-500">GitHub Pagesで提供されています。</p></div>'
+          body: '<div class="rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-semibold text-slate-700">Nurse＋</div><p class="mt-1">看護学習サポートアプリ</p><p class="mt-2 text-xs text-slate-500">学習用Webアプリとして提供されています。</p></div>'
         }
       };
       const page = pages[type];
@@ -4459,6 +4487,28 @@
       body.innerHTML = page.body;
       overlay.classList.remove('hidden');
       modal.classList.remove('hidden');
+      body.querySelector('#np-notice-toggle')?.addEventListener('change', event => {
+        localStorage.setItem('nurse_plus_in_app_notices', event.target.checked ? 'on' : 'off');
+      });
+      body.querySelector('#np-large-text-toggle')?.addEventListener('change', event => {
+        document.documentElement.classList.toggle('np-accessibility-large-text', event.target.checked);
+        localStorage.setItem('nurse_plus_large_text', event.target.checked ? 'on' : 'off');
+      });
+      body.querySelector('#np-reduced-motion-toggle')?.addEventListener('change', event => {
+        document.documentElement.classList.toggle('np-accessibility-reduced-motion', event.target.checked);
+        localStorage.setItem('nurse_plus_reduced_motion', event.target.checked ? 'on' : 'off');
+      });
+      body.querySelector('#np-delete-study-data')?.addEventListener('click', () => {
+        if (!window.confirm('この端末の学習記録を削除しますか？この操作は取り消せません。')) return;
+        const keys = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.startsWith('history_accuracy_') || ['study_days','study_streak','study_last_date','evo_today_done','nurse_plus_sync_owned_records','nurse_plus_sync_last_cloud_records'].includes(key))) keys.push(key);
+        }
+        keys.forEach(key => localStorage.removeItem(key));
+        closeSettingsDetail();
+        openSettingsDetail('data');
+      });
     }
 
     function closeSettingsDetail() {
