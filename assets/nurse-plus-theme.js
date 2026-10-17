@@ -131,6 +131,65 @@
     html[data-np-theme="light"] body button:hover { filter:brightness(.985); }
     html[data-np-theme="light"] body button:active { transform:scale(.985); }
 
+    /* Light mode: cover every study screen, including timer, subject mode and quiz play */
+    html[data-np-theme="light"] body #screen-subjects [class*="bg-"],
+    html[data-np-theme="light"] body #screen-semester-select [class*="bg-"],
+    html[data-np-theme="light"] body #screen-physiology-mode-select [class*="bg-"],
+    html[data-np-theme="light"] body #screen-anatomy-mode-select [class*="bg-"],
+    html[data-np-theme="light"] body #screen-publichealth-mode-select [class*="bg-"],
+    html[data-np-theme="light"] body #screen-phn-mode-select [class*="bg-"],
+    html[data-np-theme="light"] body #screen-pathology-mode-select [class*="bg-"],
+    html[data-np-theme="light"] body #screen-pathology-round-select [class*="bg-"],
+    html[data-np-theme="light"] body #screen-pharmacology-mode-select [class*="bg-"],
+    html[data-np-theme="light"] body #screen-nursing-method-3-mode-select [class*="bg-"],
+    html[data-np-theme="light"] body #screen-nutrition-mode-select [class*="bg-"],
+    html[data-np-theme="light"] body #screen-nursing-mode-select [class*="bg-"],
+    html[data-np-theme="light"] body #screen-biochemistry-format-select [class*="bg-"],
+    html[data-np-theme="light"] body #screen-time-select > div,
+    html[data-np-theme="light"] body #screen-round-select [class*="bg-"],
+    html[data-np-theme="light"] body #screen-count-select [class*="bg-"],
+    html[data-np-theme="light"] body #screen-quiz-start [class*="bg-"],
+    html[data-np-theme="light"] body #screen-quiz-play [class*="bg-"],
+    html[data-np-theme="light"] body #screen-quiz-result [class*="bg-"] {
+      background-color:#fffdfd !important;
+      background-image:none !important;
+      color:#454057 !important;
+      border-color:#e5deef !important;
+      box-shadow:0 8px 24px rgba(100,82,145,.07) !important;
+    }
+    html[data-np-theme="light"] body #screen-quiz-play .quiz-opt-btn {
+      position:relative !important;
+      z-index:2 !important;
+      pointer-events:auto !important;
+      touch-action:manipulation !important;
+      cursor:pointer !important;
+      color:#49405f !important;
+      background:#f0eaff !important;
+      border:1px solid #dfd3f3 !important;
+      -webkit-tap-highlight-color:rgba(139,112,194,.18);
+    }
+    html[data-np-theme="light"] body #screen-quiz-play .quiz-opt-btn:disabled {
+      cursor:default !important;
+    }
+    html[data-np-theme="light"] body #screen-quiz-play #quiz-question-text,
+    html[data-np-theme="light"] body #screen-quiz-play #quiz-question-number,
+    html[data-np-theme="light"] body #screen-quiz-play #quiz-score-live,
+    html[data-np-theme="light"] body #screen-quiz-play label {
+      color:#454057 !important;
+    }
+    html[data-np-theme="light"] body #screen-time-select input[type="range"] {
+      accent-color:#b79ae8 !important;
+      cursor:pointer !important;
+      touch-action:pan-y !important;
+    }
+    html[data-np-theme="light"] body #screen-quiz-play button,
+    html[data-np-theme="light"] body #screen-time-select button,
+    html[data-np-theme="light"] body #screen-subjects button,
+    html[data-np-theme="light"] body [id$="-mode-select"] button {
+      pointer-events:auto !important;
+      touch-action:manipulation !important;
+    }
+
     /* Light mode: analytics, subject condition, progress and statistics cards */
     html[data-np-theme="light"] body #screen-dashboard [class*="bg-"],
     html[data-np-theme="light"] body #screen-dashboard [class*="from-"],
