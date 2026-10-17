@@ -182,6 +182,41 @@
       @keyframes npConfettiFall {
         to { transform: translate3d(var(--np-drift), 105vh, 0) rotate(var(--np-rotate)); opacity: .15; }
       }
+      @keyframes npPopIn { 0% { opacity:0; transform:scale(.88) translateY(8px); } 70% { transform:scale(1.025) translateY(-1px); } 100% { opacity:1; transform:scale(1) translateY(0); } }
+      @keyframes npSoftShake { 0%,100% { transform:translateX(0); } 25% { transform:translateX(-5px); } 50% { transform:translateX(4px); } 75% { transform:translateX(-2px); } }
+      @keyframes npGlowPulse { 0%,100% { box-shadow:0 0 0 rgba(16,185,129,0); } 50% { box-shadow:0 0 0 4px rgba(16,185,129,.14); } }
+      @keyframes npCheckDraw { from { stroke-dashoffset:24; } to { stroke-dashoffset:0; } }
+      @keyframes npShimmer { from { background-position:150% 0; } to { background-position:-150% 0; } }
+      /* 画面・カード・選択肢の触り心地を整える。レイアウトや採点処理は変更しない。 */
+      #screen-quiz-play, #screen-quiz-result, #screen-dashboard, #screen-subject, #screen-settings,
+      #screen-analytics-addition { transform-origin:top center; }
+      .glass-card button:not(:disabled), .glass-card [role="button"]:not([aria-disabled="true"]) {
+        touch-action:manipulation;
+      }
+      #quiz-options-container > *, #quiz-options-container button, .quiz-option, [data-quiz-option] {
+        transition:transform .18s cubic-bezier(.2,.8,.2,1), border-color .2s ease, background-color .2s ease, box-shadow .2s ease, opacity .2s ease;
+        -webkit-tap-highlight-color:transparent;
+      }
+      #quiz-options-container button:active, .quiz-option:active, [data-quiz-option]:active {
+        transform:scale(.985);
+      }
+      .np-motion-card { transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
+      .np-motion-card:hover { transform:translateY(-2px); }
+      .np-motion-selected { box-shadow:0 0 0 2px rgba(251,191,36,.45), 0 8px 22px rgba(245,158,11,.09) !important; }
+      .np-motion-correct { animation:npPopIn .32s cubic-bezier(.2,.8,.2,1) both, npGlowPulse .75s ease-out; }
+      .np-motion-incorrect { animation:npSoftShake .32s ease-out; }
+      #screen-quiz-result .np-result-highlight { animation:npPopIn .55s cubic-bezier(.2,.8,.2,1) both; }
+      .np-motion-reveal { animation:npPopIn .4s cubic-bezier(.2,.8,.2,1) both; }
+      .np-motion-progress { transition:width .85s cubic-bezier(.22,1,.36,1), background-color .3s ease !important; }
+      .np-motion-modal { animation:npPopIn .24s cubic-bezier(.2,.8,.2,1) both; }
+      .np-motion-drawer { animation:npSlideIn .24s cubic-bezier(.22,1,.36,1) both; }
+      @keyframes npSlideIn { from { opacity:.6; transform:translateX(-14px); } to { opacity:1; transform:translateX(0); } }
+      .np-motion-busy { position:relative; overflow:hidden; }
+      .np-motion-busy::after { content:""; position:absolute; inset:0; background:linear-gradient(100deg,transparent 25%,rgba(255,255,255,.12) 50%,transparent 75%); background-size:200% 100%; animation:npShimmer 1.25s linear infinite; pointer-events:none; }
+      .np-motion-confetti-piece { position:absolute; top:-14px; animation:npConfettiFall var(--np-duration,2.4s) ease-in forwards; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+      }
       @media (prefers-reduced-motion: reduce) {
         .glass-card button:not(:disabled), .glass-card [role="button"]:not([aria-disabled="true"]),
         .evo-progress > span, #evo-mission-progress, .np-analytics-fill {
@@ -203,7 +238,7 @@
         const screen = mutation.target;
         if (!screen || !screen.id || !screen.id.startsWith('screen-')) return;
         const isHidden = screen.classList.contains('hidden');
-        const wasHidden = String(mutation.oldValue || '').split(/\\s+/).includes('hidden');
+        const wasHidden = String(mutation.oldValue || '').split(/\s+/).includes('hidden');
         if (isHidden) {
           if (screen.id === 'screen-quiz-result') delete screen.dataset.npCelebrated;
           return;
@@ -233,7 +268,7 @@
         if (!title || title === previousTitle) return;
         previousTitle = title;
         if (reduceMotion || typeof feedbackBox.animate !== 'function') return;
-        const isCorrect = title.includes('正解');
+        const isCorrect = title.includes('正解') && !title.includes('不正解');
         const frames = isCorrect
           ? [{ opacity: .65, transform: 'scale(.96)' }, { opacity: 1, transform: 'scale(1)' }]
           : [{ opacity: .7, transform: 'translateX(-4px)' }, { opacity: 1, transform: 'translateX(4px)' }, { opacity: 1, transform: 'translateX(0)' }];
@@ -241,6 +276,139 @@
       });
       feedbackObserver.observe(feedbackTitle, { childList: true, characterData: true, subtree: true });
     }
+
+    // 2. ボタン・カード・タブ・モーダル・ドロワーの操作フィードバック。
+    // 委譲イベントなので、後から描画される画面にも自動適用する。
+    document.addEventListener('pointerdown', event => {
+      const target = event.target.closest('button, [role="button"], .glass-card > section, .glass-card .rounded-xl, .glass-card .rounded-2xl');
+      if (!target || target.matches(':disabled,[aria-disabled="true"]') || target.closest('#' + SCREEN_ID)) return;
+      if (target.matches('button,[role="button"]')) target.style.setProperty('--np-pressing', '1');
+    }, {passive:true});
+    document.addEventListener('pointerup', event => {
+      const target = event.target.closest('button, [role="button"]');
+      if (target) target.style.removeProperty('--np-pressing');
+    }, {passive:true});
+    document.addEventListener('pointercancel', event => {
+      const target = event.target.closest('button, [role="button"]');
+      if (target) target.style.removeProperty('--np-pressing');
+    }, {passive:true});
+
+    document.addEventListener('click', event => {
+      const target = event.target.closest('button, [role="button"], [data-quiz-option], .quiz-option');
+      if (target && !target.matches(':disabled,[aria-disabled="true"]') && !target.closest('#' + SCREEN_ID)) {
+        if (!reduceMotion && typeof target.animate === 'function') {
+          target.animate(
+            [{ transform:'scale(1)' }, { transform:'scale(.965)' }, { transform:'scale(1)' }],
+            { duration:190, easing:'ease-out' }
+          );
+        }
+      }
+    }, true);
+
+    // 選択肢の選択状態を視覚化。既存のクリック処理を止めず、クラスだけを追加。
+    document.addEventListener('click', event => {
+      const option = event.target.closest('#quiz-options-container button, #quiz-options-container [role="button"], #quiz-options-container .quiz-option, #quiz-options-container [data-quiz-option]');
+      if (!option) return;
+      const container = option.parentElement;
+      if (container) container.querySelectorAll('.np-motion-selected').forEach(el => el.classList.remove('np-motion-selected'));
+      option.classList.add('np-motion-selected');
+      if (!reduceMotion && typeof option.animate === 'function') {
+        option.animate([{ transform:'scale(.985)' }, { transform:'scale(1.012)' }, { transform:'scale(1)' }], {duration:220,easing:'ease-out'});
+      }
+    }, true);
+
+    // 表示される進捗バーを初期幅から目標幅へアニメーション。
+    function animateProgressBars(root) {
+      (root || document).querySelectorAll('.evo-progress > span, #evo-mission-progress, #fc-dash-progress-bar, .np-analytics-fill, #quiz-timer-bar').forEach(bar => {
+        if (bar.dataset.npMotionReady === '1') return;
+        const width = bar.style.width;
+        if (!width) return;
+        bar.dataset.npMotionReady = '1';
+        bar.classList.add('np-motion-progress');
+        if (!reduceMotion) {
+          bar.style.width = '0%';
+          requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.width = width; }));
+        }
+      });
+    }
+    animateProgressBars();
+    function markMotionCards(root) {
+      (root || document).querySelectorAll('.glass-card section, .glass-card [class*="rounded-xl"], .glass-card [class*="rounded-2xl"]').forEach(card => {
+        if (card.matches('button,[role="button"]') || card.closest('#' + SCREEN_ID)) return;
+        if (card.querySelector('button,[role="button"]') || card.matches('section')) card.classList.add('np-motion-card');
+      });
+    }
+    markMotionCards();
+    const cardObserver = new MutationObserver(records => {
+      records.forEach(record => record.addedNodes.forEach(node => {
+        if (node.nodeType === 1) markMotionCards(node);
+      }));
+    });
+    cardObserver.observe(document.body,{childList:true,subtree:true});
+    const progressObserver = new MutationObserver(records => {
+      records.forEach(record => {
+        if (record.type === 'childList') record.addedNodes.forEach(node => {
+          if (node.nodeType === 1) animateProgressBars(node);
+        });
+        if (record.type === 'attributes' && record.target.matches && record.target.matches('.evo-progress > span, #evo-mission-progress, #fc-dash-progress-bar, .np-analytics-fill, #quiz-timer-bar')) {
+          record.target.classList.add('np-motion-progress');
+        }
+      });
+    });
+    progressObserver.observe(document.body, {childList:true,subtree:true,attributes:true,attributeFilter:['style']});
+
+    // 正誤のフィードバック・解説領域に段階的な表示演出を付与。
+    const explanation = document.getElementById('quiz-feedback-desc');
+    if (explanation) {
+      const explanationObserver = new MutationObserver(() => {
+        if (!reduceMotion && explanation.textContent.trim() && typeof explanation.animate === 'function') {
+          explanation.animate([{opacity:0,transform:'translateY(5px)'},{opacity:1,transform:'translateY(0)'}],{duration:260,easing:'ease-out'});
+        }
+      });
+      explanationObserver.observe(explanation,{childList:true,characterData:true,subtree:true});
+    }
+
+    // 結果画面のスコア・主要カードを順番に見せる。
+    const resultScreen = document.getElementById('screen-quiz-result');
+    if (resultScreen) {
+      const resultObserver = new MutationObserver(() => {
+        if (resultScreen.classList.contains('hidden')) return;
+        const score = document.getElementById('final-score-val');
+        if (score && !score.classList.contains('np-result-highlight')) {
+          score.classList.add('np-result-highlight');
+          if (!reduceMotion && typeof score.animate === 'function') {
+            score.animate([{opacity:0,transform:'translateY(8px) scale(.88)'},{opacity:1,transform:'translateY(0) scale(1)'}],{duration:480,easing:'cubic-bezier(.2,.8,.2,1)'});
+          }
+        }
+        resultScreen.querySelectorAll('.grid > *, .space-y-4 > section').forEach((card,index) => {
+          if (card.dataset.npStaggered === '1') return;
+          card.dataset.npStaggered = '1';
+          if (!reduceMotion && typeof card.animate === 'function') {
+            card.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],{duration:300,delay:Math.min(index*55,330),easing:'ease-out',fill:'both'});
+          }
+        });
+      });
+      resultObserver.observe(resultScreen,{attributes:true,attributeFilter:['class','style']});
+    }
+
+    // モーダルやナビゲーションドロワーの表示・非表示に動きを追加。
+    const modalObserver = new MutationObserver(records => {
+      records.forEach(record => {
+        const el = record.target;
+        if (!el || el.classList.contains('hidden') || reduceMotion || typeof el.animate !== 'function') return;
+        if (el.id && (el.id.startsWith('modal-') || el.id === 'nav-drawer')) {
+          el.animate(
+            el.id === 'nav-drawer'
+              ? [{opacity:.7,transform:'translateX(-12px)'},{opacity:1,transform:'translateX(0)'}]
+              : [{opacity:0,transform:'translateY(8px) scale(.985)'},{opacity:1,transform:'translateY(0) scale(1)'}],
+            {duration:230,easing:'cubic-bezier(.22,1,.36,1)'}
+          );
+        }
+      });
+    });
+    document.querySelectorAll('[id^="modal-"], #nav-drawer').forEach(el => {
+      modalObserver.observe(el,{attributes:true,attributeFilter:['class','style']});
+    });
 
     // 5. 完了画面で紙吹雪。外部ライブラリに依存せず、二重発火も防ぐ。
     function celebrateResult(screen) {
