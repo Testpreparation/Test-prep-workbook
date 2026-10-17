@@ -5193,7 +5193,15 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         fbDesc.textContent = q.exp || "解説はありません。";
       }
       document.getElementById('quiz-score-live').textContent = `正解: ${score}`;
-      document.getElementById('quiz-next-btn').textContent = (currentQIndex + 1 >= activeQuestions.length) ? "結果を見る →" : "次へ進む →";
+      const nextBtn = document.getElementById('quiz-next-btn');
+      nextBtn.textContent = (currentQIndex + 1 >= activeQuestions.length) ? "結果を見る →" : "次へ進む →";
+      // 解答後の「次へ進む／結果を見る」ボタンを必ず再表示する
+      const feedbackBox = document.getElementById('quiz-feedback-box');
+      feedbackBox.classList.remove('hidden');
+      feedbackBox.style.display = 'block';
+      nextBtn.hidden = false;
+      nextBtn.style.display = 'block';
+      nextBtn.disabled = false;
     }
 
     function evaluateKeyboardAnswer(userText, isTimeout) {
@@ -5256,7 +5264,15 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
 
       fbDesc.textContent = q.exp || "解説はありません。";
       document.getElementById('quiz-score-live').textContent = `正解: ${score}`;
-      document.getElementById('quiz-next-btn').textContent = (currentQIndex + 1 >= activeQuestions.length) ? "結果を見る →" : "次へ進む →";
+      const nextBtn = document.getElementById('quiz-next-btn');
+      nextBtn.textContent = (currentQIndex + 1 >= activeQuestions.length) ? "結果を見る →" : "次へ進む →";
+      // 解答後の「次へ進む／結果を見る」ボタンを必ず再表示する
+      const feedbackBox = document.getElementById('quiz-feedback-box');
+      feedbackBox.classList.remove('hidden');
+      feedbackBox.style.display = 'block';
+      nextBtn.hidden = false;
+      nextBtn.style.display = 'block';
+      nextBtn.disabled = false;
     }
 
     function evaluateAnswers(userSelectedArray, isTimeout) {
@@ -5301,7 +5317,15 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
 
       fbDesc.textContent = q.exp || "解説はありません。";
       document.getElementById('quiz-score-live').textContent = `正解: ${score}`;
-      document.getElementById('quiz-next-btn').textContent = (currentQIndex + 1 >= activeQuestions.length) ? "結果を見る →" : "次へ進む →";
+      const nextBtn = document.getElementById('quiz-next-btn');
+      nextBtn.textContent = (currentQIndex + 1 >= activeQuestions.length) ? "結果を見る →" : "次へ進む →";
+      // 解答後の「次へ進む／結果を見る」ボタンを必ず再表示する
+      const feedbackBox = document.getElementById('quiz-feedback-box');
+      feedbackBox.classList.remove('hidden');
+      feedbackBox.style.display = 'block';
+      nextBtn.hidden = false;
+      nextBtn.style.display = 'block';
+      nextBtn.disabled = false;
     }
 
     function nextQuestion() {
