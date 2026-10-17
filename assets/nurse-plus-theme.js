@@ -328,6 +328,60 @@
     html[data-np-theme="light"] body #screen-dashboard [class*="bg-teal-"] { background-color:#e3f6ed !important; }
     html[data-np-theme="light"] body #screen-dashboard [class*="bg-pink-"],
     html[data-np-theme="light"] body #screen-dashboard [class*="bg-rose-"] { background-color:#fff0f5 !important; }
+
+    /* Count and time-limit selection screens: explicitly override dark inline/card styles in light mode */
+    html[data-np-theme="light"] body #screen-count-select,
+    html[data-np-theme="light"] body #screen-time-select {
+      background:#f8f7fb !important;
+      color:#454057 !important;
+    }
+    html[data-np-theme="light"] body #screen-count-select > div,
+    html[data-np-theme="light"] body #screen-time-select > div,
+    html[data-np-theme="light"] body #screen-count-select .glass-card,
+    html[data-np-theme="light"] body #screen-time-select .glass-card,
+    html[data-np-theme="light"] body #screen-count-select [class*="rounded-"],
+    html[data-np-theme="light"] body #screen-time-select [class*="rounded-"] {
+      background-color:#fffdfd !important;
+      background-image:none !important;
+      color:#454057 !important;
+      border-color:#e5deef !important;
+      box-shadow:0 8px 24px rgba(100,82,145,.07) !important;
+    }
+    html[data-np-theme="light"] body #screen-count-select [style*="background"],
+    html[data-np-theme="light"] body #screen-time-select [style*="background"] {
+      background-color:#fffdfd !important;
+      background-image:none !important;
+      color:#454057 !important;
+      border-color:#e5deef !important;
+    }
+    html[data-np-theme="light"] body #screen-count-select [class*="text-"],
+    html[data-np-theme="light"] body #screen-time-select [class*="text-"],
+    html[data-np-theme="light"] body #screen-count-select label,
+    html[data-np-theme="light"] body #screen-time-select label,
+    html[data-np-theme="light"] body #count-subject-title,
+    html[data-np-theme="light"] body #time-subject-title,
+    html[data-np-theme="light"] body #slider-count-display,
+    html[data-np-theme="light"] body #time-slider-display {
+      color:#514b63 !important;
+    }
+    html[data-np-theme="light"] body #screen-count-select button,
+    html[data-np-theme="light"] body #screen-time-select button {
+      background:#f0eaff !important;
+      background-image:none !important;
+      color:#51446f !important;
+      border-color:#dfd3f3 !important;
+      pointer-events:auto !important;
+      touch-action:manipulation !important;
+    }
+    html[data-np-theme="light"] body #screen-count-select input[type="range"],
+    html[data-np-theme="light"] body #screen-time-select input[type="range"] {
+      accent-color:#b79ae8 !important;
+    }
+    html[data-np-theme="light"] body #screen-count-select input[type="range"]::-webkit-slider-thumb,
+    html[data-np-theme="light"] body #screen-time-select input[type="range"]::-webkit-slider-thumb {
+      background:#b79ae8 !important;
+    }
+
     @media (max-width:640px) { #np-theme-toggle { top:12px; right:12px; padding:8px 10px; } }
     @media (prefers-reduced-motion: reduce) { body, body * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
   `;
