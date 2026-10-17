@@ -314,6 +314,7 @@
     </div>
     <div class="space-y-5 pt-4">
       <section aria-labelledby="settings-account-title"><h3 id="settings-account-title" class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-2">アカウント</h3><div class="rounded-xl border border-slate-700 bg-slate-800/60 p-4"><div class="flex items-center gap-3"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300 font-bold text-xs">LINE</span><div class="min-w-0 flex-1"><div class="font-semibold text-sm">LINEログイン</div><p class="text-xs text-slate-400 mt-1">LINEアカウントでログインして、表示名を連携します。</p></div></div><a href="https://nurse-line-system.onrender.com/auth/line" class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-300 hover:bg-emerald-500/20 transition"><span>LINEでログイン</span><span aria-hidden="true">↗</span></a></div></section>
+      <section aria-labelledby="settings-admin-title"><h3 id="settings-admin-title" class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-2">管理者</h3><div class="rounded-xl border border-amber-500/25 bg-amber-500/5 p-4"><div class="font-semibold text-sm">管理者メニュー</div><p class="text-xs text-slate-400 mt-1">管理者パスワードを入力して、管理者機能を開きます。</p><button type="button" onclick="openAdminAuthFromSettings()" class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-300 hover:bg-amber-500/20 transition"><span>管理者メニューを開く</span><span aria-hidden="true">→</span></button></div></section>
       <section aria-labelledby="settings-general-title"><h3 id="settings-general-title" class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-2">一般</h3><div class="rounded-xl border border-slate-700 bg-slate-800/60 p-4"><div class="font-semibold text-sm">テーマ・外観</div><p class="text-xs text-slate-400 mt-1">ホワイトモード／ダークモードは画面右上のテーマボタンから切り替えできます。</p></div></section>
       <section aria-labelledby="settings-privacy-title"><h3 id="settings-privacy-title" class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-2">プライバシー</h3><div class="rounded-xl border border-slate-700 bg-slate-800/60 p-4"><div class="font-semibold text-sm">学習履歴について</div><p class="text-xs text-slate-400 mt-1">学習記録の保存方法は、現在のアプリおよび連携サービスの設定に従います。</p></div></section>
     </div>
@@ -339,10 +340,6 @@
         <button onclick="closeNavDrawer(); showMultiplayerLobby();" class="w-full text-left px-4 py-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs transition flex items-center gap-3 group">
           <span class="px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 font-mono text-amber-400 text-[10px] font-bold">2P</span>
           <span class="font-medium">早押し対戦（2人マルチ）</span>
-        </button>
-        <button onclick="closeNavDrawer(); openAuthModal();" class="w-full text-left px-4 py-3 rounded-xl bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/50 text-slate-200 text-xs transition flex items-center gap-3 group">
-          <span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 font-mono text-amber-400 text-[10px] font-bold">ADM</span>
-          <span class="font-medium">管理者メニュー</span>
         </button>
         <button type="button" onclick="closeNavDrawer(); openUserSettings();" class="w-full text-left px-4 py-3 rounded-xl bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/50 text-slate-200 text-xs transition flex items-center gap-3 group"><span class="flex h-6 w-6 items-center justify-center rounded-lg bg-violet-500/15 text-violet-300" aria-hidden="true">⚙</span><span class="font-medium">設定（ログイン・表示設定）</span></button>
       </div>   </div>
@@ -1364,11 +1361,11 @@
         <div class="en-title text-[10px] text-amber-500/80 tracking-widest uppercase font-semibold">AUTHENTICATION</div>
         <h3 class="serif-title text-lg text-slate-100">管理者認証</h3>
       </div>
-      <input type="password" id="admin-password-input" placeholder="パスワードを入力" onkeydown="if(event.key==='Enter') submitPassword()" class="w-full px-3.5 py-2.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-100 text-sm text-center tracking-widest focus:outline-none focus:border-amber-600">
+      <input type="password" id="admin-password-input" placeholder="パスワードを入力" autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();submitPassword()}" class="w-full px-3.5 py-2.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-100 text-sm text-center tracking-widest focus:outline-none focus:border-amber-600">
       <div id="auth-error-msg" class="text-center text-[11px] text-rose-400 font-light hidden">パスワードが正しくありません</div>
       <div class="flex gap-2.5">
         <button onclick="closeAuthModal()" class="w-1/2 py-2 bg-slate-800 text-slate-300 rounded-lg text-xs hover:bg-slate-700 transition">キャンセル</button>
-        <button onclick="submitPassword()" class="w-1/2 py-2 bg-amber-700 text-amber-50 rounded-lg text-xs hover:bg-amber-600 transition font-semibold">認証する</button>
+        <button id="admin-auth-submit" type="button" onclick="submitPassword()" class="w-1/2 py-2 bg-amber-700 text-amber-50 rounded-lg text-xs hover:bg-amber-600 transition font-semibold">認証する</button>
       </div>
     </div>
   </div>
@@ -3009,48 +3006,78 @@
     // =========================================================
     //  管理者モーダル制御機能
     // =========================================================
+    function openAdminAuthFromSettings() {
+      closeUserSettings();
+      openAuthModal();
+    }
+
     function openAuthModal() {
-      document.getElementById('modal-auth').classList.remove('hidden');
-      document.getElementById('admin-password-input').value = '';
-      document.getElementById('auth-error-msg').classList.add('hidden');
+      const modal = document.getElementById('modal-auth');
+      const input = document.getElementById('admin-password-input');
+      const errorMessage = document.getElementById('auth-error-msg');
+      if (!modal || !input || !errorMessage) return;
+      modal.classList.remove('hidden');
+      input.value = '';
+      errorMessage.textContent = '';
+      errorMessage.classList.add('hidden');
+      window.setTimeout(() => input.focus(), 50);
     }
 
     function closeAuthModal() {
-      document.getElementById('modal-auth').classList.add('hidden');
+      const modal = document.getElementById('modal-auth');
+      if (modal) modal.classList.add('hidden');
     }
 
     async function submitPassword() {
-      const pwd = document.getElementById('admin-password-input').value;
+      const input = document.getElementById('admin-password-input');
       const errorMessage = document.getElementById('auth-error-msg');
-
+      const submitButton = document.getElementById('admin-auth-submit');
+      if (!input || !errorMessage || !submitButton || submitButton.disabled) return;
+      const pwd = input.value;
+      if (!pwd) {
+        errorMessage.textContent = 'パスワードを入力してください。';
+        errorMessage.classList.remove('hidden');
+        input.focus();
+        return;
+      }
+      submitButton.disabled = true;
+      submitButton.textContent = '認証中…';
+      errorMessage.classList.add('hidden');
       try {
-        const response = await fetch(`${NURSE_LINE_API_BASE_URL.replace(/\/$/, '')}/api/admin/login`, {
+        const apiBase = NURSE_LINE_API_BASE_URL.replace(/\/$/, '');
+        const response = await fetch(apiBase + '/api/admin/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ password: pwd })
         });
         const result = await response.json().catch(() => ({}));
-
-        if (!response.ok || !result.token) {
-          errorMessage.textContent = result.message || 'パスワードが正しくありません';
+        if (!response.ok || typeof result.token !== 'string' || !result.token) {
+          errorMessage.textContent = result.message || ('認証に失敗しました（HTTP ' + response.status + '）。');
           errorMessage.classList.remove('hidden');
           return;
         }
-
         sessionStorage.setItem('nurse_line_admin_session', result.token);
-        errorMessage.classList.add('hidden');
         closeAuthModal();
         openAdminModal();
       } catch (err) {
         console.error('管理者認証に失敗しました:', err);
-        errorMessage.textContent = 'サーバーに接続できません。時間をおいて再度お試しください。';
+        errorMessage.textContent = 'サーバーに接続できません。接続先またはサーバーの状態を確認してください。';
         errorMessage.classList.remove('hidden');
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = '認証する';
       }
     }
 
     function openAdminModal() {
-      document.getElementById('modal-admin').classList.remove('hidden');
-      renderAdminDragList();
+      const modal = document.getElementById('modal-admin');
+      if (!modal) {
+        console.error('管理者メニューの表示先 (#modal-admin) が見つかりません。');
+        return;
+      }
+      modal.classList.remove('hidden');
+      try { renderAdminDragList(); }
+      catch (err) { console.error('管理者メニューの初期表示に失敗しました:', err); }
       loadLineSendMode();
     }
 
