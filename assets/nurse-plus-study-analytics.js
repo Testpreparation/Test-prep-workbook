@@ -221,6 +221,9 @@
       const original=window.renderDashboard;
       const wrapped=function(){
         const result=original.apply(this,arguments);
+        const analysis=$('np-data-analysis-screen');
+        const home=$('screen-dashboard');
+        if(analysis && home && !home.classList.contains('hidden')) analysis.classList.add('hidden');
         renderAnalytics();
         return result;
       };
