@@ -4606,7 +4606,7 @@
       status.className = 'text-xs text-slate-500';
       status.textContent = '問い合わせを送信しています。';
       try {
-        const response = await fetch(NURSE_LINE_API_BASE_URL.replace(/\\/$/, '') + '/api/support/messages', {
+        const response = await fetch(NURSE_LINE_API_BASE_URL.replace(/\/$/, '') + '/api/support/messages', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
