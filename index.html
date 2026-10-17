@@ -298,58 +298,12 @@
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative selection:bg-amber-500/30 selection:text-amber-200">
 
-  <!-- 左上：メニュー＋設定 -->
-  <div class="fixed top-4 left-4 sm:top-6 sm:left-6 z-40 flex items-center gap-2">
+  <!-- 左上 ハンバーガーボタン -->
+  <div class="fixed top-4 left-4 sm:top-6 sm:left-6 z-40">
     <button onclick="toggleNavDrawer()" class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white transition backdrop-blur-md shadow-lg" aria-label="メニューを開く">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
     </button>
-
   </div>
-
-  <!-- 設定モーダル：ログイン・アカウント関連 -->
-  <div id="user-settings-overlay" onclick="closeUserSettings()" class="hidden fixed inset-0 bg-slate-950/65 backdrop-blur-sm z-[70]"></div>
-  <section id="user-settings-modal" role="dialog" aria-modal="true" aria-labelledby="user-settings-title" class="hidden fixed z-[71] inset-x-4 top-1/2 -translate-y-1/2 max-w-md mx-auto rounded-2xl border border-slate-700 bg-slate-900/95 backdrop-blur-xl shadow-2xl p-5 text-slate-200 max-h-[85vh] overflow-y-auto">
-    <div class="flex items-center justify-between gap-3 pb-4 border-b border-slate-700">
-      <div>
-        <div class="en-title text-[10px] tracking-[.2em] text-amber-400">SETTINGS</div>
-        <h2 id="user-settings-title" class="serif-title text-xl mt-1">設定</h2>
-        <p class="text-xs text-slate-400 mt-1">アカウントやアプリの表示を管理します。</p>
-      </div>
-      <button type="button" onclick="closeUserSettings()" class="rounded-lg p-2 text-slate-400 hover:text-white hover:bg-slate-800" aria-label="設定を閉じる">✕</button>
-    </div>
-    <div class="space-y-5 pt-4">
-      <section aria-labelledby="settings-account-title">
-        <h3 id="settings-account-title" class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-2">アカウント</h3>
-        <div class="rounded-xl border border-slate-700 bg-slate-800/60 p-4">
-          <div class="flex items-center gap-3">
-            <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300 font-bold text-xs">LINE</span>
-            <div class="min-w-0 flex-1">
-              <div class="font-semibold text-sm">LINEログイン</div>
-              <p class="text-xs text-slate-400 mt-1">LINEアカウントでログインして、表示名を連携します。</p>
-            </div>
-          </div>
-          <a href="https://nurse-line-system.onrender.com/auth/line" class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-300 hover:bg-emerald-500/20 transition">
-            <span>LINEでログイン</span><span aria-hidden="true">↗</span>
-          </a>
-        </div>
-      </section>
-      <section aria-labelledby="settings-general-title">
-        <h3 id="settings-general-title" class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-2">一般</h3>
-        <div class="rounded-xl border border-slate-700 bg-slate-800/60 p-4">
-          <div class="font-semibold text-sm">テーマ・外観</div>
-          <p class="text-xs text-slate-400 mt-1">ホワイトモード／ダークモードは画面右上のテーマボタンから切り替えできます。</p>
-        </div>
-      </section>
-      <section aria-labelledby="settings-privacy-title">
-        <h3 id="settings-privacy-title" class="text-xs font-semibold tracking-wider text-slate-400 uppercase mb-2">プライバシー</h3>
-        <div class="rounded-xl border border-slate-700 bg-slate-800/60 p-4">
-          <div class="font-semibold text-sm">学習履歴について</div>
-          <p class="text-xs text-slate-400 mt-1">学習記録の保存方法は、現在のアプリおよび連携サービスの設定に従います。</p>
-        </div>
-      </section>
-    </div>
-    <button type="button" onclick="closeUserSettings()" class="mt-5 w-full rounded-xl border border-slate-700 bg-slate-800/70 py-3 text-sm hover:bg-slate-700 transition">閉じる</button>
-  </section>
 
   <!-- スライドメニュー -->
   <div id="nav-overlay" onclick="closeNavDrawer()" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 transition-opacity"></div>
@@ -375,12 +329,10 @@
           <span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 font-mono text-amber-400 text-[10px] font-bold">ADM</span>
           <span class="font-medium">管理者メニュー</span>
         </button>
-        <button type="button" onclick="closeNavDrawer(); openUserSettings();" class="w-full text-left px-4 py-3 rounded-xl bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/50 text-slate-200 text-xs transition flex items-center gap-3 group">
-          <span class="flex h-6 w-6 items-center justify-center rounded-lg bg-violet-500/15 text-violet-300" aria-hidden="true">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m19.4 15 .1.1a1.8 1.8 0 0 1-2.5 2.5l-.1-.1a1.8 1.8 0 0 0-3 .9v.2a1.8 1.8 0 0 1-3.6 0v-.2a1.8 1.8 0 0 0-3-.9l-.1.1a1.8 1.8 0 0 1-2.5-2.5l.1-.1a1.8 1.8 0 0 0-.9-3h-.2a1.8 1.8 0 0 1 0-3.6h.2a1.8 1.8 0 0 0 .9-3l-.1-.1a1.8 1.8 0 0 1 2.5-2.5l.1.1a1.8 1.8 0 0 0 3-.9v-.2a1.8 1.8 0 0 1 3.6 0v.2a1.8 1.8 0 0 0 3 .9l-.1-.1a1.8 1.8 0 0 1 2.5 2.5l-.1.1a1.8 1.8 0 0 0 .9 3h.2a1.8 1.8 0 0 1 0 3.6h-.2a1.8 1.8 0 0 0-.9 3Z"/></svg>
-          </span>
-          <span class="font-medium">設定（ログイン・表示設定）</span>
-        </button>
+        <a href="https://nurse-line-system.onrender.com/auth/line" class="w-full text-left px-4 py-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs transition flex items-center gap-3 group">
+          <span class="px-2 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/40 font-mono text-emerald-300 text-[10px] font-bold">LINE</span>
+          <span class="font-medium">LINEでログインして名前を連携</span>
+        </a>
       </div>
     </div>
     <div class="text-[11px] text-slate-500 font-light text-center border-t border-slate-800/80 pt-4">
@@ -1162,12 +1114,9 @@
           </div>
         </div>
 
-        <!-- 1問ごとの制限時間：残り秒数とタイマーバー -->
-        <div class="flex items-center gap-3" role="timer" aria-live="off" aria-label="問題の残り時間">
-          <span id="quiz-timer-text" class="shrink-0 min-w-[3.5rem] text-right text-xs font-bold font-mono text-emerald-400">30秒</span>
-          <div class="flex-1 bg-slate-800/80 h-2 rounded-full overflow-hidden border border-slate-700/50">
-            <div id="quiz-timer-bar" class="h-full bg-emerald-500 w-full transition-all duration-100 ease-linear"></div>
-          </div>
+        <!-- 30秒制限時間タイマーバー -->
+        <div class="w-full bg-slate-800/80 h-2 rounded-full overflow-hidden border border-slate-700/50">
+          <div id="quiz-timer-bar" class="h-full bg-amber-500 w-full transition-all duration-100 ease-linear"></div>
         </div>
 
         <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
@@ -1196,21 +1145,21 @@
           <p class="text-xs text-amber-400 font-medium">正しい用語・文字を入力してください。</p>
           <div class="flex gap-2">
             <input type="text" id="quiz-keyboard-input" placeholder="例: 用語または文字を入力" onkeydown="if(event.key==='Enter') submitKeyboardAnswer()" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-xs focus:outline-none focus:border-amber-500">
-            <button type="button" onclick="submitKeyboardAnswer()" class="px-5 py-2.5 bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold rounded-xl text-xs transition shadow-lg shrink-0">
+            <button onclick="submitKeyboardAnswer()" class="px-5 py-2.5 bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold rounded-xl text-xs transition shadow-lg shrink-0">
               解答
             </button>
           </div>
         </div>
 
         <!-- 複数選択用 回答確定ボタン -->
-        <button type="button" id="quiz-submit-multi-btn" onclick="submitMultipleAnswers()" class="hidden w-full py-3 bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold rounded-xl text-xs transition shadow-lg tracking-widest">
+        <button id="quiz-submit-multi-btn" onclick="submitMultipleAnswers()" class="hidden w-full py-3 bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold rounded-xl text-xs transition shadow-lg tracking-widest">
           選択した内容で回答する
         </button>
 
         <div id="quiz-feedback-box" class="hidden p-4 rounded-xl border text-xs leading-relaxed space-y-2">
           <div id="quiz-feedback-title" class="font-bold text-sm"></div>
           <div id="quiz-feedback-desc" class="text-slate-300"></div>
-          <button type="button" id="quiz-next-btn" onclick="nextQuestion()" class="w-full mt-2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition">次へ進む →</button>
+          <button id="quiz-next-btn" onclick="nextQuestion()" class="w-full mt-2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition">次へ進む →</button>
         </div>
       </div>
 
@@ -1846,7 +1795,7 @@
         const visitorId = escapeVisitorHistoryText(v.visitorId || '');
         return `<div class="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-slate-950 border border-slate-800">
           <div class="min-w-0"><div class="text-[11px] text-slate-200 truncate">${lineName || deviceName}</div>${lineName ? `<div class="text-[9px] text-slate-500 truncate">${deviceName}</div>` : ''}<div class="text-[9px] text-slate-600 font-mono truncate">${visitorId}</div></div>
-          <div class="text-[9px] text-slate-500 whitespace-nowrap text-right">${time}<br>利用 ${Math.max(1, Number(v.visitCount || 1))}回</div>
+          <div class="text-[9px] text-slate-500 whitespace-nowrap">${time}</div>
         </div>`;
       }).join('');
     }
@@ -2604,10 +2553,8 @@
     function switchSubjectPage(pageIdx) {
       currentSubjectPageIndex = pageIdx;
       const track = document.getElementById('subjects-slider-track');
-      const dots = document.getElementById('subject-page-dots');
       const dot1 = document.getElementById('dot-page-1');
       const dot2 = document.getElementById('dot-page-2');
-      if (dots) dots.classList.remove('hidden');
 
       if (track) {
         track.style.transform = `translateX(-${pageIdx * 50}%)`;
@@ -3978,23 +3925,7 @@
       });
     }
 
-    function openUserSettings() {
-    const overlay = document.getElementById('user-settings-overlay');
-    const modal = document.getElementById('user-settings-modal');
-    if (!overlay || !modal) return;
-    overlay.classList.remove('hidden');
-    modal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeUserSettings() {
-    const overlay = document.getElementById('user-settings-overlay');
-    const modal = document.getElementById('user-settings-modal');
-    if (overlay) overlay.classList.add('hidden');
-    if (modal) modal.classList.add('hidden');
-    document.body.style.overflow = '';
-  }
-
-  function toggleNavDrawer() {
+    function toggleNavDrawer() {
       const drawer = document.getElementById('nav-drawer');
       const overlay = document.getElementById('nav-overlay');
       const isOpen = !drawer.classList.contains('-translate-x-full');
@@ -4163,8 +4094,6 @@
       document.getElementById('screen-subjects').classList.remove('hidden');
       switchSubjectPage(0);
       renderSubjectList();
-      // ホームなどから戻ったときも暗記カードの2ページ目を再び開ける状態に戻す。
-      backToFlashcardStep(1);
     }
 
     function renderSubjectList() {
@@ -4642,10 +4571,6 @@
       if (isCorrect) stats[key].correct++;
       else stats[key].wrong++;
       localStorage.setItem(getWeakQuestionStatsKey(), JSON.stringify(stats));
-      // 問題文そのものや利用者情報は送らず、匿名の問題キーと正誤だけを集計する。
-      if (window.NursePlusCommunityStats && typeof window.NursePlusCommunityStats.recordResult === 'function') {
-        window.NursePlusCommunityStats.recordResult(q, isCorrect, currentSubject?.id, conditionMode || 'all');
-      }
     }
 
     function isWeakQuestion(q, stats) {
@@ -4968,7 +4893,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
                 return `<label for="fill-answer-${num}" class="flex items-center gap-2 text-sm text-slate-200"><span class="shrink-0 font-semibold text-amber-300">${num}</span><input type="text" id="fill-answer-${num}" data-fill-number="${num}" class="flex-1 px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-100 text-sm focus:outline-none focus:border-amber-500" aria-label="${num}の解答" autocomplete="off" onkeydown="if(event.key==='Enter') submitKeyboardAnswer()"></label>`;
               }).join('')}
             </div>
-            <button type="button" onclick="submitKeyboardAnswer()" class="w-full px-5 py-3 bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold rounded-xl text-sm transition shadow-lg mt-4">解答する</button>
+            <button onclick="submitKeyboardAnswer()" class="w-full px-5 py-3 bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold rounded-xl text-sm transition shadow-lg mt-4">解答する</button>
           `;
           const firstFillInput = kbContainer.querySelector('[id^="fill-answer-"]');
           if (firstFillInput) firstFillInput.focus();
@@ -4978,7 +4903,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
             <p class="text-xs text-amber-400 font-medium">正しい用語・文字を入力してください。</p>
             <div class="flex gap-2">
               <input type="text" id="quiz-keyboard-input" placeholder="例: 用語または文字を入力" onkeydown="if(event.key==='Enter') submitKeyboardAnswer()" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-xs focus:outline-none focus:border-amber-500">
-              <button type="button" onclick="submitKeyboardAnswer()" class="px-5 py-2.5 bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold rounded-xl text-xs transition shadow-lg shrink-0">解答</button>
+              <button onclick="submitKeyboardAnswer()" class="px-5 py-2.5 bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold rounded-xl text-xs transition shadow-lg shrink-0">解答</button>
             </div>
           `;
           const kbInput = document.getElementById('quiz-keyboard-input');
@@ -4992,7 +4917,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         if (q.isMultiple) {
           submitBtn.classList.remove('hidden');
           container.innerHTML = q.options.map((opt, idx) => `
-            <button type="button" id="opt-btn-${idx}" onclick="toggleOptionSelect(${idx})" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center gap-3">
+            <button id="opt-btn-${idx}" onclick="toggleOptionSelect(${idx})" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center gap-3">
               <span id="opt-check-${idx}" class="w-4 h-4 rounded border border-slate-600 bg-slate-950 flex items-center justify-center font-bold text-[10px] text-amber-400 shrink-0"></span>
               <span>${opt}</span>
             </button>
@@ -5000,7 +4925,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         } else {
           submitBtn.classList.add('hidden');
           container.innerHTML = q.options.map((opt, idx) => `
-            <button type="button" onclick="handleSingleAnswer(${idx})" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center justify-between">
+            <button onclick="handleSingleAnswer(${idx})" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center justify-between">
               <span>${opt}</span>
               <span class="opt-mark hidden font-bold"></span>
             </button>
@@ -5031,29 +4956,21 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
 
     function startQuizTimer() {
       stopQuizTimer();
-      const configuredLimit = Number.parseInt(QUIZ_LIMIT_TIME, 10);
-      QUIZ_LIMIT_TIME = Number.isFinite(configuredLimit) && configuredLimit > 0 ? configuredLimit : 30;
       timeLeft = QUIZ_LIMIT_TIME;
       updateTimerBarUI();
 
-      // Intervalの遅延・一時停止によるカウントずれを避け、開始時刻から残り時間を計算する。
-      const deadline = Date.now() + QUIZ_LIMIT_TIME * 1000;
-      let timeoutHandled = false;
-      const tick = () => {
-        if (isAnswered) {
-          stopQuizTimer();
-          return;
-        }
-        timeLeft = Math.max(0, (deadline - Date.now()) / 1000);
-        updateTimerBarUI();
-        if (timeLeft <= 0 && !timeoutHandled) {
-          timeoutHandled = true;
+      const intervalMs = 100;
+      quizTimer = setInterval(() => {
+        timeLeft -= intervalMs / 1000;
+        if (timeLeft <= 0) {
+          timeLeft = 0;
+          updateTimerBarUI();
           stopQuizTimer();
           handleTimeout();
+        } else {
+          updateTimerBarUI();
         }
-      };
-      tick();
-      quizTimer = setInterval(tick, 100);
+      }, intervalMs);
     }
 
     function stopQuizTimer() {
@@ -5065,21 +4982,11 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
 
     function updateTimerBarUI() {
       const bar = document.getElementById('quiz-timer-bar');
-      const timerText = document.getElementById('quiz-timer-text');
-      const limit = Number(QUIZ_LIMIT_TIME) > 0 ? Number(QUIZ_LIMIT_TIME) : 30;
-      const percentage = Math.max(0, Math.min(100, (timeLeft / limit) * 100));
-
-      if (timerText) {
-        timerText.textContent = `${Math.ceil(Math.max(0, timeLeft))}秒`;
-        timerText.className = percentage <= 16.6
-          ? "shrink-0 min-w-[3.5rem] text-right text-xs font-bold font-mono text-rose-400"
-          : percentage <= 33.3
-            ? "shrink-0 min-w-[3.5rem] text-right text-xs font-bold font-mono text-amber-400"
-            : "shrink-0 min-w-[3.5rem] text-right text-xs font-bold font-mono text-emerald-400";
-      }
       if (!bar) return;
-
+     
+      const percentage = Math.max(0, (timeLeft / QUIZ_LIMIT_TIME) * 100);
       bar.style.width = `${percentage}%`;
+
       if (percentage <= 16.6) {
         bar.className = "h-full bg-rose-500 transition-all duration-100 ease-linear";
       } else if (percentage <= 33.3) {
@@ -5269,7 +5176,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
     function evaluateAnswers(userSelectedArray, isTimeout) {
       isAnswered = true;
       const q = activeQuestions[currentQIndex];
-      const buttons = document.querySelectorAll('#quiz-options-container .quiz-opt-btn');
+      const buttons = document.querySelectorAll('.quiz-opt-btn');
       const submitBtn = document.getElementById('quiz-submit-multi-btn');
       const fbBox = document.getElementById('quiz-feedback-box');
       const fbTitle = document.getElementById('quiz-feedback-title');
@@ -5728,47 +5635,18 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
     (() => {
       try {
         const params = new URLSearchParams(window.location.search);
-        const hashParams = new URLSearchParams(window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '');
-        const authKeys = ['line_name', 'line_user_id', 'line_session'];
-        const hashHasAuth = authKeys.some(key => hashParams.has(key));
-        const lineName = params.get('line_name') || hashParams.get('line_name');
-        const lineUserId = params.get('line_user_id') || hashParams.get('line_user_id');
-        const lineSession = params.get('line_session') || hashParams.get('line_session');
+        const lineName = params.get('line_name');
 
-        if (lineName) localStorage.setItem('nurse_line_user_name', lineName);
-        if (lineUserId) localStorage.setItem('nurse_line_user_id', lineUserId);
-        if (lineSession) localStorage.setItem('nurse_line_user_session', lineSession);
-        if (lineName || lineUserId || lineSession) {
-          authKeys.forEach(key => { params.delete(key); hashParams.delete(key); });
+        if (lineName) {
+          localStorage.setItem('nurse_line_user_name', lineName);
+          params.delete('line_name');
           const query = params.toString();
-          const cleanedHashParams = hashParams.toString();
-          const cleanedHash = hashHasAuth
-            ? (cleanedHashParams ? '#' + cleanedHashParams : '')
-            : window.location.hash;
-          const cleanUrl = window.location.pathname + (query ? '?' + query : '') + cleanedHash;
+          const cleanUrl = window.location.pathname + (query ? '?' + query : '') + window.location.hash;
           window.history.replaceState({}, document.title, cleanUrl);
-          console.info('LINEログイン情報をこの端末に保存しました。');
+          console.info('LINE表示名をこの端末に保存しました。');
         }
 
         const savedName = localStorage.getItem('nurse_line_user_name');
-        const savedSession = localStorage.getItem('nurse_line_user_session');
-        if (savedSession) window.NURSE_LINE_SESSION = savedSession;
-
-        // 認証済みユーザーのアクセス日時・LINE表示名・アクセス回数をサーバーへ記録
-        if (savedSession) {
-          fetch('https://nurse-line-system.onrender.com/api/user/visit', {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${savedSession}` }
-          }).then(async response => {
-            if (response.status === 401) {
-              localStorage.removeItem('nurse_line_user_session');
-              window.NURSE_LINE_SESSION = null;
-              return;
-            }
-            if (!response.ok) throw new Error(`アクセス履歴の保存に失敗しました (${response.status})`);
-            return response.json();
-          }).catch(error => console.warn('LINEアクセス履歴を保存できませんでした。', error));
-        }
         if (savedName) {
           window.NURSE_LINE_USER_NAME = savedName;
           console.info('保存済みLINE表示名:', savedName);
@@ -5813,7 +5691,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         // 初回アクセス時、LINE未ログインならログイン案内を表示する。
         // ログイン済みなら再表示しない。お知らせ機能には触れない。
         document.addEventListener('DOMContentLoaded', () => {
-          if (localStorage.getItem('nurse_line_user_session')) return;
+          if (localStorage.getItem('nurse_line_user_name')) return;
           if (document.getElementById('nurse-line-first-login-modal')) return;
 
           const modal = document.createElement('div');
