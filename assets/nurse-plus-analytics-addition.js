@@ -403,6 +403,16 @@
       #${SCREEN_ID} .np-analytics-infographic-section:nth-of-type(4) { animation-delay:.18s; }
       #${SCREEN_ID} .np-analytics-bar { transform-origin:bottom center; will-change:transform; }
       #${SCREEN_ID} .np-analytics-fill { will-change:width; }
+      #${SCREEN_ID} .np-analytics-line-path {
+        fill:none;stroke:#9b82d4;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;
+        stroke-dasharray:var(--np-line-length, 600);stroke-dashoffset:var(--np-line-length, 600);
+        animation:npAnalyticsLineDraw 1.15s cubic-bezier(.22,1,.36,1) forwards;
+      }
+      #${SCREEN_ID} .np-analytics-line-point { fill:#fff;stroke:#9b82d4;stroke-width:2.5;transform-box:fill-box;transform-origin:center;animation:npAnalyticsPointPop .42s cubic-bezier(.22,1,.36,1) both; }
+      #${SCREEN_ID} .np-analytics-line-grid { stroke:#e9e1f4;stroke-width:1;stroke-dasharray:3 4; }
+      #${SCREEN_ID} .np-analytics-line-label { fill:#7a6a91;font-size:9px; }
+      @keyframes npAnalyticsLineDraw { to { stroke-dashoffset:0; } }
+      @keyframes npAnalyticsPointPop { from { opacity:0;transform:scale(.25); } to { opacity:1;transform:scale(1); } }
       @keyframes npInfographicReveal {
         from { opacity:0; transform:translateY(12px); }
         to { opacity:1; transform:translateY(0); }
@@ -411,6 +421,8 @@
         #${SCREEN_ID} .np-analytics-infographic-section { animation:none !important; }
         #${SCREEN_ID} .np-analytics-bar { transition:none !important; transform:none !important; }
         #${SCREEN_ID} .np-analytics-fill { transition:none !important; }
+        #${SCREEN_ID} .np-analytics-line-path { animation:none !important;stroke-dashoffset:0 !important; }
+        #${SCREEN_ID} .np-analytics-line-point { animation:none !important; }
       }
       #${SCREEN_ID} .np-analytics-metric { color:#4e3e68 !important; }
       #${SCREEN_ID} .np-analytics-track { background:#e7def4 !important; }
@@ -489,6 +501,34 @@
     });
   }
 
+  function renderAccuracyLineChart(days) {
+    const width = 300, left = 22, right = 286, top = 12, bottom = 88;
+    const xAt = index => left + index * (right - left) / Math.max(1, days.length - 1);
+    const yAt = value => bottom - Math.max(0, Math.min(100, value)) / 100 * (bottom - top);
+    const parts = [];
+    let current = [];
+    days.forEach((day, index) => {
+      if (day.count > 0) current.push({x:xAt(index), y:yAt(day.avg), day, index});
+      else if (current.length) { parts.push(current); current = []; }
+    });
+    if (current.length) parts.push(current);
+    const paths = parts.map(segment => segment.length > 1
+      ? '<path class="np-analytics-line-path" pathLength="600" d="' + segment.map((p,i)=>(i?'L':'M')+p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ') + '" style="animation-delay:.12s"></path>'
+      : '').join('');
+    const points = days.map((day,index) => day.count > 0
+      ? '<circle class="np-analytics-line-point" cx="'+xAt(index).toFixed(1)+'" cy="'+yAt(day.avg).toFixed(1)+'" r="4" style="animation-delay:'+(index*75)+'ms"><title>'+esc(day.key)+'：平均'+day.avg+'%</title></circle>'
+      : '').join('');
+    const grid = [0,25,50,75,100].map(value => {
+      const y=yAt(value);
+      return '<line class="np-analytics-line-grid" x1="'+left+'" y1="'+y+'" x2="'+right+'" y2="'+y+'"></line><text class="np-analytics-line-label" x="1" y="'+(y+3)+'">'+value+'%</text>';
+    }).join('');
+    const labels = days.map((day,index) => '<text class="np-analytics-line-label" text-anchor="middle" x="'+xAt(index)+'" y="108">'+esc(day.label)+'</text>').join('');
+    const values = days.map((day,index) => day.count > 0
+      ? '<text class="np-analytics-line-label" text-anchor="middle" x="'+xAt(index)+'" y="'+Math.max(9,yAt(day.avg)-8)+'" style="font-weight:700">'+day.avg+'%</text>'
+      : '').join('');
+    return '<div class="mt-3" role="img" aria-label="直近7日間の平均正答率の折れ線グラフ"><svg viewBox="0 0 '+width+' 116" width="100%" height="150" preserveAspectRatio="xMidYMid meet" aria-hidden="true">'+grid+paths+points+values+labels+'</svg></div>';
+  }
+
   function renderAnalytics() {
     const screen = document.getElementById(SCREEN_ID);
     if (!screen) return;
@@ -547,7 +587,7 @@
         </section>
         <section class="np-analytics-card">
           <div class="flex items-center justify-between gap-2"><h3 class="text-sm font-semibold text-slate-100">直近7日間の平均正答率</h3><span class="text-[10px] text-slate-500">日別推移</span></div>
-          <div class="np-analytics-bars">${days.map(d=>`<div class="np-analytics-bar-col" title="${esc(d.key)}：平均${d.count?d.avg+'%':'記録なし'}"><div class="text-[9px] text-slate-400">${d.count?d.avg+'%':''}</div><div class="np-analytics-bar" style="height:${Math.max(3,d.avg/100*82)}px;opacity:${d.count?1:.22};background:linear-gradient(180deg,#38bdf8,#2563eb)"></div><div class="np-analytics-day">${esc(d.label)}</div></div>`).join('')}</div>
+          ${renderAccuracyLineChart(days)}
           <p class="text-[10px] text-slate-500 mt-2">その日に保存された演習結果の平均です。記録がない日は空欄になります。</p>
         </section>
         <section class="np-analytics-card">
