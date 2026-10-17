@@ -168,9 +168,30 @@
         transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
         -webkit-tap-highlight-color: transparent;
       }
-      .glass-card button:not(:disabled):active, .glass-card [role="button"]:not([aria-disabled="true"]):active {
-        transform: scale(.975);
+      .glass-card button:not(:disabled):active, .glass-card [role="button"]:not([aria-disabled="true"]):active,
+      #nav-drawer button:not(:disabled):active, [id^="modal-"] button:not(:disabled):active {
+        transform: scale(.96) translateY(1px);
         filter: brightness(1.08);
+      }
+      .glass-card button:not(:disabled):hover, .glass-card [role="button"]:not([aria-disabled="true"]):hover,
+      #nav-drawer button:not(:disabled):hover, [id^="modal-"] button:not(:disabled):hover {
+        filter: brightness(1.045);
+      }
+      .glass-card button:focus-visible, .glass-card [role="button"]:focus-visible,
+      #nav-drawer button:focus-visible, [id^="modal-"] button:focus-visible {
+        outline: 2px solid rgba(56,189,248,.85);
+        outline-offset: 3px;
+      }
+      @media (hover:hover) and (pointer:fine) {
+        .glass-card button:not(:disabled), .glass-card [role="button"]:not([aria-disabled="true"]),
+        #nav-drawer button:not(:disabled), [id^="modal-"] button:not(:disabled) {
+          transition: transform .22s cubic-bezier(.2,.8,.2,1), filter .22s ease, box-shadow .22s ease;
+        }
+        .glass-card button:not(:disabled):hover, .glass-card [role="button"]:not([aria-disabled="true"]):hover,
+        #nav-drawer button:not(:disabled):hover, [id^="modal-"] button:not(:disabled):hover {
+          transform: translateY(-2px);
+          box-shadow: 0 7px 18px rgba(15,23,42,.12);
+        }
       }
       .evo-progress > span, #evo-mission-progress, .np-analytics-fill {
         transition: width .65s cubic-bezier(.22,1,.36,1);
@@ -247,7 +268,7 @@
         if (!wasHidden) return;
         if (!reduceMotion && typeof screen.animate === 'function' && screen.id !== SCREEN_ID) {
           screen.animate(
-            [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }],
+            [{ opacity: 0, transform: 'translateY(14px) scale(.992)', filter:'blur(1.5px)' }, { opacity: 1, transform: 'translateY(0) scale(1)', filter:'blur(0)' }],
             { duration: 430, easing: 'cubic-bezier(.22,1,.36,1)' }
           );
         }
@@ -279,27 +300,52 @@
 
     // 2. ボタン・カード・タブ・モーダル・ドロワーの操作フィードバック。
     // 委譲イベントなので、後から描画される画面にも自動適用する。
+    // 押した瞬間に沈み、離すと弾むボタン反応。イベントの伝播や既存クリック処理は止めない。
+    let pressedTarget = null;
+    const pressAnimations = new WeakMap();
+    function releasePressedTarget() {
+      const target = pressedTarget;
+      pressedTarget = null;
+      if (!target) return;
+      target.style.removeProperty('--np-pressing');
+      if (reduceMotion || typeof target.animate !== 'function') return;
+      const previous = pressAnimations.get(target);
+      if (previous) previous.cancel();
+      target.animate(
+        [{ transform:'scale(.945) translateY(1px)', boxShadow:'0 1px 2px rgba(15,23,42,.08)' },
+         { transform:'scale(1.035) translateY(-1px)', boxShadow:'0 8px 20px rgba(15,23,42,.13)', offset:.62 },
+         { transform:'scale(1) translateY(0)', boxShadow:'0 0 0 rgba(15,23,42,0)' }],
+        { duration:300, easing:'cubic-bezier(.2,.8,.2,1)' }
+      );
+    }
     document.addEventListener('pointerdown', event => {
       const target = event.target.closest('button, [role="button"], .glass-card > section, .glass-card .rounded-xl, .glass-card .rounded-2xl');
       if (!target || target.matches(':disabled,[aria-disabled="true"]') || target.closest('#' + SCREEN_ID)) return;
-      if (target.matches('button,[role="button"]')) target.style.setProperty('--np-pressing', '1');
+      if (target.matches('button,[role="button"]')) {
+        pressedTarget = target;
+        target.style.setProperty('--np-pressing', '1');
+        if (!reduceMotion && typeof target.animate === 'function') {
+          const previous = pressAnimations.get(target);
+          if (previous) previous.cancel();
+          pressAnimations.set(target, target.animate(
+            [{ transform:'scale(1) translateY(0)' }, { transform:'scale(.945) translateY(1px)' }],
+            { duration:105, easing:'cubic-bezier(.2,.8,.2,1)', fill:'forwards' }
+          ));
+        }
+      }
     }, {passive:true});
-    document.addEventListener('pointerup', event => {
-      const target = event.target.closest('button, [role="button"]');
-      if (target) target.style.removeProperty('--np-pressing');
-    }, {passive:true});
-    document.addEventListener('pointercancel', event => {
-      const target = event.target.closest('button, [role="button"]');
-      if (target) target.style.removeProperty('--np-pressing');
-    }, {passive:true});
+    document.addEventListener('pointerup', releasePressedTarget, {passive:true});
+    document.addEventListener('pointercancel', releasePressedTarget, {passive:true});
+    window.addEventListener('blur', releasePressedTarget);
 
+    // キーボード操作でもクリックした手応えが分かるようにする。
     document.addEventListener('click', event => {
       const target = event.target.closest('button, [role="button"], [data-quiz-option], .quiz-option');
-      if (target && !target.matches(':disabled,[aria-disabled="true"]') && !target.closest('#' + SCREEN_ID)) {
+      if (event.detail === 0 && target && !target.matches(':disabled,[aria-disabled="true"]') && !target.closest('#' + SCREEN_ID)) {
         if (!reduceMotion && typeof target.animate === 'function') {
           target.animate(
-            [{ transform:'scale(1)' }, { transform:'scale(.965)' }, { transform:'scale(1)' }],
-            { duration:190, easing:'ease-out' }
+            [{ transform:'scale(1)' }, { transform:'scale(.965)' }, { transform:'scale(1.025)' }, { transform:'scale(1)' }],
+            { duration:280, easing:'cubic-bezier(.2,.8,.2,1)' }
           );
         }
       }
