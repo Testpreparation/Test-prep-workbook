@@ -1073,6 +1073,17 @@
     analysisHost.appendChild(screen);
     screen.classList.remove('hidden');
 
+    // 追加分析パネルは独立画面ではなく、親のデータ分析画面の一部として扱う。
+    // 親が表示中にパネルだけが hidden になった場合は、表示状態を自動的に復元する。
+    const syncAnalyticsPanelVisibility = () => {
+      if (!analysisHost.classList.contains('hidden') && screen.classList.contains('hidden')) {
+        screen.classList.remove('hidden');
+      }
+    };
+    const analyticsPanelVisibilityObserver = new MutationObserver(syncAnalyticsPanelVisibility);
+    analyticsPanelVisibilityObserver.observe(analysisHost, { attributes: true, attributeFilter: ['class'] });
+    analyticsPanelVisibilityObserver.observe(screen, { attributes: true, attributeFilter: ['class'] });
+
     // 既存の画面切り替え関数は上書きせず、分析画面以外を操作したときだけ閉じる。
     installEffects();
     const quizResultScreen = document.getElementById('screen-quiz-result');
