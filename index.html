@@ -646,6 +646,11 @@
     #settings-accordion>details>summary{padding:.55rem .75rem!important;font-size:.82rem!important;line-height:1.25}
     #settings-accordion>details>div{padding-left:.75rem!important;padding-right:.75rem!important;padding-bottom:.65rem!important}
     #user-settings-modal,#settings-accordion{font-size:.9rem}
+    .np-toggle-switch{appearance:none;-webkit-appearance:none;position:relative;flex-shrink:0;width:2.75rem;height:1.5rem;border-radius:9999px;background:#d8d1e2;border:1px solid #c8bdd7;cursor:pointer;transition:background .2s ease,border-color .2s ease}
+    .np-toggle-switch::before{content:"";position:absolute;left:.125rem;top:.125rem;width:1.125rem;height:1.125rem;border-radius:9999px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .2s ease}
+    .np-toggle-switch:checked{background:#a78bfa;border-color:#a78bfa}
+    .np-toggle-switch:checked::before{transform:translateX(1.25rem)}
+    .np-toggle-switch:focus-visible{outline:2px solid #8b5cf6;outline-offset:3px}
     #np-text-size-slider{width:100%;accent-color:#a78bfa}
     html.np-accessibility-reduced-motion *,html.np-accessibility-reduced-motion *::before,html.np-accessibility-reduced-motion *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
   
@@ -798,6 +803,9 @@
       </div>
 
       <!-- 画面1: 科目選択 (SOLO) - 2ページ横スライド対応 -->
+      <nav id="study-breadcrumbs" class="hidden mb-4 rounded-xl border border-violet-100 bg-white/90 px-3 py-2" aria-label="学習画面のパンくず">
+        <ol id="study-breadcrumb-list" class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs"></ol>
+      </nav>
       <div id="screen-subjects" class="space-y-4">
         <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
           <h2 id="subjects-header-title" class="en-title text-xs text-slate-400 tracking-widest uppercase">Select Subject</h2>
@@ -4527,7 +4535,7 @@
         },
         notifications: {
           title: '通知設定',
-          body: '<p>アプリ内のお知らせ表示に関する設定です。</p><label class="mt-3 flex items-center justify-between gap-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><span><span class="block font-medium text-slate-700">アプリ内のお知らせ</span><span class="block text-xs text-slate-500 mt-1">この端末の設定を保存します。</span></span><input id="np-notice-toggle" type="checkbox" class="h-4 w-4 accent-violet-500" ' + (noticeEnabled ? 'checked' : '') + '></label><p class="mt-3 text-xs text-slate-500">公式LINEからの配信設定は変更しません。</p>'
+          body: '<p>アプリ内のお知らせ表示に関する設定です。</p><label class="mt-3 flex items-center justify-between gap-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><span><span class="block font-medium text-slate-700">アプリ内のお知らせ</span><span class="block text-xs text-slate-500 mt-1">この端末の設定を保存します。</span></span><input id="np-notice-toggle" type="checkbox" role="switch" aria-label="アプリ内のお知らせ" class="np-toggle-switch" ' + (noticeEnabled ? 'checked' : '') + '></label><p class="mt-3 text-xs text-slate-500">公式LINEからの配信設定は変更しません。</p>'
         },
         sync: {
           title: '学習状況を同期',
@@ -4951,6 +4959,79 @@
       renderQuestion();
     }
 
+    function updateStudyBreadcrumb() {
+      const nav = document.getElementById('study-breadcrumbs');
+      const list = document.getElementById('study-breadcrumb-list');
+      if (!nav || !list) return;
+
+      const screenStages = [
+        ['screen-semester-select', '学期選択'],
+        ['screen-physiology-mode-select', 'モード選択'],
+        ['screen-anatomy-mode-select', 'モード選択'],
+        ['screen-publichealth-mode-select', 'モード選択'],
+        ['screen-phn-mode-select', 'モード選択'],
+        ['screen-pathology-mode-select', 'モード選択'],
+        ['screen-pathology-round-select', '回数選択'],
+        ['screen-pharmacology-mode-select', 'モード選択'],
+        ['screen-nursing-mode-select', 'モード選択'],
+        ['screen-nursing-method-3-mode-select', 'モード選択'],
+        ['screen-nutrition-mode-select', 'モード選択'],
+        ['screen-biochemistry-format-select', '出題形式'],
+        ['screen-time-select', '制限時間'],
+        ['screen-round-select', '出題モード'],
+        ['screen-count-select', '出題数'],
+        ['screen-quiz-start', '演習開始']
+      ];
+      const activeStage = screenStages.find(([id]) => {
+        const screen = document.getElementById(id);
+        return screen && !screen.classList.contains('hidden');
+      });
+
+      if (!activeStage || !currentSubject) {
+        nav.classList.add('hidden');
+        list.replaceChildren();
+        return;
+      }
+
+      nav.classList.remove('hidden');
+      list.replaceChildren();
+
+      const addCrumb = (label, onClick, current = false) => {
+        const item = document.createElement('li');
+        item.className = 'flex items-center gap-2';
+        if (list.children.length) {
+          const separator = document.createElement('span');
+          separator.className = 'text-violet-300';
+          separator.textContent = '›';
+          separator.setAttribute('aria-hidden', 'true');
+          item.appendChild(separator);
+        }
+        if (onClick && !current) {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'rounded-md px-1 py-1 text-violet-700 hover:bg-violet-50 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-400';
+          button.textContent = label;
+          button.addEventListener('click', onClick);
+          item.appendChild(button);
+        } else {
+          const text = document.createElement('span');
+          text.className = current ? 'px-1 py-1 font-semibold text-slate-700' : 'px-1 py-1 text-slate-500';
+          text.textContent = label;
+          if (current) text.setAttribute('aria-current', 'step');
+          item.appendChild(text);
+        }
+        list.appendChild(item);
+      };
+
+      addCrumb('科目一覧', showSubjectScreen);
+      addCrumb(currentSubject.name, showSemesterSelectionScreen);
+      if (activeStage[0] !== 'screen-semester-select' && currentSemester) {
+        const semesterLabel = currentSemester === '2026_spring' ? '2026春学期' : '2026秋学期';
+        addCrumb(semesterLabel, () => selectSemester(currentSemester));
+      }
+      addCrumb(activeStage[1], null, true);
+    }
+
     function hideAllScreens() {
       stopQuizTimer();
       const dashboard = document.getElementById('screen-dashboard');
@@ -4982,6 +5063,7 @@
     function showSubjectScreen() {
       hideAllScreens();
       document.getElementById('screen-subjects').classList.remove('hidden');
+      document.getElementById('study-breadcrumbs')?.classList.add('hidden');
       switchSubjectPage(0);
       renderSubjectList();
     }
@@ -5035,6 +5117,7 @@
     function showSemesterSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-semester-select').classList.remove('hidden');
+      updateStudyBreadcrumb();
       document.getElementById('semester-subject-title').textContent = `${currentSubject.name} - 学期選択`;
 
       const springBtn = document.getElementById('semester-spring-btn');
@@ -5088,11 +5171,13 @@
     function showBiochemistryFormatSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-biochemistry-format-select').classList.remove('hidden');
+      updateStudyBreadcrumb();
     }
 
     function showPhysiologyModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-physiology-mode-select').classList.remove('hidden');
+      updateStudyBreadcrumb();
     }
 
     function selectPhysiologyMode(mode) {
@@ -5103,6 +5188,7 @@
     function showAnatomyModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-anatomy-mode-select').classList.remove('hidden');
+      updateStudyBreadcrumb();
     }
 
     function selectAnatomyMode(mode) {
@@ -5113,6 +5199,7 @@
     function showPublicHealthModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-publichealth-mode-select').classList.remove('hidden');
+      updateStudyBreadcrumb();
     }
 
     function selectPublicHealthMode(mode) {
@@ -5123,6 +5210,7 @@
     function showPHNModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-phn-mode-select').classList.remove('hidden');
+      updateStudyBreadcrumb();
     }
 
     function selectPHNMode(mode) {
@@ -5133,6 +5221,7 @@
     function showPathologyModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-pathology-mode-select').classList.remove('hidden');
+      updateStudyBreadcrumb();
     }
 
     function showPathologyRoundSelectionScreen() {
@@ -5149,6 +5238,7 @@
     `${modeLabel}：回数を選択してください`;
 
   document.getElementById('screen-pathology-round-select').classList.remove('hidden');
+      updateStudyBreadcrumb();
 }
 
     function selectPathologyMode(mode) {
@@ -5165,6 +5255,7 @@
     function showPharmacologyModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-pharmacology-mode-select').classList.remove('hidden');
+      updateStudyBreadcrumb();
     }
 
     function selectPharmacologyMode(mode) {
@@ -5176,6 +5267,7 @@
     function showNursingMethod3ModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-nursing-method-3-mode-select').classList.remove('hidden');
+      updateStudyBreadcrumb();
     }
 
     function selectNursingMethod3Mode(mode) {
@@ -5187,6 +5279,7 @@
     function showNutritionModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-nutrition-mode-select').classList.remove('hidden');
+      updateStudyBreadcrumb();
     }
 
     function selectNutritionMode(mode) {
@@ -5198,6 +5291,7 @@
     function showNursingModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-nursing-mode-select').classList.remove('hidden');
+      updateStudyBreadcrumb();
     }
 
     function selectNursingMode(mode) {
@@ -5208,6 +5302,7 @@
     function showRoundSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-round-select').classList.remove('hidden');
+      updateStudyBreadcrumb();
       document.getElementById('round-subject-title').textContent = `${currentSubject.name} モード選択`;
 
       const roundBackBtn = document.getElementById('round-back-btn');
@@ -5221,6 +5316,7 @@
     function showTimeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-time-select').classList.remove('hidden');
+      updateStudyBreadcrumb();
       document.getElementById('time-subject-title').textContent = `${currentSubject.name} 制限時間設定`;
       
       const backBtn = document.getElementById('time-back-btn');
@@ -5247,12 +5343,14 @@
     function showCountSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-count-select').classList.remove('hidden');
+      updateStudyBreadcrumb();
       document.getElementById('count-subject-title').textContent = `${currentSubject.name} 出題数設定`;
     }
 
     function showStartScreen() {
       hideAllScreens();
       document.getElementById('screen-quiz-start').classList.remove('hidden');
+      updateStudyBreadcrumb();
 
       const titleEl = document.getElementById('quiz-subject-title');
       const headingEl = document.getElementById('start-screen-heading');
