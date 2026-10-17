@@ -102,6 +102,69 @@
     html[data-np-theme="light"] body button:hover { filter:brightness(.985); }
     html[data-np-theme="light"] body button:active { transform:scale(.985); }
 
+
+    /* Comprehensive milk-white/pastel mode: override dark surfaces and inline visual treatments */
+    html[data-np-theme="light"] body,
+    html[data-np-theme="light"] body #app,
+    html[data-np-theme="light"] body main,
+    html[data-np-theme="light"] body .app-container,
+    html[data-np-theme="light"] body [id^="screen-"] {
+      background:#f8f7fb !important; color:#373448 !important;
+    }
+    html[data-np-theme="light"] body [class*="bg-slate-900"],
+    html[data-np-theme="light"] body [class*="bg-slate-950"],
+    html[data-np-theme="light"] body [class*="bg-gray-900"],
+    html[data-np-theme="light"] body [class*="bg-gray-950"],
+    html[data-np-theme="light"] body [class*="bg-zinc-900"],
+    html[data-np-theme="light"] body [class*="bg-neutral-900"],
+    html[data-np-theme="light"] body [class*="bg-neutral-950"] {
+      background-color:#fffdfd !important; background-image:none !important; color:#373448 !important;
+    }
+    html[data-np-theme="light"] body [style*="background:#0"],
+    html[data-np-theme="light"] body [style*="background: #0"],
+    html[data-np-theme="light"] body [style*="background-color:#0"],
+    html[data-np-theme="light"] body [style*="background-color: #0"],
+    html[data-np-theme="light"] body [style*="background:rgb(15"],
+    html[data-np-theme="light"] body [style*="background-color: rgb(15"],
+    html[data-np-theme="light"] body [style*="background: linear-gradient"] {
+      background:#fffdfd !important; background-image:none !important; color:#373448 !important; border-color:#e5deef !important;
+    }
+    html[data-np-theme="light"] body [class*="bg-gradient-to-"] { background-image:none !important; background-color:#fffdfd !important; }
+    html[data-np-theme="light"] body [class*="bg-black"],
+    html[data-np-theme="light"] body [class*="bg-slate-800"],
+    html[data-np-theme="light"] body [class*="bg-slate-700"],
+    html[data-np-theme="light"] body [class*="bg-gray-800"],
+    html[data-np-theme="light"] body [class*="bg-gray-700"] {
+      background-color:#f0edf7 !important; background-image:none !important; color:#373448 !important;
+    }
+    html[data-np-theme="light"] body [class*="text-white"],
+    html[data-np-theme="light"] body [class*="text-slate-50"],
+    html[data-np-theme="light"] body [class*="text-slate-100"],
+    html[data-np-theme="light"] body [class*="text-slate-200"],
+    html[data-np-theme="light"] body [class*="text-slate-300"],
+    html[data-np-theme="light"] body [style*="color:#fff"],
+    html[data-np-theme="light"] body [style*="color: #fff"],
+    html[data-np-theme="light"] body [style*="color:white"] { color:#373448 !important; }
+    html[data-np-theme="light"] body [class*="border-slate-"],
+    html[data-np-theme="light"] body [class*="border-gray-"],
+    html[data-np-theme="light"] body [class*="border-zinc-"] { border-color:#e4dcef !important; }
+    html[data-np-theme="light"] body .glass-card,
+    html[data-np-theme="light"] body .evo-card,
+    html[data-np-theme="light"] body [class*="shadow-2xl"],
+    html[data-np-theme="light"] body [class*="shadow-xl"] {
+      box-shadow:0 8px 24px rgba(94,76,128,.09) !important;
+    }
+    html[data-np-theme="light"] body #screen-dashboard .evo-card,
+    html[data-np-theme="light"] body #screen-dashboard [class*="bg-slate-"],
+    html[data-np-theme="light"] body #screen-dashboard [class*="bg-gray-"] {
+      background:#fffdfd !important; background-image:none !important; color:#373448 !important; border-color:#e5deef !important;
+    }
+    html[data-np-theme="light"] body #screen-dashboard .evo-card *,
+    html[data-np-theme="light"] body #screen-dashboard [class*="bg-slate-"] *,
+    html[data-np-theme="light"] body #screen-dashboard [class*="bg-gray-"] * { color:#49445f !important; }
+    html[data-np-theme="light"] body #screen-dashboard [class*="bg-amber-"],
+    html[data-np-theme="light"] body #screen-dashboard [class*="bg-yellow-"] { background:#fff2d8 !important; }
+
     /* Final contrast pass: actual rendered subject buttons and learning-home cards */
     html[data-np-theme="light"] body #subject-list-container .card-item,
     html[data-np-theme="light"] body #flashcard-subject-list-container .card-item,
