@@ -48,6 +48,25 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  // 分析画面の修正を既存PWA利用者にも確実に反映するため、
+  // このJSだけはキャッシュを先に返さず、ネットワークから最新版を取得する。
+  // オフライン時は保存済みファイルへフォールバックする。
+  if (url.pathname.endsWith('/assets/nurse-plus-analytics-addition.js')) {
+    event.respondWith(
+      fetch(request, { cache: 'no-cache' }).then(response => {
+        if (response && response.ok && response.type === 'basic') {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(request, copy)).catch(() => {});
+        }
+        return response;
+      }).catch(async () => {
+        const cached = await caches.match(request);
+        return cached || Response.error();
+      })
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(request).then(cached => {
       const network = fetch(request).then(response => {
