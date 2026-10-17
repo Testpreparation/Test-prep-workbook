@@ -204,6 +204,11 @@
         to { transform: translate3d(var(--np-drift), 105vh, 0) rotate(var(--np-rotate)); opacity: .15; }
       }
       @keyframes npPopIn { 0% { opacity:0; transform:scale(.88) translateY(8px); } 70% { transform:scale(1.025) translateY(-1px); } 100% { opacity:1; transform:scale(1) translateY(0); } }
+      @keyframes npCorrectBloom { 0% { opacity:0; transform:scale(.82) rotate(-2deg); } 55% { opacity:1; transform:scale(1.06) rotate(1deg); } 78% { transform:scale(.985) rotate(0); } 100% { opacity:1; transform:scale(1) rotate(0); } }
+      @keyframes npResultRise { 0% { opacity:0; transform:translateY(36px) scale(.94); filter:blur(5px); } 65% { opacity:1; transform:translateY(-5px) scale(1.015); filter:blur(0); } 100% { transform:translateY(0) scale(1); } }
+      @keyframes npRevealTurn { 0% { opacity:0; transform:perspective(900px) rotateX(-18deg) translateY(24px); } 60% { opacity:1; transform:perspective(900px) rotateX(4deg) translateY(-3px); } 100% { opacity:1; transform:perspective(900px) rotateX(0) translateY(0); } }
+      @keyframes npModalBloom { 0% { opacity:0; transform:scale(.78) translateY(24px); filter:blur(4px); } 60% { opacity:1; transform:scale(1.025) translateY(-3px); filter:blur(0); } 100% { opacity:1; transform:scale(1) translateY(0); } }
+      @keyframes npDrawerGlide { 0% { opacity:.2; transform:translateX(-36px); } 65% { opacity:1; transform:translateX(5px); } 100% { opacity:1; transform:translateX(0); } }
       @keyframes npSoftShake { 0%,100% { transform:translateX(0); } 25% { transform:translateX(-5px); } 50% { transform:translateX(4px); } 75% { transform:translateX(-2px); } }
       @keyframes npGlowPulse { 0%,100% { box-shadow:0 0 0 rgba(16,185,129,0); } 50% { box-shadow:0 0 0 4px rgba(16,185,129,.14); } }
       @keyframes npCheckDraw { from { stroke-dashoffset:24; } to { stroke-dashoffset:0; } }
@@ -224,13 +229,13 @@
       .np-motion-card { transition:transform 1.3s cubic-bezier(.22,1,.36,1), box-shadow 1.3s ease, border-color 1.1s ease; }
       .np-motion-card:hover { transform:translateY(-2px); }
       .np-motion-selected { box-shadow:0 0 0 2px rgba(251,191,36,.45), 0 8px 22px rgba(245,158,11,.09) !important; }
-      .np-motion-correct { animation:npPopIn 1.8s cubic-bezier(.22,1,.36,1) both, npGlowPulse 3.2s ease-out; }
+      .np-motion-correct { animation:npCorrectBloom 1.8s cubic-bezier(.22,1,.36,1) both, npGlowPulse 3.2s ease-out; }
       .np-motion-incorrect { animation:npSoftShake 1.7s ease-out; }
-      #screen-quiz-result .np-result-highlight { animation:npPopIn 2s cubic-bezier(.22,1,.36,1) both; }
-      .np-motion-reveal { animation:npPopIn 1.9s cubic-bezier(.22,1,.36,1) both; }
+      #screen-quiz-result .np-result-highlight { animation:npResultRise 2s cubic-bezier(.22,1,.36,1) both; }
+      .np-motion-reveal { animation:npRevealTurn 1.9s cubic-bezier(.22,1,.36,1) both; }
       .np-motion-progress { transition:width 3.2s cubic-bezier(.22,1,.36,1), background-color 1.3s ease !important; }
-      .np-motion-modal { animation:npPopIn 1.7s cubic-bezier(.22,1,.36,1) both; }
-      .np-motion-drawer { animation:npSlideIn 1.8s cubic-bezier(.22,1,.36,1) both; }
+      .np-motion-modal { animation:npModalBloom 1.7s cubic-bezier(.22,1,.36,1) both; }
+      .np-motion-drawer { animation:npDrawerGlide 1.8s cubic-bezier(.22,1,.36,1) both; }
       @keyframes npSlideIn { from { opacity:.6; transform:translateX(-14px); } to { opacity:1; transform:translateX(0); } }
       .np-motion-busy { position:relative; overflow:hidden; }
       .np-motion-busy::after { content:""; position:absolute; inset:0; background:linear-gradient(100deg,transparent 25%,rgba(255,255,255,.12) 50%,transparent 75%); background-size:200% 100%; animation:npShimmer 3.5s linear infinite; pointer-events:none; }
