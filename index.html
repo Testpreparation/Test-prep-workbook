@@ -462,7 +462,7 @@
       </details>
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
         <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-amber-300">⚙</span>一般</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
-        <div class="px-4 pb-4"><div id="np-theme-settings-card" class="rounded-xl border border-slate-700 bg-slate-900/60 p-4 cursor-pointer" role="button" tabindex="0" aria-label="テーマ・外観の設定を中央に表示"><div class="font-semibold text-sm">テーマ・外観</div><p class="text-xs text-slate-400 mt-1 mb-3">アプリ全体の表示モードを切り替えます。初期設定はホワイトです。</p><button id="np-theme-toggle" type="button" aria-pressed="false" aria-label="ダークモードに切り替え" title="テーマを切り替え"><span id="np-theme-icon" aria-hidden="true">☾</span><span id="np-theme-label">ダーク</span></button></div></div>
+        <div class="px-4 pb-4"><button id="np-theme-settings-card" type="button" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left cursor-pointer hover:bg-slate-800/70 transition" aria-label="テーマ・外観を開く"><span class="font-semibold text-sm">テーマ・外観</span><span class="text-slate-400" aria-hidden="true">›</span></button></div>
       </details>
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
         <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-sky-300">◇</span>プライバシー</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
@@ -481,7 +481,10 @@
       <div><div class="text-[10px] tracking-[.2em] text-violet-400">APPEARANCE</div><h2 id="np-theme-settings-title" class="text-xl font-semibold mt-1">テーマ・外観</h2><p class="text-xs text-slate-500 mt-1">アプリ全体の表示モードを設定します。</p></div>
       <button type="button" onclick="closeThemeSettingsPage()" class="rounded-lg p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100" aria-label="テーマ設定を閉じる">✕</button>
     </div>
-    <div id="np-theme-settings-modal-content" class="pt-4"></div>
+    <div id="np-theme-settings-modal-content" class="pt-4">
+      <p class="text-sm text-slate-600 mb-4">アプリ全体の表示モードを切り替えます。初期設定はホワイトです。</p>
+      <button id="np-theme-toggle" type="button" aria-pressed="false" aria-label="ダークモードに切り替え" title="テーマを切り替え"><span id="np-theme-icon" aria-hidden="true">☾</span><span id="np-theme-label">ダーク</span></button>
+    </div>
     <button type="button" onclick="closeThemeSettingsPage()" class="mt-5 w-full rounded-xl border border-slate-200 bg-slate-50 py-3 text-sm hover:bg-slate-100 transition">戻る</button>
   </section>
 
@@ -4255,31 +4258,17 @@
       closeThemeSettingsPage();
     }
 
-    let npThemeSettingsPlaceholder = null;
     function openThemeSettingsPage() {
-      const card = document.getElementById('np-theme-settings-card');
-      const content = document.getElementById('np-theme-settings-modal-content');
       const overlay = document.getElementById('np-theme-settings-overlay');
       const modal = document.getElementById('np-theme-settings-modal');
-      if (!card || !content || !overlay || !modal) return;
-      if (!npThemeSettingsPlaceholder) {
-        npThemeSettingsPlaceholder = document.createComment('theme-settings-card-placeholder');
-        card.parentNode.insertBefore(npThemeSettingsPlaceholder, card);
-      }
-      content.appendChild(card);
+      if (!overlay || !modal) return;
       overlay.classList.remove('hidden');
       modal.classList.remove('hidden');
     }
 
     function closeThemeSettingsPage() {
-      const card = document.getElementById('np-theme-settings-card');
       const overlay = document.getElementById('np-theme-settings-overlay');
       const modal = document.getElementById('np-theme-settings-modal');
-      if (card && npThemeSettingsPlaceholder && npThemeSettingsPlaceholder.parentNode) {
-        npThemeSettingsPlaceholder.parentNode.insertBefore(card, npThemeSettingsPlaceholder);
-        npThemeSettingsPlaceholder.remove();
-        npThemeSettingsPlaceholder = null;
-      }
       if (overlay) overlay.classList.add('hidden');
       if (modal) modal.classList.add('hidden');
     }
@@ -6424,15 +6413,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       });
       const themeCard = document.getElementById('np-theme-settings-card');
       if (themeCard) {
-        themeCard.addEventListener('click', event => {
-          if (event.target.closest('#np-theme-toggle')) return;
-          openThemeSettingsPage();
-        });
-        themeCard.addEventListener('keydown', event => {
-          if (event.target !== themeCard || !['Enter', ' '].includes(event.key)) return;
-          event.preventDefault();
-          openThemeSettingsPage();
-        });
+        themeCard.addEventListener('click', openThemeSettingsPage);
       }
     })();
   </script>
