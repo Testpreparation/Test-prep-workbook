@@ -6467,7 +6467,83 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       <div style="width:100px;height:3px;margin:18px auto 0;border-radius:99px;background:#e8def3;overflow:hidden"><div style="height:100%;width:40%;border-radius:99px;background:#b9a2dd;animation:np-pwa-load 1.1s ease-in-out infinite alternate"></div></div>
     </div>
   </div>
-  <style>@keyframes np-pwa-load{from{transform:translateX(-5%)}to{transform:translateX(155%)}}</style>
+  <style>@keyframes np-pwa-load{from{transform:translateX(-5%)}to{transform:translateX(155%)}}
+  /* Data analysis / study-home: keep every item white and pastel, even if the global theme is dark. */
+  #screen-dashboard{
+    color:#5b506d!important;
+  }
+  #screen-dashboard .evo-card,
+  #screen-dashboard #evo-subjects > *,
+  #screen-dashboard [class*="bg-slate-"],
+  #screen-dashboard [class*="bg-gray-"]{
+    background-color:#fff!important;
+    background-image:linear-gradient(145deg,#fff 0%,#fcf9ff 72%,#f4fbf8 100%)!important;
+    border-color:#e8def3!important;
+    color:#5b506d!important;
+    box-shadow:0 7px 20px rgba(91,72,116,.07)!important;
+  }
+  #screen-dashboard [class*="text-slate-"],
+  #screen-dashboard [class*="text-amber-"],
+  #screen-dashboard [class*="text-emerald-"],
+  #screen-dashboard [class*="text-sky-"]{
+    color:#665a78!important;
+  }
+  #screen-dashboard #evo-condition-prev,
+  #screen-dashboard #evo-condition-next{
+    background:#f3edfb!important;
+    border-color:#e2d7f0!important;
+    color:#79649a!important;
+  }
+  #screen-dashboard .evo-chip{
+    background:#eee6fa!important;
+    border-color:#d7c5ef!important;
+    color:#70529b!important;
+  }
+  #screen-dashboard .evo-progress{
+    background:#e9e0f4!important;
+    border-color:#e3d8ef!important;
+    box-shadow:none!important;
+  }
+  #screen-dashboard .evo-progress > span{
+    background:linear-gradient(90deg,#b39add 0%,#9bd8c3 100%)!important;
+    box-shadow:none!important;
+  }
+  #screen-dashboard #evo-avg{
+    color:#8062ad!important;
+  }
+  #screen-dashboard #evo-total-attempts,
+  #screen-dashboard #evo-best{
+    color:#5b506d!important;
+  }
+
+  /* Smaller, softer page-switch dots; never use the previous orange/charcoal colors. */
+  #subject-page-dots #dot-page-1,
+  #subject-page-dots #dot-page-2{
+    width:6px!important;
+    height:6px!important;
+    min-width:6px!important;
+    min-height:6px!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:999px!important;
+    box-shadow:none!important;
+    transition:background-color .25s ease,transform .25s ease!important;
+  }
+  #subject-page-dots #dot-page-1.bg-amber-500,
+  #subject-page-dots #dot-page-2.bg-amber-500{
+    background:#b39add!important;
+    transform:scale(1.12);
+  }
+  #subject-page-dots #dot-page-1.bg-slate-700,
+  #subject-page-dots #dot-page-2.bg-slate-700{
+    background:#ded6e8!important;
+  }
+  #subject-page-dots #dot-page-1:hover,
+  #subject-page-dots #dot-page-2:hover{
+    background:#c9b8e4!important;
+  }
+
+  </style>
 
   <script id="nurse-plus-pwa-experience">
     (() => {
