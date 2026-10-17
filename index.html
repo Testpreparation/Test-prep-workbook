@@ -6036,6 +6036,123 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
     })();
   </script>
 
+  <!-- Nurse＋ PWA体験：インストール案内・通信状態・初回起動演出 -->
+  <style id="nurse-plus-pwa-experience-style">
+    #np-pwa-status{position:fixed;left:12px;bottom:12px;z-index:99980;display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid rgba(148,163,184,.28);border-radius:999px;background:rgba(255,255,255,.94);color:#475569;box-shadow:0 8px 24px rgba(15,23,42,.12);font:500 11px/1.4 'Noto Sans JP',sans-serif;backdrop-filter:blur(12px);transition:opacity .25s,transform .25s}
+    #np-pwa-status[data-state="offline"]{background:rgba(255,247,237,.97);color:#9a3412;border-color:rgba(251,146,60,.4)}
+    #np-pwa-status .np-pwa-dot{width:7px;height:7px;border-radius:50%;background:#10b981;flex:none}
+    #np-pwa-status[data-state="offline"] .np-pwa-dot{background:#f97316}
+    #np-pwa-install{position:fixed;right:14px;bottom:14px;z-index:99981;width:min(330px,calc(100vw - 28px));padding:16px;border:1px solid rgba(196,181,253,.65);border-radius:20px;background:rgba(255,255,255,.97);color:#334155;box-shadow:0 16px 42px rgba(71,55,95,.18);backdrop-filter:blur(16px);font-family:'Noto Sans JP',sans-serif;animation:np-pwa-pop .36s cubic-bezier(.22,1,.36,1) both}
+    #np-pwa-install button{border-radius:12px;padding:10px 12px;font-size:12px;font-weight:600}
+    #np-pwa-install .np-pwa-primary{background:#d8c8f4;color:#43345f}
+    #np-pwa-install .np-pwa-secondary{border:1px solid #e2d8f0;color:#786b89}
+    #np-pwa-startup{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#fffdfd 0%,#f8f3ff 58%,#f0f9f6 100%);opacity:1;visibility:visible;transition:opacity .42s ease,visibility .42s ease}
+    #np-pwa-startup.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
+    #np-pwa-startup .np-pwa-mark{display:grid;place-items:center;width:62px;height:62px;margin:0 auto 14px;border-radius:22px;background:linear-gradient(145deg,#e9ddfb,#d8eee6);color:#79629e;font-size:25px;box-shadow:0 10px 30px rgba(143,120,174,.18);animation:np-pwa-breathe 1.4s ease-in-out infinite}
+    @keyframes np-pwa-pop{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+    @keyframes np-pwa-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+    @media(max-width:520px){#np-pwa-status{bottom:8px;left:8px}#np-pwa-install{bottom:8px;right:8px}body.np-pwa-install-open #np-pwa-status{opacity:0;pointer-events:none}}
+    @media(prefers-reduced-motion:reduce){#np-pwa-status,#np-pwa-install,#np-pwa-startup{animation:none;transition:none}#np-pwa-startup .np-pwa-mark{animation:none}}
+  </style>
+  <div id="np-pwa-startup" aria-label="Nurse＋を起動しています">
+    <div class="text-center px-6">
+      <div class="np-pwa-mark" aria-hidden="true">＋</div>
+      <div style="font-family:'Noto Serif JP',serif;font-size:22px;letter-spacing:.08em;color:#67547e">Nurse＋</div>
+      <p style="margin-top:7px;font-size:11px;letter-spacing:.06em;color:#9486a5">学びを、少しずつ。</p>
+      <div style="width:100px;height:3px;margin:18px auto 0;border-radius:99px;background:#e8def3;overflow:hidden"><div style="height:100%;width:40%;border-radius:99px;background:#b9a2dd;animation:np-pwa-load 1.1s ease-in-out infinite alternate"></div></div>
+    </div>
+  </div>
+  <style>@keyframes np-pwa-load{from{transform:translateX(-5%)}to{transform:translateX(155%)}}</style>
+
+  <script id="nurse-plus-pwa-experience">
+    (() => {
+      'use strict';
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const startup = document.getElementById('np-pwa-startup');
+      const hideStartup = () => window.setTimeout(() => startup && startup.classList.add('is-hidden'), reduceMotion ? 0 : 420);
+      if (document.readyState === 'complete') hideStartup();
+      else window.addEventListener('load', hideStartup, { once: true });
+      window.setTimeout(hideStartup, 2600);
+
+      const status = document.createElement('div');
+      status.id = 'np-pwa-status';
+      status.setAttribute('role', 'status');
+      status.innerHTML = '<span class="np-pwa-dot"></span><span class="np-pwa-status-text">オンライン</span>';
+      document.body.appendChild(status);
+      const updateStatus = () => {
+        const offline = !navigator.onLine;
+        status.dataset.state = offline ? 'offline' : 'online';
+        status.querySelector('.np-pwa-status-text').textContent = offline
+          ? 'オフライン：保存済みの内容を表示中'
+          : (navigator.serviceWorker && navigator.serviceWorker.controller ? 'オフライン利用に対応' : 'オンライン');
+        status.title = offline
+          ? '一度読み込んだページ・問題データを中心に利用できます。未読込の問題や外部サービスは使えない場合があります。'
+          : '通信状態を表示しています。';
+      };
+      window.addEventListener('online', updateStatus);
+      window.addEventListener('offline', updateStatus);
+      if ('serviceWorker' in navigator && location.protocol === 'https:') {
+        navigator.serviceWorker.register('./service-worker.js', { scope: './' })
+          .then(() => { updateStatus(); navigator.serviceWorker.addEventListener('controllerchange', updateStatus); })
+          .catch(error => console.warn('[Nurse＋ PWA] Service Worker registration failed:', error));
+      }
+      updateStatus();
+
+      let deferredInstallPrompt = null;
+      const dismissedKey = 'nurse_plus_pwa_install_dismissed_v1';
+      const showInstallCard = (nativePromptAvailable) => {
+        if (isStandalone || localStorage.getItem(dismissedKey) === '1' || document.getElementById('np-pwa-install')) return;
+        const card = document.createElement('section');
+        card.id = 'np-pwa-install';
+        card.setAttribute('aria-label', 'ホーム画面への追加');
+        const title = document.createElement('h2');
+        title.textContent = 'Nurse＋をアプリのように使う';
+        title.style.cssText = 'font-size:14px;font-weight:700;color:#514166;margin-bottom:6px';
+        const description = document.createElement('p');
+        description.textContent = nativePromptAvailable
+          ? 'ホーム画面に追加すると、次回からすぐに開けます。'
+          : 'ブラウザのメニューから「ホーム画面に追加」または「アプリをインストール」を選べます。';
+        description.style.cssText = 'font-size:11px;line-height:1.7;color:#81758f;margin-bottom:12px';
+        const actions = document.createElement('div');
+        actions.style.cssText = 'display:flex;gap:8px';
+        const dismiss = document.createElement('button');
+        dismiss.type = 'button'; dismiss.className = 'np-pwa-secondary'; dismiss.textContent = 'あとで';
+        dismiss.addEventListener('click', () => { localStorage.setItem(dismissedKey, '1'); card.remove(); document.body.classList.remove('np-pwa-install-open'); });
+        actions.appendChild(dismiss);
+        if (nativePromptAvailable) {
+          const install = document.createElement('button');
+          install.type = 'button'; install.className = 'np-pwa-primary'; install.textContent = 'ホーム画面に追加';
+          install.addEventListener('click', async () => {
+            if (!deferredInstallPrompt) return;
+            deferredInstallPrompt.prompt();
+            await deferredInstallPrompt.userChoice.catch(() => null);
+            deferredInstallPrompt = null;
+            card.remove(); document.body.classList.remove('np-pwa-install-open');
+          });
+          actions.appendChild(install);
+        }
+        card.append(title, description, actions);
+        document.body.appendChild(card);
+        document.body.classList.add('np-pwa-install-open');
+      };
+      window.addEventListener('beforeinstallprompt', event => {
+        event.preventDefault();
+        deferredInstallPrompt = event;
+        showInstallCard(true);
+      });
+      window.addEventListener('appinstalled', () => {
+        const card = document.getElementById('np-pwa-install');
+        if (card) card.remove();
+        document.body.classList.remove('np-pwa-install-open');
+        localStorage.setItem(dismissedKey, '1');
+      });
+      window.addEventListener('load', () => {
+        if (!isStandalone && !deferredInstallPrompt) window.setTimeout(() => showInstallCard(false), 1600);
+      }, { once: true });
+    })();
+  </script>
+
   <script src="./assets/nurse-plus-analytics-addition.js"></script>
 
 </body>
