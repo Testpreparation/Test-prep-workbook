@@ -6244,12 +6244,24 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
     (() => {
       'use strict';
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const startup = document.getElementById('np-pwa-startup');
-      const hideStartup = () => window.setTimeout(() => startup && startup.classList.add('is-hidden'), reduceMotion ? 0 : 420);
-      if (document.readyState === 'complete') hideStartup();
-      else window.addEventListener('load', hideStartup, { once: true });
-      window.setTimeout(hideStartup, 2600);
+      const startupStartedAt = performance.now();
+      let pageLoaded = document.readyState === 'complete';
+      let startupHideScheduled = false;
+      const hideStartup = () => {
+        if (!startup || !pageLoaded || startupHideScheduled) return;
+        startupHideScheduled = true;
+        const remaining = Math.max(0, 3000 - (performance.now() - startupStartedAt));
+        window.setTimeout(() => startup.classList.add('is-hidden'), remaining);
+      };
+      if (pageLoaded) {
+        hideStartup();
+      } else {
+        window.addEventListener('load', () => {
+          pageLoaded = true;
+          hideStartup();
+        }, { once: true });
+      }
 
       const status = document.createElement('div');
       status.id = 'np-pwa-status';
