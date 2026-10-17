@@ -479,51 +479,102 @@
       modalObserver.observe(el,{attributes:true,attributeFilter:['class','style']});
     });
 
-    // 5. 完了画面で紙吹雪。外部ライブラリに依存せず、二重発火も防ぐ。
+    // 5. 最終正答率を少し集計してから発表し、発表後に紙吹雪を表示する。
     function celebrateResult(screen) {
       if (screen.dataset.npCelebrated === '1') return;
       screen.dataset.npCelebrated = '1';
       const scoreEl = document.getElementById('final-score-val');
       const accuracy = scoreEl ? Number(scoreEl.textContent) : NaN;
-      if (reduceMotion || !Number.isFinite(accuracy)) return;
+      if (!Number.isFinite(accuracy)) return;
+      if (reduceMotion || typeof scoreEl.animate !== 'function') return;
 
-      // 既存の紙吹雪ライブラリがある場合はそのまま利用する。
-      if (typeof window.confetti === 'function') {
-        window.confetti({
-          particleCount: 42,
-          spread: 54,
-          startVelocity: 25,
-          scalar: 0.8,
-          origin: { y: 0.68 }
-        });
-        return;
-      }
+      const scoreLine = scoreEl.parentElement;
+      const scoreCard = scoreEl.closest('.p-6');
+      if (!scoreLine || !scoreCard) return;
 
-      // ライブラリがない場合の軽量なCSS紙吹雪。
-      const colors = ['#f59e0b', '#fcd34d', '#34d399', '#60a5fa', '#f472b6', '#c084fc'];
-      const layer = document.createElement('div');
-      layer.setAttribute('aria-hidden', 'true');
-      layer.style.cssText = 'position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:99999;';
-      for (let i = 0; i < 48; i++) {
-        const piece = document.createElement('i');
-        const duration = 1.7 + Math.random() * 1.3;
-        piece.style.cssText = [
-          'position:absolute',
-          'top:-14px',
-          'left:' + (Math.random() * 100) + '%',
-          'width:' + (5 + Math.random() * 5) + 'px',
-          'height:' + (7 + Math.random() * 7) + 'px',
-          'border-radius:2px',
-          'background:' + colors[i % colors.length],
-          'opacity:.95',
-          '--np-drift:' + ((Math.random() - .5) * 220) + 'px',
-          '--np-rotate:' + (Math.random() * 900 - 450) + 'deg',
-          'animation:npConfettiFall ' + duration + 's ease-in forwards'
-        ].join(';');
-        layer.appendChild(piece);
-      }
-      document.body.appendChild(layer);
-      window.setTimeout(() => layer.remove(), 4200);
+      // 正答率だけを一旦隠し、集計中の間を作る。採点や保存済み記録は変更しない。
+      const status = document.createElement('div');
+      status.className = 'np-accuracy-announcement';
+      status.setAttribute('role', 'status');
+      status.setAttribute('aria-live', 'polite');
+      status.textContent = '正答率を集計中';
+      status.style.cssText = 'font-size:12px;letter-spacing:.16em;color:#fcd34d;min-height:18px;margin:0 0 8px;opacity:.8;';
+      scoreLine.parentNode.insertBefore(status, scoreLine);
+      scoreEl.textContent = '0';
+      scoreLine.style.opacity = '.3';
+      scoreLine.style.filter = 'blur(5px)';
+      scoreLine.style.transform = 'scale(.96)';
+
+      scoreCard.animate(
+        [{ boxShadow:'0 0 0 rgba(245,158,11,0)', borderColor:'rgba(51,65,85,.65)' },
+         { boxShadow:'0 0 28px rgba(245,158,11,.18)', borderColor:'rgba(245,158,11,.55)' },
+         { boxShadow:'0 0 10px rgba(245,158,11,.08)', borderColor:'rgba(51,65,85,.65)' }],
+        { duration:1500, easing:'ease-in-out' }
+      );
+
+      window.setTimeout(() => {
+        if (!screen.isConnected || screen.classList.contains('hidden')) return;
+        status.textContent = '結果発表！';
+        status.style.opacity = '1';
+        status.animate(
+          [{ opacity:.35, transform:'translateY(5px) scale(.96)' },
+           { opacity:1, transform:'translateY(0) scale(1.06)', offset:.7 },
+           { opacity:1, transform:'translateY(0) scale(1)' }],
+          { duration:620, easing:'cubic-bezier(.22,1,.36,1)' }
+        );
+        scoreLine.animate(
+          [{ opacity:.3, filter:'blur(5px)', transform:'scale(.96)' },
+           { opacity:1, filter:'blur(0)', transform:'scale(1.12)', offset:.72 },
+           { opacity:1, filter:'blur(0)', transform:'scale(1)' }],
+          { duration:850, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' }
+        );
+
+        const startTime = performance.now();
+        const countDuration = 1500;
+        function countUp(now) {
+          if (!scoreEl.isConnected || screen.classList.contains('hidden')) return;
+          const progress = Math.min(1, (now - startTime) / countDuration);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          scoreEl.textContent = String(Math.round(accuracy * eased));
+          if (progress < 1) {
+            requestAnimationFrame(countUp);
+          } else {
+            scoreEl.textContent = String(accuracy);
+            status.remove();
+            // 発表のあとにだけ祝福演出を行う。
+            if (typeof window.confetti === 'function') {
+              window.confetti({
+                particleCount: accuracy === 100 ? 90 : 42,
+                spread: accuracy === 100 ? 68 : 54,
+                startVelocity: 25,
+                scalar: 0.8,
+                origin: { y: 0.68 }
+              });
+            } else {
+              const colors = ['#f59e0b', '#fcd34d', '#34d399', '#60a5fa', '#f472b6', '#c084fc'];
+              const layer = document.createElement('div');
+              layer.setAttribute('aria-hidden', 'true');
+              layer.style.cssText = 'position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:99999;';
+              for (let i = 0; i < 48; i++) {
+                const piece = document.createElement('i');
+                const duration = 1.7 + Math.random() * 1.3;
+                piece.style.cssText = [
+                  'position:absolute','top:-14px','left:' + (Math.random() * 100) + '%',
+                  'width:' + (5 + Math.random() * 5) + 'px','height:' + (7 + Math.random() * 7) + 'px',
+                  'border-radius:2px','background:' + colors[i % colors.length],'opacity:.95',
+                  '--np-drift:' + ((Math.random() - .5) * 220) + 'px',
+                  '--np-rotate:' + (Math.random() * 900 - 450) + 'deg',
+                  'animation:npConfettiFall ' + duration + 's ease-in forwards'
+                ].join(';');
+                layer.appendChild(piece);
+              }
+              document.body.appendChild(layer);
+              window.setTimeout(() => layer.remove(), 4200);
+            }
+          }
+        }
+        requestAnimationFrame(countUp);
+      }, 1450);
     }
   }
 
