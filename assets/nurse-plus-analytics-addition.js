@@ -396,11 +396,11 @@
       #${SCREEN_ID} .np-analytics-row,
       #${SCREEN_ID} .np-analytics-bar-col { color:#5b506d !important; }
       #${SCREEN_ID} .np-analytics-infographic-section {
-        animation:npInfographicReveal .72s cubic-bezier(.22,1,.36,1) both;
+        animation:npInfographicReveal 1.5s cubic-bezier(.22,1,.36,1) both;
       }
-      #${SCREEN_ID} .np-analytics-infographic-section:nth-of-type(2) { animation-delay:.06s; }
-      #${SCREEN_ID} .np-analytics-infographic-section:nth-of-type(3) { animation-delay:.12s; }
-      #${SCREEN_ID} .np-analytics-infographic-section:nth-of-type(4) { animation-delay:.18s; }
+      #${SCREEN_ID} .np-analytics-infographic-section:nth-of-type(2) { animation-delay:.12s; }
+      #${SCREEN_ID} .np-analytics-infographic-section:nth-of-type(3) { animation-delay:.24s; }
+      #${SCREEN_ID} .np-analytics-infographic-section:nth-of-type(4) { animation-delay:.36s; }
       #${SCREEN_ID} .np-analytics-bar { transform-origin:bottom center; will-change:transform; }
       #${SCREEN_ID} .np-analytics-fill { will-change:width; }
       @keyframes npInfographicReveal {
@@ -456,7 +456,7 @@
     const bars = Array.from(screen.querySelectorAll('.np-analytics-bar'));
     bars.forEach((bar, index) => {
       bar.style.transform = 'scaleY(0)';
-      bar.style.transition = 'transform 1050ms cubic-bezier(.22,1,.36,1) ' + Math.min(index * 65, 420) + 'ms';
+      bar.style.transition = 'transform 1900ms cubic-bezier(.22,1,.36,1) ' + Math.min(index * 65, 420) + 'ms';
       requestAnimationFrame(() => { bar.style.transform = 'scaleY(1)'; });
     });
 
@@ -464,7 +464,7 @@
     screen.querySelectorAll('.np-analytics-fill').forEach((fill, index) => {
       const targetWidth = fill.style.width || '0%';
       fill.style.width = '0%';
-      fill.style.transition = 'width 1150ms cubic-bezier(.22,1,.36,1) ' + Math.min(index * 90, 450) + 'ms';
+      fill.style.transition = 'width 2000ms cubic-bezier(.22,1,.36,1) ' + Math.min(index * 90, 450) + 'ms';
       requestAnimationFrame(() => { fill.style.width = targetWidth; });
     });
 
@@ -477,7 +477,7 @@
       if (!Number.isFinite(finalValue) || finalValue === 0) return;
       const suffix = match[2];
       const start = performance.now() + index * 90;
-      const duration = 900;
+      const duration = 1700;
       const tick = now => {
         const progress = Math.min(1, Math.max(0, (now - start) / duration));
         const eased = 1 - Math.pow(1 - progress, 3);
