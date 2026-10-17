@@ -362,7 +362,7 @@
     if (explanation) {
       const explanationObserver = new MutationObserver(() => {
         if (!reduceMotion && explanation.textContent.trim() && typeof explanation.animate === 'function') {
-          explanation.animate([[{opacity:0,transform:'translateY(5px)'},{opacity:1,transform:'translateY(0)'}],{duration:330,easing:'ease-out'});
+          explanation.animate([{opacity:0,transform:'translateY(5px)'},{opacity:1,transform:'translateY(0)'}],{duration:330,easing:'ease-out'});
         }
       });
       explanationObserver.observe(explanation,{childList:true,characterData:true,subtree:true});
