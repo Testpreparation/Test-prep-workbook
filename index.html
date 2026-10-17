@@ -550,7 +550,8 @@
   @media(prefers-reduced-motion:reduce){#np-theme-toggle{transition:none}}
 </style>
 
-  <link rel="stylesheet" href="./assets/nurse-plus-pwa-app-layout.css">\n</head>
+  <link rel="stylesheet" href="./assets/nurse-plus-pwa-app-layout.css">
+</head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative selection:bg-amber-500/30 selection:text-amber-200">
 
   <!-- 左上 ハンバーガーボタン -->
@@ -661,30 +662,39 @@
       background:#f8f3ff!important;
     }
 
-    /* 設定内の「テーマ・外観」「通知設定」などの項目を背景・文字とも同一にする */
+    /* 設定項目はモーダル・メニュー内のどちらでも同じ配色に統一 */
     #user-settings-modal #settings-accordion .np-settings-entry,
-    #user-settings-modal #settings-accordion #np-theme-settings-card {
+    #user-settings-modal #settings-accordion #np-theme-settings-card,
+    #drawer-settings-content #settings-accordion .np-settings-entry,
+    #drawer-settings-content #settings-accordion #np-theme-settings-card {
       background:#fff!important;
       background-color:#fff!important;
       background-image:none!important;
       border:1px solid #e8def3!important;
       color:#5b506d!important;
       box-shadow:none!important;
+      opacity:1!important;
     }
     #user-settings-modal #settings-accordion .np-settings-entry>span:first-child,
-    #user-settings-modal #settings-accordion #np-theme-settings-card>span:first-child {
+    #user-settings-modal #settings-accordion #np-theme-settings-card>span:first-child,
+    #drawer-settings-content #settings-accordion .np-settings-entry>span:first-child,
+    #drawer-settings-content #settings-accordion #np-theme-settings-card>span:first-child {
       color:#5b506d!important;
       font-size:.875rem!important;
       font-weight:600!important;
     }
     #user-settings-modal #settings-accordion .np-settings-entry>span[aria-hidden="true"],
-    #user-settings-modal #settings-accordion #np-theme-settings-card>span[aria-hidden="true"] {
+    #user-settings-modal #settings-accordion #np-theme-settings-card>span[aria-hidden="true"],
+    #drawer-settings-content #settings-accordion .np-settings-entry>span[aria-hidden="true"],
+    #drawer-settings-content #settings-accordion #np-theme-settings-card>span[aria-hidden="true"] {
       color:#a8a0b5!important;
       font-size:1.1rem!important;
       line-height:1!important;
     }
     #user-settings-modal #settings-accordion .np-settings-entry:hover,
-    #user-settings-modal #settings-accordion #np-theme-settings-card:hover {
+    #user-settings-modal #settings-accordion #np-theme-settings-card:hover,
+    #drawer-settings-content #settings-accordion .np-settings-entry:hover,
+    #drawer-settings-content #settings-accordion #np-theme-settings-card:hover {
       background:#f8f3ff!important;
       background-color:#f8f3ff!important;
     }
