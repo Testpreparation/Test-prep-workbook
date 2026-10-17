@@ -288,6 +288,90 @@
   @media(max-width:480px){.evo-grid{grid-template-columns:1fr}}
 </style>
 
+
+<style id="nurseplus-light-dashboard-fix">
+/* ホワイトモード：学習ホーム内のカードがダークグレーに残る問題を修正 */
+body.light-mode .evo-card,
+html.light-mode .evo-card,
+body[data-theme="light"] .evo-card,
+html[data-theme="light"] .evo-card,
+body.theme-light .evo-card,
+html.theme-light .evo-card {
+  background: linear-gradient(145deg, #ffffff 0%, #fffaff 100%) !important;
+  border: 1px solid #e8def5 !important;
+  box-shadow: 0 10px 28px rgba(115, 92, 145, .09) !important;
+  color: #37334a !important;
+}
+body.light-mode .evo-card *,
+html.light-mode .evo-card *,
+body[data-theme="light"] .evo-card *,
+html[data-theme="light"] .evo-card *,
+body.theme-light .evo-card *,
+html.theme-light .evo-card * {
+  --tw-text-opacity: 1;
+}
+body.light-mode .evo-card .text-slate-100,
+body.light-mode .evo-card .text-slate-200,
+body.light-mode .evo-card .text-slate-300,
+body.light-mode .evo-card .text-slate-400,
+body.light-mode .evo-card .text-slate-500,
+html.light-mode .evo-card .text-slate-100,
+html.light-mode .evo-card .text-slate-200,
+html.light-mode .evo-card .text-slate-300,
+html.light-mode .evo-card .text-slate-400,
+html.light-mode .evo-card .text-slate-500,
+body[data-theme="light"] .evo-card .text-slate-100,
+body[data-theme="light"] .evo-card .text-slate-200,
+body[data-theme="light"] .evo-card .text-slate-300,
+body[data-theme="light"] .evo-card .text-slate-400,
+body[data-theme="light"] .evo-card .text-slate-500,
+html[data-theme="light"] .evo-card .text-slate-100,
+html[data-theme="light"] .evo-card .text-slate-200,
+html[data-theme="light"] .evo-card .text-slate-300,
+html[data-theme="light"] .evo-card .text-slate-400,
+html[data-theme="light"] .evo-card .text-slate-500,
+body.theme-light .evo-card .text-slate-100,
+body.theme-light .evo-card .text-slate-200,
+body.theme-light .evo-card .text-slate-300,
+body.theme-light .evo-card .text-slate-400,
+body.theme-light .evo-card .text-slate-500,
+html.theme-light .evo-card .text-slate-100,
+html.theme-light .evo-card .text-slate-200,
+html.theme-light .evo-card .text-slate-300,
+html.theme-light .evo-card .text-slate-400,
+html.theme-light .evo-card .text-slate-500 {
+  color: #625b78 !important;
+}
+body.light-mode .evo-card .evo-progress,
+html.light-mode .evo-card .evo-progress,
+body[data-theme="light"] .evo-card .evo-progress,
+html[data-theme="light"] .evo-card .evo-progress,
+body.theme-light .evo-card .evo-progress,
+html.theme-light .evo-card .evo-progress {
+  background: #eee8f6 !important;
+}
+body.light-mode .evo-card .evo-chip,
+html.light-mode .evo-card .evo-chip,
+body[data-theme="light"] .evo-card .evo-chip,
+html[data-theme="light"] .evo-card .evo-chip,
+body.theme-light .evo-card .evo-chip,
+html.theme-light .evo-card .evo-chip {
+  background: #fff4d9 !important;
+  border-color: #f3dfaa !important;
+  color: #92712a !important;
+}
+body.light-mode .evo-card button,
+html.light-mode .evo-card button,
+body[data-theme="light"] .evo-card button,
+html[data-theme="light"] .evo-card button,
+body.theme-light .evo-card button,
+html.theme-light .evo-card button {
+  background: #f5f0fb !important;
+  border-color: #e5daf5 !important;
+  color: #625b78 !important;
+}
+</style>
+
 <style id="notice-time-wheel-css">
   .notice-time-wheel{height:108px;overflow-y:auto;overscroll-behavior:contain;scroll-snap-type:y mandatory;scrollbar-width:thin;scrollbar-color:#475569 transparent;border:1px solid #334155;border-radius:.65rem;background:rgba(2,6,23,.8);position:relative}
   .notice-time-wheel-spacer{height:36px;flex:none}
