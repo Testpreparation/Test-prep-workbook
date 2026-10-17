@@ -275,6 +275,62 @@
       color:#514b63 !important;
     }
 
+
+    /* Restore quiz interactions and controls; do not let theme styles hide them */
+    #screen-quiz-play #quiz-options-container,
+    #screen-quiz-play #quiz-options-container button,
+    #screen-quiz-play #quiz-submit-multi-btn,
+    #screen-quiz-play #quiz-keyboard-input-container,
+    #screen-quiz-play #quiz-feedback-box,
+    #screen-quiz-play #quiz-next-btn {
+      pointer-events:auto !important;
+      touch-action:manipulation !important;
+    }
+    #screen-quiz-play #quiz-options-container button.quiz-opt-btn {
+      display:flex !important;
+      visibility:visible !important;
+      opacity:1 !important;
+      position:relative !important;
+      z-index:2 !important;
+      min-height:44px !important;
+      cursor:pointer !important;
+    }
+    #screen-quiz-play #quiz-submit-multi-btn:not(.hidden),
+    #screen-quiz-play #quiz-keyboard-input-container:not(.hidden) button,
+    #screen-quiz-play #quiz-feedback-box:not(.hidden),
+    #screen-quiz-play #quiz-next-btn {
+      visibility:visible !important;
+      opacity:1 !important;
+    }
+    #screen-quiz-play #quiz-submit-multi-btn:not(.hidden),
+    #screen-quiz-play #quiz-keyboard-input-container:not(.hidden) button,
+    #screen-quiz-play #quiz-next-btn {
+      display:block !important;
+      min-height:44px !important;
+      width:100% !important;
+      position:relative !important;
+      z-index:5 !important;
+      cursor:pointer !important;
+    }
+    #screen-quiz-play #quiz-feedback-box:not(.hidden) {
+      display:block !important;
+      overflow:visible !important;
+      position:relative !important;
+      z-index:3 !important;
+    }
+    html[data-np-theme="light"] body #screen-quiz-play #quiz-options-container button.quiz-opt-btn {
+      background:#fffdfd !important;
+      color:#514b63 !important;
+      border-color:#e4dcef !important;
+    }
+    html[data-np-theme="light"] body #screen-quiz-play #quiz-submit-multi-btn:not(.hidden),
+    html[data-np-theme="light"] body #screen-quiz-play #quiz-keyboard-input-container button,
+    html[data-np-theme="light"] body #screen-quiz-play #quiz-next-btn {
+      background:#eee7fb !important;
+      color:#51446f !important;
+      border:1px solid #dcd0f1 !important;
+    }
+
     /* Light mode: analytics, subject condition, progress and statistics cards */
     html[data-np-theme="light"] body #screen-dashboard [class*="bg-"],
     html[data-np-theme="light"] body #screen-dashboard [class*="from-"],
