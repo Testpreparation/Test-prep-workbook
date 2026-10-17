@@ -4992,7 +4992,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         if (q.isMultiple) {
           submitBtn.classList.remove('hidden');
           container.innerHTML = q.options.map((opt, idx) => `
-            <button type="button" id="opt-btn-${idx}" onclick="toggleOptionSelect(${idx})" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center gap-3">
+            <button type="button" id="opt-btn-${idx}" data-option-index="${idx}" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center gap-3">
               <span id="opt-check-${idx}" class="w-4 h-4 rounded border border-slate-600 bg-slate-950 flex items-center justify-center font-bold text-[10px] text-amber-400 shrink-0"></span>
               <span>${opt}</span>
             </button>
@@ -5000,7 +5000,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         } else {
           submitBtn.classList.add('hidden');
           container.innerHTML = q.options.map((opt, idx) => `
-            <button type="button" onclick="handleSingleAnswer(${idx})" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center justify-between">
+            <button type="button" data-option-index="${idx}" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center justify-between">
               <span>${opt}</span>
               <span class="opt-mark hidden font-bold"></span>
             </button>
@@ -5008,7 +5008,28 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         }
       }
 
+      initQuizOptionClickHandler();
       startQuizTimer();
+    }
+
+    // 選択肢のタップを親コンテナで受け取り、iOS/WebViewでも確実に処理する。
+    function initQuizOptionClickHandler() {
+      const container = document.getElementById('quiz-options-container');
+      if (!container || container.dataset.optionClickHandlerReady === 'true') return;
+      container.dataset.optionClickHandlerReady = 'true';
+      container.addEventListener('click', (event) => {
+        const button = event.target.closest('.quiz-opt-btn[data-option-index]');
+        if (!button || !container.contains(button) || button.disabled || isAnswered) return;
+        event.preventDefault();
+        const optionIndex = Number.parseInt(button.dataset.optionIndex, 10);
+        if (!Number.isInteger(optionIndex)) return;
+        const question = activeQuestions[currentQIndex];
+        if (question && question.isMultiple) {
+          toggleOptionSelect(optionIndex);
+        } else {
+          handleSingleAnswer(optionIndex);
+        }
+      });
     }
 
     function toggleOptionSelect(idx) {
