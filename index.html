@@ -4198,39 +4198,91 @@
     }
 
     function prepareDrawerSettingsDropdown() {
-      /* Settings remain in the centered dialog rather than moving into the side drawer. */
       const modal = document.getElementById('user-settings-modal');
+      const settings = document.getElementById('settings-accordion');
+      const content = document.getElementById('drawer-settings-content');
       if (modal) {
         modal.setAttribute('aria-modal', 'true');
         modal.setAttribute('role', 'dialog');
       }
+      /* Main settings categories stay in the side drawer; only a final settings page uses the centered dialog. */
+      if (settings && content && settings.parentElement !== content) content.appendChild(settings);
+      const general = settings && Array.from(settings.querySelectorAll(':scope > details')).find(d => d.querySelector('summary')?.innerText.includes('一般'));
+      const themeButton = document.getElementById('np-theme-toggle');
+      const themeCard = themeButton && themeButton.closest('.rounded-xl');
+      if (themeCard && general && !themeCard.dataset.npThemePageReady) {
+        themeCard.dataset.npThemePageReady = '1';
+        themeCard.dataset.npThemeOriginalParent = '';
+        const originalParent = themeCard.parentElement;
+        themeCard._npThemeOriginalParent = originalParent;
+        themeCard.addEventListener('click', function(event) {
+          if (modal && modal.contains(themeCard)) return;
+          event.preventDefault();
+          event.stopPropagation();
+          openThemeSettingsPage(themeCard);
+        }, true);
+      }
+    }
+
+    function openThemeSettingsPage(themeCard) {
+      const overlay = document.getElementById('user-settings-overlay');
+      const modal = document.getElementById('user-settings-modal');
+      const settings = document.getElementById('settings-accordion');
+      const title = document.getElementById('user-settings-title');
+      if (!overlay || !modal || !settings || !themeCard) return;
+      themeCard._npThemeOriginalParent = themeCard._npThemeOriginalParent || themeCard.parentElement;
+      settings.appendChild(themeCard);
+      if (title) title.textContent = 'テーマ・外観';
+      const description = modal.querySelector('#user-settings-title')?.parentElement?.querySelector('p');
+      if (description) description.textContent = 'アプリ全体の表示モードを切り替えます。';
+      closeNavDrawer();
+      overlay.classList.remove('hidden');
+      modal.classList.remove('hidden');
+      modal.setAttribute('aria-modal', 'true');
+      modal.setAttribute('role', 'dialog');
+      modal.dataset.npThemePage = 'true';
     }
 
     function openUserSettings() {
       prepareDrawerSettingsDropdown();
-      closeNavDrawer();
-      const overlay = document.getElementById('user-settings-overlay');
-      const modal = document.getElementById('user-settings-modal');
+      closeUserSettings();
+      const drawer = document.getElementById('nav-drawer');
+      const overlay = document.getElementById('nav-overlay');
       const accordion = document.getElementById('drawer-settings-accordion');
-      if (accordion) accordion.open = false;
+      if (drawer) drawer.classList.remove('-translate-x-full');
       if (overlay) overlay.classList.remove('hidden');
-      if (modal) {
-        modal.classList.remove('hidden');
-        modal.setAttribute('aria-modal', 'true');
-        modal.setAttribute('role', 'dialog');
-      }
+      if (accordion) accordion.open = true;
+      const toggle = document.getElementById('drawer-settings-toggle');
+      if (toggle) toggle.setAttribute('aria-expanded', 'true');
     }
 
     function closeUserSettings() {
       const overlay = document.getElementById('user-settings-overlay');
       const modal = document.getElementById('user-settings-modal');
+      if (modal && modal.dataset.npThemePage === 'true') {
+        const themeCard = modal.querySelector('#np-theme-toggle')?.closest('.rounded-xl');
+        if (themeCard && themeCard._npThemeOriginalParent) themeCard._npThemeOriginalParent.appendChild(themeCard);
+        const title = document.getElementById('user-settings-title');
+        if (title) title.textContent = '設定';
+        const description = modal.querySelector('#user-settings-title')?.parentElement?.querySelector('p');
+        if (description) description.textContent = 'アカウントやアプリの表示を管理します。';
+        modal.dataset.npThemePage = '';
+        const settings = document.getElementById('settings-accordion');
+        const content = document.getElementById('drawer-settings-content');
+        if (settings && content && settings.parentElement !== content) content.appendChild(settings);
+      }
       if (overlay) overlay.classList.add('hidden');
       if (modal) modal.classList.add('hidden');
     }
 
     function toggleDrawerSettings(event) {
       if (event) event.preventDefault();
-      openUserSettings();
+      prepareDrawerSettingsDropdown();
+      const accordion = document.getElementById('drawer-settings-accordion');
+      if (!accordion) return;
+      accordion.open = !accordion.open;
+      const toggle = document.getElementById('drawer-settings-toggle');
+      if (toggle) toggle.setAttribute('aria-expanded', String(accordion.open));
     }
 
     function toggleNavDrawer() {
