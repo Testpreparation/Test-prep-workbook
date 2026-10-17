@@ -808,7 +808,7 @@
         <div class="evo-card">
           <div class="flex items-center justify-between mb-3">
             <span class="text-xs font-semibold text-slate-200">正答率の推移</span>
-            <span class="evo-chip">直近7回の学習日</span>
+            <span class="evo-chip">科目別正答率</span>
           </div>
           <div id="evo-accuracy-trend" class="grid grid-cols-7 gap-2 items-end min-h-[118px]"></div>
           <p id="evo-trend-summary" class="text-[10px] text-slate-500 mt-3">演習を完了すると推移が表示されます。</p>
@@ -4943,26 +4943,41 @@
     }
 
     function evoGetAccuracyTrendData() {
-      const byDate = {};
-      Object.keys(localStorage).forEach(key => {
-        if (!key.startsWith('history_accuracy_daily_')) return;
-        try {
-          const records = JSON.parse(localStorage.getItem(key) || '[]');
-          records.forEach(record => {
-            if (!record || !record.date || !Number.isFinite(Number(record.accuracy))) return;
-            if (!byDate[record.date]) byDate[record.date] = { sum: 0, count: 0 };
-            byDate[record.date].sum += Number(record.accuracy);
-            byDate[record.date].count += 1;
+      const subjectList = Array.isArray(subjects) ? subjects : (Array.isArray(defaultSubjects) ? defaultSubjects : []);
+      const data = [];
+      subjectList.forEach(subject => {
+        if (!subject || !subject.id) return;
+        const byDate = {};
+        const prefix = `history_accuracy_daily_${subject.id}_`;
+        Object.keys(localStorage).forEach(key => {
+          if (!key.startsWith(prefix)) return;
+          try {
+            const records = JSON.parse(localStorage.getItem(key) || '[]');
+            if (!Array.isArray(records)) return;
+            records.forEach(record => {
+              if (!record || !record.date || !Number.isFinite(Number(record.accuracy))) return;
+              if (!byDate[record.date]) byDate[record.date] = { sum: 0, count: 0 };
+              byDate[record.date].sum += Number(record.accuracy);
+              byDate[record.date].count += 1;
+            });
+          } catch (_) {}
+        });
+        const recent = Object.entries(byDate).map(([date, item]) => ({
+          date, accuracy: Math.round(item.sum / item.count)
+        })).sort((a, b) => {
+          const pa = a.date.split('/').map(Number), pb = b.date.split('/').map(Number);
+          return new Date(pa[0], pa[1] - 1, pa[2]) - new Date(pb[0], pb[1] - 1, pb[2]);
+        }).slice(-7);
+        if (recent.length) {
+          data.push({
+            id: subject.id,
+            name: subject.name || subject.code || subject.id,
+            accuracy: Math.round(recent.reduce((sum, item) => sum + item.accuracy, 0) / recent.length),
+            records: recent.length
           });
-        } catch (_) {}
+        }
       });
-      return Object.entries(byDate).map(([date, item]) => ({
-        date,
-        accuracy: Math.round(item.sum / item.count)
-      })).sort((a, b) => {
-        const pa = a.date.split('/').map(Number), pb = b.date.split('/').map(Number);
-        return new Date(pa[0], pa[1] - 1, pa[2]) - new Date(pb[0], pb[1] - 1, pb[2]);
-      }).slice(-7);
+      return data;
     }
 
     function evoRenderAccuracyTrend() {
@@ -4971,20 +4986,43 @@
       if (!box) return;
       const data = evoGetAccuracyTrendData();
       if (!data.length) {
+        box.style.gridTemplateColumns = '';
         box.innerHTML = '<div class="col-span-7 text-center text-[11px] text-slate-500 py-8">まだ演習履歴がありません。</div>';
-        if (summary) summary.textContent = '演習を完了すると正答率の推移が表示されます。';
+        if (summary) summary.textContent = '演習を完了すると科目別の正答率が表示されます。';
         return;
       }
-      box.innerHTML = data.map(item => {
-        const parts = item.date.split('/');
-        const label = `${Number(parts[1])}/${Number(parts[2])}`;
-        return `<div class="flex flex-col items-center justify-end h-[100px] min-w-0"><span class="text-[9px] font-mono text-slate-400 mb-1">${item.accuracy}%</span><div class="w-full max-w-[24px] rounded-t-md bg-gradient-to-t from-violet-300 to-emerald-200" style="height:${Math.max(6, item.accuracy)}%;min-height:6px" title="${item.date}: ${item.accuracy}%"></div><span class="text-[8px] text-slate-500 mt-2 whitespace-nowrap">${label}</span></div>`;
-      }).join('');
-      const first = data[0], last = data[data.length - 1];
-      const delta = last.accuracy - first.accuracy;
-      if (summary) summary.textContent = data.length > 1
-        ? `最初の記録 ${first.accuracy}% → 最新 ${last.accuracy}%（${delta > 0 ? '+' : ''}${delta}ポイント）`
-        : `記録日 ${first.date}・正答率 ${first.accuracy}%`;
+      const plotHeight = 90;
+      const points = data.map((item, index) => {
+        const x = ((index + 0.5) / data.length) * 1000;
+        const y = plotHeight - (Math.max(0, Math.min(100, item.accuracy)) / 100) * plotHeight;
+        return `${x},${y}`;
+      }).join(' ');
+      box.style.gridTemplateColumns = `repeat(${data.length}, minmax(0, 1fr))`;
+      box.innerHTML = `
+        <svg aria-hidden="true" viewBox="0 0 1000 ${plotHeight}" preserveAspectRatio="none" class="absolute inset-x-0 top-[18px] w-full pointer-events-none" style="height:${plotHeight}px;overflow:visible;z-index:2">
+          <polyline points="${points}" fill="none" stroke="#a78bfa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polyline>
+          ${data.map((item, index) => {
+            const x = ((index + 0.5) / data.length) * 1000;
+            const y = plotHeight - (Math.max(0, Math.min(100, item.accuracy)) / 100) * plotHeight;
+            return `<circle cx="${x}" cy="${y}" r="5" fill="#a78bfa" stroke="#ffffff" stroke-width="2" vector-effect="non-scaling-stroke"></circle>`;
+          }).join('')}
+        </svg>
+        ${data.map(item => `
+          <div class="relative flex min-w-0 flex-col items-center">
+            <span class="text-[9px] font-mono text-slate-400 mb-1">${item.accuracy}%</span>
+            <div class="relative w-full h-[90px]">
+              <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[min(24px,65%)] rounded-t-md bg-gradient-to-t from-violet-300 to-emerald-200" style="height:${Math.max(2, Math.min(100, item.accuracy))}%;min-height:2px" title="${item.name}: ${item.accuracy}%（直近${item.records}学習日）"></div>
+            </div>
+            <span class="text-[8px] text-slate-500 mt-2 text-center leading-tight break-words">${item.name}</span>
+          </div>`).join('')}`;
+      box.classList.add('relative');
+      if (summary) {
+        const best = data.reduce((a, b) => b.accuracy > a.accuracy ? b : a);
+        const lowest = data.reduce((a, b) => b.accuracy < a.accuracy ? b : a);
+        summary.textContent = data.length > 1
+          ? `科目別の直近7学習日の平均正答率です。最高：${best.name} ${best.accuracy}%／最低：${lowest.name} ${lowest.accuracy}%`
+          : `${data[0].name}：直近${data[0].records}学習日の平均正答率 ${data[0].accuracy}%`;
+      }
     }
 
     function evoRenderGrowth() {
