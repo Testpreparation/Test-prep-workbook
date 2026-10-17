@@ -5101,6 +5101,11 @@
       hideAllScreens();
       const el=document.getElementById('screen-data-analysis');
       if(el) el.classList.remove('hidden');
+      const originalAnalytics = document.getElementById('screen-analytics-addition');
+      if(originalAnalytics) originalAnalytics.classList.remove('hidden');
+      if(window.NursePlusAnalyticsAddition && typeof window.NursePlusAnalyticsAddition.render === 'function') {
+        window.NursePlusAnalyticsAddition.render();
+      }
       evoRenderAccuracyTrend();
       evoRenderGrowth();
       evoRenderMonthlyReport(new Date());
