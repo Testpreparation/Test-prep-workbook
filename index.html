@@ -13,6 +13,8 @@
       try {
         const savedTheme = localStorage.getItem('nurse_plus_theme');
         document.documentElement.classList.toggle('np-light-theme', savedTheme !== 'dark');
+        const savedFontSize = Number(localStorage.getItem('nurse_plus_text_size') || 100);
+        if (savedFontSize >= 85 && savedFontSize <= 120) document.documentElement.style.fontSize = savedFontSize + '%';
       } catch (_) {
         document.documentElement.classList.add('np-light-theme');
       }
@@ -580,7 +582,7 @@
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
         <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-sky-300">◇</span>プライバシー</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
         <div class="px-4 pb-4 space-y-2">
-          <button type="button" onclick="openSettingsDetail(\'privacy\')" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left"><span class="font-semibold text-sm">プライバシー</span><span class="text-slate-400" aria-hidden="true">›</span></button>
+          <button type="button" onclick="openSettingsDetail(\'privacy\')" class="np-settings-entry"><span>プライバシー</span><span aria-hidden="true">›</span></button>
         </div>
       </details>
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
@@ -590,13 +592,13 @@
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
         <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-violet-300">♡</span>ヘルプ・サポート</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
         <div class="px-4 pb-4 space-y-2">
-          <button type="button" onclick="openSettingsDetail(\'help\')" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left"><span class="font-semibold text-sm">ヘルプ・サポート</span><span class="text-slate-400" aria-hidden="true">›</span></button>
+          <button type="button" onclick="openSettingsDetail(\'help\')" class="np-settings-entry"><span>ヘルプ・サポート</span><span aria-hidden="true">›</span></button>
         </div>
       </details>
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
         <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-slate-300">ⓘ</span>アプリ情報</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
         <div class="px-4 pb-4 space-y-2">
-          <button type="button" onclick="openSettingsDetail(\'info\')" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left"><span class="font-semibold text-sm">アプリ情報</span><span class="text-slate-400" aria-hidden="true">›</span></button>
+          <button type="button" onclick="openSettingsDetail(\'info\')" class="np-settings-entry"><span>アプリ情報</span><span aria-hidden="true">›</span></button>
         </div>
       </details>
       <details class="group rounded-xl border border-amber-500/25 bg-amber-500/5 overflow-hidden">
@@ -636,7 +638,7 @@
     #settings-accordion>details>summary{padding:.55rem .75rem!important;font-size:.82rem!important;line-height:1.25}
     #settings-accordion>details>div{padding-left:.75rem!important;padding-right:.75rem!important;padding-bottom:.65rem!important}
     #user-settings-modal,#settings-accordion{font-size:.9rem}
-    html.np-accessibility-large-text{font-size:110%}
+    #np-text-size-slider{width:100%;accent-color:#a78bfa}
     html.np-accessibility-reduced-motion *,html.np-accessibility-reduced-motion *::before,html.np-accessibility-reduced-motion *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
   </style>
   <style id="drawer-settings-dropdown-style">
@@ -4439,7 +4441,7 @@
       if (!overlay || !modal || !title || !body) return;
       const loggedIn = Boolean(localStorage.getItem('nurse_line_user_session'));
       const noticeEnabled = localStorage.getItem('nurse_plus_in_app_notices') !== 'off';
-      const largeText = document.documentElement.classList.contains('np-accessibility-large-text');
+      const textSize = Number(localStorage.getItem('nurse_plus_text_size') || 100);
       const reducedMotion = document.documentElement.classList.contains('np-accessibility-reduced-motion');
       const getStudyKeys = () => {
         const keys = [];
@@ -4464,7 +4466,7 @@
         },
         privacy: {
           title: 'プライバシー',
-          body: '<p>学習履歴は、問題演習の結果や学習状況の表示に利用されます。</p><div class="mt-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-medium text-slate-700">保存データ</div><p class="mt-1">この端末の学習記録キー：' + getStudyKeys().length + '件</p><p class="mt-2 text-xs text-slate-500">LINE連携情報と学習履歴は別のデータとして扱われます。</p></div><button type="button" onclick="openSettingsDetail(\'data\')" class="mt-3 np-settings-entry"><span>データ管理を開く</span><span aria-hidden="true">›</span></button>'
+          body: '<p>この画面では、Nurse＋が学習記録をどのように扱うかを確認できます。</p><div class="mt-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-medium text-slate-700">学習記録について</div><p class="mt-1">演習結果や学習状況は、アプリ内の復習・データ分析などの表示に利用されます。</p><p class="mt-2">この端末で確認できる学習記録キー：' + getStudyKeys().length + '件</p></div><div class="mt-3 rounded-xl border border-violet-100 bg-white p-3"><div class="font-medium text-slate-700">アカウント情報について</div><p class="mt-1">LINEログインのセッション情報と、この端末の学習記録は別々に扱われます。共有端末を使う場合は、ログイン状態や保存データにご注意ください。</p></div><p class="mt-3 text-xs text-slate-500">保存された学習記録は「データ管理」から削除できます。削除した記録は元に戻せません。</p><button type="button" onclick="openSettingsDetail(\'data\')" class="mt-3 np-settings-entry"><span>データ管理を開く</span><span aria-hidden="true">›</span></button>'
         },
         data: {
           title: 'データ管理',
@@ -4472,7 +4474,7 @@
         },
         accessibility: {
           title: 'アクセシビリティ',
-          body: '<p>文字の見やすさやアニメーションを調整します。</p><label class="mt-3 flex items-center justify-between gap-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><span class="font-medium text-slate-700">文字を少し大きくする</span><input id="np-large-text-toggle" type="checkbox" class="h-4 w-4 accent-violet-500" ' + (largeText ? 'checked' : '') + '></label><label class="mt-2 flex items-center justify-between gap-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><span class="font-medium text-slate-700">アニメーションを減らす</span><input id="np-reduced-motion-toggle" type="checkbox" class="h-4 w-4 accent-violet-500" ' + (reducedMotion ? 'checked' : '') + '></label>'
+          body: '<p>文字の大きさをスライダーで調整できます。設定はこの端末に保存されます。</p><label class="mt-3 block rounded-xl border border-violet-100 bg-violet-50/70 p-3"><span class="flex items-center justify-between gap-3 font-medium text-slate-700"><span>文字サイズ</span><strong id="np-text-size-value">' + textSize + '%</strong></span><input id="np-text-size-slider" type="range" min="85" max="120" step="5" value="' + textSize + '" class="mt-3 w-full accent-violet-500" aria-label="文字サイズ"></label><p class="mt-2 text-xs text-slate-500">小さめ 85% ～ 標準 100% ～ 大きめ 120%</p><label class="mt-2 flex items-center justify-between gap-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><span class="font-medium text-slate-700">アニメーションを減らす</span><input id="np-reduced-motion-toggle" type="checkbox" class="h-4 w-4 accent-violet-500" ' + (reducedMotion ? 'checked' : '') + '></label>'
         },
         help: {
           title: 'ヘルプ・サポート',
@@ -4480,7 +4482,7 @@
         },
         info: {
           title: 'アプリ情報',
-          body: '<div class="rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-semibold text-slate-700">Nurse＋</div><p class="mt-1">看護学習サポートアプリ</p><p class="mt-2 text-xs text-slate-500">学習用Webアプリとして提供されています。</p></div>'
+          body: '<div class="rounded-xl border border-violet-100 bg-violet-50/70 p-4"><div class="text-xs tracking-widest text-violet-500">NURSE PLUS</div><div class="mt-1 text-xl font-semibold text-slate-700">Nurse＋</div><p class="mt-2">看護学習サポートアプリ</p><p class="mt-2 text-sm">看護学の問題演習、暗記カード、学習状況の振り返りをサポートする学習用Webアプリです。</p></div><div class="mt-3 rounded-xl border border-violet-100 bg-white p-3"><div class="font-medium text-slate-700">主な機能</div><ul class="mt-2 list-disc pl-5 space-y-1 text-sm"><li>科目別の問題演習・小テスト</li><li>暗記カードでの復習</li><li>学習状況・演習履歴の確認</li><li>対応する場合のLINEログイン・学習状況同期</li><li>テーマや文字サイズなどの表示設定</li></ul></div><p class="mt-3 text-xs text-slate-500">ブラウザから利用できる学習用アプリです。利用できる科目・機能は、アプリ内の案内をご確認ください。</p>'
         }
       };
       const page = pages[type];
@@ -4492,9 +4494,12 @@
       body.querySelector('#np-notice-toggle')?.addEventListener('change', event => {
         localStorage.setItem('nurse_plus_in_app_notices', event.target.checked ? 'on' : 'off');
       });
-      body.querySelector('#np-large-text-toggle')?.addEventListener('change', event => {
-        document.documentElement.classList.toggle('np-accessibility-large-text', event.target.checked);
-        localStorage.setItem('nurse_plus_large_text', event.target.checked ? 'on' : 'off');
+      body.querySelector('#np-text-size-slider')?.addEventListener('input', event => {
+        const value = Number(event.target.value);
+        document.documentElement.style.fontSize = value + '%';
+        localStorage.setItem('nurse_plus_text_size', String(value));
+        const output = body.querySelector('#np-text-size-value');
+        if (output) output.textContent = value + '%';
       });
       body.querySelector('#np-reduced-motion-toggle')?.addEventListener('change', event => {
         document.documentElement.classList.toggle('np-accessibility-reduced-motion', event.target.checked);
