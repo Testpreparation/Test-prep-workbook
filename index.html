@@ -574,7 +574,6 @@
         <div class="px-4 pb-4 space-y-2">
           <button id="np-theme-settings-card" type="button" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left cursor-pointer hover:bg-slate-800/70 transition" aria-label="テーマ・外観を開く"><span class="font-semibold text-sm">テーマ・外観</span><span class="text-slate-400" aria-hidden="true">›</span></button>
           <button type="button" onclick="openSettingsDetail('notifications')" class="np-settings-entry"><span>通知設定</span><span aria-hidden="true">›</span></button>
-          <button type="button" onclick="openSettingsDetail('sync')" class="np-settings-entry"><span>学習記録の同期</span><span aria-hidden="true">›</span></button>
           <button type="button" onclick="openSettingsDetail('accessibility')" class="np-settings-entry"><span>アクセシビリティ</span><span aria-hidden="true">›</span></button>
         </div>
       </details>
@@ -4453,14 +4452,14 @@
       const pages = {
         account: {
           title: 'アカウント',
-          body: '<div class="rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-semibold text-slate-700">LINEログイン状態</div><p class="mt-1 text-sm">' + (loggedIn ? 'LINEログイン情報がこの端末に保存されています。' : '未ログインです。') + '</p><a href="https://nurse-line-system.onrender.com/auth/line" class="mt-3 inline-flex rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm text-emerald-700">LINEログイン／連携 ↗</a></div><p class="mt-3 text-xs text-slate-500">ログイン状態は端末に保存されたセッション情報をもとに表示しています。</p>'
+          body: '<div class="rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-semibold text-slate-700">LINEログイン状態</div><p class="mt-1 text-sm">' + (loggedIn ? 'LINEログイン情報がこの端末に保存されています。' : '未ログインです。') + '</p><a href="https://nurse-line-system.onrender.com/auth/line" class="mt-3 inline-flex rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm text-emerald-700">LINEログイン／連携 ↗</a></div><p class="mt-3 text-xs text-slate-500">ログイン状態は端末に保存されたセッション情報をもとに表示しています。</p><button type="button" onclick="openSettingsDetail(&quot;sync&quot;)" class="mt-3 np-settings-entry"><span>学習状況を同期</span><span aria-hidden="true">›</span></button><p class="mt-2 text-xs text-slate-500">LINEログイン後、保存済みの学習状況を端末間で同期する設定を確認できます。</p>'
         },
         notifications: {
           title: '通知設定',
           body: '<p>アプリ内のお知らせ表示に関する設定です。</p><label class="mt-3 flex items-center justify-between gap-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><span><span class="block font-medium text-slate-700">アプリ内のお知らせ</span><span class="block text-xs text-slate-500 mt-1">この端末の設定を保存します。</span></span><input id="np-notice-toggle" type="checkbox" class="h-4 w-4 accent-violet-500" ' + (noticeEnabled ? 'checked' : '') + '></label><p class="mt-3 text-xs text-slate-500">公式LINEからの配信設定は変更しません。</p>'
         },
         sync: {
-          title: '学習記録の同期',
+          title: '学習状況を同期',
           body: '<p>LINEログインした端末間で、保存済みの学習記録を同期できます。</p><div class="mt-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><p class="font-medium text-slate-700">同期状態</p><p class="mt-1">' + (loggedIn ? 'LINEログイン済みです。データ分析画面の「今すぐ同期」から同期を実行できます。' : '同期するには先にLINEログインしてください。') + '</p></div><button type="button" onclick="closeSettingsDetail();openSettingsDetail(\'account\')" class="mt-3 np-settings-entry"><span>アカウント設定を開く</span><span aria-hidden="true">›</span></button>'
         },
         privacy: {
@@ -4477,7 +4476,7 @@
         },
         help: {
           title: 'ヘルプ・サポート',
-          body: '<div class="rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-medium text-slate-700">基本的な使い方</div><p class="mt-1">メニューから科目を選択し、演習モードを選んで学習できます。データ分析では保存された演習履歴を確認できます。</p></div><p class="mt-3 text-xs text-slate-500">問い合わせ先は、公式の案内が設定された際にこの画面へ追加します。</p>'
+          body: '<div class="rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-medium text-slate-700">基本的な使い方</div><p class="mt-1">メニューから科目を選択し、演習モードを選んで学習できます。データ分析では保存された演習履歴を確認できます。</p></div><div class="mt-3 rounded-xl border border-violet-100 bg-white p-3"><div class="font-semibold text-slate-700">設定項目のヘルプ</div><div class="mt-2 space-y-3 text-sm text-slate-600"><p><span class="font-semibold text-slate-700">アカウント：</span>LINEログイン状態と連携を確認します。学習状況の同期設定もここから開けます。</p><p><span class="font-semibold text-slate-700">テーマ・外観：</span>アプリ全体をホワイト／ダーク表示に切り替えます。</p><p><span class="font-semibold text-slate-700">通知設定：</span>この端末でアプリ内のお知らせを表示するか設定します。公式LINEの配信設定には影響しません。</p><p><span class="font-semibold text-slate-700">学習状況を同期：</span>LINEログイン後、対応する端末間で学習記録を同期する際の状態や手順を確認します。</p><p><span class="font-semibold text-slate-700">プライバシー：</span>学習記録の利用目的や保存状況を確認します。</p><p><span class="font-semibold text-slate-700">データ管理：</span>この端末に保存された学習記録の件数を確認し、必要に応じて削除します。削除した記録は元に戻せません。</p><p><span class="font-semibold text-slate-700">アクセシビリティ：</span>文字サイズやアニメーションの表示を調整します。</p></div></div><p class="mt-3 text-xs text-slate-500">問い合わせ先は、公式の案内が設定された際にこの画面へ追加します。</p>'
         },
         info: {
           title: 'アプリ情報',
