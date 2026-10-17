@@ -298,12 +298,47 @@
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative selection:bg-amber-500/30 selection:text-amber-200">
 
-  <!-- 左上 ハンバーガーボタン -->
-  <div class="fixed top-4 left-4 sm:top-6 sm:left-6 z-40">
+  <!-- 左上：メニュー＋設定 -->
+  <div class="fixed top-4 left-4 sm:top-6 sm:left-6 z-40 flex items-center gap-2">
     <button onclick="toggleNavDrawer()" class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white transition backdrop-blur-md shadow-lg" aria-label="メニューを開く">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
     </button>
+    <button type="button" onclick="openUserSettings()" class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/60 text-slate-300 hover:text-amber-300 transition backdrop-blur-md shadow-lg" aria-label="設定を開く" title="設定">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m19.4 15 .1.1a1.8 1.8 0 0 1-2.5 2.5l-.1-.1a1.8 1.8 0 0 0-3 .9v.2a1.8 1.8 0 0 1-3.6 0v-.2a1.8 1.8 0 0 0-3-.9l-.1.1a1.8 1.8 0 0 1-2.5-2.5l.1-.1a1.8 1.8 0 0 0-.9-3h-.2a1.8 1.8 0 0 1 0-3.6h.2a1.8 1.8 0 0 0 .9-3l-.1-.1a1.8 1.8 0 0 1 2.5-2.5l.1.1a1.8 1.8 0 0 0 3-.9v-.2a1.8 1.8 0 0 1 3.6 0v.2a1.8 1.8 0 0 0 3 .9l.1-.1a1.8 1.8 0 0 1 2.5 2.5l-.1.1a1.8 1.8 0 0 0 .9 3h.2a1.8 1.8 0 0 1 0 3.6h-.2a1.8 1.8 0 0 0-.9 3Z"/></svg>
+    </button>
   </div>
+
+  <!-- 設定モーダル：ログイン・アカウント関連 -->
+  <div id="user-settings-overlay" onclick="closeUserSettings()" class="hidden fixed inset-0 bg-slate-950/65 backdrop-blur-sm z-[70]"></div>
+  <section id="user-settings-modal" role="dialog" aria-modal="true" aria-labelledby="user-settings-title" class="hidden fixed z-[71] inset-x-4 top-1/2 -translate-y-1/2 max-w-md mx-auto rounded-2xl border border-slate-700 bg-slate-900/95 backdrop-blur-xl shadow-2xl p-5 text-slate-200">
+    <div class="flex items-center justify-between gap-3 pb-4 border-b border-slate-700">
+      <div>
+        <div class="en-title text-[10px] tracking-[.2em] text-amber-400">SETTINGS</div>
+        <h2 id="user-settings-title" class="serif-title text-xl mt-1">設定</h2>
+      </div>
+      <button type="button" onclick="closeUserSettings()" class="rounded-lg p-2 text-slate-400 hover:text-white hover:bg-slate-800" aria-label="設定を閉じる">✕</button>
+    </div>
+    <div class="space-y-3 pt-4">
+      <div class="rounded-xl border border-slate-700 bg-slate-800/60 p-4">
+        <div class="flex items-center gap-3">
+          <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300 font-bold text-xs">LINE</span>
+          <div class="min-w-0 flex-1">
+            <div class="font-semibold text-sm">ログイン・アカウント連携</div>
+            <p class="text-xs text-slate-400 mt-1">LINEアカウントでログインし、表示名を連携します。</p>
+          </div>
+        </div>
+        <a href="https://nurse-line-system.onrender.com/auth/line" class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-300 hover:bg-emerald-500/20 transition">
+          <span>LINEでログイン</span><span aria-hidden="true">↗</span>
+        </a>
+        <p class="text-[11px] text-slate-500 mt-2">ログイン後は、連携状態がサーバー側の設定に従って管理されます。</p>
+      </div>
+      <div class="rounded-xl border border-slate-700 bg-slate-800/40 p-4">
+        <div class="font-semibold text-sm">表示設定</div>
+        <p class="text-xs text-slate-400 mt-1">テーマの切り替えは画面右上のテーマボタンから行えます。</p>
+      </div>
+    </div>
+    <button type="button" onclick="closeUserSettings()" class="mt-4 w-full rounded-xl border border-slate-700 bg-slate-800/70 py-3 text-sm hover:bg-slate-700 transition">閉じる</button>
+  </section>
 
   <!-- スライドメニュー -->
   <div id="nav-overlay" onclick="closeNavDrawer()" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 transition-opacity"></div>
@@ -3928,7 +3963,23 @@
       });
     }
 
-    function toggleNavDrawer() {
+    function openUserSettings() {
+    const overlay = document.getElementById('user-settings-overlay');
+    const modal = document.getElementById('user-settings-modal');
+    if (!overlay || !modal) return;
+    overlay.classList.remove('hidden');
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeUserSettings() {
+    const overlay = document.getElementById('user-settings-overlay');
+    const modal = document.getElementById('user-settings-modal');
+    if (overlay) overlay.classList.add('hidden');
+    if (modal) modal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  function toggleNavDrawer() {
       const drawer = document.getElementById('nav-drawer');
       const overlay = document.getElementById('nav-overlay');
       const isOpen = !drawer.classList.contains('-translate-x-full');
