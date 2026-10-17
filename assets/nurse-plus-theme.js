@@ -32,6 +32,75 @@
     html[data-np-theme="light"] #np-theme-toggle { background:rgba(255,253,255,.95); color:#37344e; border-color:#e3d9f5; box-shadow:0 8px 24px rgba(78,67,112,.12); }
     html[data-np-theme="light"] #np-theme-setting { background:#f5f0ff; border-color:#e3d7fb; color:#34364a; }
     html[data-np-theme="light"] .bg-black\/70, html[data-np-theme="light"] .bg-black\/80 { background-color:rgba(48,39,68,.45) !important; }
+
+    /* Full light-theme coverage for Tailwind utility colors used throughout the app */
+    html[data-np-theme="light"] body [class*="bg-"] { background-image:none; }
+    html[data-np-theme="light"] body [class*="bg-slate-"], html[data-np-theme="light"] body [class*="bg-gray-"], html[data-np-theme="light"] body [class*="bg-zinc-"], html[data-np-theme="light"] body [class*="bg-neutral-"], html[data-np-theme="light"] body [class*="bg-stone-"] { background-color:#fffdfd !important; }
+    html[data-np-theme="light"] body [class*="bg-emerald-"], html[data-np-theme="light"] body [class*="bg-green-"], html[data-np-theme="light"] body [class*="bg-teal-"] { background-color:#e3f6ed !important; }
+    html[data-np-theme="light"] body [class*="bg-cyan-"], html[data-np-theme="light"] body [class*="bg-sky-"], html[data-np-theme="light"] body [class*="bg-blue-"] { background-color:#e7f0ff !important; }
+    html[data-np-theme="light"] body [class*="bg-indigo-"], html[data-np-theme="light"] body [class*="bg-violet-"], html[data-np-theme="light"] body [class*="bg-purple-"], html[data-np-theme="light"] body [class*="bg-fuchsia-"] { background-color:#f0eaff !important; }
+    html[data-np-theme="light"] body [class*="bg-pink-"], html[data-np-theme="light"] body [class*="bg-rose-"] { background-color:#fff0f5 !important; }
+    html[data-np-theme="light"] body [class*="bg-amber-"], html[data-np-theme="light"] body [class*="bg-yellow-"], html[data-np-theme="light"] body [class*="bg-orange-"] { background-color:#fff5df !important; }
+    html[data-np-theme="light"] body [class*="text-white"], html[data-np-theme="light"] body [class*="text-slate-50"], html[data-np-theme="light"] body [class*="text-gray-50"], html[data-np-theme="light"] body [class*="text-zinc-50"] { color:#343247 !important; }
+    html[data-np-theme="light"] body [class*="text-slate-"], html[data-np-theme="light"] body [class*="text-gray-"], html[data-np-theme="light"] body [class*="text-zinc-"], html[data-np-theme="light"] body [class*="text-neutral-"], html[data-np-theme="light"] body [class*="text-stone-"] { color:#444258 !important; }
+    html[data-np-theme="light"] body [class*="text-emerald-"], html[data-np-theme="light"] body [class*="text-green-"], html[data-np-theme="light"] body [class*="text-teal-"] { color:#217653 !important; }
+    html[data-np-theme="light"] body [class*="text-cyan-"], html[data-np-theme="light"] body [class*="text-sky-"], html[data-np-theme="light"] body [class*="text-blue-"] { color:#3f5eb6 !important; }
+    html[data-np-theme="light"] body [class*="text-indigo-"], html[data-np-theme="light"] body [class*="text-violet-"], html[data-np-theme="light"] body [class*="text-purple-"], html[data-np-theme="light"] body [class*="text-fuchsia-"] { color:#6652a5 !important; }
+    html[data-np-theme="light"] body [class*="text-pink-"], html[data-np-theme="light"] body [class*="text-rose-"] { color:#a34d76 !important; }
+    html[data-np-theme="light"] body [class*="text-amber-"], html[data-np-theme="light"] body [class*="text-yellow-"], html[data-np-theme="light"] body [class*="text-orange-"] { color:#94621c !important; }
+    html[data-np-theme="light"] body [class*="border-"] { border-color:#e5deef !important; }
+    html[data-np-theme="light"] body [class*="from-slate-"], html[data-np-theme="light"] body [class*="to-slate-"], html[data-np-theme="light"] body [class*="via-slate-"],
+    html[data-np-theme="light"] body [class*="from-gray-"], html[data-np-theme="light"] body [class*="to-gray-"], html[data-np-theme="light"] body [class*="via-gray-"] { --tw-gradient-from:#fffdfd var(--tw-gradient-from-position) !important; --tw-gradient-to:rgb(255 253 253 / 0) var(--tw-gradient-to-position) !important; --tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to) !important; }
+    html[data-np-theme="light"] body [class*="shadow-2xl"], html[data-np-theme="light"] body [class*="shadow-xl"], html[data-np-theme="light"] body [class*="shadow-lg"] { --tw-shadow:0 10px 28px rgba(87,72,122,.09) !important; box-shadow:0 10px 28px rgba(87,72,122,.09) !important; }
+    html[data-np-theme="light"] body .text-transparent { color:#6652a5 !important; }
+    html[data-np-theme="light"] body button:disabled { opacity:.55; }
+    html[data-np-theme="light"] body table, html[data-np-theme="light"] body th, html[data-np-theme="light"] body td { border-color:#e5deef !important; }
+
+    /* Subject selection buttons: explicitly replace dark cards and gradient buttons in every subject list */
+    html[data-np-theme="light"] #subject-list-container > *, 
+    html[data-np-theme="light"] #flashcard-subject-list-container > * {
+      background:#fffdfd !important; background-image:none !important; color:#39364d !important;
+      border:1px solid #e7def4 !important; box-shadow:0 5px 16px rgba(105,84,145,.08) !important;
+      border-radius:16px !important;
+    }
+    html[data-np-theme="light"] #subject-list-container > *:nth-child(4n+1),
+    html[data-np-theme="light"] #flashcard-subject-list-container > *:nth-child(4n+1) { background:#fff0f5 !important; }
+    html[data-np-theme="light"] #subject-list-container > *:nth-child(4n+2),
+    html[data-np-theme="light"] #flashcard-subject-list-container > *:nth-child(4n+2) { background:#f0eaff !important; }
+    html[data-np-theme="light"] #subject-list-container > *:nth-child(4n+3),
+    html[data-np-theme="light"] #flashcard-subject-list-container > *:nth-child(4n+3) { background:#eaf5ff !important; }
+    html[data-np-theme="light"] #subject-list-container > *:nth-child(4n),
+    html[data-np-theme="light"] #flashcard-subject-list-container > *:nth-child(4n) { background:#eaf8f0 !important; }
+    html[data-np-theme="light"] #subject-list-container > * *,
+    html[data-np-theme="light"] #flashcard-subject-list-container > * * { color:#454057 !important; }
+    html[data-np-theme="light"] #semester-spring-btn,
+    html[data-np-theme="light"] #semester-autumn-btn {
+      background:#fffdfd !important; background-image:none !important; color:#454057 !important;
+      border:1px solid #e3d9f3 !important; box-shadow:0 6px 18px rgba(105,84,145,.08) !important;
+    }
+    html[data-np-theme="light"] #semester-spring-btn:hover,
+    html[data-np-theme="light"] #semester-autumn-btn:hover { background:#f4efff !important; border-color:#cfc0f1 !important; }
+    /* Any app button with dark/gradient Tailwind classes becomes a soft pastel button in light mode */
+    html[data-np-theme="light"] body button[class*="bg-slate-"],
+    html[data-np-theme="light"] body button[class*="bg-gray-"],
+    html[data-np-theme="light"] body button[class*="bg-zinc-"],
+    html[data-np-theme="light"] body button[class*="bg-neutral-"],
+    html[data-np-theme="light"] body button[class*="from-slate-"],
+    html[data-np-theme="light"] body button[class*="from-gray-"] {
+      background:#f0eaff !important; background-image:none !important; color:#49405f !important; border-color:#e0d5f4 !important;
+    }
+    html[data-np-theme="light"] body button[class*="from-amber-"],
+    html[data-np-theme="light"] body button[class*="bg-amber-"] {
+      background:#fff0d8 !important; background-image:none !important; color:#795522 !important; border-color:#f1dfbd !important;
+    }
+    html[data-np-theme="light"] body button[class*="from-emerald-"],
+    html[data-np-theme="light"] body button[class*="from-teal-"],
+    html[data-np-theme="light"] body button[class*="bg-emerald-"],
+    html[data-np-theme="light"] body button[class*="bg-green-"] {
+      background:#e3f6ed !important; background-image:none !important; color:#27674f !important; border-color:#ccebdc !important;
+    }
+    html[data-np-theme="light"] body button:hover { filter:brightness(.985); }
+    html[data-np-theme="light"] body button:active { transform:scale(.985); }
     @media (max-width:640px) { #np-theme-toggle { top:12px; right:12px; padding:8px 10px; } }
     @media (prefers-reduced-motion: reduce) { body, body * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
   `;
