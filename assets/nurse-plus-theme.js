@@ -262,10 +262,30 @@
     @media (max-width:640px) { #np-theme-toggle { top:12px; right:12px; padding:8px 10px; } }
     @media (prefers-reduced-motion: reduce) { body, body * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
   `;
-  function apply(mode) {
+  function saveMode(mode) {
+    try { localStorage.setItem(KEY, mode); } catch (_) {}
+    try { sessionStorage.setItem(KEY, mode); } catch (_) {}
+    try { document.cookie = KEY + '=' + mode + '; Max-Age=31536000; Path=/; SameSite=Lax'; } catch (_) {}
+  }
+  function readMode() {
+    try {
+      const stored = localStorage.getItem(KEY);
+      if (stored === 'light' || stored === 'dark') return stored;
+    } catch (_) {}
+    try {
+      const session = sessionStorage.getItem(KEY);
+      if (session === 'light' || session === 'dark') return session;
+    } catch (_) {}
+    try {
+      const match = document.cookie.match(new RegExp('(?:^|; )' + KEY + '=(light|dark)(?:;|$)'));
+      if (match) return match[1];
+    } catch (_) {}
+    return 'dark';
+  }
+  function apply(mode, persist = true) {
     const next = mode === 'light' ? 'light' : 'dark';
     document.documentElement.dataset.npTheme = next;
-    try { localStorage.setItem(KEY, next); } catch (_) {}
+    if (persist) saveMode(next);
     const icon = document.querySelector('#np-theme-toggle .np-theme-icon');
     const label = document.querySelector('#np-theme-toggle .np-theme-label');
     if (icon) icon.textContent = next === 'dark' ? '☀' : '☾';
@@ -293,9 +313,14 @@
       const menu = drawer.querySelector('.mt-6.space-y-2\.5') || drawer.querySelector('.mt-6');
       if (menu) menu.appendChild(setting); else drawer.appendChild(setting);
     }
-    let saved = 'dark';
-    try { saved = localStorage.getItem(KEY) || 'dark'; } catch (_) {}
-    apply(saved);
+    apply(readMode(), false);
   }
+  // Apply the saved theme before the full UI mounts to avoid flashing back to dark.
+  apply(readMode(), false);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once:true }); else mount();
+  // Re-apply after iOS Safari/LINE webview restores a page from its back-forward cache.
+  window.addEventListener('pageshow', () => apply(readMode(), false));
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) apply(readMode(), false);
+  });
 })();
