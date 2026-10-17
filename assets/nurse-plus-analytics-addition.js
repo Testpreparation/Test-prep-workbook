@@ -295,6 +295,48 @@
     style.id = STYLE_ID;
     style.textContent = `
       /* ホワイトモード：分析画面全体をミルクホワイト×パステルに統一 */
+      /* 強制適用：テーマ切替後も分析画面のカード・文字・内側パネルをホワイト化 */
+      html[data-np-theme="light"] body #${SCREEN_ID},
+      html[data-np-theme="light"] body #${SCREEN_ID} .np-analytics-card,
+      html[data-np-theme="light"] body #${SCREEN_ID} .np-analytics-card [class*="bg-slate-950"],
+      html[data-np-theme="light"] body #${SCREEN_ID} .np-analytics-card [class*="bg-slate-900"],
+      html[data-np-theme="light"] body #${SCREEN_ID} .np-analytics-card [class*="bg-slate-800"],
+      html[data-np-theme="light"] body #${SCREEN_ID} .np-analytics-card [class*="bg-slate-700"],
+      html[data-np-theme="light"] body #${SCREEN_ID} .np-analytics-card [class*="bg-gray-900"],
+      html[data-np-theme="light"] body #${SCREEN_ID} .np-analytics-card [class*="bg-gray-800"] {
+        background-color:#fffdfd !important;
+        background-image:none !important;
+        color:#39364d !important;
+        border-color:#e7def4 !important;
+        box-shadow:0 8px 24px rgba(105,84,145,.08) !important;
+      }
+      html[data-np-theme="light"] body #${SCREEN_ID} .np-analytics-card h1,
+      html[data-np-theme="light"] body #${SCREEN_ID} .np-analytics-card h2,
+      html[data-np-theme="light"] body #${SCREEN_ID} .np-analytics-card h3,
+      html[data-np-theme="light"] body #${SCREEN_ID} .np-analytics-card strong,
+      html[data-np-theme="light"] body #${SCREEN_ID} .np-analytics-card [class*="text-white"],
+      html[data-np-theme="light"] body #${SCREEN_ID} .np-analytics-card [class*="text-slate-100"],
+      html[data-np-theme="light"] body #${SCREEN_ID} .np-analytics-card [class*="text-slate-200"],
+      html[data-np-theme="light"] body #${SCREEN_ID} .np-analytics-card [class*="text-slate-300"] {
+        color:#39364d !important;
+      }
+      html[data-np-theme="light"] body #${SCREEN_ID} .np-analytics-card p,
+      html[data-np-theme="light"] body #${SCREEN_ID} .np-analytics-card [class*="text-slate-400"],
+      html[data-np-theme="light"] body #${SCREEN_ID} .np-analytics-card [class*="text-slate-500"] {
+        color:#716b83 !important;
+      }
+      html[data-np-theme="light"] body #${SCREEN_ID} .np-analytics-track {
+        background:#eee8f6 !important;
+      }
+      html[data-np-theme="light"] body #${SCREEN_ID} .np-analytics-back {
+        background:#f1eaff !important;color:#5e528f !important;border-color:#dfd1f5 !important;
+      }
+      html[data-np-theme="light"] body #${SCREEN_ID} textarea,
+      html[data-np-theme="light"] body #${SCREEN_ID} input,
+      html[data-np-theme="light"] body #${SCREEN_ID} select {
+        background:#fff !important;color:#39364d !important;border-color:#e2d8f0 !important;
+      }
+
       html[data-np-theme="light"] #${SCREEN_ID},
       html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-card {
         background:#fffdfd !important;
