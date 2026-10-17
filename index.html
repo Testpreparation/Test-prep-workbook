@@ -794,11 +794,45 @@
             <span class="text-xs font-semibold text-slate-200">学習ログ</span>
             <span class="evo-chip">LOCAL DATA</span>
           </div>
-          <div class="grid grid-cols-3 gap-2 text-center">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
             <div><div id="evo-total-attempts" class="text-lg font-mono font-bold text-slate-100">0</div><div class="text-[9px] text-slate-500">演習回数</div></div>
             <div><div id="evo-avg" class="text-lg font-mono font-bold text-amber-400">--</div><div class="text-[9px] text-slate-500">平均正答率</div></div>
             <div><div id="evo-best" class="text-lg font-mono font-bold text-slate-100">--</div><div class="text-[9px] text-slate-500">最高記録</div></div>
+            <div><div class="text-lg font-mono font-bold text-emerald-400"><span id="evo-streak">0</span><span class="text-xs ml-1">日</span></div><div class="text-[9px] text-slate-500">連続学習</div></div>
           </div>
+        </div>
+
+        <div class="evo-card">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-semibold text-slate-200">正答率の推移</span>
+            <span class="evo-chip">直近7回の学習日</span>
+          </div>
+          <div id="evo-accuracy-trend" class="grid grid-cols-7 gap-2 items-end min-h-[118px]"></div>
+          <p id="evo-trend-summary" class="text-[10px] text-slate-500 mt-3">演習を完了すると推移が表示されます。</p>
+        </div>
+
+        <div class="evo-card">
+          <div class="text-xs font-semibold text-slate-200 mb-3">学習の成長記録</div>
+          <div class="grid grid-cols-3 gap-2 text-center">
+            <div class="rounded-xl bg-slate-900/40 border border-slate-700/40 p-3"><div id="evo-growth-start" class="text-lg font-mono font-bold text-slate-100">--</div><div class="text-[9px] text-slate-500 mt-1">学習開始時</div></div>
+            <div class="rounded-xl bg-slate-900/40 border border-slate-700/40 p-3"><div id="evo-growth-current" class="text-lg font-mono font-bold text-slate-100">--</div><div class="text-[9px] text-slate-500 mt-1">現在の平均</div></div>
+            <div class="rounded-xl bg-slate-900/40 border border-slate-700/40 p-3"><div id="evo-growth-delta" class="text-lg font-mono font-bold text-emerald-400">--</div><div class="text-[9px] text-slate-500 mt-1">変化</div></div>
+          </div>
+          <p id="evo-growth-note" class="text-[10px] text-slate-500 mt-3">最初の演習を完了すると成長記録が始まります。</p>
+        </div>
+
+        <div class="evo-card">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-semibold text-slate-200">月間学習レポート</span>
+            <span id="evo-month-label" class="evo-chip">今月</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+            <div><div id="evo-month-sessions" class="text-lg font-mono font-bold text-slate-100">0</div><div class="text-[9px] text-slate-500">演習回数</div></div>
+            <div><div id="evo-month-questions" class="text-lg font-mono font-bold text-slate-100">0</div><div class="text-[9px] text-slate-500">解いた問題</div></div>
+            <div><div id="evo-month-accuracy" class="text-lg font-mono font-bold text-amber-400">--</div><div class="text-[9px] text-slate-500">月間正答率</div></div>
+            <div><div id="evo-month-time" class="text-lg font-mono font-bold text-slate-100">0分</div><div class="text-[9px] text-slate-500">学習時間</div></div>
+          </div>
+          <p id="evo-month-note" class="text-[10px] text-slate-500 mt-3">この機能の記録開始後の学習時間を集計します。</p>
         </div>
       </div>
 
@@ -2955,6 +2989,7 @@
     let dragulaInstance = null;
 
     let quizTimer = null;
+    let studySessionStartedAt = 0;
     let timeLeft = 30;
     let QUIZ_LIMIT_TIME = 30;
 
@@ -4830,6 +4865,138 @@
       if(evoConditionDateIndex > 0){ evoConditionDateIndex--; evoRenderCondition(); }
     }
 
+    function evoRecordStudyCompletion(now, result) {
+      const dateStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`;
+      const days = JSON.parse(localStorage.getItem('study_days') || '[]');
+      if (!days.includes(dateStr)) {
+        days.push(dateStr);
+        if (days.length > 1000) days.splice(0, days.length - 1000);
+        localStorage.setItem('study_days', JSON.stringify(days));
+      }
+      const previousDate = localStorage.getItem('study_last_date');
+      let streak = Number(localStorage.getItem('study_streak') || 0);
+      if (previousDate !== dateStr) {
+        if (previousDate) {
+          const previousParts = previousDate.split('/').map(Number);
+          const previousDay = new Date(previousParts[0], previousParts[1] - 1, previousParts[2]);
+          const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          const diffDays = Math.round((today - previousDay) / 86400000);
+          streak = diffDays === 1 ? streak + 1 : 1;
+        } else {
+          streak = 1;
+        }
+        localStorage.setItem('study_last_date', dateStr);
+        localStorage.setItem('study_streak', String(streak));
+      }
+
+      if (localStorage.getItem('nurse_plus_accuracy_baseline') === null) {
+        localStorage.setItem('nurse_plus_accuracy_baseline', String(result.accRate));
+      }
+      const sessions = JSON.parse(localStorage.getItem('nurse_plus_study_sessions') || '[]');
+      sessions.push({
+        date: dateStr,
+        timestamp: `${dateStr} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`,
+        score: Number(result.score || 0),
+        total: Number(result.total || 0),
+        accuracy: Number(result.accRate || 0),
+        durationSeconds: Number(result.durationSeconds || 0)
+      });
+      if (sessions.length > 1000) sessions.splice(0, sessions.length - 1000);
+      localStorage.setItem('nurse_plus_study_sessions', JSON.stringify(sessions));
+    }
+
+    function evoGetAccuracyTrendData() {
+      const byDate = {};
+      Object.keys(localStorage).forEach(key => {
+        if (!key.startsWith('history_accuracy_daily_')) return;
+        try {
+          const records = JSON.parse(localStorage.getItem(key) || '[]');
+          records.forEach(record => {
+            if (!record || !record.date || !Number.isFinite(Number(record.accuracy))) return;
+            if (!byDate[record.date]) byDate[record.date] = { sum: 0, count: 0 };
+            byDate[record.date].sum += Number(record.accuracy);
+            byDate[record.date].count += 1;
+          });
+        } catch (_) {}
+      });
+      return Object.entries(byDate).map(([date, item]) => ({
+        date,
+        accuracy: Math.round(item.sum / item.count)
+      })).sort((a, b) => {
+        const pa = a.date.split('/').map(Number), pb = b.date.split('/').map(Number);
+        return new Date(pa[0], pa[1] - 1, pa[2]) - new Date(pb[0], pb[1] - 1, pb[2]);
+      }).slice(-7);
+    }
+
+    function evoRenderAccuracyTrend() {
+      const box = document.getElementById('evo-accuracy-trend');
+      const summary = document.getElementById('evo-trend-summary');
+      if (!box) return;
+      const data = evoGetAccuracyTrendData();
+      if (!data.length) {
+        box.innerHTML = '<div class="col-span-7 text-center text-[11px] text-slate-500 py-8">まだ演習履歴がありません。</div>';
+        if (summary) summary.textContent = '演習を完了すると正答率の推移が表示されます。';
+        return;
+      }
+      box.innerHTML = data.map(item => {
+        const parts = item.date.split('/');
+        const label = `${Number(parts[1])}/${Number(parts[2])}`;
+        return `<div class="flex flex-col items-center justify-end h-[100px] min-w-0"><span class="text-[9px] font-mono text-slate-400 mb-1">${item.accuracy}%</span><div class="w-full max-w-[24px] rounded-t-md bg-gradient-to-t from-violet-300 to-emerald-200" style="height:${Math.max(6, item.accuracy)}%;min-height:6px" title="${item.date}: ${item.accuracy}%"></div><span class="text-[8px] text-slate-500 mt-2 whitespace-nowrap">${label}</span></div>`;
+      }).join('');
+      const first = data[0], last = data[data.length - 1];
+      const delta = last.accuracy - first.accuracy;
+      if (summary) summary.textContent = data.length > 1
+        ? `最初の記録 ${first.accuracy}% → 最新 ${last.accuracy}%（${delta > 0 ? '+' : ''}${delta}ポイント）`
+        : `記録日 ${first.date}・正答率 ${first.accuracy}%`;
+    }
+
+    function evoRenderGrowth() {
+      const startEl = document.getElementById('evo-growth-start');
+      const currentEl = document.getElementById('evo-growth-current');
+      const deltaEl = document.getElementById('evo-growth-delta');
+      const note = document.getElementById('evo-growth-note');
+      if (!startEl || !currentEl || !deltaEl) return;
+      const baselineRaw = localStorage.getItem('nurse_plus_accuracy_baseline');
+      const stats = evoGetStats();
+      if (baselineRaw === null || stats.avg === null) {
+        startEl.textContent = '--'; currentEl.textContent = '--'; deltaEl.textContent = '--';
+        if (note) note.textContent = '最初の演習を完了すると成長記録が始まります。';
+        return;
+      }
+      const baseline = Number(baselineRaw);
+      const delta = stats.avg - baseline;
+      startEl.textContent = `${baseline}%`;
+      currentEl.textContent = `${stats.avg}%`;
+      deltaEl.textContent = `${delta > 0 ? '+' : ''}${delta}pt`;
+      deltaEl.className = `text-lg font-mono font-bold ${delta > 0 ? 'text-emerald-400' : delta < 0 ? 'text-rose-400' : 'text-slate-300'}`;
+      if (note) note.textContent = '学習開始時の記録と、保存されている演習履歴の平均を比較しています。';
+    }
+
+    function evoRenderMonthlyReport(now = new Date()) {
+      const label = document.getElementById('evo-month-label');
+      const sessionsEl = document.getElementById('evo-month-sessions');
+      const questionsEl = document.getElementById('evo-month-questions');
+      const accuracyEl = document.getElementById('evo-month-accuracy');
+      const timeEl = document.getElementById('evo-month-time');
+      const note = document.getElementById('evo-month-note');
+      if (!sessionsEl || !questionsEl || !accuracyEl || !timeEl) return;
+      const year = now.getFullYear(), month = now.getMonth();
+      if (label) label.textContent = `${year}年${month + 1}月`;
+      const sessions = JSON.parse(localStorage.getItem('nurse_plus_study_sessions') || '[]')
+        .filter(item => item && item.date && item.date.startsWith(`${year}/${String(month + 1).padStart(2, '0')}/`));
+      const totalQuestions = sessions.reduce((sum, item) => sum + Number(item.total || 0), 0);
+      const totalCorrect = sessions.reduce((sum, item) => sum + Number(item.score || 0), 0);
+      const totalSeconds = sessions.reduce((sum, item) => sum + Number(item.durationSeconds || 0), 0);
+      const hours = Math.floor(totalSeconds / 3600), minutes = Math.floor((totalSeconds % 3600) / 60);
+      sessionsEl.textContent = String(sessions.length);
+      questionsEl.textContent = String(totalQuestions);
+      accuracyEl.textContent = totalQuestions ? `${Math.round(totalCorrect / totalQuestions * 100)}%` : '--';
+      timeEl.textContent = hours ? `${hours}時間${minutes}分` : `${minutes}分`;
+      if (note) note.textContent = sessions.length
+        ? '演習完了時に保存された記録を集計しています。学習時間は演習開始から完了までの経過時間です。'
+        : '今月の記録はまだありません。演習を完了すると集計されます。';
+    }
+
     function renderDashboard() {
       const st=evoGetStats();
       const today = new Date();
@@ -4845,6 +5012,9 @@
       const be=document.getElementById('evo-best'); if(be) be.textContent=st.best===null?'--':`${st.best}%`;
       evoConditionDateIndex=0;
       evoRenderCondition();
+      evoRenderAccuracyTrend();
+      evoRenderGrowth();
+      evoRenderMonthlyReport(today);
     }
 
     function showDashboard(){
@@ -5884,6 +6054,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       activeQuestions = list;
       currentQIndex = 0;
       score = 0;
+      studySessionStartedAt = Date.now();
 
       hideAllScreens();
       document.getElementById('screen-quiz-play').classList.remove('hidden');
@@ -6375,6 +6546,10 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       dailyHistory.push({ date: `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`, accuracy: accRate });
       if (dailyHistory.length > 100) dailyHistory.shift();
       localStorage.setItem(dailyHistoryKey, JSON.stringify(dailyHistory));
+
+      const durationSeconds = studySessionStartedAt ? Math.max(0, Math.round((Date.now() - studySessionStartedAt) / 1000)) : 0;
+      studySessionStartedAt = 0;
+      evoRecordStudyCompletion(now, { score, total, accRate, durationSeconds });
 
       const attemptKey = getAttemptHistoryKey();
       const attemptHistory = JSON.parse(localStorage.getItem(attemptKey) || '[]');
