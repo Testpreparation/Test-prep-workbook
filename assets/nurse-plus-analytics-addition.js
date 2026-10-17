@@ -228,8 +228,9 @@
 
       const updatedRows = getRows();
       calculateStreak(updatedRows);
-      if (statusEl) statusEl.textContent = `同期完了：${cloud.deviceCount || 1}端末分の学習記録を反映しました。`;
       renderAnalytics();
+      const refreshedStatus = document.getElementById('np-analytics-sync-status');
+      if (refreshedStatus) refreshedStatus.textContent = `同期完了：${cloud.deviceCount || 1}端末分の学習記録を反映しました。`;
     } catch (error) {
       if (statusEl) statusEl.textContent = error.message || '同期に失敗しました。通信環境を確認してください。';
     } finally {
