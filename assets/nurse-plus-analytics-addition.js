@@ -294,6 +294,55 @@
     const style = document.createElement('style');
     style.id = STYLE_ID;
     style.textContent = `
+      /* ホワイトモード：分析画面全体をミルクホワイト×パステルに統一 */
+      html[data-np-theme="light"] #${SCREEN_ID},
+      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-card {
+        background:#fffdfd !important;
+        color:#39364d !important;
+        border-color:#e7def4 !important;
+        box-shadow:0 8px 24px rgba(105,84,145,.08) !important;
+      }
+      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-metric,
+      html[data-np-theme="light"] #${SCREEN_ID} h2,
+      html[data-np-theme="light"] #${SCREEN_ID} h3 {
+        color:#39364d !important;
+      }
+      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-label,
+      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-day,
+      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-empty,
+      html[data-np-theme="light"] #${SCREEN_ID} p,
+      html[data-np-theme="light"] #${SCREEN_ID} [class*="text-slate-"] {
+        color:#716b83 !important;
+      }
+      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-track {
+        background:#eee8f6 !important;
+      }
+      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-back {
+        background:#f1eaff !important;
+        border-color:#dfd1f5 !important;
+        color:#5e528f !important;
+      }
+      html[data-np-theme="light"] #${SCREEN_ID} textarea,
+      html[data-np-theme="light"] #${SCREEN_ID} input,
+      html[data-np-theme="light"] #${SCREEN_ID} select {
+        background:#fff !important;
+        color:#39364d !important;
+        border-color:#e2d8f0 !important;
+      }
+      html[data-np-theme="light"] #${SCREEN_ID} textarea::placeholder,
+      html[data-np-theme="light"] #${SCREEN_ID} input::placeholder {
+        color:#9690a6 !important;
+      }
+      html[data-np-theme="light"] #${SCREEN_ID} [class*="bg-slate-950"],
+      html[data-np-theme="light"] #${SCREEN_ID} [class*="bg-slate-900"],
+      html[data-np-theme="light"] #${SCREEN_ID} [class*="bg-slate-800"],
+      html[data-np-theme="light"] #${SCREEN_ID} [class*="bg-slate-700"] {
+        background-color:#f6f2fb !important;
+        background-image:none !important;
+      }
+      html[data-np-theme="light"] #${SCREEN_ID} [class*="border-slate-"] {
+        border-color:#e7def4 !important;
+      }
       #${SCREEN_ID} { animation: npAnalyticsEnter 1.05s cubic-bezier(.22,1,.36,1) both; }
       @keyframes npAnalyticsEnter { from { opacity:0; transform:translateY(18px) scale(.985); filter:blur(2px); } to { opacity:1; transform:translateY(0) scale(1); filter:blur(0); } }
       .np-analytics-card { background:rgba(15,23,42,.72);border:1px solid rgba(148,163,184,.18);border-radius:16px;padding:14px; }
