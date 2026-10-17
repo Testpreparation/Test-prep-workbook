@@ -640,7 +640,20 @@
     #user-settings-modal,#settings-accordion{font-size:.9rem}
     #np-text-size-slider{width:100%;accent-color:#a78bfa}
     html.np-accessibility-reduced-motion *,html.np-accessibility-reduced-motion *::before,html.np-accessibility-reduced-motion *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
-  </style>
+  
+    /* 設定内の各項目を「テーマ・外観」と同じ白背景に統一（ライトテーマのみ） */
+    html.np-light-theme #user-settings-modal #settings-accordion .np-settings-entry,
+    html.np-light-theme #user-settings-modal #settings-accordion #np-theme-settings-card {
+      background:#fff!important;
+      background-image:none!important;
+      border-color:#e8def3!important;
+      color:#5b506d!important;
+    }
+    html.np-light-theme #user-settings-modal #settings-accordion .np-settings-entry:hover,
+    html.np-light-theme #user-settings-modal #settings-accordion #np-theme-settings-card:hover {
+      background:#f8f3ff!important;
+    }
+</style>
   <style id="drawer-settings-dropdown-style">
     #nav-drawer{will-change:transform,opacity}
     #drawer-settings-accordion{display:block;border-radius:14px}
