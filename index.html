@@ -637,6 +637,9 @@
     /* アカウント・通知設定などの項目を「テーマ・外観」と同じ文字・矢印デザインに統一 */
     #user-settings-modal #settings-accordion .np-settings-entry>span:first-child{font-size:.875rem!important;font-weight:600!important;color:#5b506d!important}
     #user-settings-modal #settings-accordion .np-settings-entry>span[aria-hidden="true"]{color:#a8a0b5!important;font-size:1.1rem!important;line-height:1!important}
+    /* 「テーマ・外観」だけ色が異ならないよう、文字と矢印を他項目と同色にする */
+    #user-settings-modal #settings-accordion #np-theme-settings-card>span:first-child{font-size:.875rem!important;font-weight:600!important;color:#5b506d!important}
+    #user-settings-modal #settings-accordion #np-theme-settings-card>span[aria-hidden="true"]{color:#a8a0b5!important;font-size:1.1rem!important;line-height:1!important}
     #user-settings-modal #settings-accordion .np-settings-entry:hover>span:first-child{color:#5b506d!important}
     .np-settings-entry:focus-visible,#np-theme-settings-card:focus-visible{outline:2px solid #b39add;outline-offset:2px}
     #settings-accordion>details>summary{padding:.55rem .75rem!important;font-size:.82rem!important;line-height:1.25}
