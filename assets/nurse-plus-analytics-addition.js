@@ -165,7 +165,7 @@
     style.textContent = `
       /* 追加演出は既存デザインに重ねるだけ。既存の採点・画面関数は変更しない。 */
       .glass-card button:not(:disabled), .glass-card [role="button"]:not([aria-disabled="true"]) {
-        transition: transform .14s ease, filter .14s ease, box-shadow .14s ease;
+        transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
         -webkit-tap-highlight-color: transparent;
       }
       .glass-card button:not(:disabled):active, .glass-card [role="button"]:not([aria-disabled="true"]):active {
@@ -194,22 +194,22 @@
         touch-action:manipulation;
       }
       #quiz-options-container > *, #quiz-options-container button, .quiz-option, [data-quiz-option] {
-        transition:transform .18s cubic-bezier(.2,.8,.2,1), border-color .2s ease, background-color .2s ease, box-shadow .2s ease, opacity .2s ease;
+        transition:transform .24s cubic-bezier(.2,.8,.2,1), border-color .24s ease, background-color .24s ease, box-shadow .24s ease, opacity .24s ease;
         -webkit-tap-highlight-color:transparent;
       }
       #quiz-options-container button:active, .quiz-option:active, [data-quiz-option]:active {
         transform:scale(.985);
       }
-      .np-motion-card { transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
+      .np-motion-card { transition:transform .28s ease, box-shadow .28s ease, border-color .28s ease; }
       .np-motion-card:hover { transform:translateY(-2px); }
       .np-motion-selected { box-shadow:0 0 0 2px rgba(251,191,36,.45), 0 8px 22px rgba(245,158,11,.09) !important; }
-      .np-motion-correct { animation:npPopIn .32s cubic-bezier(.2,.8,.2,1) both, npGlowPulse .75s ease-out; }
-      .np-motion-incorrect { animation:npSoftShake .32s ease-out; }
+      .np-motion-correct { animation:npPopIn .4s cubic-bezier(.2,.8,.2,1) both, npGlowPulse .9s ease-out; }
+      .np-motion-incorrect { animation:npSoftShake .38s ease-out; }
       #screen-quiz-result .np-result-highlight { animation:npPopIn .55s cubic-bezier(.2,.8,.2,1) both; }
-      .np-motion-reveal { animation:npPopIn .4s cubic-bezier(.2,.8,.2,1) both; }
+      .np-motion-reveal { animation:npPopIn .48s cubic-bezier(.2,.8,.2,1) both; }
       .np-motion-progress { transition:width .85s cubic-bezier(.22,1,.36,1), background-color .3s ease !important; }
-      .np-motion-modal { animation:npPopIn .24s cubic-bezier(.2,.8,.2,1) both; }
-      .np-motion-drawer { animation:npSlideIn .24s cubic-bezier(.22,1,.36,1) both; }
+      .np-motion-modal { animation:npPopIn .36s cubic-bezier(.2,.8,.2,1) both; }
+      .np-motion-drawer { animation:npSlideIn .38s cubic-bezier(.22,1,.36,1) both; }
       @keyframes npSlideIn { from { opacity:.6; transform:translateX(-14px); } to { opacity:1; transform:translateX(0); } }
       .np-motion-busy { position:relative; overflow:hidden; }
       .np-motion-busy::after { content:""; position:absolute; inset:0; background:linear-gradient(100deg,transparent 25%,rgba(255,255,255,.12) 50%,transparent 75%); background-size:200% 100%; animation:npShimmer 1.25s linear infinite; pointer-events:none; }
@@ -248,7 +248,7 @@
         if (!reduceMotion && typeof screen.animate === 'function' && screen.id !== SCREEN_ID) {
           screen.animate(
             [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }],
-            { duration: 220, easing: 'cubic-bezier(.22,1,.36,1)' }
+            { duration: 430, easing: 'cubic-bezier(.22,1,.36,1)' }
           );
         }
         if (screen.id === 'screen-quiz-result') celebrateResult(screen);
@@ -272,7 +272,7 @@
         const frames = isCorrect
           ? [{ opacity: .65, transform: 'scale(.96)' }, { opacity: 1, transform: 'scale(1)' }]
           : [{ opacity: .7, transform: 'translateX(-4px)' }, { opacity: 1, transform: 'translateX(4px)' }, { opacity: 1, transform: 'translateX(0)' }];
-        feedbackBox.animate(frames, { duration: isCorrect ? 260 : 300, easing: 'ease-out' });
+        feedbackBox.animate(frames, { duration: isCorrect ? 360 : 390, easing: 'ease-out' });
       });
       feedbackObserver.observe(feedbackTitle, { childList: true, characterData: true, subtree: true });
     }
@@ -313,7 +313,7 @@
       if (container) container.querySelectorAll('.np-motion-selected').forEach(el => el.classList.remove('np-motion-selected'));
       option.classList.add('np-motion-selected');
       if (!reduceMotion && typeof option.animate === 'function') {
-        option.animate([{ transform:'scale(.985)' }, { transform:'scale(1.012)' }, { transform:'scale(1)' }], {duration:220,easing:'ease-out'});
+        option.animate([{ transform:'scale(.985)' }, { transform:'scale(1.012)' }, { transform:'scale(1)' }], {duration:280,easing:'ease-out'});
       }
     }, true);
 
@@ -362,7 +362,7 @@
     if (explanation) {
       const explanationObserver = new MutationObserver(() => {
         if (!reduceMotion && explanation.textContent.trim() && typeof explanation.animate === 'function') {
-          explanation.animate([{opacity:0,transform:'translateY(5px)'},{opacity:1,transform:'translateY(0)'}],{duration:260,easing:'ease-out'});
+          explanation.animate([{opacity:0,transform:'translateY(5px)'},{opacity:1,transform:'translateY(0)'}],{duration:330,easing:'ease-out'});
         }
       });
       explanationObserver.observe(explanation,{childList:true,characterData:true,subtree:true});
@@ -384,7 +384,7 @@
           if (card.dataset.npStaggered === '1') return;
           card.dataset.npStaggered = '1';
           if (!reduceMotion && typeof card.animate === 'function') {
-            card.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],{duration:300,delay:Math.min(index*55,330),easing:'ease-out',fill:'both'});
+            card.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],{duration:380,delay:Math.min(index*75,450),easing:'ease-out',fill:'both'});
           }
         });
       });
@@ -399,9 +399,9 @@
         if (el.id && (el.id.startsWith('modal-') || el.id === 'nav-drawer')) {
           el.animate(
             el.id === 'nav-drawer'
-              ? [{opacity:.7,transform:'translateX(-12px)'},{opacity:1,transform:'translateX(0)'}]
+              ? [{opacity:.55,transform:'translateX(-18px)'},{opacity:1,transform:'translateX(0)'}]
               : [{opacity:0,transform:'translateY(8px) scale(.985)'},{opacity:1,transform:'translateY(0) scale(1)'}],
-            {duration:230,easing:'cubic-bezier(.22,1,.36,1)'}
+            {duration:360,easing:'cubic-bezier(.22,1,.36,1)'}
           );
         }
       });
