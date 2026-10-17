@@ -4575,6 +4575,15 @@
       if (!stats[key]) stats[key] = { correct: 0, wrong: 0 };
       if (isCorrect) stats[key].correct++;
       else stats[key].wrong++;
+      // 間違い分析用に問題の学習情報だけを端末内へ保存（氏名・LINE情報は保存しない）。
+      stats[key].questionText = String(q.q || q.question || q.text || '');
+      stats[key].choices = Array.isArray(q.choices) ? q.choices : (Array.isArray(q.options) ? q.options : []);
+      stats[key].answer = q.answer ?? q.correctAnswer ?? q.a ?? '';
+      stats[key].explanation = String(q.explanation || q.exp || q.commentary || '');
+      stats[key].subjectId = String(currentSubject?.id || '');
+      stats[key].subjectName = String(currentSubject?.name || currentSubject?.title || currentSubject?.label || currentSubject?.id || '');
+      stats[key].mode = String(conditionMode || 'all');
+      stats[key].updatedAt = new Date().toISOString();
       localStorage.setItem(getWeakQuestionStatsKey(), JSON.stringify(stats));
       // 問題文そのものや利用者情報は送らず、匿名の問題キーと正誤だけを集計する。
       if (window.NursePlusCommunityStats && typeof window.NursePlusCommunityStats.recordResult === 'function') {
