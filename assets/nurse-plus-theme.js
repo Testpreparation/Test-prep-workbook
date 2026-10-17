@@ -56,6 +56,35 @@
     html[data-np-theme="light"] body button:disabled { opacity:.55; }
     html[data-np-theme="light"] body table, html[data-np-theme="light"] body th, html[data-np-theme="light"] body td { border-color:#e5deef !important; }
 
+    /* Dashboard cards: force milk-white surfaces for condition and learning-log panels */
+    html[data-np-theme="light"] body .evo-card,
+    html[data-np-theme="light"] body .evo-card[class*="bg-"],
+    html[data-np-theme="light"] body .evo-card [class*="bg-slate-"],
+    html[data-np-theme="light"] body .evo-card [class*="bg-gray-"] {
+      background-color:#fffdfd !important;
+      background-image:none !important;
+      color:#39364d !important;
+      border-color:#e7def4 !important;
+      box-shadow:0 10px 28px rgba(105,84,145,.09) !important;
+    }
+    html[data-np-theme="light"] body .evo-card,
+    html[data-np-theme="light"] body .evo-card * {
+      text-shadow:none !important;
+    }
+    html[data-np-theme="light"] body .evo-card [class*="text-slate-"],
+    html[data-np-theme="light"] body .evo-card [class*="text-gray-"],
+    html[data-np-theme="light"] body .evo-card [class*="text-zinc-"] {
+      color:#625b78 !important;
+    }
+    html[data-np-theme="light"] body .evo-card [class*="bg-slate-"],
+    html[data-np-theme="light"] body .evo-card [class*="bg-gray-"] {
+      background-color:#f5f0fb !important;
+    }
+    html[data-np-theme="light"] body .evo-card [class*="border-slate-"],
+    html[data-np-theme="light"] body .evo-card [class*="border-gray-"] {
+      border-color:#e7def4 !important;
+    }
+
     /* Subject selection buttons: explicitly replace dark cards and gradient buttons in every subject list */
     html[data-np-theme="light"] #subject-list-container > *, 
     html[data-np-theme="light"] #flashcard-subject-list-container > * {
