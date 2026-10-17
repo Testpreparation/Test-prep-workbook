@@ -600,12 +600,19 @@
   }
   function openAnalytics() {
     if (typeof window.hideAllScreens === 'function') window.hideAllScreens();
+    const host = document.getElementById('screen-data-analysis');
+    if (host) host.classList.remove('hidden');
     const screen = document.getElementById(SCREEN_ID);
     if (!screen) return;
     screen.classList.remove('hidden');
     renderAnalytics();
     screen.scrollIntoView({block:'start',behavior:'smooth'});
   }
+
+  window.NursePlusAnalyticsAddition = Object.assign(window.NursePlusAnalyticsAddition || {}, {
+    render: renderAnalytics,
+    open: openAnalytics
+  });
   function addEffectStyles() {
     if (document.getElementById('nurse-plus-ui-effects-style')) return;
     const style = document.createElement('style');
@@ -1062,7 +1069,9 @@
     screen.id = SCREEN_ID;
     screen.className = 'hidden space-y-4';
     screen.setAttribute('aria-label','学習データ分析');
-    main.appendChild(screen);
+    const analysisHost = document.getElementById('screen-data-analysis') || main;
+    analysisHost.appendChild(screen);
+    screen.classList.remove('hidden');
 
     // 既存の画面切り替え関数は上書きせず、分析画面以外を操作したときだけ閉じる。
     installEffects();
@@ -1079,7 +1088,7 @@
     document.addEventListener('click', event => {
       const screen = document.getElementById(SCREEN_ID);
       if (!screen || screen.classList.contains('hidden')) return;
-      if (event.target.closest('#' + SCREEN_ID) || event.target.closest('#' + BUTTON_ID)) return;
+      if (event.target.closest('#' + SCREEN_ID) || event.target.closest('#' + BUTTON_ID) || event.target.closest('#screen-data-analysis')) return;
       screen.classList.add('hidden');
     }, true);
   }
