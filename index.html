@@ -337,6 +337,24 @@
   html.np-light-theme .custom-scrollbar{scrollbar-color:#d8c8f4 #f8f3ff}
   html.np-light-theme .evo-progress{background:#eee7f7}
   html.np-light-theme .evo-chip{background:rgba(216,200,244,.24);border-color:#e2d8f0;color:#79629e}
+  /* Data analysis dashboard: ensure all accuracy/statistics panels follow the white theme. */
+  html.np-light-theme .evo-card,
+  html.np-light-theme #evo-subjects > *,
+  html.np-light-theme #evo-subjects [class*="bg-slate-"]{
+    background-color:#fff!important;
+    background-image:linear-gradient(145deg,#fff,#f8f3ff)!important;
+    border-color:#e8def3!important;
+    color:#475569!important;
+  }
+  html.np-light-theme .evo-card [class*="text-slate-100"],
+  html.np-light-theme .evo-card [class*="text-slate-200"],
+  html.np-light-theme .evo-card [class*="text-slate-300"],
+  html.np-light-theme #evo-subjects [class*="text-slate-100"],
+  html.np-light-theme #evo-subjects [class*="text-slate-200"],
+  html.np-light-theme #evo-subjects [class*="text-slate-300"]{color:#475569!important}
+  html.np-light-theme .evo-progress{background:#eee7f7!important}
+  html.np-light-theme .evo-progress>span{background:linear-gradient(90deg,#b9a2df,#c6e9dd)!important}
+
   html.np-light-theme .notice-time-wheel{background:#fff;border-color:#e2d8f0}
   html.np-light-theme .notice-time-wheel-item{color:#81758f}
   html.np-light-theme .notice-time-wheel-item.is-selected{background:#f3edfb;color:#67547e;border-color:#d8c8f4}
