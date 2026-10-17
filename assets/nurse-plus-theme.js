@@ -55,6 +55,52 @@
     html[data-np-theme="light"] body .text-transparent { color:#6652a5 !important; }
     html[data-np-theme="light"] body button:disabled { opacity:.55; }
     html[data-np-theme="light"] body table, html[data-np-theme="light"] body th, html[data-np-theme="light"] body td { border-color:#e5deef !important; }
+
+    /* Subject selection buttons: explicitly replace dark cards and gradient buttons in every subject list */
+    html[data-np-theme="light"] #subject-list-container > *, 
+    html[data-np-theme="light"] #flashcard-subject-list-container > * {
+      background:#fffdfd !important; background-image:none !important; color:#39364d !important;
+      border:1px solid #e7def4 !important; box-shadow:0 5px 16px rgba(105,84,145,.08) !important;
+      border-radius:16px !important;
+    }
+    html[data-np-theme="light"] #subject-list-container > *:nth-child(4n+1),
+    html[data-np-theme="light"] #flashcard-subject-list-container > *:nth-child(4n+1) { background:#fff0f5 !important; }
+    html[data-np-theme="light"] #subject-list-container > *:nth-child(4n+2),
+    html[data-np-theme="light"] #flashcard-subject-list-container > *:nth-child(4n+2) { background:#f0eaff !important; }
+    html[data-np-theme="light"] #subject-list-container > *:nth-child(4n+3),
+    html[data-np-theme="light"] #flashcard-subject-list-container > *:nth-child(4n+3) { background:#eaf5ff !important; }
+    html[data-np-theme="light"] #subject-list-container > *:nth-child(4n),
+    html[data-np-theme="light"] #flashcard-subject-list-container > *:nth-child(4n) { background:#eaf8f0 !important; }
+    html[data-np-theme="light"] #subject-list-container > * *,
+    html[data-np-theme="light"] #flashcard-subject-list-container > * * { color:#454057 !important; }
+    html[data-np-theme="light"] #semester-spring-btn,
+    html[data-np-theme="light"] #semester-autumn-btn {
+      background:#fffdfd !important; background-image:none !important; color:#454057 !important;
+      border:1px solid #e3d9f3 !important; box-shadow:0 6px 18px rgba(105,84,145,.08) !important;
+    }
+    html[data-np-theme="light"] #semester-spring-btn:hover,
+    html[data-np-theme="light"] #semester-autumn-btn:hover { background:#f4efff !important; border-color:#cfc0f1 !important; }
+    /* Any app button with dark/gradient Tailwind classes becomes a soft pastel button in light mode */
+    html[data-np-theme="light"] body button[class*="bg-slate-"],
+    html[data-np-theme="light"] body button[class*="bg-gray-"],
+    html[data-np-theme="light"] body button[class*="bg-zinc-"],
+    html[data-np-theme="light"] body button[class*="bg-neutral-"],
+    html[data-np-theme="light"] body button[class*="from-slate-"],
+    html[data-np-theme="light"] body button[class*="from-gray-"] {
+      background:#f0eaff !important; background-image:none !important; color:#49405f !important; border-color:#e0d5f4 !important;
+    }
+    html[data-np-theme="light"] body button[class*="from-amber-"],
+    html[data-np-theme="light"] body button[class*="bg-amber-"] {
+      background:#fff0d8 !important; background-image:none !important; color:#795522 !important; border-color:#f1dfbd !important;
+    }
+    html[data-np-theme="light"] body button[class*="from-emerald-"],
+    html[data-np-theme="light"] body button[class*="from-teal-"],
+    html[data-np-theme="light"] body button[class*="bg-emerald-"],
+    html[data-np-theme="light"] body button[class*="bg-green-"] {
+      background:#e3f6ed !important; background-image:none !important; color:#27674f !important; border-color:#ccebdc !important;
+    }
+    html[data-np-theme="light"] body button:hover { filter:brightness(.985); }
+    html[data-np-theme="light"] body button:active { transform:scale(.985); }
     @media (max-width:640px) { #np-theme-toggle { top:12px; right:12px; padding:8px 10px; } }
     @media (prefers-reduced-motion: reduce) { body, body * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
   `;
