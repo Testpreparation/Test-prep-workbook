@@ -835,15 +835,19 @@
           </div>
           <p id="evo-growth-note" class="text-[10px] text-slate-500 mt-3">最初の演習を完了すると成長記録が始まります。</p>
         </div>
-        <div class="evo-card">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-semibold text-slate-200">月間学習レポート</span>
+        <div class="evo-card" id="evo-study-report-card">
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <span id="evo-report-title" class="text-xs font-semibold text-slate-200">月間学習レポート</span>
             <span id="evo-month-label" class="evo-chip">今月</span>
+          </div>
+          <div class="flex gap-2 mb-3" role="group" aria-label="学習レポートの期間">
+            <button id="evo-report-month-button" type="button" onclick="evoSetReportPeriod('month')" aria-pressed="true" class="px-3 py-1.5 rounded-lg border text-[10px] font-medium transition bg-amber-500/15 border-amber-500/40 text-amber-300">月間</button>
+            <button id="evo-report-week-button" type="button" onclick="evoSetReportPeriod('week')" aria-pressed="false" class="px-3 py-1.5 rounded-lg border text-[10px] font-medium transition bg-slate-800/40 border-slate-700/50 text-slate-400">週間</button>
           </div>
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
             <div><div id="evo-month-sessions" class="text-lg font-mono font-bold text-slate-100">0</div><div class="text-[9px] text-slate-500">演習回数</div></div>
             <div><div id="evo-month-questions" class="text-lg font-mono font-bold text-slate-100">0</div><div class="text-[9px] text-slate-500">解いた問題</div></div>
-            <div><div id="evo-month-accuracy" class="text-lg font-mono font-bold text-amber-400">--</div><div class="text-[9px] text-slate-500">月間正答率</div></div>
+            <div><div id="evo-month-accuracy" class="text-lg font-mono font-bold text-amber-400">--</div><div id="evo-report-accuracy-label" class="text-[9px] text-slate-500">月間正答率</div></div>
             <div><div id="evo-month-time" class="text-lg font-mono font-bold text-slate-100">0分</div><div class="text-[9px] text-slate-500">学習時間</div></div>
           </div>
           <p id="evo-month-note" class="text-[10px] text-slate-500 mt-3">この機能の記録開始後の学習時間を集計します。</p>
@@ -5107,18 +5111,61 @@
       if (note) note.textContent = '保存されている最古の正答率記録と、演習履歴の平均を比較しています。';
     }
 
+    window.evoStudyReportPeriod = window.evoStudyReportPeriod || 'month';
+
+    function evoSetReportPeriod(period) {
+      window.evoStudyReportPeriod = period === 'week' ? 'week' : 'month';
+      evoRenderMonthlyReport(new Date());
+    }
+
     function evoRenderMonthlyReport(now = new Date()) {
       const label = document.getElementById('evo-month-label');
+      const title = document.getElementById('evo-report-title');
       const sessionsEl = document.getElementById('evo-month-sessions');
       const questionsEl = document.getElementById('evo-month-questions');
       const accuracyEl = document.getElementById('evo-month-accuracy');
+      const accuracyLabel = document.getElementById('evo-report-accuracy-label');
       const timeEl = document.getElementById('evo-month-time');
       const note = document.getElementById('evo-month-note');
+      const monthButton = document.getElementById('evo-report-month-button');
+      const weekButton = document.getElementById('evo-report-week-button');
       if (!sessionsEl || !questionsEl || !accuracyEl || !timeEl) return;
+
+      const period = window.evoStudyReportPeriod === 'week' ? 'week' : 'month';
       const year = now.getFullYear(), month = now.getMonth();
-      if (label) label.textContent = `${year}年${month + 1}月`;
-      const sessions = JSON.parse(localStorage.getItem('nurse_plus_study_sessions') || '[]')
-        .filter(item => item && item.date && item.date.startsWith(`${year}/${String(month + 1).padStart(2, '0')}/`));
+      let sessions = [];
+      if (period === 'week') {
+        const end = new Date(year, month, now.getDate());
+        const start = new Date(year, month, now.getDate() - 6);
+        const toKey = date => `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+        const startKey = toKey(start), endKey = toKey(end);
+        sessions = JSON.parse(localStorage.getItem('nurse_plus_study_sessions') || '[]')
+          .filter(item => item && item.date && item.date >= startKey && item.date <= endKey);
+        if (label) label.textContent = '直近7日';
+        if (title) title.textContent = '週間学習レポート';
+        if (accuracyLabel) accuracyLabel.textContent = '週間正答率';
+        if (note) note.textContent = sessions.length
+          ? '直近7日間の演習完了時に保存された記録を集計しています。'
+          : '直近7日間の記録はまだありません。演習を完了すると集計されます。';
+      } else {
+        sessions = JSON.parse(localStorage.getItem('nurse_plus_study_sessions') || '[]')
+          .filter(item => item && item.date && item.date.startsWith(`${year}/${String(month + 1).padStart(2, '0')}/`));
+        if (label) label.textContent = `${year}年${month + 1}月`;
+        if (title) title.textContent = '月間学習レポート';
+        if (accuracyLabel) accuracyLabel.textContent = '月間正答率';
+        if (note) note.textContent = sessions.length
+          ? '演習完了時に保存された記録を集計しています。学習時間は演習開始から完了までの経過時間です。'
+          : '今月の記録はまだありません。演習を完了すると集計されます。';
+      }
+      if (monthButton) {
+        monthButton.setAttribute('aria-pressed', String(period === 'month'));
+        monthButton.className = `px-3 py-1.5 rounded-lg border text-[10px] font-medium transition ${period === 'month' ? 'bg-amber-500/15 border-amber-500/40 text-amber-300' : 'bg-slate-800/40 border-slate-700/50 text-slate-400'}`;
+      }
+      if (weekButton) {
+        weekButton.setAttribute('aria-pressed', String(period === 'week'));
+        weekButton.className = `px-3 py-1.5 rounded-lg border text-[10px] font-medium transition ${period === 'week' ? 'bg-amber-500/15 border-amber-500/40 text-amber-300' : 'bg-slate-800/40 border-slate-700/50 text-slate-400'}`;
+      }
+
       const totalQuestions = sessions.reduce((sum, item) => sum + Number(item.total || 0), 0);
       const totalCorrect = sessions.reduce((sum, item) => sum + Number(item.score || 0), 0);
       const totalSeconds = sessions.reduce((sum, item) => sum + Number(item.durationSeconds || 0), 0);
@@ -5127,9 +5174,6 @@
       questionsEl.textContent = String(totalQuestions);
       accuracyEl.textContent = totalQuestions ? `${Math.round(totalCorrect / totalQuestions * 100)}%` : '--';
       timeEl.textContent = hours ? `${hours}時間${minutes}分` : `${minutes}分`;
-      if (note) note.textContent = sessions.length
-        ? '演習完了時に保存された記録を集計しています。学習時間は演習開始から完了までの経過時間です。'
-        : '今月の記録はまだありません。演習を完了すると集計されます。';
     }
 
     function renderDashboard() {
