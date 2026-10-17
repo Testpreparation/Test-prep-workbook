@@ -5038,12 +5038,9 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       const deadline = Date.now() + QUIZ_LIMIT_TIME * 1000;
       let timeoutHandled = false;
       const tick = () => {
-        if (isAnswered || !document.getElementById('screen-quiz-play')?.classList.contains('hidden') === false) {
-          // 解答済みなら停止。画面の表示状態には依存せず、演習中の時間計測を継続する。
-          if (isAnswered) {
-            stopQuizTimer();
-            return;
-          }
+        if (isAnswered) {
+          stopQuizTimer();
+          return;
         }
         timeLeft = Math.max(0, (deadline - Date.now()) / 1000);
         updateTimerBarUI();
