@@ -5029,7 +5029,7 @@
       box.style.minHeight = '0';
       box.classList.add('relative');
       box.innerHTML = `
-        <svg aria-label="科目別正答率の縦棒と日別平均正答率の折れ線グラフ" role="img" viewBox="0 0 ${width} 140" preserveAspectRatio="none" class="block w-full" style="height:150px;overflow:visible">
+        <svg aria-label="日別・科目別正答率の縦棒と科目別正答率の折れ線グラフ" role="img" viewBox="0 0 ${width} 140" preserveAspectRatio="none" class="block w-full" style="height:150px;overflow:visible">
           <line x1="0" y1="${baseline}" x2="${width}" y2="${baseline}" stroke="#64748b" stroke-opacity="0.35" stroke-width="1"></line>
           ${bars.join('')}
           ${subjectLines}
@@ -5044,8 +5044,8 @@
         const best = data.reduce((a, b) => b.accuracy > a.accuracy ? b : a);
         const lowest = data.reduce((a, b) => b.accuracy < a.accuracy ? b : a);
         summary.textContent = data.length > 1
-          ? `縦棒＝科目別の日ごとの正答率、折れ線＝日別の全科目平均（直近${chart.dates.length}学習日）。科目平均の最高：${best.name} ${best.accuracy}%／最低：${lowest.name} ${lowest.accuracy}%`
-          : `縦棒＝${data[0].name}の日別正答率、折れ線＝日別の全科目平均（直近${chart.dates.length}学習日）。`;
+          ? `縦棒・折れ線ともに科目別の正答率（直近${chart.dates.length}学習日）。科目平均の最高：${best.name} ${best.accuracy}%／最低：${lowest.name} ${lowest.accuracy}%`
+          : `縦棒・折れ線ともに${data[0].name}の日別正答率（直近${chart.dates.length}学習日）。`;
       }
     }
 
