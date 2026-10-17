@@ -101,6 +101,50 @@
     }
     html[data-np-theme="light"] body button:hover { filter:brightness(.985); }
     html[data-np-theme="light"] body button:active { transform:scale(.985); }
+
+    /* Final contrast pass: actual rendered subject buttons and learning-home cards */
+    html[data-np-theme="light"] body #subject-list-container .card-item,
+    html[data-np-theme="light"] body #flashcard-subject-list-container .card-item,
+    html[data-np-theme="light"] body #subject-list-container button,
+    html[data-np-theme="light"] body #flashcard-subject-list-container button {
+      background-color:#fffdfd !important;
+      background-image:none !important;
+      color:#38344b !important;
+      border:1px solid #e5dcf2 !important;
+      box-shadow:0 5px 18px rgba(94,76,128,.09) !important;
+      opacity:1 !important;
+    }
+    html[data-np-theme="light"] body #subject-list-container button:nth-child(4n+1),
+    html[data-np-theme="light"] body #flashcard-subject-list-container button:nth-child(4n+1) { background-color:#fff0f5 !important; }
+    html[data-np-theme="light"] body #subject-list-container button:nth-child(4n+2),
+    html[data-np-theme="light"] body #flashcard-subject-list-container button:nth-child(4n+2) { background-color:#f2edff !important; }
+    html[data-np-theme="light"] body #subject-list-container button:nth-child(4n+3),
+    html[data-np-theme="light"] body #flashcard-subject-list-container button:nth-child(4n+3) { background-color:#edf5ff !important; }
+    html[data-np-theme="light"] body #subject-list-container button:nth-child(4n),
+    html[data-np-theme="light"] body #flashcard-subject-list-container button:nth-child(4n) { background-color:#eaf8f0 !important; }
+    html[data-np-theme="light"] body #subject-list-container button *,
+    html[data-np-theme="light"] body #flashcard-subject-list-container button * { color:#454057 !important; }
+    html[data-np-theme="light"] body #subject-list-container button span[class*="bg-amber-"],
+    html[data-np-theme="light"] body #flashcard-subject-list-container button span[class*="bg-amber-"] {
+      background:#eee7ff !important; border-color:#d9cdf4 !important; color:#6555a6 !important;
+    }
+    html[data-np-theme="light"] body .evo-card {
+      background:#fffdfd !important; background-image:none !important;
+      color:#38344b !important; border:1px solid #e6def1 !important;
+      box-shadow:0 8px 24px rgba(94,76,128,.09) !important;
+    }
+    html[data-np-theme="light"] body .evo-card *,
+    html[data-np-theme="light"] body #screen-dashboard h2,
+    html[data-np-theme="light"] body #screen-dashboard p { color:#454057 !important; }
+    html[data-np-theme="light"] body #screen-dashboard .evo-chip {
+      background:#fff3d9 !important; border-color:#f0dfb7 !important; color:#91631d !important;
+    }
+    html[data-np-theme="light"] body #screen-dashboard [class*="bg-slate-"],
+    html[data-np-theme="light"] body #screen-dashboard [class*="bg-gray-"] {
+      background-color:#f2edff !important; background-image:none !important;
+    }
+    html[data-np-theme="light"] body #screen-dashboard [class*="text-rose-"],
+    html[data-np-theme="light"] body #screen-dashboard [class*="text-pink-"] { color:#a34d76 !important; }
     @media (max-width:640px) { #np-theme-toggle { top:12px; right:12px; padding:8px 10px; } }
     @media (prefers-reduced-motion: reduce) { body, body * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
   `;
