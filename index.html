@@ -567,22 +567,26 @@
     <div class="space-y-3 pt-4" id="settings-accordion">
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
         <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-emerald-300">◉</span>アカウント</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
-        <div class="px-4 pb-4 space-y-2">
-          <div class="rounded-xl border border-slate-700 bg-slate-900/60 p-4"><div class="flex items-center gap-3"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300 font-bold text-xs">LINE</span><div class="min-w-0 flex-1"><div class="font-semibold text-sm">LINEログイン</div><p class="text-xs text-slate-400 mt-1">LINEアカウントでログインして、表示名を連携します。</p></div></div><a href="https://nurse-line-system.onrender.com/auth/line" class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-300 hover:bg-emerald-500/20 transition"><span>LINEでログイン</span><span aria-hidden="true">↗</span></a></div>
-          <button type="button" onclick="openSettingsDetail(\'sync\')" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left"><span class="font-semibold text-sm">学習記録の同期</span><span class="text-slate-400" aria-hidden="true">›</span></button>
-        </div>
+        <div class="px-4 pb-4"><button type="button" onclick="openSettingsDetail('account')" class="np-settings-entry"><span>アカウント</span><span aria-hidden="true">›</span></button></div>
       </details>
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
         <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-amber-300">⚙</span>一般</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
         <div class="px-4 pb-4 space-y-2">
           <button id="np-theme-settings-card" type="button" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left cursor-pointer hover:bg-slate-800/70 transition" aria-label="テーマ・外観を開く"><span class="font-semibold text-sm">テーマ・外観</span><span class="text-slate-400" aria-hidden="true">›</span></button>
+          <button type="button" onclick="openSettingsDetail('notifications')" class="np-settings-entry"><span>通知設定</span><span aria-hidden="true">›</span></button>
+          <button type="button" onclick="openSettingsDetail('sync')" class="np-settings-entry"><span>学習記録の同期</span><span aria-hidden="true">›</span></button>
+          <button type="button" onclick="openSettingsDetail('accessibility')" class="np-settings-entry"><span>アクセシビリティ</span><span aria-hidden="true">›</span></button>
         </div>
       </details>
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
-        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-sky-300">◇</span>プライバシー・データ管理</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-sky-300">◇</span>プライバシー</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
         <div class="px-4 pb-4 space-y-2">
-          <button type="button" onclick="openSettingsDetail(\'privacy\')" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left"><span class="font-semibold text-sm">プライバシー・データ管理</span><span class="text-slate-400" aria-hidden="true">›</span></button>
+          <button type="button" onclick="openSettingsDetail(\'privacy\')" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left"><span class="font-semibold text-sm">プライバシー</span><span class="text-slate-400" aria-hidden="true">›</span></button>
         </div>
+      </details>
+      <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-rose-300">▤</span>データ管理</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
+        <div class="px-4 pb-4"><button type="button" onclick="openSettingsDetail('data')" class="np-settings-entry"><span>データ管理</span><span aria-hidden="true">›</span></button></div>
       </details>
       <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
         <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-violet-300">♡</span>ヘルプ・サポート</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
@@ -626,6 +630,16 @@
     <button type="button" onclick="closeSettingsDetail()" class="mt-5 w-full rounded-xl border border-slate-200 bg-slate-50 py-3 text-sm hover:bg-slate-100 transition">戻る</button>
   </section>
 
+  <style id="np-settings-compact-style">
+    .np-settings-entry,#np-theme-settings-card{width:100%;display:flex;align-items:center;justify-content:space-between;gap:.65rem;border:1px solid #e8def3;border-radius:.7rem;background:rgba(250,247,255,.8);padding:.5rem .65rem!important;text-align:left;font-size:.8rem!important;line-height:1.25;color:#5b506d;transition:background .2s ease,border-color .2s ease}
+    .np-settings-entry:hover,#np-theme-settings-card:hover{background:#f2eafb}
+    .np-settings-entry:focus-visible,#np-theme-settings-card:focus-visible{outline:2px solid #b39add;outline-offset:2px}
+    #settings-accordion>details>summary{padding:.55rem .75rem!important;font-size:.82rem!important;line-height:1.25}
+    #settings-accordion>details>div{padding-left:.75rem!important;padding-right:.75rem!important;padding-bottom:.65rem!important}
+    #user-settings-modal,#settings-accordion{font-size:.9rem}
+    html.np-accessibility-large-text{font-size:110%}
+    html.np-accessibility-reduced-motion *,html.np-accessibility-reduced-motion *::before,html.np-accessibility-reduced-motion *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  </style>
   <style id="drawer-settings-dropdown-style">
     #nav-drawer{will-change:transform,opacity}
     #drawer-settings-accordion{display:block;border-radius:14px}
@@ -4424,22 +4438,50 @@
       const title = document.getElementById('np-settings-detail-title');
       const body = document.getElementById('np-settings-detail-body');
       if (!overlay || !modal || !title || !body) return;
+      const loggedIn = Boolean(localStorage.getItem('nurse_line_user_session'));
+      const noticeEnabled = localStorage.getItem('nurse_plus_in_app_notices') !== 'off';
+      const largeText = document.documentElement.classList.contains('np-accessibility-large-text');
+      const reducedMotion = document.documentElement.classList.contains('np-accessibility-reduced-motion');
+      const getStudyKeys = () => {
+        const keys = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.startsWith('history_accuracy_') || ['study_days','study_streak','study_last_date','evo_today_done'].includes(key))) keys.push(key);
+        }
+        return keys;
+      };
       const pages = {
+        account: {
+          title: 'アカウント',
+          body: '<div class="rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-semibold text-slate-700">LINEログイン状態</div><p class="mt-1 text-sm">' + (loggedIn ? 'LINEログイン情報がこの端末に保存されています。' : '未ログインです。') + '</p><a href="https://nurse-line-system.onrender.com/auth/line" class="mt-3 inline-flex rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm text-emerald-700">LINEログイン／連携 ↗</a></div><p class="mt-3 text-xs text-slate-500">ログイン状態は端末に保存されたセッション情報をもとに表示しています。</p>'
+        },
+        notifications: {
+          title: '通知設定',
+          body: '<p>アプリ内のお知らせ表示に関する設定です。</p><label class="mt-3 flex items-center justify-between gap-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><span><span class="block font-medium text-slate-700">アプリ内のお知らせ</span><span class="block text-xs text-slate-500 mt-1">この端末の設定を保存します。</span></span><input id="np-notice-toggle" type="checkbox" class="h-4 w-4 accent-violet-500" ' + (noticeEnabled ? 'checked' : '') + '></label><p class="mt-3 text-xs text-slate-500">公式LINEからの配信設定は変更しません。</p>'
+        },
         sync: {
           title: '学習記録の同期',
-          body: '<p>学習記録の同期に関する項目です。</p><p class="mt-3 rounded-xl bg-violet-50 p-3 text-slate-600">現在、この画面からクラウド同期の有効化・解除はできません。実際の同期機能が追加されるまでは、端末内の学習記録を引き続きご利用ください。</p>'
+          body: '<p>LINEログインした端末間で、保存済みの学習記録を同期できます。</p><div class="mt-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><p class="font-medium text-slate-700">同期状態</p><p class="mt-1">' + (loggedIn ? 'LINEログイン済みです。データ分析画面の「今すぐ同期」から同期を実行できます。' : '同期するには先にLINEログインしてください。') + '</p></div><button type="button" onclick="closeSettingsDetail();openSettingsDetail(\'account\')" class="mt-3 np-settings-entry"><span>アカウント設定を開く</span><span aria-hidden="true">›</span></button>'
         },
         privacy: {
-          title: 'プライバシー・データ管理',
-          body: '<p>学習記録やアカウント情報の取り扱いに関する項目です。</p><p class="mt-3">LINE連携で利用する情報や、端末内に保存されるデータは、各機能の説明と連携サービスの設定に従います。</p>'
+          title: 'プライバシー',
+          body: '<p>学習履歴は、問題演習の結果や学習状況の表示に利用されます。</p><div class="mt-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-medium text-slate-700">保存データ</div><p class="mt-1">この端末の学習記録キー：' + getStudyKeys().length + '件</p><p class="mt-2 text-xs text-slate-500">LINE連携情報と学習履歴は別のデータとして扱われます。</p></div><button type="button" onclick="openSettingsDetail(\'data\')" class="mt-3 np-settings-entry"><span>データ管理を開く</span><span aria-hidden="true">›</span></button>'
+        },
+        data: {
+          title: 'データ管理',
+          body: '<p>この端末に保存された学習記録を確認・削除できます。</p><div class="mt-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-medium text-slate-700">学習記録</div><p class="mt-1">保存項目数：' + getStudyKeys().length + '件</p></div><button type="button" id="np-delete-study-data" class="mt-3 w-full rounded-lg border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm text-rose-700">この端末の学習記録を削除</button><p class="mt-2 text-xs text-slate-500">削除すると対象記録を元に戻せません。LINEログイン情報は削除しません。</p>'
+        },
+        accessibility: {
+          title: 'アクセシビリティ',
+          body: '<p>文字の見やすさやアニメーションを調整します。</p><label class="mt-3 flex items-center justify-between gap-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><span class="font-medium text-slate-700">文字を少し大きくする</span><input id="np-large-text-toggle" type="checkbox" class="h-4 w-4 accent-violet-500" ' + (largeText ? 'checked' : '') + '></label><label class="mt-2 flex items-center justify-between gap-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><span class="font-medium text-slate-700">アニメーションを減らす</span><input id="np-reduced-motion-toggle" type="checkbox" class="h-4 w-4 accent-violet-500" ' + (reducedMotion ? 'checked' : '') + '></label>'
         },
         help: {
           title: 'ヘルプ・サポート',
-          body: '<p>Nurse＋の利用中に困ったときのための項目です。</p><p class="mt-3">お問い合わせ先や操作ガイドは、準備ができ次第この画面に追加できます。</p>'
+          body: '<div class="rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-medium text-slate-700">基本的な使い方</div><p class="mt-1">メニューから科目を選択し、演習モードを選んで学習できます。データ分析では保存された演習履歴を確認できます。</p></div><p class="mt-3 text-xs text-slate-500">問い合わせ先は、公式の案内が設定された際にこの画面へ追加します。</p>'
         },
         info: {
           title: 'アプリ情報',
-          body: '<div class="rounded-xl bg-violet-50 p-4"><div class="font-semibold text-slate-700">Nurse＋</div><p class="mt-1">看護学習サポートアプリ</p><p class="mt-2 text-xs text-slate-500">GitHub Pagesで提供されています。</p></div>'
+          body: '<div class="rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-semibold text-slate-700">Nurse＋</div><p class="mt-1">看護学習サポートアプリ</p><p class="mt-2 text-xs text-slate-500">学習用Webアプリとして提供されています。</p></div>'
         }
       };
       const page = pages[type];
@@ -4448,6 +4490,28 @@
       body.innerHTML = page.body;
       overlay.classList.remove('hidden');
       modal.classList.remove('hidden');
+      body.querySelector('#np-notice-toggle')?.addEventListener('change', event => {
+        localStorage.setItem('nurse_plus_in_app_notices', event.target.checked ? 'on' : 'off');
+      });
+      body.querySelector('#np-large-text-toggle')?.addEventListener('change', event => {
+        document.documentElement.classList.toggle('np-accessibility-large-text', event.target.checked);
+        localStorage.setItem('nurse_plus_large_text', event.target.checked ? 'on' : 'off');
+      });
+      body.querySelector('#np-reduced-motion-toggle')?.addEventListener('change', event => {
+        document.documentElement.classList.toggle('np-accessibility-reduced-motion', event.target.checked);
+        localStorage.setItem('nurse_plus_reduced_motion', event.target.checked ? 'on' : 'off');
+      });
+      body.querySelector('#np-delete-study-data')?.addEventListener('click', () => {
+        if (!window.confirm('この端末の学習記録を削除しますか？この操作は取り消せません。')) return;
+        const keys = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.startsWith('history_accuracy_') || ['study_days','study_streak','study_last_date','evo_today_done','nurse_plus_sync_owned_records','nurse_plus_sync_last_cloud_records'].includes(key))) keys.push(key);
+        }
+        keys.forEach(key => localStorage.removeItem(key));
+        closeSettingsDetail();
+        openSettingsDetail('data');
+      });
     }
 
     function closeSettingsDetail() {
@@ -4484,6 +4548,10 @@
       closeUserSettings();
     }
 
+    try {
+      document.documentElement.classList.toggle('np-accessibility-large-text', localStorage.getItem('nurse_plus_large_text') === 'on');
+      document.documentElement.classList.toggle('np-accessibility-reduced-motion', localStorage.getItem('nurse_plus_reduced_motion') === 'on');
+    } catch (_) {}
     document.addEventListener('DOMContentLoaded', prepareDrawerSettingsDropdown, { once: true });
 
     const evoModeDefs = s => {
@@ -6516,6 +6584,12 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
     color:#5b506d!important;
   }
 
+  /* Final override: compact, pastel page-switch dots. */
+  #subject-page-dots{gap:6px!important}
+  #subject-page-dots button{width:5px!important;height:5px!important;min-width:5px!important;min-height:5px!important;padding:0!important;border:0!important;border-radius:999px!important;background:#ded6e8!important;box-shadow:none!important;transform:none!important}
+  #subject-page-dots button.bg-amber-500{background:#b39add!important;transform:scale(1.12)!important}
+  #subject-page-dots button.bg-slate-700{background:#ded6e8!important}
+  #subject-page-dots button:hover{background:#c9b8e4!important}
   /* Smaller, softer page-switch dots; never use the previous orange/charcoal colors. */
   #subject-page-dots #dot-page-1,
   #subject-page-dots #dot-page-2{

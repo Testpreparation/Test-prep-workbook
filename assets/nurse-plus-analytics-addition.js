@@ -294,73 +294,106 @@
     const style = document.createElement('style');
     style.id = STYLE_ID;
     style.textContent = `
-      /* ホワイトモード：分析画面全体をミルクホワイト×パステルに統一 */
-      html[data-np-theme="light"] #${SCREEN_ID},
-      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-card {
+      /* データ分析はアプリのテーマにかかわらず、画面内をホワイト×パステルで統一 */
+      #${SCREEN_ID} {
+        background:#fffdfd !important;
+        color:#51465f !important;
+        border-color:#e7def4 !important;
+      }
+      #${SCREEN_ID} .np-analytics-card,
+      #${SCREEN_ID} [class*="bg-slate-950"],
+      #${SCREEN_ID} [class*="bg-slate-900"],
+      #${SCREEN_ID} [class*="bg-slate-800"],
+      #${SCREEN_ID} [class*="bg-slate-700"] {
+        background:#fff !important;
+        background-image:linear-gradient(145deg,#fff 0%,#fffdfd 68%,#f7f2ff 100%) !important;
+        color:#5b506d !important;
+        border-color:#e7def4 !important;
+        box-shadow:0 7px 20px rgba(91,72,116,.07) !important;
+      }
+      #${SCREEN_ID} h2,#${SCREEN_ID} h3,
+      #${SCREEN_ID} [class*="text-slate-100"],
+      #${SCREEN_ID} [class*="text-slate-200"] { color:#51465f !important; }
+      #${SCREEN_ID} p,#${SCREEN_ID} [class*="text-slate-300"],
+      #${SCREEN_ID} [class*="text-slate-400"],#${SCREEN_ID} [class*="text-slate-500"] { color:#81788f !important; }
+      #${SCREEN_ID} [class*="text-amber-"] { color:#9a82bd !important; }
+      #${SCREEN_ID} .np-analytics-track { background:#eee8f6 !important; }
+      #${SCREEN_ID} .np-analytics-fill { background:linear-gradient(90deg,#a98bd8,#9bd8c3) !important; }
+      #${SCREEN_ID} .np-analytics-bar { background:linear-gradient(180deg,#b39add,#9bd8c3) !important; }
+      #${SCREEN_ID} .np-analytics-back {
+        background:#f2eafb !important;border-color:#dfd1f5 !important;color:#604a80 !important;
+      }
+      #${SCREEN_ID} textarea,#${SCREEN_ID} input,#${SCREEN_ID} select {
+        background:#fff !important;color:#51465f !important;border-color:#e2d8f0 !important;
+      }
+      #${SCREEN_ID} textarea::placeholder,#${SCREEN_ID} input::placeholder { color:#a39aae !important; }
+      /* Existing white-mode rules follow, now scoped to the actual analytics screen. */
+      #${SCREEN_ID},
+      #${SCREEN_ID} .np-analytics-card {
         background:#fffdfd !important;
         color:#39364d !important;
         border-color:#e7def4 !important;
         box-shadow:0 8px 24px rgba(105,84,145,.08) !important;
       }
-      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-metric,
-      html[data-np-theme="light"] #${SCREEN_ID} h2,
-      html[data-np-theme="light"] #${SCREEN_ID} h3 {
+      #${SCREEN_ID} .np-analytics-metric,
+      #${SCREEN_ID} h2,
+      #${SCREEN_ID} h3 {
         color:#39364d !important;
       }
-      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-label,
-      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-day,
-      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-empty,
-      html[data-np-theme="light"] #${SCREEN_ID} p,
-      html[data-np-theme="light"] #${SCREEN_ID} [class*="text-slate-"] {
+      #${SCREEN_ID} .np-analytics-label,
+      #${SCREEN_ID} .np-analytics-day,
+      #${SCREEN_ID} .np-analytics-empty,
+      #${SCREEN_ID} p,
+      #${SCREEN_ID} [class*="text-slate-"] {
         color:#716b83 !important;
       }
-      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-track {
+      #${SCREEN_ID} .np-analytics-track {
         background:#eee8f6 !important;
       }
-      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-back {
+      #${SCREEN_ID} .np-analytics-back {
         background:#f1eaff !important;
         border-color:#dfd1f5 !important;
         color:#5e528f !important;
       }
-      html[data-np-theme="light"] #${SCREEN_ID} textarea,
-      html[data-np-theme="light"] #${SCREEN_ID} input,
-      html[data-np-theme="light"] #${SCREEN_ID} select {
+      #${SCREEN_ID} textarea,
+      #${SCREEN_ID} input,
+      #${SCREEN_ID} select {
         background:#fff !important;
         color:#39364d !important;
         border-color:#e2d8f0 !important;
       }
-      html[data-np-theme="light"] #${SCREEN_ID} textarea::placeholder,
-      html[data-np-theme="light"] #${SCREEN_ID} input::placeholder {
+      #${SCREEN_ID} textarea::placeholder,
+      #${SCREEN_ID} input::placeholder {
         color:#9690a6 !important;
       }
-      html[data-np-theme="light"] #${SCREEN_ID} [class*="bg-slate-950"],
-      html[data-np-theme="light"] #${SCREEN_ID} [class*="bg-slate-900"],
-      html[data-np-theme="light"] #${SCREEN_ID} [class*="bg-slate-800"],
-      html[data-np-theme="light"] #${SCREEN_ID} [class*="bg-slate-700"] {
+      #${SCREEN_ID} [class*="bg-slate-950"],
+      #${SCREEN_ID} [class*="bg-slate-900"],
+      #${SCREEN_ID} [class*="bg-slate-800"],
+      #${SCREEN_ID} [class*="bg-slate-700"] {
         background-color:#f6f2fb !important;
         background-image:none !important;
       }
-      html[data-np-theme="light"] #${SCREEN_ID} [class*="border-slate-"] {
+      #${SCREEN_ID} [class*="border-slate-"] {
         border-color:#e7def4 !important;
       }
       /* PWA white finish for all data-analysis panels, metric tiles and charts. */
-      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-card {
+      #${SCREEN_ID} .np-analytics-card {
         background:linear-gradient(145deg,#fff 0%,#fffdfd 62%,#f5f0fc 100%) !important;
         border:1px solid #e7def4 !important;
         box-shadow:0 8px 24px rgba(91,72,116,.08),inset 0 1px 0 rgba(255,255,255,.95) !important;
       }
-      html[data-np-theme="light"] #${SCREEN_ID} [class*="bg-slate-"] {
+      #${SCREEN_ID} [class*="bg-slate-"] {
         background-color:#faf7ff !important;background-image:none !important;border-color:#e7def4 !important;
       }
-      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-metric { color:#4e3e68 !important; }
-      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-track { background:#e7def4 !important; }
-      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-fill {
+      #${SCREEN_ID} .np-analytics-metric { color:#4e3e68 !important; }
+      #${SCREEN_ID} .np-analytics-track { background:#e7def4 !important; }
+      #${SCREEN_ID} .np-analytics-fill {
         background:linear-gradient(90deg,#9870ca 0%,#75bfa4 100%) !important;
       }
-      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-bar {
+      #${SCREEN_ID} .np-analytics-bar {
         background:linear-gradient(180deg,#a98bd8 0%,#7bc7aa 100%) !important;
       }
-      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-back {
+      #${SCREEN_ID} .np-analytics-back {
         background:linear-gradient(135deg,#f2eafb,#e8f6ef) !important;
         border-color:#d9c8ef !important;color:#604a80 !important;
       }
