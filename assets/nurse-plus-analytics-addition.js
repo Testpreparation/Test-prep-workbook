@@ -940,51 +940,5 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, {once:true});
   else install();
-  // ACE: AIによる間違い問題の文章分析。入力された問題文だけを送信し、個人情報は送らない。
-  function installWrongAnswerAnalysis() {
-    const screen = document.getElementById(SCREEN_ID);
-    if (!screen || document.getElementById('np-ai-wrong-analysis')) return;
-    const section = document.createElement('section');
-    section.id = 'np-ai-wrong-analysis';
-    section.className = 'np-analytics-card';
-    section.innerHTML = `
-      <h3 class="text-sm font-semibold text-slate-100">AI間違い分析・復習提案</h3>
-      <p class="text-[10px] text-slate-400 mt-1">間違えた問題文・選択肢・解説を貼り付けると、弱点の知識と復習ポイントを整理します。氏名などの個人情報は入力しないでください。</p>
-      <textarea id="np-ai-wrong-text" rows="5" maxlength="12000" class="mt-3 w-full rounded-xl border border-slate-700 bg-slate-950/70 p-3 text-xs text-slate-100" placeholder="例：問題文／選択肢／正解／解説"></textarea>
-      <button id="np-ai-wrong-run" type="button" class="np-analytics-back mt-2">AIで弱点を分析</button>
-      <div id="np-ai-wrong-result" class="mt-3 text-xs leading-6 text-slate-200" role="status" aria-live="polite"></div>`;
-    const weekly = screen.querySelector('section.np-analytics-card');
-    if (weekly) weekly.parentNode.insertBefore(section, weekly.nextSibling);
-    else screen.appendChild(section);
-    section.querySelector('#np-ai-wrong-run')?.addEventListener('click', async () => {
-      const input = section.querySelector('#np-ai-wrong-text');
-      const output = section.querySelector('#np-ai-wrong-result');
-      const button = section.querySelector('#np-ai-wrong-run');
-      const text = (input?.value || '').trim();
-      if (text.length < 20) { output.textContent = '問題文・選択肢・解説などを20文字以上入力してください。'; return; }
-      button.disabled = true; output.textContent = '分析しています…';
-      try {
-        const response = await fetch((window.NURSE_LINE_API_BASE || '').replace(/\/$/, '') + '/api/learning/analyze-wrong-answers', {
-          method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({items:[{text}]})
-        });
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok || !data.success) throw new Error(data.message || 'AI分析に失敗しました。サーバー設定を確認してください。');
-        const report = data.analysis;
-        output.innerHTML = '';
-        const box = document.createElement('div');
-        box.className = 'rounded-xl border border-slate-700 bg-slate-950/40 p-3 whitespace-pre-wrap';
-        box.textContent = typeof report === 'string' ? report : JSON.stringify(report, null, 2);
-        output.appendChild(box);
-      } catch (error) {
-        output.textContent = error.message || 'AI分析に失敗しました。';
-      } finally { button.disabled = false; }
-    });
-  }
-
-  const aceOriginalRenderAnalytics = renderAnalytics;
-  renderAnalytics = function() {
-    aceOriginalRenderAnalytics();
-    installWrongAnswerAnalysis();
-  };
 
 })();
