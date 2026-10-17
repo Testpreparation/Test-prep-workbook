@@ -231,6 +231,50 @@
       background:#e4d8f7 !important;
     }
 
+    /* Light mode: make every subject/mode selection button match the pastel theme */
+    html[data-np-theme="light"] body [id*="mode-select"] button,
+    html[data-np-theme="light"] body #screen-round-select button,
+    html[data-np-theme="light"] body #screen-semester-select button,
+    html[data-np-theme="light"] body [id*="format-select"] button,
+    html[data-np-theme="light"] body [id*="count-select"] button {
+      background-color:#fffdfd !important;
+      background-image:none !important;
+      color:#514b63 !important;
+      border-color:#e4dcef !important;
+      box-shadow:0 5px 16px rgba(100,82,145,.06) !important;
+    }
+    html[data-np-theme="light"] body [id*="mode-select"] button.card-item,
+    html[data-np-theme="light"] body #screen-round-select button.card-item,
+    html[data-np-theme="light"] body #screen-semester-select button.card-item,
+    html[data-np-theme="light"] body [id*="format-select"] button.card-item,
+    html[data-np-theme="light"] body [id*="count-select"] button.card-item {
+      background:#fffdfd !important;
+      color:#514b63 !important;
+      border:1px solid #e4dcef !important;
+    }
+    html[data-np-theme="light"] body [id*="mode-select"] button:hover,
+    html[data-np-theme="light"] body #screen-round-select button:hover,
+    html[data-np-theme="light"] body #screen-semester-select button:hover,
+    html[data-np-theme="light"] body [id*="format-select"] button:hover,
+    html[data-np-theme="light"] body [id*="count-select"] button:hover {
+      background:#f2ecff !important;
+      border-color:#d7c8f2 !important;
+    }
+    html[data-np-theme="light"] body [id*="mode-select"] button [class*="text-slate-"],
+    html[data-np-theme="light"] body #screen-round-select button [class*="text-slate-"],
+    html[data-np-theme="light"] body #screen-semester-select button [class*="text-slate-"],
+    html[data-np-theme="light"] body [id*="format-select"] button [class*="text-slate-"],
+    html[data-np-theme="light"] body [id*="count-select"] button [class*="text-slate-"] {
+      color:#625b72 !important;
+    }
+    html[data-np-theme="light"] body [id*="mode-select"] button [class*="text-white"],
+    html[data-np-theme="light"] body #screen-round-select button [class*="text-white"],
+    html[data-np-theme="light"] body #screen-semester-select button [class*="text-white"],
+    html[data-np-theme="light"] body [id*="format-select"] button [class*="text-white"],
+    html[data-np-theme="light"] body [id*="count-select"] button [class*="text-white"] {
+      color:#514b63 !important;
+    }
+
     /* Light mode: analytics, subject condition, progress and statistics cards */
     html[data-np-theme="light"] body #screen-dashboard [class*="bg-"],
     html[data-np-theme="light"] body #screen-dashboard [class*="from-"],
