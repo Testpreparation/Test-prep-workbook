@@ -199,10 +199,14 @@
       mutations.forEach(mutation => {
         const screen = mutation.target;
         if (!screen || !screen.id || !screen.id.startsWith('screen-')) return;
-        if (screen.classList.contains('hidden')) {
+        const isHidden = screen.classList.contains('hidden');
+        const wasHidden = String(mutation.oldValue || '').split(/\\s+/).includes('hidden');
+        if (isHidden) {
           if (screen.id === 'screen-quiz-result') delete screen.dataset.npCelebrated;
           return;
         }
+        // hiddenクラスが外れた瞬間だけ実行し、同じ表示中の再描画では繰り返さない。
+        if (!wasHidden) return;
         if (!reduceMotion && typeof screen.animate === 'function' && screen.id !== SCREEN_ID) {
           screen.animate(
             [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }],
@@ -213,7 +217,7 @@
       });
     });
     document.querySelectorAll('[id^="screen-"]').forEach(screen => {
-      screenObserver.observe(screen, { attributes: true, attributeFilter: ['class'] });
+      screenObserver.observe(screen, { attributes: true, attributeFilter: ['class'], attributeOldValue: true });
     });
 
     // 3. 正解・不正解の結果表示に演出を追加。採点結果や判定処理には触れない。
