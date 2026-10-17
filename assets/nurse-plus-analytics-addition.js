@@ -1089,7 +1089,8 @@
       const screen = document.getElementById(SCREEN_ID);
       if (!screen || screen.classList.contains('hidden')) return;
       const analysisHost = document.getElementById('screen-data-analysis');
-      if (screen.contains(event.target) || event.target.closest('#' + BUTTON_ID) || (analysisHost && analysisHost.contains(event.target))) return;
+      // 分析画面が表示中は、タップ位置にかかわらず追加分析パネルを閉じない。
+      if ((analysisHost && !analysisHost.classList.contains('hidden')) || screen.contains(event.target) || event.target.closest('#' + BUTTON_ID)) return;
       screen.classList.add('hidden');
     }, true);
   }
