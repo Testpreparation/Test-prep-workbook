@@ -543,22 +543,6 @@
         </section>
 
         <section class="rounded-2xl border border-slate-700/60 bg-slate-900/50 p-4">
-          <div class="flex items-center justify-between gap-3 mb-4">
-            <div>
-              <div class="en-title text-[10px] text-emerald-400 tracking-[.22em] font-semibold">LEARNING GROWTH</div>
-              <h3 class="text-sm font-semibold text-slate-100 mt-1">学習の成長記録</h3>
-            </div>
-            <span class="text-[9px] text-slate-500 rounded-full border border-slate-700 px-2 py-1">スタート時との比較</span>
-          </div>
-          <div class="grid grid-cols-3 gap-2 text-center">
-            <div class="rounded-xl bg-slate-800/50 p-3"><div id="evo-growth-start" class="text-lg font-mono font-bold text-slate-200">--</div><div class="mt-1 text-[9px] text-slate-500">開始時</div></div>
-            <div class="rounded-xl bg-slate-800/50 p-3"><div id="evo-growth-current" class="text-lg font-mono font-bold text-amber-400">--</div><div class="mt-1 text-[9px] text-slate-500">現在</div></div>
-            <div class="rounded-xl bg-slate-800/50 p-3"><div id="evo-growth-delta" class="text-lg font-mono font-bold text-emerald-400">--</div><div class="mt-1 text-[9px] text-slate-500">変化</div></div>
-          </div>
-          <p id="evo-growth-note" class="mt-3 text-[10px] leading-relaxed text-slate-400">最初の演習を完了すると成長記録が始まります。</p>
-        </section>
-
-        <section class="rounded-2xl border border-slate-700/60 bg-slate-900/50 p-4">
           <div class="flex items-center justify-between gap-3 mb-3">
             <div>
               <div class="en-title text-[10px] text-sky-400 tracking-[.22em] font-semibold">LAST 7 DAYS</div>
