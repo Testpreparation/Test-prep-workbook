@@ -4992,7 +4992,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         if (q.isMultiple) {
           submitBtn.classList.remove('hidden');
           container.innerHTML = q.options.map((opt, idx) => `
-            <button type="button" id="opt-btn-${idx}" onclick="toggleOptionSelect(${idx})" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center gap-3">
+            <button type="button" id="opt-btn-${idx}" data-answer-index="${idx}" data-answer-mode="multiple" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center gap-3">
               <span id="opt-check-${idx}" class="w-4 h-4 rounded border border-slate-600 bg-slate-950 flex items-center justify-center font-bold text-[10px] text-amber-400 shrink-0"></span>
               <span>${opt}</span>
             </button>
@@ -5000,13 +5000,28 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         } else {
           submitBtn.classList.add('hidden');
           container.innerHTML = q.options.map((opt, idx) => `
-            <button type="button" onclick="handleSingleAnswer(${idx})" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center justify-between">
+            <button type="button" data-answer-index="${idx}" data-answer-mode="single" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center justify-between">
               <span>${opt}</span>
               <span class="opt-mark hidden font-bold"></span>
             </button>
           `).join('');
         }
       }
+
+      // Bind clicks after the options are dynamically rendered so taps always reach
+      // the current question's answer buttons.
+      container.querySelectorAll('.quiz-opt-btn[data-answer-index]').forEach((button) => {
+        button.addEventListener('click', () => {
+          if (isAnswered) return;
+          const answerIndex = Number(button.dataset.answerIndex);
+          if (!Number.isInteger(answerIndex)) return;
+          if (button.dataset.answerMode === 'multiple') {
+            toggleOptionSelect(answerIndex);
+          } else {
+            handleSingleAnswer(answerIndex);
+          }
+        }, { passive: true });
+      });
 
       startQuizTimer();
     }
