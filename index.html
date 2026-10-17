@@ -4865,6 +4865,29 @@
       if(evoConditionDateIndex > 0){ evoConditionDateIndex--; evoRenderCondition(); }
     }
 
+    function evoGetFirstAccuracyRecorded() {
+      const byDate = {};
+      Object.keys(localStorage).forEach(key => {
+        if (!key.startsWith('history_accuracy_daily_')) return;
+        try {
+          const records = JSON.parse(localStorage.getItem(key) || '[]');
+          records.forEach(record => {
+            if (!record || !record.date || !Number.isFinite(Number(record.accuracy))) return;
+            if (!byDate[record.date]) byDate[record.date] = { sum: 0, count: 0 };
+            byDate[record.date].sum += Number(record.accuracy);
+            byDate[record.date].count += 1;
+          });
+        } catch (_) {}
+      });
+      const dates = Object.keys(byDate).sort((a, b) => {
+        const pa = a.split('/').map(Number), pb = b.split('/').map(Number);
+        return new Date(pa[0], pa[1] - 1, pa[2]) - new Date(pb[0], pb[1] - 1, pb[2]);
+      });
+      if (!dates.length) return null;
+      const first = byDate[dates[0]];
+      return Math.round(first.sum / first.count);
+    }
+
     function evoRecordStudyCompletion(now, result) {
       const dateStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`;
       const days = JSON.parse(localStorage.getItem('study_days') || '[]');
@@ -4890,7 +4913,8 @@
       }
 
       if (localStorage.getItem('nurse_plus_accuracy_baseline') === null) {
-        localStorage.setItem('nurse_plus_accuracy_baseline', String(result.accRate));
+        const firstRecordedAccuracy = evoGetFirstAccuracyRecorded();
+        localStorage.setItem('nurse_plus_accuracy_baseline', String(firstRecordedAccuracy === null ? result.accRate : firstRecordedAccuracy));
       }
       const sessions = JSON.parse(localStorage.getItem('nurse_plus_study_sessions') || '[]');
       sessions.push({
@@ -4969,7 +4993,7 @@
       currentEl.textContent = `${stats.avg}%`;
       deltaEl.textContent = `${delta > 0 ? '+' : ''}${delta}pt`;
       deltaEl.className = `text-lg font-mono font-bold ${delta > 0 ? 'text-emerald-400' : delta < 0 ? 'text-rose-400' : 'text-slate-300'}`;
-      if (note) note.textContent = '学習開始時の記録と、保存されている演習履歴の平均を比較しています。';
+      if (note) note.textContent = '保存されている最古の正答率記録と、演習履歴の平均を比較しています。';
     }
 
     function evoRenderMonthlyReport(now = new Date()) {
