@@ -7311,6 +7311,8 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
     html.np-light-theme #slider-page-2 .card-item [class*="bg-amber-500/10"] {
       background:#f3edfb !important; border-color:#d8c8f4 !important; color:#70529b !important;
     }
+  </style>
+
   <style id="nurse-plus-flashcard-dark-theme-fix">
     /* 暗記カード画面だけ、ダークモード時にホワイトテーマの配色が残らないようにする。 */
     html:not(.np-light-theme) #slider-page-2 { color:#e2e8f0 !important; }
@@ -7385,6 +7387,95 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
     }
   </style>
 
+  <style id="nurse-plus-global-dark-theme-fix">
+    html:not(.np-light-theme) {
+      color-scheme: dark;
+      scrollbar-color:#475569 #0f172a;
+    }
+    html:not(.np-light-theme) body {
+      background:linear-gradient(145deg,#020617 0%,#0f172a 58%,#111827 100%) !important;
+      color:#e2e8f0 !important;
+    }
+    /* Apply dark colors to shared cards, dialogs, navigation and form controls across the app. */
+    html:not(.np-light-theme) .glass-card,
+    html:not(.np-light-theme) #nav-drawer,
+    html:not(.np-light-theme) #user-settings-modal,
+    html:not(.np-light-theme) #np-theme-settings-modal,
+    html:not(.np-light-theme) #np-settings-detail-modal,
+    html:not(.np-light-theme) #study-breadcrumbs,
+    html:not(.np-light-theme) #screen-dashboard .evo-card,
+    html:not(.np-light-theme) #screen-dashboard [class*="bg-gray-"],
+    html:not(.np-light-theme) #evo-subjects > *,
+    html:not(.np-light-theme) #drawer-settings-content #settings-accordion > details,
+    html:not(.np-light-theme) #user-settings-modal #settings-accordion .np-settings-entry,
+    html:not(.np-light-theme) #user-settings-modal #settings-accordion #np-theme-settings-card {
+      background-color:#0f172a !important;
+      background-image:linear-gradient(145deg,rgba(15,23,42,.98),rgba(2,6,23,.96)) !important;
+      border-color:#334155 !important;
+      color:#e2e8f0 !important;
+      box-shadow:0 10px 28px rgba(0,0,0,.2) !important;
+    }
+    html:not(.np-light-theme) [class~="bg-white"],
+    html:not(.np-light-theme) [class~="bg-white/90"],
+    html:not(.np-light-theme) [class~="bg-white/95"],
+    html:not(.np-light-theme) [class~="bg-white/80"],
+    html:not(.np-light-theme) [class~="bg-gray-50"],
+    html:not(.np-light-theme) [class~="bg-gray-100"],
+    html:not(.np-light-theme) [class~="bg-violet-50"],
+    html:not(.np-light-theme) [class~="bg-violet-100"],
+    html:not(.np-light-theme) [class~="bg-rose-50"],
+    html:not(.np-light-theme) [class~="bg-emerald-50"],
+    html:not(.np-light-theme) [class~="bg-sky-50"],
+    html:not(.np-light-theme) [class~="bg-amber-50"] {
+      background-color:#1e293b !important;
+      background-image:none !important;
+      border-color:#475569 !important;
+      color:#e2e8f0 !important;
+    }
+    html:not(.np-light-theme) [class*="text-slate-700"],
+    html:not(.np-light-theme) [class*="text-slate-600"],
+    html:not(.np-light-theme) [class*="text-slate-500"],
+    html:not(.np-light-theme) [class*="text-violet-800"],
+    html:not(.np-light-theme) [class*="text-violet-700"],
+    html:not(.np-light-theme) [class*="text-violet-600"],
+    html:not(.np-light-theme) [class*="text-violet-500"] {
+      color:#cbd5e1 !important;
+    }
+    html:not(.np-light-theme) [class*="border-violet-100"],
+    html:not(.np-light-theme) [class*="border-violet-200"],
+    html:not(.np-light-theme) [class*="border-violet-300"],
+    html:not(.np-light-theme) [class*="border-gray-200"],
+    html:not(.np-light-theme) [class*="border-rose-200"],
+    html:not(.np-light-theme) [class*="border-emerald-200"] {
+      border-color:#475569 !important;
+    }
+    html:not(.np-light-theme) input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    html:not(.np-light-theme) textarea,
+    html:not(.np-light-theme) select {
+      background-color:#0f172a !important;
+      border-color:#475569 !important;
+      color:#e2e8f0 !important;
+    }
+    html:not(.np-light-theme) input::placeholder,
+    html:not(.np-light-theme) textarea::placeholder {
+      color:#94a3b8 !important;
+    }
+    html:not(.np-light-theme) #nav-overlay,
+    html:not(.np-light-theme) #user-settings-overlay {
+      background:rgba(0,0,0,.62) !important;
+    }
+    html:not(.np-light-theme) .notice-time-wheel {
+      background:#0f172a !important;
+      border-color:#475569 !important;
+    }
+    html:not(.np-light-theme) .notice-time-wheel-item { color:#94a3b8 !important; }
+    html:not(.np-light-theme) .notice-time-wheel-item.is-selected {
+      background:#334155 !important; color:#f1f5f9 !important; border-color:#64748b !important;
+    }
+    html:not(.np-light-theme) #np-theme-settings-modal,
+    html:not(.np-light-theme) #np-settings-detail-modal {
+      color:#e2e8f0 !important;
+    }
   </style>
 
 </body>
