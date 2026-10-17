@@ -637,13 +637,13 @@
     .np-settings-entry,#np-theme-settings-card{width:100%;display:flex;align-items:center;justify-content:space-between;gap:.65rem;border:1px solid #e8def3;border-radius:.7rem;background:rgba(250,247,255,.8);padding:.5rem .65rem!important;text-align:left;font-size:.8rem!important;line-height:1.25;color:#5b506d!important;transition:background .2s ease,border-color .2s ease}
     .np-settings-entry:hover,#np-theme-settings-card:hover{background:#f2eafb!important}
     #user-settings-modal #settings-accordion .np-settings-entry>span:first-child,
-    #user-settings-modal #settings-accordion #np-theme-settings-card>span:first-child{font-size:.875rem!important;font-weight:600!important;color:#5b506d!important}
+    #user-settings-modal #settings-accordion #np-theme-settings-card>span:first-child{font-size:.78rem!important;font-weight:600!important;color:#5b506d!important}
     #user-settings-modal #settings-accordion .np-settings-entry>span[aria-hidden="true"],
     #user-settings-modal #settings-accordion #np-theme-settings-card>span[aria-hidden="true"]{color:#a8a0b5!important;font-size:1.1rem!important;line-height:1!important}
     #user-settings-modal #settings-accordion .np-settings-entry:hover>span:first-child,
     #user-settings-modal #settings-accordion #np-theme-settings-card:hover>span:first-child{color:#5b506d!important}
     .np-settings-entry:focus-visible,#np-theme-settings-card:focus-visible{outline:2px solid #b39add;outline-offset:2px}
-    #settings-accordion>details>summary{padding:.22rem .65rem!important;font-size:.76rem!important;line-height:1.2}
+    #settings-accordion>details>summary{padding:.32rem .75rem!important;font-size:.82rem!important;line-height:1.25}
     #settings-accordion>details>div{padding-left:.75rem!important;padding-right:.75rem!important;padding-bottom:.65rem!important}
     #user-settings-modal,#settings-accordion{font-size:.9rem}
     .np-toggle-switch{appearance:none;-webkit-appearance:none;position:relative;flex-shrink:0;width:2.75rem;height:1.5rem;border-radius:9999px;background:#d8d1e2;border:1px solid #c8bdd7;cursor:pointer;transition:background .2s ease,border-color .2s ease}
@@ -685,7 +685,7 @@
     #drawer-settings-content #settings-accordion .np-settings-entry>span:first-child,
     #drawer-settings-content #settings-accordion #np-theme-settings-card>span:first-child {
       color:#5b506d!important;
-      font-size:.875rem!important;
+      font-size:.78rem!important;
       font-weight:600!important;
     }
     #user-settings-modal #settings-accordion .np-settings-entry>span[aria-hidden="true"],
@@ -4532,7 +4532,7 @@
       const loggedIn = Boolean(localStorage.getItem('nurse_line_user_session'));
       const noticeEnabled = localStorage.getItem('nurse_plus_in_app_notices') !== 'off';
       const textSize = Number(localStorage.getItem('nurse_plus_text_size') || 100);
-      const accountName = (localStorage.getItem('nurse_plus_account_name') || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+      const lineAccountName = (localStorage.getItem('nurse_line_user_name') || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
       const reducedMotion = document.documentElement.classList.contains('np-accessibility-reduced-motion');
       const getStudyKeys = () => {
         const keys = [];
@@ -4545,7 +4545,7 @@
       const pages = {
         account: {
           title: 'アカウント',
-          body: '<div class="rounded-xl border border-violet-100 bg-violet-50/70 p-3"><label for="np-account-name" class="block font-semibold text-slate-700">名前</label><input id="np-account-name" type="text" maxlength="40" value="' + accountName + '" placeholder="名前を入力" onchange="localStorage.setItem(&quot;nurse_plus_account_name&quot;, this.value.trim())" class="mt-2 w-full rounded-lg border border-violet-200 bg-white px-3 py-2 text-sm text-slate-700" /><p class="mt-1 text-xs text-slate-500">名前はこの端末に保存されます。</p></div><div class="mt-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-semibold text-slate-700">アカウント情報</div><p class="mt-1 text-sm">LINEログイン状態：' + (loggedIn ? 'ログイン済み' : '未ログイン') + '</p><p class="mt-1 text-xs text-slate-500">ログイン状態は、この端末に保存されたセッション情報をもとに表示しています。</p><a href="https://nurse-line-system.onrender.com/auth/line" class="mt-3 inline-flex rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm text-emerald-700">LINEログイン／連携 ↗</a></div>'
+          body: '<div class="rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-semibold text-slate-700">LINEアカウント情報</div><div class="mt-2 flex items-center justify-between gap-3"><span class="text-sm text-slate-500">LINE表示名</span><strong class="text-sm text-slate-800 break-all">' + (lineAccountName || '取得できていません') + '</strong></div><div class="mt-2 flex items-center justify-between gap-3"><span class="text-sm text-slate-500">ログイン状態</span><strong class="text-sm ' + (loggedIn ? 'text-emerald-700' : 'text-slate-500') + '">' + (loggedIn ? 'ログイン済み' : '未ログイン') + '</strong></div><p class="mt-2 text-xs text-slate-500">LINE連携で取得し、この端末に保存された表示名を表示しています。</p><a href="https://nurse-line-system.onrender.com/auth/line" class="mt-3 inline-flex rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm text-emerald-700">LINEログイン／連携 ↗</a></div>'
         },
         notifications: {
           title: '通知設定',
