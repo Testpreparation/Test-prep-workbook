@@ -201,7 +201,7 @@
         Object.keys(current).filter(key => Array.isArray(current[key])).forEach(key => {
           const added = subtractNewItems(current[key], lastCloud[key] || []);
           if (added.length) {
-            const limit = key.startsWith('history_accuracy_daily_') ? 100 : 20;
+            const limit = 2000;
             owned[key] = (Array.isArray(owned[key]) ? owned[key] : []).concat(added).slice(-limit);
           }
         });
