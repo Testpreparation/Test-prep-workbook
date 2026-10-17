@@ -4945,7 +4945,9 @@
 
     function evoGetAccuracyTrendData() {
       const subjectList = Array.isArray(subjects) ? subjects : (Array.isArray(defaultSubjects) ? defaultSubjects : []);
-      const data = [];
+      const subjectData = [];
+      const allDates = new Set();
+
       subjectList.forEach(subject => {
         if (!subject || !subject.id) return;
         const byDate = {};
@@ -4960,69 +4962,126 @@
               if (!byDate[record.date]) byDate[record.date] = { sum: 0, count: 0 };
               byDate[record.date].sum += Number(record.accuracy);
               byDate[record.date].count += 1;
+              allDates.add(record.date);
             });
           } catch (_) {}
         });
-        const recent = Object.entries(byDate).map(([date, item]) => ({
-          date, accuracy: Math.round(item.sum / item.count)
-        })).sort((a, b) => {
-          const pa = a.date.split('/').map(Number), pb = b.date.split('/').map(Number);
-          return new Date(pa[0], pa[1] - 1, pa[2]) - new Date(pb[0], pb[1] - 1, pb[2]);
-        }).slice(-7);
-        if (recent.length) {
-          data.push({
+        const daily = {};
+        Object.entries(byDate).forEach(([date, item]) => {
+          daily[date] = Math.round(item.sum / item.count);
+        });
+        if (Object.keys(daily).length) {
+          subjectData.push({
             id: subject.id,
             name: subject.name || subject.code || subject.id,
-            accuracy: Math.round(recent.reduce((sum, item) => sum + item.accuracy, 0) / recent.length),
-            records: recent.length
+            daily
           });
         }
       });
-      return data;
+
+      const sortDate = (a, b) => {
+        const pa = a.split('/').map(Number), pb = b.split('/').map(Number);
+        return new Date(pa[0], pa[1] - 1, pa[2]) - new Date(pb[0], pb[1] - 1, pb[2]);
+      };
+      const dates = Array.from(allDates).sort(sortDate).slice(-7);
+      const daily = dates.map(date => {
+        const values = subjectData
+          .filter(subject => Number.isFinite(subject.daily[date]))
+          .map(subject => subject.daily[date]);
+        return {
+          date,
+          accuracy: values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null
+        };
+      });
+      const subjectsWithAverages = subjectData.map(subject => {
+        const values = dates.filter(date => Number.isFinite(subject.daily[date])).map(date => subject.daily[date]);
+        return {
+          id: subject.id,
+          name: subject.name,
+          daily: subject.daily,
+          accuracy: values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : 0,
+          records: values.length
+        };
+      });
+      return { subjects: subjectsWithAverages, dates, daily };
     }
 
     function evoRenderAccuracyTrend() {
       const box = document.getElementById('evo-accuracy-trend');
       const summary = document.getElementById('evo-trend-summary');
       if (!box) return;
-      const data = evoGetAccuracyTrendData();
-      if (!data.length) {
+      const chart = evoGetAccuracyTrendData();
+      const data = chart.subjects;
+      if (!data.length || !chart.dates.length) {
         box.style.gridTemplateColumns = '';
+        box.style.display = '';
         box.innerHTML = '<div class="col-span-7 text-center text-[11px] text-slate-500 py-8">まだ演習履歴がありません。</div>';
-        if (summary) summary.textContent = '演習を完了すると科目別の正答率が表示されます。';
+        if (summary) summary.textContent = '演習を完了すると、科目別の縦棒と日別の正答率推移が表示されます。';
         return;
       }
-      const plotHeight = 90;
-      const points = data.map((item, index) => {
-        const x = ((index + 0.5) / data.length) * 1000;
-        const y = plotHeight - (Math.max(0, Math.min(100, item.accuracy)) / 100) * plotHeight;
-        return `${x},${y}`;
-      }).join(' ');
-      box.style.gridTemplateColumns = `repeat(${data.length}, minmax(0, 1fr))`;
-      box.innerHTML = `
-        <svg aria-hidden="true" viewBox="0 0 1000 ${plotHeight}" preserveAspectRatio="none" class="absolute inset-x-0 top-[18px] w-full pointer-events-none" style="height:${plotHeight}px;overflow:visible;z-index:2">
-          <polyline points="${points}" fill="none" stroke="#a78bfa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polyline>
-          ${data.map((item, index) => {
-            const x = ((index + 0.5) / data.length) * 1000;
-            const y = plotHeight - (Math.max(0, Math.min(100, item.accuracy)) / 100) * plotHeight;
-            return `<circle cx="${x}" cy="${y}" r="5" fill="#a78bfa" stroke="#ffffff" stroke-width="2" vector-effect="non-scaling-stroke"></circle>`;
-          }).join('')}
-        </svg>
-        ${data.map(item => `
-          <div class="relative flex min-w-0 flex-col items-center">
-            <span class="text-[9px] font-mono text-slate-400 mb-1">${item.accuracy}%</span>
-            <div class="relative w-full h-[90px]">
-              <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[min(24px,65%)] rounded-t-md bg-gradient-to-t from-violet-300 to-emerald-200" style="height:${Math.max(2, Math.min(100, item.accuracy))}%;min-height:2px" title="${item.name}: ${item.accuracy}%（直近${item.records}学習日）"></div>
-            </div>
-            <span class="text-[8px] text-slate-500 mt-2 text-center leading-tight break-words">${item.name}</span>
-          </div>`).join('')}`;
+
+      const width = 1000;
+      const plotTop = 12;
+      const baseline = 112;
+      const plotHeight = baseline - plotTop;
+      const colors = ['#60a5fa', '#34d399', '#fbbf24', '#fb7185', '#c084fc', '#22d3ee', '#f97316', '#a3e635', '#f472b6', '#818cf8'];
+      const lineColor = '#e879f9';
+      const dayWidth = width / chart.dates.length;
+      const groupWidth = dayWidth * 0.72;
+      const barGap = 2;
+      const barWidth = Math.max(3, Math.min(18, (groupWidth - barGap * Math.max(0, data.length - 1)) / data.length));
+      const yFor = value => baseline - (Math.max(0, Math.min(100, value)) / 100) * plotHeight;
+      const bars = [];
+      chart.dates.forEach((date, dayIndex) => {
+        const groupStart = dayIndex * dayWidth + (dayWidth - (data.length * barWidth + Math.max(0, data.length - 1) * barGap)) / 2;
+        data.forEach((subject, subjectIndex) => {
+          const value = subject.daily[date];
+          if (!Number.isFinite(value)) return;
+          const height = Math.max(2, baseline - yFor(value));
+          const x = groupStart + subjectIndex * (barWidth + barGap);
+          bars.push(`<rect x="${x}" y="${baseline - height}" width="${barWidth}" height="${height}" rx="2" fill="${colors[subjectIndex % colors.length]}" opacity="0.88"><title>${subject.name}: ${value}%（${date}）</title></rect>`);
+        });
+      });
+      const linePoints = chart.daily
+        .map((item, index) => item.accuracy === null ? null : `${(index + 0.5) * dayWidth},${yFor(item.accuracy)}`)
+        .filter(Boolean);
+      const line = linePoints.length > 1
+        ? `<polyline points="${linePoints.join(' ')}" fill="none" stroke="${lineColor}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polyline>`
+        : '';
+      const dots = chart.daily.map((item, index) => {
+        if (item.accuracy === null) return '';
+        const x = (index + 0.5) * dayWidth;
+        const y = yFor(item.accuracy);
+        return `<circle cx="${x}" cy="${y}" r="4.5" fill="${lineColor}" stroke="#ffffff" stroke-width="1.5" vector-effect="non-scaling-stroke"><title>${item.date} 全科目平均: ${item.accuracy}%</title></circle>`;
+      }).join('');
+      const dateLabels = chart.dates.map((date, index) => {
+        const parts = date.split('/');
+        const label = parts.length === 3 ? `${parts[1]}/${parts[2]}` : date;
+        return `<text x="${(index + 0.5) * dayWidth}" y="132" text-anchor="middle" font-size="12" fill="#94a3b8">${label}</text>`;
+      }).join('');
+
+      box.style.display = 'block';
+      box.style.gridTemplateColumns = '';
+      box.style.minHeight = '0';
       box.classList.add('relative');
+      box.innerHTML = `
+        <svg aria-label="科目別正答率の縦棒と日別平均正答率の折れ線グラフ" role="img" viewBox="0 0 ${width} 140" preserveAspectRatio="none" class="block w-full" style="height:150px;overflow:visible">
+          <line x1="0" y1="${baseline}" x2="${width}" y2="${baseline}" stroke="#64748b" stroke-opacity="0.35" stroke-width="1"></line>
+          ${bars.join('')}
+          ${line}
+          ${dots}
+          ${dateLabels}
+        </svg>
+        <div class="flex flex-wrap gap-x-3 gap-y-1 mt-3">
+          ${data.map((subject, index) => `<span class="inline-flex items-center gap-1 text-[9px] text-slate-400"><span class="inline-block w-2 h-2 rounded-sm" style="background:${colors[index % colors.length]}"></span>${subject.name}</span>`).join('')}
+          <span class="inline-flex items-center gap-1 text-[9px] text-slate-400"><span class="inline-block w-4 h-[2px]" style="background:${lineColor}"></span>日別の全科目平均</span>
+        </div>`;
       if (summary) {
         const best = data.reduce((a, b) => b.accuracy > a.accuracy ? b : a);
         const lowest = data.reduce((a, b) => b.accuracy < a.accuracy ? b : a);
         summary.textContent = data.length > 1
-          ? `科目別の直近7学習日の平均正答率です。最高：${best.name} ${best.accuracy}%／最低：${lowest.name} ${lowest.accuracy}%`
-          : `${data[0].name}：直近${data[0].records}学習日の平均正答率 ${data[0].accuracy}%`;
+          ? `縦棒＝科目別の日ごとの正答率、折れ線＝日別の全科目平均（直近${chart.dates.length}学習日）。科目平均の最高：${best.name} ${best.accuracy}%／最低：${lowest.name} ${lowest.accuracy}%`
+          : `縦棒＝${data[0].name}の日別正答率、折れ線＝日別の全科目平均（直近${chart.dates.length}学習日）。`;
       }
     }
 
