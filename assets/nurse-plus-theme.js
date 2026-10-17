@@ -382,6 +382,38 @@
       background:#b79ae8 !important;
     }
 
+    /* Flashcards: replace the fixed dark paper styling when white theme is active. */
+    html[data-np-theme="light"] body .flashcard-paper {
+      background:#fffdfd !important;
+      background-image:radial-gradient(circle at 50% 50%, #ffffff 0%, #fffdfd 100%) !important;
+      color:#454057 !important;
+      border:1px solid #e7def4 !important;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.9), 0 12px 28px rgba(105,84,145,.12) !important;
+    }
+    html[data-np-theme="light"] body .flashcard-hole {
+      background:#f0eaff !important;
+      border-color:#cfc3e5 !important;
+      box-shadow:inset 0 2px 4px rgba(105,84,145,.12) !important;
+    }
+    html[data-np-theme="light"] body .flashcard-ring-wire {
+      border-color:#c9c3d6 !important;
+      box-shadow:0 4px 6px rgba(105,84,145,.12) !important;
+    }
+    /* Keep the subject-page dots available when switching to the flashcard page. */
+    #screen-subjects #subject-page-dots {
+      position:relative !important;
+      z-index:10 !important;
+      min-height:18px;
+    }
+    #screen-subjects #subject-page-dots button {
+      display:block !important;
+      flex:0 0 auto !important;
+      min-width:10px !important;
+      min-height:10px !important;
+      pointer-events:auto !important;
+      touch-action:manipulation !important;
+    }
+
     @media (max-width:640px) { #np-theme-toggle { top:12px; right:12px; padding:8px 10px; } }
     @media (prefers-reduced-motion: reduce) { body, body * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
   `;
