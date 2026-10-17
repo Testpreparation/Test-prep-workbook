@@ -343,6 +343,27 @@
       html[data-np-theme="light"] #${SCREEN_ID} [class*="border-slate-"] {
         border-color:#e7def4 !important;
       }
+      /* PWA white finish for all data-analysis panels, metric tiles and charts. */
+      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-card {
+        background:linear-gradient(145deg,#fff 0%,#fffdfd 62%,#f5f0fc 100%) !important;
+        border:1px solid #e7def4 !important;
+        box-shadow:0 8px 24px rgba(91,72,116,.08),inset 0 1px 0 rgba(255,255,255,.95) !important;
+      }
+      html[data-np-theme="light"] #${SCREEN_ID} [class*="bg-slate-"] {
+        background-color:#faf7ff !important;background-image:none !important;border-color:#e7def4 !important;
+      }
+      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-metric { color:#4e3e68 !important; }
+      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-track { background:#e7def4 !important; }
+      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-fill {
+        background:linear-gradient(90deg,#9870ca 0%,#75bfa4 100%) !important;
+      }
+      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-bar {
+        background:linear-gradient(180deg,#a98bd8 0%,#7bc7aa 100%) !important;
+      }
+      html[data-np-theme="light"] #${SCREEN_ID} .np-analytics-back {
+        background:linear-gradient(135deg,#f2eafb,#e8f6ef) !important;
+        border-color:#d9c8ef !important;color:#604a80 !important;
+      }
       #${SCREEN_ID} { animation: npAnalyticsEnter 1.05s cubic-bezier(.22,1,.36,1) both; }
       @keyframes npAnalyticsEnter { from { opacity:0; transform:translateY(18px) scale(.985); filter:blur(2px); } to { opacity:1; transform:translateY(0) scale(1); filter:blur(0); } }
       .np-analytics-card { background:rgba(15,23,42,.72);border:1px solid rgba(148,163,184,.18);border-radius:16px;padding:14px; }
