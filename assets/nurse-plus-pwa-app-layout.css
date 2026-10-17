@@ -143,3 +143,145 @@ html.np-light-theme .custom-scrollbar::-webkit-scrollbar-thumb {
     transition-duration: .01ms !important;
   }
 }
+
+
+/* PWA-inspired screen composition: preserve existing screens and actions. */
+html.np-light-theme body > div.max-w-xl {
+  width: min(100% - 1.25rem, 46rem);
+  max-width: 46rem;
+  padding-top: max(1rem, env(safe-area-inset-top));
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+}
+html.np-light-theme body > div.max-w-xl > header {
+  position: relative;
+  text-align: left;
+  margin: 0 0 1rem;
+  padding: .5rem .25rem .75rem;
+}
+html.np-light-theme body > div.max-w-xl > header .en-title {
+  color: #9b84c5 !important;
+  font-size: .65rem;
+  letter-spacing: .18em;
+}
+html.np-light-theme body > div.max-w-xl > header h1 {
+  color: #514766 !important;
+  font-size: clamp(1.35rem, 4vw, 1.8rem);
+  letter-spacing: -.035em;
+  line-height: 1.35;
+}
+html.np-light-theme body > div.max-w-xl > header p {
+  color: #9488a2 !important;
+}
+html.np-light-theme body > div.max-w-xl > main.glass-card {
+  padding: clamp(1rem, 3.5vw, 1.6rem);
+  border: 1px solid rgba(232,222,243,.95);
+  border-radius: 1.65rem !important;
+  background: rgba(255,255,255,.72) !important;
+  box-shadow: 0 18px 48px rgba(87,65,112,.075) !important;
+  overflow: visible;
+}
+html.np-light-theme #screen-dashboard > div:first-child {
+  padding: 1rem;
+  border: 1px solid #e9e0f4;
+  border-radius: 1.35rem;
+  background: linear-gradient(135deg,rgba(255,255,255,.98),rgba(248,243,255,.92) 64%,rgba(239,250,245,.9));
+}
+html.np-light-theme #screen-dashboard > div:first-child h2 {
+  color: #514766 !important;
+  font-size: 1.45rem;
+  letter-spacing: -.035em;
+}
+html.np-light-theme #screen-dashboard > div:first-child p {
+  color: #91859f !important;
+  font-size: .78rem;
+}
+html.np-light-theme #screen-dashboard > div:first-child > button {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  border-radius: 1rem;
+  background: linear-gradient(120deg,#b9a2dd,#a9cfc2) !important;
+  border: 0 !important;
+  color: #fff !important;
+  font-size: .9rem;
+  font-weight: 650;
+  box-shadow: 0 8px 20px rgba(165,139,207,.2);
+}
+html.np-light-theme #screen-dashboard > .evo-card {
+  padding: 1rem;
+  border: 1px solid #e9e0f4;
+  border-radius: 1.3rem;
+  background: rgba(255,255,255,.9);
+  box-shadow: 0 8px 24px rgba(87,65,112,.045);
+}
+html.np-light-theme #screen-dashboard .evo-card > div:first-child > span:first-child {
+  color: #625474 !important;
+}
+html.np-light-theme #screen-dashboard .evo-card [id^="evo-total"],
+html.np-light-theme #screen-dashboard .evo-card #evo-best {
+  color: #5c4d70 !important;
+}
+html.np-light-theme #screen-dashboard .evo-card #evo-avg {
+  color: #6b9e8e !important;
+}
+html.np-light-theme #screen-subjects > div:first-child {
+  border-color: #e9e0f4 !important;
+  padding-bottom: .8rem;
+}
+html.np-light-theme #screen-subjects h2,
+html.np-light-theme #screen-subjects h3 {
+  color: #625474;
+}
+html.np-light-theme #screen-subjects button,
+html.np-light-theme #screen-dashboard .evo-card button,
+html.np-light-theme #nav-drawer button {
+  font-size: .82rem;
+}
+html.np-light-theme #nav-drawer {
+  width: min(19rem, calc(100vw - 2rem));
+  padding: 1.15rem;
+  box-shadow: 18px 0 55px rgba(69,51,91,.16) !important;
+}
+html.np-light-theme #nav-drawer > div:first-child > div:first-child {
+  border-color: #eee7f5 !important;
+  padding-bottom: 1rem;
+}
+html.np-light-theme #nav-drawer button {
+  min-height: 46px;
+  border-radius: .95rem;
+}
+html.np-light-theme #drawer-settings-content #settings-accordion > details {
+  border-radius: .95rem;
+  border-color: #eee7f5 !important;
+}
+html.np-light-theme #screen-quiz-play,
+html.np-light-theme #screen-quiz-result,
+html.np-light-theme #screen-quiz-start {
+  color: #514766;
+}
+html.np-light-theme #screen-quiz-play button,
+html.np-light-theme #screen-quiz-start button,
+html.np-light-theme #screen-quiz-result button {
+  min-height: 46px;
+  border-radius: 1rem;
+}
+@media (max-width: 640px) {
+  html.np-light-theme body > div.max-w-xl {
+    width: 100%;
+    padding: max(.75rem, env(safe-area-inset-top)) .75rem max(1rem, env(safe-area-inset-bottom));
+  }
+  html.np-light-theme body > div.max-w-xl > header {
+    margin-bottom: .7rem;
+    padding: .35rem .25rem .6rem;
+  }
+  html.np-light-theme body > div.max-w-xl > main.glass-card {
+    padding: .8rem;
+    border-radius: 1.35rem !important;
+  }
+  html.np-light-theme #screen-dashboard > div:first-child,
+  html.np-light-theme #screen-dashboard > .evo-card {
+    padding: .9rem;
+  }
+}
