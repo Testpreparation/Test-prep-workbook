@@ -190,6 +190,25 @@
       touch-action:manipulation !important;
     }
 
+    /* Ensure quiz options receive taps in mobile browsers and LINE WebView. */
+    #screen-quiz-play #quiz-options-container {
+      position:relative !important;
+      z-index:2 !important;
+      pointer-events:auto !important;
+    }
+    #screen-quiz-play #quiz-options-container .quiz-opt-btn {
+      position:relative !important;
+      z-index:3 !important;
+      display:flex !important;
+      pointer-events:auto !important;
+      touch-action:manipulation !important;
+      -webkit-tap-highlight-color:rgba(139,112,194,.18);
+      cursor:pointer !important;
+    }
+    #screen-quiz-play #quiz-options-container .quiz-opt-btn:disabled {
+      cursor:default !important;
+    }
+
     /* Keep the post-answer feedback and bottom navigation button visible */
     #screen-quiz-play #quiz-feedback-box.block {
       display:block !important;
