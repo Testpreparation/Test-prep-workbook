@@ -3245,12 +3245,15 @@
       submitButton.disabled = true;
       submitButton.textContent = '認証中…';
       errorMessage.classList.add('hidden');
+      const authController = new AbortController();
+      const authTimeout = setTimeout(() => authController.abort(), 60000);
       try {
         const apiBase = NURSE_LINE_API_BASE_URL.replace(/\/$/, '');
         const response = await fetch(apiBase + '/api/admin/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: pwd })
+          body: JSON.stringify({ password: pwd }),
+          signal: authController.signal
         });
         const result = await response.json().catch(() => ({}));
         if (!response.ok || typeof result.token !== 'string' || !result.token) {
@@ -3263,9 +3266,12 @@
         openAdminModal();
       } catch (err) {
         console.error('管理者認証に失敗しました:', err);
-        errorMessage.textContent = 'サーバーに接続できません。接続先またはサーバーの状態を確認してください。';
+        errorMessage.textContent = err && err.name === 'AbortError'
+          ? '認証サーバーから60秒以内に応答がありませんでした。少し待ってから再度お試しください。'
+          : 'サーバーに接続できません。接続先またはサーバーの状態を確認してください。';
         errorMessage.classList.remove('hidden');
       } finally {
+        clearTimeout(authTimeout);
         submitButton.disabled = false;
         submitButton.textContent = '認証する';
       }
