@@ -5028,7 +5028,7 @@
       box.style.minHeight = '0';
       box.classList.add('relative');
       box.innerHTML = `
-        <svg aria-label="科目別正答率の縦棒と日別平均正答率の折れ線グラフ" role="img" viewBox="0 0 ${width} 140" preserveAspectRatio="none" class="block w-full" style="height:150px;overflow:visible">
+        <svg aria-label="日別の科目別正答率を示す縦棒と、科目ごとに色分けした正答率推移の折れ線グラフ" role="img" viewBox="0 0 ${width} 140" preserveAspectRatio="none" class="block w-full" style="height:150px;overflow:visible">
           <line x1="0" y1="${baseline}" x2="${width}" y2="${baseline}" stroke="#64748b" stroke-opacity="0.35" stroke-width="1"></line>
           ${bars.join('')}
           ${subjectLines}
