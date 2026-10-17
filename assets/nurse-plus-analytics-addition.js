@@ -68,6 +68,174 @@
       dailyEntries
     };
   }
+
+  function calculateStreak(rows) {
+    const dates = new Set(rows.flatMap(row => row.daily.map(item => item.date)));
+    try {
+      const savedDays = JSON.parse(localStorage.getItem('study_days') || '[]');
+      if (Array.isArray(savedDays)) savedDays.forEach(date => { if (typeof date === 'string') dates.add(date); });
+    } catch (_) {}
+    const sorted = [...dates].filter(Boolean).sort();
+    localStorage.setItem('study_days', JSON.stringify(sorted));
+    const today = new Date();
+    const todayKey = dateKey(today);
+    const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+    let cursor = dates.has(todayKey) ? today : yesterday;
+    let streak = 0;
+    while (dates.has(dateKey(cursor))) {
+      streak++;
+      cursor = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate() - 1);
+    }
+    localStorage.setItem('study_streak', String(streak));
+    localStorage.setItem('study_last_date', sorted.length ? sorted[sorted.length - 1] : '');
+    return streak;
+  }
+
+  const SYNC_API = 'https://nurse-line-system.onrender.com';
+  const SYNC_OWNED_KEY = 'nurse_plus_sync_owned_records';
+  const SYNC_CLOUD_KEY = 'nurse_plus_sync_last_cloud_records';
+  const SYNC_DEVICE_KEY = 'nurse_plus_sync_device_id';
+
+  function getSyncDeviceId() {
+    let id = localStorage.getItem(SYNC_DEVICE_KEY);
+    if (!id) {
+      id = 'npd_' + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+      localStorage.setItem(SYNC_DEVICE_KEY, id);
+    }
+    return id;
+  }
+
+  function readObject(key) {
+    try {
+      const value = JSON.parse(localStorage.getItem(key) || '{}');
+      return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+    } catch (_) { return {}; }
+  }
+
+  function collectStudyRecords() {
+    const records = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key || !key.startsWith('history_accuracy_')) continue;
+      try {
+        const value = JSON.parse(localStorage.getItem(key) || 'null');
+        if (Array.isArray(value)) records[key] = value;
+      } catch (_) {}
+    }
+    ['study_streak', 'study_last_date', 'study_days', 'evo_today_done'].forEach(key => {
+      const raw = localStorage.getItem(key);
+      if (raw === null) return;
+      if (key === 'study_days') {
+        try { records[key] = JSON.parse(raw); } catch (_) { records[key] = []; }
+      } else if (key === 'study_last_date') records[key] = raw;
+      else records[key] = safeNumber(raw);
+    });
+    return records;
+  }
+
+  function subtractNewItems(current, baseline) {
+    const counts = new Map();
+    (Array.isArray(baseline) ? baseline : []).forEach(item => {
+      const key = JSON.stringify(item);
+      counts.set(key, (counts.get(key) || 0) + 1);
+    });
+    const added = [];
+    (Array.isArray(current) ? current : []).forEach(item => {
+      const key = JSON.stringify(item);
+      const count = counts.get(key) || 0;
+      if (count > 0) counts.set(key, count - 1);
+      else added.push(item);
+    });
+    return added;
+  }
+
+  function mergeStudyScalarRecords(owned, current) {
+    ['study_streak', 'evo_today_done'].forEach(key => {
+      if (current[key] !== undefined) owned[key] = Math.max(safeNumber(owned[key]), safeNumber(current[key]));
+    });
+    if (current.study_last_date) {
+      owned.study_last_date = [owned.study_last_date, current.study_last_date].filter(Boolean).sort().at(-1);
+    }
+    if (Array.isArray(current.study_days)) {
+      owned.study_days = [...new Set([...(Array.isArray(owned.study_days) ? owned.study_days : []), ...current.study_days])].sort();
+    }
+  }
+
+  async function requestStudySync(method, payload, token) {
+    const response = await fetch(SYNC_API + '/api/user/study-data', {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + token
+      },
+      ...(method === 'GET' ? {} : { body: JSON.stringify(payload || {}) })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (response.status === 401) {
+      localStorage.removeItem('nurse_line_user_session');
+      window.NURSE_LINE_SESSION = null;
+      throw new Error('LINEログインの有効期限が切れています。もう一度LINEログインしてください。');
+    }
+    if (!response.ok || data.success === false) throw new Error(data.message || '同期に失敗しました。');
+    return data;
+  }
+
+  async function syncStudyData(statusEl, buttonEl) {
+    const token = localStorage.getItem('nurse_line_user_session');
+    if (!token) {
+      if (statusEl) statusEl.textContent = '同期するには先にLINEログインしてください。';
+      return;
+    }
+    if (buttonEl) { buttonEl.disabled = true; buttonEl.textContent = '同期中…'; }
+    if (statusEl) statusEl.textContent = 'この端末の学習記録を確認しています…';
+    try {
+      const current = collectStudyRecords();
+      const ownedSaved = readObject(SYNC_OWNED_KEY);
+      const lastCloud = readObject(SYNC_CLOUD_KEY);
+      let owned;
+      if (!Object.keys(ownedSaved).length) {
+        // 初回はこの端末の記録をこの端末のスナップショットとして登録する。
+        owned = JSON.parse(JSON.stringify(current));
+      } else {
+        owned = JSON.parse(JSON.stringify(ownedSaved));
+        Object.keys(current).filter(key => Array.isArray(current[key])).forEach(key => {
+          const added = subtractNewItems(current[key], lastCloud[key] || []);
+          if (added.length) {
+            const limit = key.startsWith('history_accuracy_daily_') ? 100 : 20;
+            owned[key] = (Array.isArray(owned[key]) ? owned[key] : []).concat(added).slice(-limit);
+          }
+        });
+        mergeStudyScalarRecords(owned, current);
+      }
+
+      await requestStudySync('PUT', { deviceId: getSyncDeviceId(), records: owned }, token);
+      const cloud = await requestStudySync('GET', null, token);
+      const cloudRecords = cloud.records || {};
+      localStorage.setItem(SYNC_OWNED_KEY, JSON.stringify(owned));
+      localStorage.setItem(SYNC_CLOUD_KEY, JSON.stringify(cloudRecords));
+
+      Object.entries(cloudRecords).forEach(([key, value]) => {
+        if (key.startsWith('history_accuracy_') && Array.isArray(value)) {
+          localStorage.setItem(key, JSON.stringify(value));
+        } else if (key === 'study_days' && Array.isArray(value)) {
+          localStorage.setItem(key, JSON.stringify(value));
+        } else if (key === 'study_last_date' && typeof value === 'string') {
+          localStorage.setItem(key, value);
+        } else if (key === 'study_streak' || key === 'evo_today_done') {
+          localStorage.setItem(key, String(safeNumber(value)));
+        }
+      });
+
+      const updatedRows = getRows();
+      calculateStreak(updatedRows);
+      if (statusEl) statusEl.textContent = `同期完了：${cloud.deviceCount || 1}端末分の学習記録を反映しました。`;
+      renderAnalytics();
+    } catch (error) {
+      if (statusEl) statusEl.textContent = error.message || '同期に失敗しました。通信環境を確認してください。';
+    } finally {
+      if (buttonEl) { buttonEl.disabled = false; buttonEl.textContent = '今すぐ同期'; }
+    }
+  }
   function addStyles() {
     if (document.getElementById(STYLE_ID)) return;
     const style = document.createElement('style');
@@ -96,7 +264,7 @@
     if (!screen) return;
     const rows = getRows();
     const stats = getStats(rows);
-    const streak = Math.max(0, safeNumber(localStorage.getItem('study_streak')));
+    const streak = calculateStreak(rows);
     const subjectRows = {};
     rows.forEach(row => {
       if (!subjectRows[row.subjectId]) subjectRows[row.subjectId] = {name:row.subject, values:[]};
@@ -123,7 +291,7 @@
     screen.innerHTML = `
       <div class="space-y-4">
         <div class="flex items-center justify-between gap-3">
-          <div><div class="text-[10px] text-amber-500 tracking-[.22em] font-semibold">STUDY ANALYTICS</div><h2 class="serif-title text-xl text-slate-100 mt-1">データ分析</h2><p class="text-[11px] text-slate-400 mt-1">この端末に保存された学習履歴を表示します。</p></div>
+          <div><div class="text-[10px] text-amber-500 tracking-[.22em] font-semibold">STUDY ANALYTICS</div><h2 class="serif-title text-xl text-slate-100 mt-1">データ分析</h2><p class="text-[11px] text-slate-400 mt-1">科目・モード別の学習履歴と苦手傾向を分析します。</p></div>
           <button type="button" class="np-analytics-back" id="np-analytics-back">← ホーム</button>
         </div>
         ${noHistory ? '<div class="np-analytics-card np-analytics-empty">まだ学習履歴がありません。問題を解くと、ここに記録が表示されます。</div>' : ''}
@@ -134,21 +302,38 @@
           <div class="np-analytics-card"><div class="np-analytics-metric">${streak}</div><div class="np-analytics-label">連続学習日数（既存記録）</div></div>
         </div>
         <section class="np-analytics-card">
+          <div class="flex items-center justify-between gap-2"><div><h3 class="text-sm font-semibold text-slate-100">複数端末で同期</h3><p class="text-[10px] text-slate-400 mt-1">LINEログインした端末間で学習履歴を共有します。</p></div><button type="button" id="np-analytics-sync" class="np-analytics-back">今すぐ同期</button></div>
+          <p id="np-analytics-sync-status" class="text-[10px] text-slate-400 mt-3" role="status" aria-live="polite">同期するにはLINEログインとサーバー側のFirebase設定が必要です。</p>
+        </section>
+        <section class="np-analytics-card">
           <div class="flex justify-between items-center gap-2"><h3 class="text-sm font-semibold text-slate-100">直近7日間の学習記録</h3><span class="text-[10px] text-slate-500">合計 ${weekTotal} 件</span></div>
           <p class="text-[10px] text-slate-500 mt-1">日ごとの記録件数。データがない日は0件です。</p>
           <div class="np-analytics-bars">${days.map(d=>`<div class="np-analytics-bar-col" title="${esc(d.key)}：${d.count}件"><div class="text-[9px] text-slate-400">${d.count||''}</div><div class="np-analytics-bar" style="height:${Math.max(3,d.count/maxCount*82)}px;opacity:${d.count?1:.22}"></div><div class="np-analytics-day">${esc(d.label)}</div></div>`).join('')}</div>
+        </section>
+        <section class="np-analytics-card">
+          <div class="flex items-center justify-between gap-2"><h3 class="text-sm font-semibold text-slate-100">直近7日間の平均正答率</h3><span class="text-[10px] text-slate-500">日別推移</span></div>
+          <div class="np-analytics-bars">${days.map(d=>`<div class="np-analytics-bar-col" title="${esc(d.key)}：平均${d.count?d.avg+'%':'記録なし'}"><div class="text-[9px] text-slate-400">${d.count?d.avg+'%':''}</div><div class="np-analytics-bar" style="height:${Math.max(3,d.avg/100*82)}px;opacity:${d.count?1:.22};background:linear-gradient(180deg,#38bdf8,#2563eb)"></div><div class="np-analytics-day">${esc(d.label)}</div></div>`).join('')}</div>
+          <p class="text-[10px] text-slate-500 mt-2">その日に保存された演習結果の平均です。記録がない日は空欄になります。</p>
+        </section>
+        <section class="np-analytics-card">
+          <h3 class="text-sm font-semibold text-slate-100">苦手分野の自動分析</h3>
+          <p class="text-[10px] text-slate-500 mt-1">科目と出題モードごとの平均正答率から、復習の優先順位を提案します。</p>
+          ${rows.map(row=>({ ...row, modeAvg: row.accuracy.length ? Math.round(row.accuracy.reduce((sum,value)=>sum+value,0)/row.accuracy.length) : null })).filter(row=>row.modeAvg!==null).sort((a,b)=>a.modeAvg-b.modeAvg).slice(0,3).map((row,index)=>`<div class="mt-3 rounded-xl border border-slate-700/70 bg-slate-950/40 p-3"><div class="flex items-start justify-between gap-3"><div><div class="text-xs font-semibold text-slate-100">${index+1}. ${esc(row.subject)}</div><div class="text-[10px] text-slate-400 mt-1">${esc(row.mode)} ・ ${row.accuracy.length}回の記録</div></div><div class="text-sm font-mono ${row.modeAvg<70?'text-rose-400':'text-amber-300'}">${row.modeAvg}%</div></div><p class="text-[10px] leading-5 text-slate-400 mt-2">${row.modeAvg<60?'最優先で復習：解説を確認し、同じ範囲をもう一度解き直しましょう。':row.modeAvg<70?'重点復習：間違えた問題と根拠をノートにまとめましょう.':'維持・定着：数日後に再演習して正答率を確認しましょう。'}</p></div>`).join('') || '<div class="np-analytics-empty">分析できる履歴がまだありません。問題を解くと苦手傾向を表示します。</div>'}
         </section>
         <section class="np-analytics-card">
           <h3 class="text-sm font-semibold text-slate-100">科目別の平均正答率</h3>
           <p class="text-[10px] text-slate-500 mt-1">記録がある科目のみ表示。低い科目から並べています。</p>
           ${subjects.length ? subjects.map(s=>`<div class="np-analytics-row"><div><div class="text-xs text-slate-200">${esc(s.name)}</div><div class="np-analytics-track"><div class="np-analytics-fill" style="width:${s.avg}%"></div></div></div><div class="text-xs font-mono ${s.avg<70?'text-rose-400':'text-amber-300'}">${s.avg}%</div></div>`).join('') : '<div class="np-analytics-empty">科目別の正答率データはまだありません。</div>'}
         </section>
-        <p class="text-[10px] text-slate-500 leading-5">※ この分析はブラウザ内の保存済み履歴を集計しています。別端末の履歴や、保存されていない学習時間・正誤別の問題数は含みません。</p>
+        <p class="text-[10px] text-slate-500 leading-5">※ 分析は保存済みの正答率履歴を集計します。同期機能を使うには、LINEログインとRender側のFirebase Admin設定が必要です。</p>
       </div>`;
     document.getElementById('np-analytics-back')?.addEventListener('click', () => {
       document.getElementById(SCREEN_ID)?.classList.add('hidden');
       if (typeof window.showDashboard === 'function') window.showDashboard();
     });
+    const syncButton = document.getElementById('np-analytics-sync');
+    const syncStatus = document.getElementById('np-analytics-sync-status');
+    syncButton?.addEventListener('click', () => syncStudyData(syncStatus, syncButton));
   }
   function openAnalytics() {
     if (typeof window.hideAllScreens === 'function') window.hideAllScreens();
@@ -617,6 +802,16 @@
 
     // 既存の画面切り替え関数は上書きせず、分析画面以外を操作したときだけ閉じる。
     installEffects();
+    const quizResultScreen = document.getElementById('screen-quiz-result');
+    if (quizResultScreen) {
+      const streakObserver = new MutationObserver(() => {
+        if (quizResultScreen.classList.contains('hidden')) return;
+        const streak = calculateStreak(getRows());
+        const streakEl = document.getElementById('evo-streak');
+        if (streakEl) streakEl.textContent = String(streak);
+      });
+      streakObserver.observe(quizResultScreen, { attributes: true, attributeFilter: ['class'] });
+    }
     document.addEventListener('click', event => {
       const screen = document.getElementById(SCREEN_ID);
       if (!screen || screen.classList.contains('hidden')) return;
