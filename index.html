@@ -5653,19 +5653,24 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
     (() => {
       try {
         const params = new URLSearchParams(window.location.search);
-        const lineName = params.get('line_name');
-        const lineUserId = params.get('line_user_id');
-        const lineSession = params.get('line_session');
+        const hashParams = new URLSearchParams(window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '');
+        const authKeys = ['line_name', 'line_user_id', 'line_session'];
+        const hashHasAuth = authKeys.some(key => hashParams.has(key));
+        const lineName = params.get('line_name') || hashParams.get('line_name');
+        const lineUserId = params.get('line_user_id') || hashParams.get('line_user_id');
+        const lineSession = params.get('line_session') || hashParams.get('line_session');
 
         if (lineName) localStorage.setItem('nurse_line_user_name', lineName);
         if (lineUserId) localStorage.setItem('nurse_line_user_id', lineUserId);
         if (lineSession) localStorage.setItem('nurse_line_user_session', lineSession);
         if (lineName || lineUserId || lineSession) {
-          params.delete('line_name');
-          params.delete('line_user_id');
-          params.delete('line_session');
+          authKeys.forEach(key => { params.delete(key); hashParams.delete(key); });
           const query = params.toString();
-          const cleanUrl = window.location.pathname + (query ? '?' + query : '') + window.location.hash;
+          const cleanedHashParams = hashParams.toString();
+          const cleanedHash = hashHasAuth
+            ? (cleanedHashParams ? '#' + cleanedHashParams : '')
+            : window.location.hash;
+          const cleanUrl = window.location.pathname + (query ? '?' + query : '') + cleanedHash;
           window.history.replaceState({}, document.title, cleanUrl);
           console.info('LINEログイン情報をこの端末に保存しました。');
         }
