@@ -4217,6 +4217,9 @@
         themeCard._npThemeOriginalParent = originalParent;
         themeCard.addEventListener('click', function(event) {
           if (modal && modal.contains(themeCard)) return;
+          /* Only the theme/appearance card area opens the centered final page.
+             Clicking the actual switch must only change the theme. */
+          if (event.target.closest('#np-theme-toggle')) return;
           event.preventDefault();
           event.stopPropagation();
           openThemeSettingsPage(themeCard);
