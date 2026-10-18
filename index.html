@@ -6127,6 +6127,8 @@
     function npTone(freq,dur,vol,delay=0){const c=npInitAudio();if(!c||npAudio.muted||!npAudio.sfx)return;const t=c.currentTime+delay;const voice=(ratio,level,wave,cutoff,attack=.012,release=.1,detune=0)=>{const o=c.createOscillator(),g=c.createGain(),filter=c.createBiquadFilter();o.type=wave;o.frequency.setValueAtTime(freq*ratio,t);o.detune.setValueAtTime(detune,t);filter.type='lowpass';filter.frequency.setValueAtTime(cutoff,t);filter.Q.value=.55;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.0001,vol*level),t+attack);g.gain.setTargetAtTime(.0001,t+Math.min(dur*.52,.16),Math.max(.025,release));o.connect(filter);filter.connect(g);g.connect(npAudio.master);o.onended=()=>{try{o.disconnect();filter.disconnect();g.disconnect();}catch(e){}};o.start(t);o.stop(t+dur+.12);};voice(1,.72,'sine',4200,.012,Math.max(.04,dur*.18));voice(2,.14,'sine',5200,.008,Math.max(.04,dur*.16),2);if(dur>.09)voice(.5,.09,'triangle',1300,.02,Math.max(.04,dur*.22),-2);}
     function npUiSound(kind='tap'){if(npAudio.muted||!npAudio.sfx)return;const sets={tap:[[740,.055,.014,0],[988,.075,.009,.018]],select:[[587.33,.11,.018,0],[880,.13,.014,.035]],open:[[523.25,.12,.014,0],[659.25,.14,.015,.055],[783.99,.16,.012,.11]],close:[[783.99,.09,.012,0],[587.33,.12,.012,.045]],next:[[659.25,.1,.014,0],[880,.12,.015,.055]],success:[[659.25,.2,.025,0],[830.61,.24,.023,.07],[987.77,.29,.021,.14],[1318.51,.32,.014,.22]],error:[[392,.15,.018,0],[311.13,.22,.019,.07],[261.63,.26,.014,.15]],toggle:[[659.25,.09,.013,0],[987.77,.11,.012,.04]]};(sets[kind]||sets.tap).forEach(n=>npTone(n[0],n[1],n[2],n[3]));}
     function npAnswerSound(ok){if(ok){npUiSound('success');npTone(1567.98,.36,.013,.25);npTone(1975.53,.3,.009,.34);}else{npUiSound('error');npTone(233.08,.32,.012,.2);}}
+    function npResultChime(){if(npAudio.muted||!npAudio.sfx)return;[[784,.09,.009,0],[987.77,.11,.011,.07],[1174.66,.15,.012,.14],[1567.98,.22,.013,.23]].forEach(n=>npTone(n[0],n[1],n[2],n[3]));}
+    function npAnimateAccuracy(target){const el=document.getElementById('final-score-val');if(!el)return;const goal=Math.max(0,Math.min(100,Number(target)||0));el.textContent='0';el.style.transform='scale(.82)';el.style.opacity='.55';el.style.transition='transform .18s ease, opacity .18s ease';requestAnimationFrame(()=>{el.style.transform='scale(1)';el.style.opacity='1';});const started=performance.now(),duration=1650;let lastTick=-1;const frame=now=>{const p=Math.min(1,(now-started)/duration);const eased=1-Math.pow(1-p,3);const value=Math.min(goal,Math.round(goal*eased));el.textContent=String(value);const tick=Math.floor(value/5);if(tick>lastTick&&p<1){lastTick=tick;if(tick>0)npTone(440+Math.min(700,tick*28),.035,.0035,0);}if(p<1){requestAnimationFrame(frame);}else{el.textContent=String(goal);el.style.transform='scale(1.08)';setTimeout(()=>{el.style.transform='scale(1)';},140);npResultChime();}};requestAnimationFrame(frame);}
     function npUpdateAudioUI(){const s=document.getElementById('quiz-sfx-toggle'),v=document.getElementById('quiz-audio-volume'),m=document.getElementById('quiz-audio-mute');if(s)s.checked=npAudio.sfx;if(v)v.value=Math.round(npAudio.volume*100);const label=document.getElementById('quiz-audio-volume-label');if(label)label.textContent=Math.round(npAudio.volume*100)+'%';if(m)m.textContent=npAudio.muted?'音をオンにする':'すべての音をオフにする';}
     (function(){const unlockAudio=()=>{npInitAudio();};document.addEventListener('pointerdown',unlockAudio,{passive:true});document.addEventListener('touchstart',unlockAudio,{passive:true});document.addEventListener('keydown',unlockAudio);document.addEventListener('change',e=>{const t=e.target;if(t.id==='quiz-sfx-toggle'){npAudio.sfx=t.checked;localStorage.setItem('nurse_plus_audio_sfx',t.checked?'on':'off');if(npAudio.sfx)npUiSound('toggle');}if(t.id==='quiz-audio-volume'){npAudio.volume=Number(t.value)/100;localStorage.setItem('nurse_plus_audio_volume',String(Number(t.value)));const label=document.getElementById('quiz-audio-volume-label');if(label)label.textContent=t.value+'%';if(npAudio.master&&npAudio.ctx)npAudio.master.gain.setTargetAtTime(npAudio.muted?0:npAudio.volume,npAudio.ctx.currentTime,.1);}});document.addEventListener('click',e=>{const mute=e.target.closest&&e.target.closest('#quiz-audio-mute');if(mute){npAudio.muted=!npAudio.muted;localStorage.setItem('nurse_plus_audio_muted',npAudio.muted?'on':'off');if(npAudio.master&&npAudio.ctx)npAudio.master.gain.setTargetAtTime(npAudio.muted?0:npAudio.volume,npAudio.ctx.currentTime,.08);npUpdateAudioUI();if(!npAudio.muted)npUiSound('toggle');return;}const target=e.target.closest&&e.target.closest('button,[role="button"],input[type="radio"],input[type="checkbox"],a[href]');if(!target||target.disabled||target.id==='quiz-sfx-toggle'||target.id==='quiz-audio-volume')return;if(target.matches('input[type="radio"],input[type="checkbox"]')){npUiSound('select');return;}if(target.matches('a[href]')){npUiSound('open');return;}if(target.matches('#quiz-next-btn,#quiz-submit-multi-btn,#quiz-keyboard-input-container button')){npUiSound('next');return;}if(target.matches('[aria-expanded="true"],[data-state="open"]')){npUiSound('close');return;}if(target.matches('[aria-expanded="false"],[data-state="closed"]')){npUiSound('open');return;}if(target.closest('#quiz-options-container,[data-question-option],.quiz-option')){npUiSound('select');return;}npUiSound('tap');});})();
     function startQuiz() {
@@ -6820,7 +6822,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       const accRate = Math.round((score / total) * 100);
 
       document.getElementById('result-score-title').textContent = `全${total}問中 ${score}問正解`;
-      document.getElementById('final-score-val').textContent = accRate;
+      npAnimateAccuracy(accRate);
       
       const evalText = document.getElementById('final-eval-text');
       if (accRate === 100) {
@@ -6828,12 +6830,16 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         if (typeof confetti === 'function') {
           confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
         }
+        npUiSound('success');
       } else if (accRate >= 80) {
         evalText.textContent = "合格ライン達成！大変優秀です。";
+        npUiSound('success');
       } else if (accRate >= 60) {
         evalText.textContent = "あと一歩！間違えた箇所を復習しましょう。";
+        npUiSound('select');
       } else {
         evalText.textContent = "繰り返し練習して基礎を固めましょう。";
+        npUiSound('close');
       }
 
       const key = getHighscoreKey();
@@ -6843,6 +6849,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       if (prevBest === null || accRate > parseInt(prevBest, 10)) {
         localStorage.setItem(key, accRate);
         newRecordBadge.classList.remove('hidden');
+        npTone(1318.51,.18,.016,.12); npTone(1760,.24,.014,.22);
       } else {
         newRecordBadge.classList.add('hidden');
       }
