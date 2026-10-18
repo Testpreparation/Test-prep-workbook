@@ -8157,11 +8157,26 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
           if (!isStudyKey(key)) return;
           const localValue = merged[key];
           if (Array.isArray(cloudValue)) {
-            const values = [];
-            const seen = new Set();
-            [...(Array.isArray(localValue) ? localValue : []), ...cloudValue].forEach(item => {
+            // 同じ正答率が別の問題で繰り返されることがあるため、単純なSetではなく出現回数の最大値で統合する。
+            const localItems = Array.isArray(localValue) ? localValue : [];
+            const counts = new Map();
+            localItems.forEach(item => {
               const signature = JSON.stringify(item);
-              if (!seen.has(signature)) { seen.add(signature); values.push(item); }
+              counts.set(signature, { item, count: (counts.get(signature)?.count || 0) + 1 });
+            });
+            const cloudCounts = new Map();
+            cloudValue.forEach(item => {
+              const signature = JSON.stringify(item);
+              cloudCounts.set(signature, { item, count: (cloudCounts.get(signature)?.count || 0) + 1 });
+            });
+            const signatures = new Set([...counts.keys(), ...cloudCounts.keys()]);
+            const values = [];
+            signatures.forEach(signature => {
+              const localEntry = counts.get(signature);
+              const cloudEntry = cloudCounts.get(signature);
+              const entry = localEntry || cloudEntry;
+              const count = Math.max(localEntry?.count || 0, cloudEntry?.count || 0);
+              for (let i = 0; i < count; i++) values.push(entry.item);
             });
             merged[key] = values.slice(-2000);
           } else if (key === 'study_days') {
