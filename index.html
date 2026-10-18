@@ -5614,6 +5614,14 @@
       hideAllScreens();
       document.getElementById('screen-subjects').classList.remove('hidden');
       document.getElementById('study-breadcrumbs')?.classList.add('hidden');
+
+      // Reset flashcard navigation whenever the subject list is reopened.
+      // Selecting a flashcard subject hides the page dots and locks the slider;
+      // those states must not persist after returning Home.
+      flashcardSubjectLocked = false;
+      const pageDots = document.getElementById('subject-page-dots');
+      if (pageDots) pageDots.classList.remove('hidden');
+      backToFlashcardStep(1);
       switchSubjectPage(0);
       renderSubjectList();
     }
