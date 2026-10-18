@@ -292,6 +292,12 @@
         scroll-snap-align:start; border:1px solid rgba(148,163,184,.22);
         border-radius:14px; padding:12px; background:rgba(15,23,42,.22);
       }
+      html.np-light-theme #${SCREEN_ID} .np-recent-7d-slide {
+        background:#fff !important; background-color:#fff !important; background-image:none !important;
+        color:#5b506d !important; border-color:#e7def4 !important;
+        box-shadow:0 7px 20px rgba(91,72,116,.07) !important;
+      }
+      html.np-light-theme #${SCREEN_ID} .np-recent-7d-slide .np-analytics-bars { background:transparent !important; }
       #${SCREEN_ID} .np-recent-7d-dots { display:flex; justify-content:center; align-items:center; gap:6px; padding-top:5px; }
       #${SCREEN_ID} .np-recent-7d-dots button {
         width:5px; height:5px; min-width:5px; min-height:5px; padding:0; border:0;
@@ -546,6 +552,17 @@
       count:item.values.length
     })).filter(x=>x.avg!==null).sort((a,b)=>a.avg-b.avg);
 
+    const days = [];
+    const today = new Date();
+    for (let i=6;i>=0;i--) {
+      const d = new Date(today.getFullYear(),today.getMonth(),today.getDate()-i);
+      const key = dateKey(d);
+      const entries = stats.dailyEntries.filter(x=>x.date===key);
+      days.push({key,label:(d.getMonth()+1)+'/'+d.getDate(),count:entries.length,
+        avg:entries.length ? Math.round(entries.reduce((a,b)=>a+b.accuracy,0)/entries.length) : 0});
+    }
+    const maxCount = Math.max(1,...days.map(d=>d.count));
+    const weekTotal = days.reduce((a,d)=>a+d.count,0);
     const noHistory = stats.attempts === 0 && stats.dailyEntries.length === 0;
     screen.innerHTML = `
       <div class="space-y-4">
@@ -579,13 +596,17 @@
           </div>
           <div id="np-recent-7d-carousel" class="np-recent-7d-carousel">
             <article class="np-recent-7d-slide" aria-label="直近7日間の学習記録">
-              <div class="text-xs font-medium text-slate-200">直近7日間の学習記録</div>
+              <div class="flex items-center justify-between gap-2"><div class="text-xs font-medium text-slate-200">直近7日間の学習記録</div><span class="text-[10px] text-slate-500">合計 ${weekTotal} 件</span></div>
+              <p class="text-[10px] text-slate-500 mt-1">日ごとの記録件数。データがない日は0件です。</p>
+              <div class="np-analytics-bars mt-2">${days.map(d=>`<div class="np-analytics-bar-col" title="${esc(d.key)}：${d.count}件"><div class="text-[9px] text-slate-400">${d.count||''}</div><div class="np-analytics-bar" style="height:${Math.max(3,d.count/maxCount*82)}px;opacity:${d.count?1:.22}"></div><div class="np-analytics-day">${esc(d.label)}</div></div>`).join('')}</div>
               <div id="np-recent-7d-records" class="mt-3 space-y-2"><p class="text-[10px] text-slate-500">学習記録を読み込み中…</p></div>
             </article>
             <article class="np-recent-7d-slide" aria-label="直近7日間の平均正答率">
               <div class="text-xs font-medium text-slate-200">直近7日間の平均正答率</div>
-              <div id="np-recent-7d-accuracy" class="mt-3 text-3xl font-mono font-bold text-amber-400">--</div>
-              <p id="np-recent-7d-summary" class="mt-2 text-[10px] text-slate-400">直近7日間の演習記録を集計します。</p>
+              <div id="np-recent-7d-accuracy" class="mt-2 text-3xl font-mono font-bold text-amber-400">--</div>
+              <p id="np-recent-7d-summary" class="mt-1 text-[10px] text-slate-400">直近7日間の演習記録を集計します。</p>
+              <div class="np-analytics-bars mt-3">${days.map(d=>`<div class="np-analytics-bar-col" title="${esc(d.key)}：平均${d.count?d.avg+'%':'記録なし'}"><div class="text-[9px] text-slate-400">${d.count?d.avg+'%':''}</div><div class="np-analytics-bar" style="height:${Math.max(3,d.avg/100*82)}px;opacity:${d.count?1:.22};background:linear-gradient(180deg,#38bdf8,#2563eb)"></div><div class="np-analytics-day">${esc(d.label)}</div></div>`).join('')}</div>
+              <p class="text-[10px] text-slate-500 mt-2">その日に保存された演習結果の平均です。記録がない日は空欄になります。</p>
             </article>
           </div>
           <div class="np-recent-7d-dots" role="group" aria-label="カルーセルのページ">
