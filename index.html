@@ -8156,7 +8156,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
 
   <section id="np-youtube-bgm-section" aria-label="BGMプレーヤー" style="width:100%;max-width:320px;margin:1rem auto 2rem;padding:12px;border:1px solid #e8def3;border-radius:16px;background:#fff;color:#5b506d;box-shadow:0 8px 24px rgba(70,45,100,.08);">
     <div style="font-size:13px;font-weight:600;margin-bottom:8px;">♫ BGM：ぽかぽか日和</div>
-    <iframe id="np-youtube-bgm-frame" width="296" height="200" src="https://www.youtube.com/embed/7JhjnxhO7YY?autoplay=1&enablejsapi=1&controls=1&playsinline=1&rel=0&origin=https%3A%2F%2Ftestpreparation.github.io" title="ぽかぽか日和 - ふぁいの音楽置き場" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen style="display:block;max-width:100%;border-radius:10px;"></iframe>
+    <iframe id="np-youtube-bgm-frame" onload="if(npAudio.bgm&&!npAudio.muted){npStartBgm();}else{npStopBgm();}" width="296" height="200" src="https://www.youtube.com/embed/7JhjnxhO7YY?autoplay=0&enablejsapi=1&controls=1&playsinline=1&rel=0&origin=https%3A%2F%2Ftestpreparation.github.io" title="ぽかぽか日和 - ふぁいの音楽置き場" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen style="display:block;max-width:100%;border-radius:10px;"></iframe>
     <div style="font-size:11px;margin-top:7px;line-height:1.5;">音源：<a href="https://youtu.be/7JhjnxhO7YY" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;color:#7c3aed;">ふぁいの音楽置き場（YouTube）</a></div>
   </section>
 </body>
