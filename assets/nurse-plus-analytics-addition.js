@@ -448,27 +448,64 @@
     const sections = Array.from(screen.querySelectorAll('.np-analytics-card'));
     sections.forEach((section, index) => {
       section.classList.add('np-analytics-infographic-section');
-      section.style.animationDelay = Math.min(index * 55, 440) + 'ms';
+      section.style.animationDelay = Math.min(index * 115, 920) + 'ms';
     });
     if (reduceMotion) return;
 
-    // Bar charts: reveal each column from the baseline with a gentle stagger.
-    const bars = Array.from(screen.querySelectorAll('.np-analytics-bar'));
-    bars.forEach((bar, index) => {
-      bar.style.transform = 'scaleY(0)';
-      bar.style.transition = 'transform 1900ms cubic-bezier(.22,1,.36,1) ' + Math.min(index * 65, 420) + 'ms';
-      requestAnimationFrame(() => { bar.style.transform = 'scaleY(1)'; });
+    // グラフとカードを、画面を開いたときに下からゆっくり立ち上げる。
+    const charts = Array.from(screen.querySelectorAll('.np-analytics-bars, .np-analytics-track, .np-analytics-row'));
+    charts.forEach((chart, index) => {
+      chart.style.opacity = '0';
+      chart.style.transform = 'translateY(18px)';
+      chart.style.transition = 'opacity 1050ms ease ' + Math.min(index * 90, 720) + 'ms, transform 1250ms cubic-bezier(.22,1,.36,1) ' + Math.min(index * 90, 720) + 'ms';
+      requestAnimationFrame(() => {
+        chart.style.opacity = '1';
+        chart.style.transform = 'translateY(0)';
+      });
     });
 
-    // Subject progress indicators grow from zero to their real saved percentage.
+    // 棒グラフは基準線から順番に伸び上がる。
+    const bars = Array.from(screen.querySelectorAll('.np-analytics-bar'));
+    bars.forEach((bar, index) => {
+      bar.style.transformOrigin = 'center bottom';
+      bar.style.transform = 'scaleY(0)';
+      bar.style.opacity = '0.45';
+      bar.style.transition = 'transform 1900ms cubic-bezier(.16,1,.3,1) ' + Math.min(index * 95, 1050) + 'ms, opacity 900ms ease ' + Math.min(index * 95, 1050) + 'ms';
+      requestAnimationFrame(() => {
+        bar.style.transform = 'scaleY(1)';
+        bar.style.opacity = '1';
+      });
+    });
+
+    // 科目別の達成バーは0から保存済みの幅までゆっくり伸ばす。
     screen.querySelectorAll('.np-analytics-fill').forEach((fill, index) => {
       const targetWidth = fill.style.width || '0%';
       fill.style.width = '0%';
-      fill.style.transition = 'width 2000ms cubic-bezier(.22,1,.36,1) ' + Math.min(index * 90, 450) + 'ms';
+      fill.style.transition = 'width 2200ms cubic-bezier(.16,1,.3,1) ' + Math.min(index * 120, 840) + 'ms';
       requestAnimationFrame(() => { fill.style.width = targetWidth; });
     });
 
-    // Count up the four summary metrics without changing their final values or stored data.
+    // SVG折れ線グラフがある場合は線を描き、点を順番に表示する。
+    screen.querySelectorAll('svg path').forEach((path, index) => {
+      try {
+        const length = path.getTotalLength();
+        if (!Number.isFinite(length) || length <= 0) return;
+        path.style.strokeDasharray = String(length);
+        path.style.strokeDashoffset = String(length);
+        path.style.transition = 'stroke-dashoffset 1900ms cubic-bezier(.22,1,.36,1) ' + Math.min(index * 100, 700) + 'ms';
+        requestAnimationFrame(() => { path.style.strokeDashoffset = '0'; });
+      } catch (_) {}
+    });
+    screen.querySelectorAll('svg circle').forEach((dot, index) => {
+      dot.style.opacity = '0';
+      dot.style.transformBox = 'fill-box';
+      dot.style.transformOrigin = 'center';
+      dot.style.transform = 'scale(.4)';
+      dot.style.transition = 'opacity 500ms ease ' + Math.min(index * 80 + 700, 1500) + 'ms, transform 650ms cubic-bezier(.22,1,.36,1) ' + Math.min(index * 80 + 700, 1500) + 'ms';
+      requestAnimationFrame(() => { dot.style.opacity = '1'; dot.style.transform = 'scale(1)'; });
+    });
+
+    // 数値は最終値を変えず、カウントアップ演出だけを付ける。
     screen.querySelectorAll('.np-analytics-metric').forEach((metric, index) => {
       const finalText = metric.textContent.trim();
       const match = finalText.match(/^(-?\d+(?:\.\d+)?)(.*)$/);
@@ -476,8 +513,8 @@
       const finalValue = Number(match[1]);
       if (!Number.isFinite(finalValue) || finalValue === 0) return;
       const suffix = match[2];
-      const start = performance.now() + index * 90;
-      const duration = 1700;
+      const start = performance.now() + index * 120;
+      const duration = 1900;
       const tick = now => {
         const progress = Math.min(1, Math.max(0, (now - start) / duration));
         const eased = 1 - Math.pow(1 - progress, 3);
@@ -488,7 +525,6 @@
       requestAnimationFrame(tick);
     });
   }
-
   function renderAnalytics() {
     const screen = document.getElementById(SCREEN_ID);
     if (!screen) return;
