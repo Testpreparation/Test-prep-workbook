@@ -5266,16 +5266,25 @@
         chartCard.className = 'evo-card mb-4';
         chartCard.innerHTML = '<div class="flex items-start justify-between gap-3 mb-3"><div><div class="text-xs font-semibold text-slate-200">科目別正答率の推移</div><div class="text-[10px] text-slate-500 mt-1">直近7日間・科目別</div></div><span class="evo-chip">7 DAYS</span></div><div id="evo-subject-bar-line-chart"></div><p id="evo-subject-bar-line-chart-note" class="text-[10px] text-slate-500 mt-2">科目ごとに色分け：縦棒と折れ線で表示</p>';
       }
-      // 参考イメージの構成に合わせ、統計カードの下、
-      // 「直近7日間の学習記録」カードの直上へ毎回配置する。
-      // 既存のグラフが別位置に残っている場合も、描画のたびに正しい位置へ戻す。
-      const recentCard = recordsEl ? (recordsEl.closest('.evo-card') || recordsEl.parentElement) : null;
-      if (recentCard && recentCard.parentNode) {
-        recentCard.parentNode.insertBefore(chartCard, recentCard);
-      } else if (recordsEl && recordsEl.parentNode) {
-        recordsEl.parentNode.insertBefore(chartCard, recordsEl);
-      } else if (analyticsScreen && chartCard.parentNode !== analyticsScreen) {
-        analyticsScreen.appendChild(chartCard);
+      // グラフは「データ分析」画面内の統計カードの下、
+      // 「直近7日間の学習記録」セクションの直上へ配置する。
+      // recordsElは別画面側の要素なので、配置先の判定には使わない。
+      if (analyticsScreen) {
+        const recentSection = Array.from(analyticsScreen.querySelectorAll('section'))
+          .find(section => section.querySelector('h3')?.textContent.trim() === '直近7日間の学習記録');
+        if (recentSection) {
+          recentSection.parentNode.insertBefore(chartCard, recentSection);
+        } else {
+          // 分析画面のDOM再構築中のみ、画面内末尾へ退避する。
+          analyticsScreen.appendChild(chartCard);
+        }
+      } else {
+        const recentCard = recordsEl ? (recordsEl.closest('.evo-card') || recordsEl.parentElement) : null;
+        if (recentCard && recentCard.parentNode) {
+          recentCard.parentNode.insertBefore(chartCard, recentCard);
+        } else if (recordsEl && recordsEl.parentNode) {
+          recordsEl.parentNode.insertBefore(chartCard, recordsEl);
+        }
       }
       const box = document.getElementById('evo-subject-bar-line-chart');
       const note = document.getElementById('evo-subject-bar-line-chart-note');
