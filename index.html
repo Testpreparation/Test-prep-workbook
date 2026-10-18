@@ -7527,18 +7527,9 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
   </div>
   <style>@keyframes np-pwa-load{from{transform:translateX(-5%)}to{transform:translateX(155%)}}
   /* Data analysis / study-home: keep every item white and pastel, even if the global theme is dark. */
-  /* ホーム画面全体の高さを一定に保ち、科目数の増減でページ全体が伸びないようにする */
   #screen-dashboard{
     color:#5b506d!important;
-    height: min(680px, calc(100dvh - 190px));
-    min-height: 360px;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(167,139,250,.45) transparent;
   }
-  #screen-dashboard::-webkit-scrollbar{width:4px}
-  #screen-dashboard::-webkit-scrollbar-thumb{background:rgba(167,139,250,.45);border-radius:999px}
   #screen-dashboard .evo-card,
   #screen-dashboard #evo-subjects > *,
   #screen-dashboard [class*="bg-slate-"],
