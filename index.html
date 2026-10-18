@@ -7284,13 +7284,13 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
     #np-pwa-startup .np-pwa-transition-glass{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.48) 0%,rgba(250,247,255,.34) 45%,rgba(232,245,240,.22) 100%);border-bottom:1px solid rgba(255,255,255,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:.9;clip-path:polygon(0 0,100% 0,100% 100%,0 100%);will-change:clip-path,opacity,backdrop-filter}
     #np-pwa-startup.is-hidden .np-pwa-transition-glass{animation:np-pwa-milk-glass-open 2000ms cubic-bezier(.22,.75,.18,1) both}
     @keyframes np-pwa-milk-glass-dissolve{
-      0%{opacity:1;transform:translateY(0) scale(1);filter:blur(0);clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}
-      42%{opacity:1;transform:translateY(-.3%) scale(1.003);filter:blur(0);clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}
-      78%{opacity:.72;transform:translateY(-1%) scale(1.009);filter:blur(1px);clip-path:polygon(0 0,100% 0,100% 18%,88% 20%,72% 17%,56% 20%,40% 17%,23% 20%,10% 18%,0 20%)}
-      100%{opacity:0;transform:translateY(-1.5%) scale(1.012);filter:blur(2px);clip-path:polygon(0 0,100% 0,100% 0,0 0)}
+      0%{opacity:1;transform:translateY(0) scale(1);filter:blur(0);clip-path:ellipse(155% 100% at 50% 0%)}
+      42%{opacity:1;transform:translateY(-.3%) scale(1.003);filter:blur(0);clip-path:ellipse(155% 100% at 50% 0%)}
+      78%{opacity:.72;transform:translateY(-1%) scale(1.009);filter:blur(1px);clip-path:ellipse(155% 20% at 50% 0%)}
+      100%{opacity:0;transform:translateY(-1.5%) scale(1.012);filter:blur(2px);clip-path:ellipse(155% 0% at 50% 0%)}
     }
     @keyframes np-pwa-soft-light-expand{0%{opacity:0;transform:scale(.72)}28%{opacity:.72;transform:scale(.9)}62%{opacity:.52;transform:scale(1.08)}100%{opacity:0;transform:scale(1.22)}}
-    @keyframes np-pwa-milk-glass-open{0%{opacity:.9;clip-path:polygon(0 0,100% 0,100% 100%,0 100%);backdrop-filter:blur(8px)}48%{opacity:.7;backdrop-filter:blur(5px)}78%{opacity:.25;clip-path:polygon(0 0,100% 0,100% 18%,88% 20%,72% 17%,56% 20%,40% 17%,23% 20%,10% 18%,0 20%);backdrop-filter:blur(2px)}100%{opacity:0;clip-path:polygon(0 0,100% 0,100% 0,0 0);backdrop-filter:blur(0)}}
+    @keyframes np-pwa-milk-glass-open{0%{opacity:.9;clip-path:ellipse(155% 100% at 50% 0%);backdrop-filter:blur(8px)}48%{opacity:.7;backdrop-filter:blur(5px)}78%{opacity:.25;clip-path:ellipse(155% 20% at 50% 0%);backdrop-filter:blur(2px)}100%{opacity:0;clip-path:ellipse(155% 0% at 50% 0%);backdrop-filter:blur(0)}}
     /* Home content emerges gently from depth as the milk-glass startup layer clears. */
     body > div.w-full.max-w-xl.mx-auto.np-cinematic-home-reveal-active{animation:np-pwa-home-emerge 2000ms cubic-bezier(.22,.75,.18,1) both;transform-origin:50% 45%;will-change:transform,opacity,filter}
     @keyframes np-pwa-home-emerge{0%{opacity:.78;transform:scale(.985) translateY(8px);filter:blur(5px)}38%{opacity:.9;transform:scale(.992) translateY(3px);filter:blur(2px)}72%{opacity:1;transform:scale(1.003) translateY(0);filter:blur(0)}100%{opacity:1;transform:scale(1) translateY(0);filter:blur(0)}}
