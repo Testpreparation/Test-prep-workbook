@@ -8276,5 +8276,49 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
     })();
   </script>
 
+  <!-- Nurse＋ polish: navigation, analytics readability, and safe PWA update feedback -->
+  <style id="nurse-plus-app-finish-polish">
+    @keyframes np-screen-enter-motion { from {opacity:0;transform:translate3d(0,9px,0) scale(.992)} to {opacity:1;transform:translate3d(0,0,0) scale(1)} }
+    .np-screen-enter-motion { animation:np-screen-enter-motion .26s cubic-bezier(.2,.72,.25,1) both; }
+    #screen-data-analysis.np-screen-enter-motion,#screen-dashboard.np-screen-enter-motion { animation-duration:.32s; }
+    #screen-quiz-start.np-screen-enter-motion,#screen-count-select.np-screen-enter-motion { animation-duration:.22s; }
+    #screen-data-analysis .np-analytics-card,#screen-analytics-addition .np-analytics-card { border-radius:1.1rem;padding:1rem;line-height:1.65; }
+    #screen-data-analysis .np-analytics-metric,#screen-analytics-addition .np-analytics-metric { font-size:clamp(1.35rem,5vw,1.8rem);line-height:1.2;font-weight:750;font-variant-numeric:tabular-nums; }
+    #screen-data-analysis .np-analytics-label,#screen-analytics-addition .np-analytics-label { font-size:.72rem;line-height:1.5;margin-top:.35rem; }
+    #screen-data-analysis .np-analytics-bars,#screen-analytics-addition .np-analytics-bars { min-height:118px;align-items:end; }
+    #screen-data-analysis .np-analytics-bar-col,#screen-analytics-addition .np-analytics-bar-col { min-width:0; }
+    html.np-accessibility-reduced-motion .np-screen-enter-motion,html.np-accessibility-reduced-motion #np-line-browser-guide { animation:none !important; }
+    @media(prefers-reduced-motion:reduce){.np-screen-enter-motion{animation:none!important}#screen-data-analysis .np-recent-7d-carousel,#screen-analytics-addition .np-recent-7d-carousel{scroll-behavior:auto!important}}
+    #np-pwa-update-notice { position:fixed;z-index:100020;left:max(12px,env(safe-area-inset-left));right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));max-width:520px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:space-between;padding:13px 14px;border:1px solid #e6dcf2;border-radius:16px;background:rgba(255,253,255,.98);color:#514766;box-shadow:0 12px 34px rgba(71,55,95,.2);font:12px/1.55 'Noto Sans JP',sans-serif;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);animation:np-screen-enter-motion .24s ease both; }
+    #np-pwa-update-notice button { flex:0 0 auto;border:0;border-radius:10px;padding:9px 12px;background:linear-gradient(135deg,#b9a2dd,#a6cdbf);color:white;font-size:11px;font-weight:700; }
+    @media(prefers-reduced-motion:reduce){#np-pwa-update-notice{animation:none!important}}
+  </style>
+  <script id="nurse-plus-pwa-update-notice">
+    (() => {
+      'use strict';
+      if (!('serviceWorker' in navigator) || location.protocol !== 'https:') return;
+      let shown = false;
+      const showUpdatedNotice = () => {
+        if (shown || document.getElementById('np-pwa-update-notice')) return;
+        shown = true;
+        const notice = document.createElement('aside');
+        notice.id = 'np-pwa-update-notice';
+        notice.setAttribute('role', 'status');
+        const message = document.createElement('span');
+        message.textContent = 'Nurse＋の更新が適用されました。最新の画面に切り替えるには再読み込みしてください。';
+        const button = document.createElement('button');
+        button.type = 'button'; button.textContent = '再読み込み';
+        button.addEventListener('click', () => { button.disabled = true; button.textContent = '更新中…'; window.location.reload(); });
+        notice.append(message, button); document.body.appendChild(notice);
+      };
+      let hadController = Boolean(navigator.serviceWorker.controller);
+      navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) showUpdatedNotice(); hadController = true; });
+      window.addEventListener('load', async () => {
+        try { const registration = await navigator.serviceWorker.getRegistration('./'); if (registration) await registration.update(); }
+        catch (error) { console.info('[Nurse＋ PWA] 更新確認をスキップ:', error && error.name || error); }
+      }, { once: true });
+    })();
+  </script>
+
 </body>
 </html>
