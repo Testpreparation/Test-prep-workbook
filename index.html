@@ -8107,5 +8107,170 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       }, true);
     })();
   </script>
+
+  <script id="nurse-plus-line-account-study-sync">
+    // LINEアカウント単位の学習データ同期。既存の問題・通知・画面処理には手を加えない。
+    (function () {
+      'use strict';
+      const API = 'https://nurse-line-system.onrender.com';
+      const SESSION_KEY = 'nurse_line_user_session';
+      const DEVICE_KEY = 'nurse_plus_sync_device_id';
+      const OWNED_KEY = 'nurse_plus_sync_owned_records';
+      const LAST_CLOUD_KEY = 'nurse_plus_sync_last_cloud_records';
+      const SIMPLE_KEYS = ['study_streak', 'study_last_date', 'study_days', 'evo_today_done'];
+      let syncing = false;
+      let syncAgain = false;
+      let suppressAutoSync = false;
+      let timer = null;
+
+      function parse(value, fallback) {
+        try { return JSON.parse(value); } catch (_) { return fallback; }
+      }
+      function getSession() { return localStorage.getItem(SESSION_KEY) || ''; }
+      function getDeviceId() {
+        let id = localStorage.getItem(DEVICE_KEY);
+        if (!id) {
+          id = 'dev_' + (window.crypto && crypto.randomUUID
+            ? crypto.randomUUID().replace(/-/g, '')
+            : Date.now().toString(36) + Math.random().toString(36).slice(2));
+          localStorage.setItem(DEVICE_KEY, id);
+        }
+        return id;
+      }
+      function isStudyKey(key) {
+        return typeof key === 'string' &&
+          (/^history_accuracy_[a-zA-Z0-9_-]+$/.test(key) || SIMPLE_KEYS.includes(key));
+      }
+      function readLocalRecords() {
+        const records = {};
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (!isStudyKey(key)) continue;
+          const value = parse(localStorage.getItem(key), null);
+          if (value !== null && (Array.isArray(value) || SIMPLE_KEYS.includes(key))) records[key] = value;
+        }
+        return records;
+      }
+      function mergeRecords(local, cloud) {
+        const merged = { ...local };
+        Object.entries(cloud || {}).forEach(([key, cloudValue]) => {
+          if (!isStudyKey(key)) return;
+          const localValue = merged[key];
+          if (Array.isArray(cloudValue)) {
+            const values = [];
+            const seen = new Set();
+            [...(Array.isArray(localValue) ? localValue : []), ...cloudValue].forEach(item => {
+              const signature = JSON.stringify(item);
+              if (!seen.has(signature)) { seen.add(signature); values.push(item); }
+            });
+            merged[key] = values.slice(-2000);
+          } else if (key === 'study_days') {
+            merged[key] = [...new Set([...(Array.isArray(localValue) ? localValue : []), ...(Array.isArray(cloudValue) ? cloudValue : [])])].sort();
+          } else if (key === 'study_streak' || key === 'evo_today_done') {
+            merged[key] = Math.max(Number(localValue) || 0, Number(cloudValue) || 0);
+          } else if (key === 'study_last_date') {
+            merged[key] = [localValue, cloudValue].filter(Boolean).sort().at(-1) || null;
+          }
+        });
+        return merged;
+      }
+      async function request(path, method, body) {
+        const response = await fetch(API + path, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + getSession()
+          },
+          ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+          cache: 'no-store'
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.message || '学習データ同期に失敗しました（HTTP ' + response.status + '）。');
+        return data;
+      }
+      function setStatus(message, error) {
+        const el = document.getElementById('np-account-sync-status');
+        if (el) {
+          el.textContent = message;
+          el.className = 'mt-2 text-xs ' + (error ? 'text-rose-600' : 'text-slate-500');
+        }
+      }
+      async function syncStudyData(showStatus) {
+        if (!getSession()) {
+          if (showStatus) setStatus('先にLINEログインしてください。', true);
+          return;
+        }
+        if (syncing) { syncAgain = true; return; }
+        syncing = true;
+        suppressAutoSync = true;
+        if (showStatus) setStatus('LINEアカウントの学習データを同期しています…', false);
+        try {
+          const cloud = await request('/api/user/study-data', 'GET');
+          const local = readLocalRecords();
+          const merged = mergeRecords(local, cloud.records || {});
+          Object.entries(merged).forEach(([key, value]) => {
+            if (isStudyKey(key)) localStorage.setItem(key, JSON.stringify(value));
+          });
+          const records = readLocalRecords();
+          await request('/api/user/study-data', 'PUT', { deviceId: getDeviceId(), records });
+          localStorage.setItem(OWNED_KEY, JSON.stringify(Object.keys(records)));
+          localStorage.setItem(LAST_CLOUD_KEY, JSON.stringify({ updatedAt: Date.now(), records }));
+          if (showStatus) setStatus('同期しました。LINEアカウントに紐づく端末間で学習記録を共有しています。', false);
+        } catch (error) {
+          console.error('[Nurse＋ STUDY SYNC]', error);
+          if (showStatus) setStatus(error.message || '同期に失敗しました。LINEログインとサーバー設定を確認してください。', true);
+        } finally {
+          suppressAutoSync = false;
+          syncing = false;
+          if (syncAgain) {
+            syncAgain = false;
+            scheduleSync();
+          }
+        }
+      }
+      function scheduleSync() {
+        if (suppressAutoSync || !getSession()) return;
+        clearTimeout(timer);
+        timer = setTimeout(() => syncStudyData(false), 1400);
+      }
+
+      // LINEログイン完了時にサーバーがURLフラグメントで渡す署名済みセッションを保存。
+      try {
+        const params = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+        const session = params.get('line_session');
+        const name = params.get('line_name');
+        if (session) {
+          localStorage.setItem(SESSION_KEY, session);
+          if (name) localStorage.setItem('nurse_line_user_name', name);
+          history.replaceState(null, document.title, window.location.pathname + window.location.search);
+        }
+      } catch (error) {
+        console.warn('[Nurse＋ LINE LOGIN] セッションの保存に失敗しました。', error);
+      }
+
+      // 学習履歴の更新後に自動同期。通知関連のキー・APIには触れない。
+      const originalSetItem = Storage.prototype.setItem;
+      Storage.prototype.setItem = function (key, value) {
+        originalSetItem.call(this, key, value);
+        if (this === localStorage && isStudyKey(String(key))) scheduleSync();
+      };
+      window.addEventListener('storage', event => {
+        if (isStudyKey(event.key)) scheduleSync();
+      });
+
+      function bindSyncButton() {
+        const button = document.getElementById('np-account-sync');
+        if (!button || button.dataset.lineSyncBound === 'true') return;
+        button.dataset.lineSyncBound = 'true';
+        button.addEventListener('click', () => syncStudyData(true));
+      }
+      const observer = new MutationObserver(bindSyncButton);
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+      bindSyncButton();
+
+      if (getSession()) setTimeout(() => syncStudyData(false), 900);
+    })();
+  </script>
+
 </body>
 </html>
