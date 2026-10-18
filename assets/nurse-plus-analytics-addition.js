@@ -614,6 +614,11 @@
         <p class="text-[10px] text-slate-500 leading-5">※ 分析は保存済みの正答率履歴を集計します。同期機能を使うには、LINEログインとRender側のFirebase Admin設定が必要です。</p>
       </div>`;
     animateAnalyticsInfographics(screen);
+    // innerHTMLで分析画面を再構築した直後に、科目別グラフを必ず描画する。
+    // index.html側の描画関数が読み込まれていない場合は何もしない。
+    if (typeof window.evoRenderSubjectBarLineChart === 'function') {
+      window.evoRenderSubjectBarLineChart();
+    }
     document.getElementById('np-analytics-back')?.addEventListener('click', () => {
       document.getElementById(SCREEN_ID)?.classList.add('hidden');
       if (typeof window.showDashboard === 'function') window.showDashboard();
