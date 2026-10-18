@@ -6179,21 +6179,16 @@
     function npAnimateAccuracy(target, correctCount, questionCount){
       const el=document.getElementById('final-score-val');
       if(!el)return Promise.resolve(0);
-      // 正答数と総問題数を正として最終正答率を一度だけ算出する。
-      const title=document.getElementById('result-score-title')?.textContent||'';
-      const match=title.match(/全\s*(\d+)\s*問中\s*(\d+)\s*問正解/);
-      const titleTotal=match?Number(match[1]):NaN;
-      const titleCorrect=match?Number(match[2]):NaN;
+      // 採点処理から渡された正答数・総問題数を唯一の正本として使う。
+      // 結果タイトルのDOMは表示更新タイミングに左右されるため計算根拠にしない。
       const parsedCorrect=Number(correctCount),parsedTotal=Number(questionCount);
-      const validTitle=Number.isFinite(titleCorrect)&&Number.isFinite(titleTotal)&&titleTotal>0&&titleCorrect>=0&&titleCorrect<=titleTotal;
       const validCounts=Number.isFinite(parsedCorrect)&&Number.isFinite(parsedTotal)&&parsedTotal>0&&parsedCorrect>=0&&parsedCorrect<=parsedTotal;
-      const correct=validTitle?titleCorrect:(validCounts?parsedCorrect:NaN);
-      const total=validTitle?titleTotal:(validCounts?parsedTotal:NaN);
-      const calculated=Number.isFinite(correct)&&Number.isFinite(total)&&total>0?Math.round(correct/total*100):NaN;
       const supplied=Number(target);
+      const calculated=validCounts?Math.round(parsedCorrect/parsedTotal*100):NaN;
       const goal=Math.max(0,Math.min(100,Number.isFinite(calculated)?calculated:(Number.isFinite(supplied)&&supplied>=0&&supplied<=100?Math.round(supplied):0)));
       if(el._npAccuracyFrame)cancelAnimationFrame(el._npAccuracyFrame);
       if(el._npAccuracyFallback)clearTimeout(el._npAccuracyFallback);
+      // 先行アニメーションをキャンセルしたPromiseは null で完了させ、旧結果での上書きを防ぐ。
       if(el._npAccuracyResolve)el._npAccuracyResolve(null);
       const runId=(Number(el._npAccuracyRunId)||0)+1;
       el._npAccuracyRunId=runId;
@@ -6933,11 +6928,8 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       // 正答率のカウントアップが完了するまで、結果コメント・演出・効果音の発表を待つ。
       const evalText = document.getElementById('final-eval-text');
       npAnimateAccuracy(accRate, score, total).then(finalAccuracy => {
-        if (finalAccuracy !== accRate) {
-          // 表示タイトルと採点結果に差がある場合は、採点結果の正答率を最終値にする。
-          const accuracyEl = document.getElementById('final-score-val');
-          if (accuracyEl) accuracyEl.textContent = String(accRate);
-        }
+        // 再実行でキャンセルされた古いアニメーションは、発表や表示を更新しない。
+        if (finalAccuracy === null) return;
         if (accRate === 100) {
           evalText.textContent = "素晴らしい！満点達成です！";
           if (typeof confetti === 'function') {
