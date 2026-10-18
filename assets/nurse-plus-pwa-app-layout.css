@@ -351,3 +351,25 @@ html.np-accessibility-reduced-motion *::after {
   scroll-behavior:auto !important; animation-duration:.01ms !important;
   animation-iteration-count:1 !important; transition-duration:.01ms !important;
 }
+
+
+/* Typography-only refinement: elegant Japanese text, with existing fonts already loaded by index.html. */
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  letter-spacing: .012em;
+  font-feature-settings: "palt";
+}
+body :is(h1, h2, h3, .serif-title) {
+  font-family: 'Noto Serif JP', 'Cormorant Garamond', serif;
+  font-weight: 500;
+  letter-spacing: .015em;
+  line-height: 1.55;
+}
+body .en-title {
+  font-family: 'Cormorant Garamond', serif;
+  letter-spacing: .16em;
+}
+body :is(button, [role="button"], input, select, textarea) {
+  font-family: 'Noto Sans JP', sans-serif;
+  letter-spacing: .01em;
+}
