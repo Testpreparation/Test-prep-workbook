@@ -594,6 +594,7 @@
           <div class="np-analytics-bars">${days.map(d=>`<div class="np-analytics-bar-col" title="${esc(d.key)}：平均${d.count?d.avg+'%':'記録なし'}"><div class="text-[9px] text-slate-400">${d.count?d.avg+'%':''}</div><div class="np-analytics-bar" style="height:${Math.max(3,d.avg/100*82)}px;opacity:${d.count?1:.22};background:linear-gradient(180deg,#38bdf8,#2563eb)"></div><div class="np-analytics-day">${esc(d.label)}</div></div>`).join('')}</div>
           <p class="text-[10px] text-slate-500 mt-2">その日に保存された演習結果の平均です。記録がない日は空欄になります。</p>
         </section>
+        ${days.map(d=>`<section class="np-analytics-card"><div class="flex items-center justify-between gap-3"><h3 class="text-sm font-semibold text-slate-100">${esc(d.key)} の平均正答率</h3><span class="text-sm font-semibold ${d.count ? (d.avg<70?'text-rose-400':'text-emerald-500') : 'text-slate-400'}">${d.count ? d.avg+'%' : '記録なし'}</span></div><p class="text-[10px] text-slate-500 mt-1">演習記録：${d.count}件</p></section>`).join('')}
         <section class="np-analytics-card">
           <h3 class="text-sm font-semibold text-slate-100">苦手分野の自動分析</h3>
           <p class="text-[10px] text-slate-500 mt-1">科目と出題モードごとの平均正答率から、復習の優先順位を提案します。</p>
