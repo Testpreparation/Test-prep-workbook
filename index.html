@@ -6145,27 +6145,25 @@
     function npAnimateAccuracy(target, correctCount, questionCount){
       const el=document.getElementById('final-score-val');
       if(!el)return;
-      // 正答数・総問題数を最優先し、表示用タイトルからも検証して不整合を補正する。
-      const parsedCorrect=Number(correctCount),parsedTotal=Number(questionCount);
+      // 結果画面に表示した正答数を最優先し、渡された引数が古い場合も表示値と一致させる。
       const title=document.getElementById('result-score-title')?.textContent||'';
       const match=title.match(/全\s*(\d+)\s*問中\s*(\d+)\s*問正解/);
       const titleTotal=match?Number(match[1]):NaN;
       const titleCorrect=match?Number(match[2]):NaN;
-      const validCounts=Number.isFinite(parsedCorrect)&&Number.isFinite(parsedTotal)&&parsedTotal>0&&parsedCorrect>=0&&parsedCorrect<=parsedTotal;
+      const parsedCorrect=Number(correctCount),parsedTotal=Number(questionCount);
       const validTitle=Number.isFinite(titleCorrect)&&Number.isFinite(titleTotal)&&titleTotal>0&&titleCorrect>=0&&titleCorrect<=titleTotal;
-      const correct=validCounts?parsedCorrect:(validTitle?titleCorrect:NaN);
-      const total=validCounts?parsedTotal:(validTitle?titleTotal:NaN);
+      const validCounts=Number.isFinite(parsedCorrect)&&Number.isFinite(parsedTotal)&&parsedTotal>0&&parsedCorrect>=0&&parsedCorrect<=parsedTotal;
+      const correct=validTitle?titleCorrect:(validCounts?parsedCorrect:NaN);
+      const total=validTitle?titleTotal:(validCounts?parsedTotal:NaN);
       const calculated=Number.isFinite(correct)&&Number.isFinite(total)&&total>0?Math.round(correct/total*100):NaN;
       const supplied=Number(target);
-      // 引数の正答率と件数が食い違う場合は、正答数／総問題数から再計算する。
-      const goal=Number.isFinite(calculated)?calculated:(Number.isFinite(supplied)&&supplied>=0&&supplied<=100?Math.round(supplied):0);
+      const goal=Math.max(0,Math.min(100,Number.isFinite(calculated)?calculated:(Number.isFinite(supplied)&&supplied>=0&&supplied<=100?Math.round(supplied):0)));
       if(el._npAccuracyFrame)cancelAnimationFrame(el._npAccuracyFrame);
       if(el._npAccuracyTimer)clearTimeout(el._npAccuracyTimer);
       if(el._npAccuracyFallback)clearTimeout(el._npAccuracyFallback);
       const runId=(Number(el._npAccuracyRunId)||0)+1;
       el._npAccuracyRunId=runId;
       el._npAccuracyGoal=goal;
-      // transform/opacity アニメーションは文字のぼやけを起こすため使わない。
       el.style.removeProperty('transform');
       el.style.removeProperty('opacity');
       el.style.removeProperty('transition');
@@ -6182,7 +6180,6 @@
         el._npAccuracyFallback=null;
         npResultChime(goal);
       };
-      // requestAnimationFrame が停止・遅延する環境でも、最終値を必ず確定する。
       el._npAccuracyFallback=setTimeout(finish,duration+500);
       const frame=now=>{
         if(el._npAccuracyRunId!==runId||completed)return;
@@ -6193,16 +6190,10 @@
         const tick=Math.floor(value/4);
         if(tick>lastTick&&p<1){
           lastTick=tick;
-          if(tick>0&&npAudio.sfx&&!npAudio.muted){
-            const pitch=520+Math.min(520,tick*18);
-            npTone(pitch,.045,.0028,0);
-          }
+          if(tick>0&&npAudio.sfx&&!npAudio.muted)npTone(520+Math.min(520,tick*18),.045,.0028,0);
         }
         if(p<1)el._npAccuracyFrame=requestAnimationFrame(frame);
-        else{
-          el._npAccuracyFrame=null;
-          finish();
-        }
+        else{el._npAccuracyFrame=null;finish();}
       };
       el._npAccuracyFrame=requestAnimationFrame(frame);
     }
@@ -6900,6 +6891,18 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
 
       document.getElementById('result-score-title').textContent = `全${total}問中 ${score}問正解`;
       npAnimateAccuracy(accRate, score, total);
+      // アニメーション側の処理が中断された場合も、結果発表の表示値を正しい正答率へ確定する。
+      const resultAccuracyEl = document.getElementById('final-score-val');
+      const resultTitleText = document.getElementById('result-score-title')?.textContent || '';
+      const resultTitleMatch = resultTitleText.match(/全\s*(\d+)\s*問中\s*(\d+)\s*問正解/);
+      const expectedAccuracy = resultTitleMatch && Number(resultTitleMatch[1]) > 0
+        ? Math.round(Number(resultTitleMatch[2]) / Number(resultTitleMatch[1]) * 100)
+        : accRate;
+      setTimeout(() => {
+        if (resultAccuracyEl && Number(resultAccuracyEl.textContent) !== expectedAccuracy) {
+          resultAccuracyEl.textContent = String(expectedAccuracy);
+        }
+      }, 2500);
       
       const evalText = document.getElementById('final-eval-text');
       if (accRate === 100) {
