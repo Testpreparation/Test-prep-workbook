@@ -4917,30 +4917,6 @@
       return [{key:'all',label:'通常'}];
     };
 
-    /* 科目別コンディション：科目数に左右されずカードの高さを固定し、一覧だけスクロール */
-    #screen-dashboard .evo-card:has(#evo-subjects){
-      height: 320px;
-      min-height: 320px;
-      max-height: 320px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    #screen-dashboard .evo-card:has(#evo-subjects) > div:first-child{
-      flex: 0 0 auto;
-    }
-    #screen-dashboard #evo-subjects{
-      flex: 1 1 auto;
-      min-height: 0;
-      overflow-y: auto;
-      overscroll-behavior: contain;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(167,139,250,.55) transparent;
-      padding-right: 3px;
-    }
-    #screen-dashboard #evo-subjects::-webkit-scrollbar{width:4px}
-    #screen-dashboard #evo-subjects::-webkit-scrollbar-thumb{background:rgba(167,139,250,.55);border-radius:999px}
-
     function evoGetStats() {
       const rows=[]; let attempts=0, sum=0, best=null;
       (subjects||[]).filter(s=>s.visible!==false && s.status!=='preparing').forEach(s=>{
