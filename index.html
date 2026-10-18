@@ -5284,14 +5284,7 @@
           window.NursePlusAnalyticsAddition.render();
         }
       }
-      // 正答率の推移グラフ用の表示領域がない場合のみ作成する。
-      if (el && !document.getElementById('evo-accuracy-trend')) {
-        el.insertAdjacentHTML('afterbegin', '<section class="rounded-2xl border border-violet-100 bg-white p-4 shadow-sm"><div class="mb-2"><h3 class="text-sm font-semibold text-slate-700">正答率の推移</h3><p class="mt-1 text-xs text-slate-500">日別・科目別の正答率</p></div><div id="evo-trend-summary" class="mb-2 text-xs text-slate-500"></div><div id="evo-accuracy-trend" class="w-full min-w-0 overflow-x-auto"></div></section>');
-      }
-      evoRenderAccuracyTrend();
       evoRenderGrowth();
-      evoRenderRecentStudyCarousel(new Date());
-      evoRenderMonthlyReport(new Date());
       // 追加分析画面の open() が別セクションへスクロールするため、
       // 正答率推移を含むデータ分析画面を最後に表示位置へ戻す。
       if (el) requestAnimationFrame(() => {
