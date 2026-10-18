@@ -6893,7 +6893,11 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       npAnimateAccuracy(accRate, score, total);
       // アニメーション側の処理が中断された場合も、結果発表の表示値を正しい正答率へ確定する。
       const resultAccuracyEl = document.getElementById('final-score-val');
-      const expectedAccuracy = accRate;
+      const resultTitleText = document.getElementById('result-score-title')?.textContent || '';
+      const resultTitleMatch = resultTitleText.match(/全\s*(\d+)\s*問中\s*(\d+)\s*問正解/);
+      const expectedAccuracy = resultTitleMatch && Number(resultTitleMatch[1]) > 0
+        ? Math.round(Number(resultTitleMatch[2]) / Number(resultTitleMatch[1]) * 100)
+        : accRate;
       setTimeout(() => {
         if (resultAccuracyEl && Number(resultAccuracyEl.textContent) !== expectedAccuracy) {
           resultAccuracyEl.textContent = String(expectedAccuracy);
