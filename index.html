@@ -8662,7 +8662,56 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       background-size:contain;
       background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 90' fill='none'%3E%3Cpath d='M118 3C91 5 105 26 78 32S44 18 35 39 66 61 49 76 24 78 8 88' stroke='%23b9a1db' stroke-width='1.7' stroke-linecap='round'/%3E%3Cpath d='M78 32C69 40 73 47 80 51' stroke='%23b7dcca' stroke-width='1.7' stroke-linecap='round'/%3E%3C/svg%3E");
     }
-    #screen-dashboard:not(.hidden) .evo-card>*{position:relative;z-index:1}
+    #screen-dashboard:not(.hidden) .evo-card>*{position:relative;z-index:4}
+    /* One continuous thread runs beside the existing home sections, visually tying them together. */
+    #screen-dashboard:not(.hidden){
+      position:relative;
+      isolation:isolate;
+    }
+    #screen-dashboard:not(.hidden)::before{
+      content:"";
+      position:absolute;
+      z-index:2;
+      pointer-events:none;
+      left:1px;
+      top:112px;
+      bottom:8px;
+      width:13px;
+      opacity:.9;
+      background-repeat:repeat-y;
+      background-size:13px 180px;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='180' viewBox='0 0 13 180' fill='none'%3E%3Cpath d='M6 0C1 14 11 25 6 39S1 62 6 76 11 99 6 113 1 136 6 150 11 168 6 180' stroke='%23c5b1e4' stroke-width='1.7' stroke-linecap='round'/%3E%3Cpath d='M6 39C10 44 10 48 6 53M6 113C2 118 2 122 6 127' stroke='%23b7dcca' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E");
+      animation:np-thread-flow 12s linear infinite;
+    }
+    #screen-dashboard:not(.hidden) .evo-card{
+      overflow:visible!important;
+    }
+    #screen-dashboard:not(.hidden) .evo-card::before{
+      content:"";
+      position:absolute;
+      z-index:3;
+      pointer-events:none;
+      left:5px;
+      top:22px;
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:#f8f4fc;
+      border:1.5px solid #bca6dc;
+      box-shadow:0 0 0 3px rgba(248,244,252,.78),0 1px 4px rgba(112,88,145,.12);
+    }
+    #screen-dashboard:not(.hidden) .evo-card::after{
+      pointer-events:none;
+    }
+    #screen-dashboard:not(.hidden) .evo-card>*{
+      position:relative;
+      z-index:4;
+    }
+    @keyframes np-thread-flow{
+      from{background-position:0 0}
+      to{background-position:0 180px}
+    }
+
     #screen-dashboard:not(.hidden)>div:first-child>*{position:relative;z-index:1}
     @keyframes np-thread-drift{
       0%,100%{transform:translate3d(0,0,0) rotate(0deg);opacity:.72}
