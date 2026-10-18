@@ -383,3 +383,21 @@ body :is(button, [role="button"], input, select, textarea) {
   overflow-y: auto;
   overscroll-behavior: contain;
 }
+
+
+/* Keep study-selection steps at a consistent height when moving between settings screens. */
+#screen-subjects #slider-page-1,
+#screen-subjects #slider-page-2,
+#screen-semester-select,
+#screen-mode-select,
+#screen-nursing-mode-select,
+#screen-nursing-method-3-mode-select,
+#screen-nutrition-mode-select,
+#screen-biochemistry-format-select,
+#screen-time-select,
+#screen-round-select,
+#screen-count-select,
+#screen-quiz-start {
+  box-sizing: border-box;
+  min-height: clamp(430px, 68vh, 620px);
+}
