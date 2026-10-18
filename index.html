@@ -5292,6 +5292,13 @@
       evoRenderGrowth();
       evoRenderRecentStudyCarousel(new Date());
       evoRenderMonthlyReport(new Date());
+      // 追加分析画面の open() が別セクションへスクロールするため、
+      // 正答率推移を含むデータ分析画面を最後に表示位置へ戻す。
+      if (el) requestAnimationFrame(() => {
+        if (el.isConnected && !el.classList.contains('hidden')) {
+          el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        }
+      });
     }
     function evoStartPractice(){
       showSubjectScreen();
