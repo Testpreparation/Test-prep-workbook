@@ -931,18 +931,13 @@
       explanationObserver.observe(explanation,{childList:true,characterData:true,subtree:true});
     }
 
-    // 結果画面のスコア・主要カードを順番に見せる。
+    // 結果画面の主要カードだけに段階表示を付与する。
+    // 正答率の数値表示は index.html の npAnimateAccuracy に一本化し、
+    // ここではスコアを0に戻したり、別のカウントアップや blur/scale を重ねたりしない。
     const resultScreen = document.getElementById('screen-quiz-result');
     if (resultScreen) {
       const resultObserver = new MutationObserver(() => {
         if (resultScreen.classList.contains('hidden')) return;
-        const score = document.getElementById('final-score-val');
-        if (score && !score.classList.contains('np-result-highlight')) {
-          score.classList.add('np-result-highlight');
-          if (!reduceMotion && typeof score.animate === 'function') {
-            score.animate([{opacity:0,transform:'translateY(8px) scale(.88)'},{opacity:1,transform:'translateY(0) scale(1)'}],{duration:680,easing:'cubic-bezier(.22,1,.36,1)'});
-          }
-        }
         resultScreen.querySelectorAll('.grid > *, .space-y-4 > section').forEach((card,index) => {
           if (card.dataset.npStaggered === '1') return;
           card.dataset.npStaggered = '1';
@@ -974,113 +969,9 @@
       modalObserver.observe(el,{attributes:true,attributeFilter:['class','style']});
     });
 
-    // 5. 最終正答率を少し集計してから発表し、発表後に紙吹雪を表示する。
-    function celebrateResult(screen) {
-      if (screen.dataset.npCelebrated === '1') return;
-      screen.dataset.npCelebrated = '1';
-      const scoreEl = document.getElementById('final-score-val');
-      const accuracy = scoreEl ? Number(scoreEl.textContent) : NaN;
-      if (!Number.isFinite(accuracy)) return;
+    // 正答率の発表・カウントアップ・完了演出は index.html 側で一元管理する。
+    // この追加スクリプトではスコア値や発表タイミングを変更しない。
 
-      // Reduce Motion設定やWeb Animations APIの有無で、正答率カウント自体を止めない。
-      // 視覚効果を抑える設定でも「0から実際の正答率へ」の表示は行う。
-      const canAnimate = typeof scoreEl.animate === 'function';
-      const scoreLine = scoreEl.parentElement;
-      const scoreCard = scoreEl.closest('.p-6');
-      if (!scoreLine || !scoreCard) return;
-
-      // 正答率だけを一旦隠し、集計中の間を作る。採点や保存済み記録は変更しない。
-      const status = document.createElement('div');
-      status.className = 'np-accuracy-announcement';
-      status.setAttribute('role', 'status');
-      status.setAttribute('aria-live', 'polite');
-      status.textContent = '正答率を集計中';
-      status.style.cssText = 'font-size:12px;letter-spacing:.16em;color:#fcd34d;min-height:18px;margin:0 0 8px;opacity:.8;';
-      scoreLine.parentNode.insertBefore(status, scoreLine);
-      scoreEl.textContent = '0';
-      scoreLine.style.opacity = '.3';
-      scoreLine.style.filter = 'blur(5px)';
-      scoreLine.style.transform = 'scale(.96)';
-
-      if (canAnimate) {
-        scoreCard.animate(
-          [{ boxShadow:'0 0 0 rgba(245,158,11,0)', borderColor:'rgba(51,65,85,.65)' },
-           { boxShadow:'0 0 28px rgba(245,158,11,.18)', borderColor:'rgba(245,158,11,.55)' },
-           { boxShadow:'0 0 10px rgba(245,158,11,.08)', borderColor:'rgba(51,65,85,.65)' }],
-          { duration:1500, easing:'ease-in-out' }
-        );
-      }
-
-      window.setTimeout(() => {
-        if (!screen.isConnected || screen.classList.contains('hidden')) return;
-        status.textContent = '結果発表！';
-        status.style.opacity = '1';
-        if (canAnimate) {
-          status.animate(
-            [{ opacity:.35, transform:'translateY(5px) scale(.96)' },
-             { opacity:1, transform:'translateY(0) scale(1.06)', offset:.7 },
-             { opacity:1, transform:'translateY(0) scale(1)' }],
-            { duration:620, easing:'cubic-bezier(.22,1,.36,1)' }
-          );
-          scoreLine.animate(
-            [{ opacity:.3, filter:'blur(5px)', transform:'scale(.96)' },
-             { opacity:1, filter:'blur(0)', transform:'scale(1.12)', offset:.72 },
-             { opacity:1, filter:'blur(0)', transform:'scale(1)' }],
-            { duration:850, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' }
-          );
-        } else {
-          scoreLine.style.opacity = '1';
-          scoreLine.style.filter = 'none';
-          scoreLine.style.transform = 'none';
-        }
-
-        const startTime = performance.now();
-        const countDuration = 1500;
-        function countUp(now) {
-          if (!scoreEl.isConnected || screen.classList.contains('hidden')) return;
-          const progress = Math.min(1, (now - startTime) / countDuration);
-          const eased = 1 - Math.pow(1 - progress, 3);
-          scoreEl.textContent = String(Math.round(accuracy * eased));
-          if (progress < 1) {
-            requestAnimationFrame(countUp);
-          } else {
-            scoreEl.textContent = String(accuracy);
-            status.remove();
-            // 発表のあとにだけ祝福演出を行う。
-            if (typeof window.confetti === 'function') {
-              window.confetti({
-                particleCount: accuracy === 100 ? 90 : 42,
-                spread: accuracy === 100 ? 68 : 54,
-                startVelocity: 25,
-                scalar: 0.8,
-                origin: { y: 0.68 }
-              });
-            } else {
-              const colors = ['#f59e0b', '#fcd34d', '#34d399', '#60a5fa', '#f472b6', '#c084fc'];
-              const layer = document.createElement('div');
-              layer.setAttribute('aria-hidden', 'true');
-              layer.style.cssText = 'position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:99999;';
-              for (let i = 0; i < 48; i++) {
-                const piece = document.createElement('i');
-                const duration = 1.7 + Math.random() * 1.3;
-                piece.style.cssText = [
-                  'position:absolute','top:-14px','left:' + (Math.random() * 100) + '%',
-                  'width:' + (5 + Math.random() * 5) + 'px','height:' + (7 + Math.random() * 7) + 'px',
-                  'border-radius:2px','background:' + colors[i % colors.length],'opacity:.95',
-                  '--np-drift:' + ((Math.random() - .5) * 220) + 'px',
-                  '--np-rotate:' + (Math.random() * 900 - 450) + 'deg',
-                  'animation:npConfettiFall ' + duration + 's ease-in forwards'
-                ].join(';');
-                layer.appendChild(piece);
-              }
-              document.body.appendChild(layer);
-              window.setTimeout(() => layer.remove(), 4200);
-            }
-          }
-        }
-        requestAnimationFrame(countUp);
-      }, 1450);
-    }
   }
 
   function install() {
