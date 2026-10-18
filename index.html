@@ -552,6 +552,36 @@
 </style>
 
   <link rel="stylesheet" href="./assets/nurse-plus-pwa-app-layout.css">
+
+  <!-- Nurse＋: subtle native-app tap feedback; no launch-screen changes. -->
+  <style id="nurse-plus-tap-feedback">
+    html { -webkit-tap-highlight-color: transparent; }
+    button, [role="button"], input[type="button"], input[type="submit"], input[type="reset"], a.np-app-tap {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 120ms cubic-bezier(.2,.8,.2,1), filter 120ms ease, box-shadow 120ms ease;
+    }
+    button:active, [role="button"]:active, input[type="button"]:active,
+    input[type="submit"]:active, input[type="reset"]:active, a.np-app-tap:active {
+      transform: scale(.975);
+      filter: brightness(.97);
+    }
+    @media (hover: hover) and (pointer: fine) {
+      button:hover, [role="button"]:hover, input[type="button"]:hover,
+      input[type="submit"]:hover, input[type="reset"]:hover, a.np-app-tap:hover {
+        filter: brightness(1.025);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      button, [role="button"], input[type="button"], input[type="submit"], input[type="reset"], a.np-app-tap {
+        transition: none !important;
+      }
+      button:active, [role="button"]:active, input[type="button"]:active,
+      input[type="submit"]:active, input[type="reset"]:active, a.np-app-tap:active {
+        transform: none;
+      }
+    }
+  </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative selection:bg-amber-500/30 selection:text-amber-200">
 

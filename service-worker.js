@@ -1,7 +1,7 @@
 /* Nurse＋ PWA: installability and best-effort offline cache.
  * Only same-origin GET requests are cached. HTML navigations are network-first so updates remain visible.
  */
-const CACHE_NAME = 'nurse-plus-pwa-v1';
+const CACHE_NAME = 'nurse-plus-pwa-v2';
 const APP_ROOT = '/Test-prep-workbook/';
 const CORE_ASSETS = [
   APP_ROOT,

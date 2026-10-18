@@ -15,5 +15,16 @@
       "sizes": "512x512",
       "type": "image/png"
     }
+  ],
+  "description": "看護学生のための学習・問題演習アプリ",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait",
+  "theme_color": "#f8f5fc",
+  "background_color": "#fffdfd",
+  "categories": [
+    "education"
   ]
 }
