@@ -5504,6 +5504,7 @@
     }
 
     function hideAllScreens() {
+      document.getElementById('study-breadcrumbs')?.classList.add('hidden');
       stopQuizTimer();
       const dashboard = document.getElementById('screen-dashboard');
       if (dashboard) dashboard.classList.add('hidden');
