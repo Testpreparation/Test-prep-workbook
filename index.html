@@ -8662,7 +8662,56 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       background-size:contain;
       background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 90' fill='none'%3E%3Cpath d='M118 3C91 5 105 26 78 32S44 18 35 39 66 61 49 76 24 78 8 88' stroke='%23b9a1db' stroke-width='1.7' stroke-linecap='round'/%3E%3Cpath d='M78 32C69 40 73 47 80 51' stroke='%23b7dcca' stroke-width='1.7' stroke-linecap='round'/%3E%3C/svg%3E");
     }
-    #screen-dashboard:not(.hidden) .evo-card>*{position:relative;z-index:1}
+    #screen-dashboard:not(.hidden) .evo-card>*{position:relative;z-index:4}
+    /* One continuous thread runs beside the existing home sections, visually tying them together. */
+    #screen-dashboard:not(.hidden){
+      position:relative;
+      isolation:isolate;
+    }
+    #screen-dashboard:not(.hidden)::before{
+      content:"";
+      position:absolute;
+      z-index:2;
+      pointer-events:none;
+      left:1px;
+      top:112px;
+      bottom:8px;
+      width:13px;
+      opacity:.9;
+      background-repeat:repeat-y;
+      background-size:13px 180px;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='180' viewBox='0 0 13 180' fill='none'%3E%3Cpath d='M6 0C1 14 11 25 6 39S1 62 6 76 11 99 6 113 1 136 6 150 11 168 6 180' stroke='%23c5b1e4' stroke-width='1.7' stroke-linecap='round'/%3E%3Cpath d='M6 39C10 44 10 48 6 53M6 113C2 118 2 122 6 127' stroke='%23b7dcca' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E");
+      animation:np-thread-flow 12s linear infinite;
+    }
+    #screen-dashboard:not(.hidden) .evo-card{
+      overflow:visible!important;
+    }
+    #screen-dashboard:not(.hidden) .evo-card::before{
+      content:"";
+      position:absolute;
+      z-index:3;
+      pointer-events:none;
+      left:5px;
+      top:22px;
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:#f8f4fc;
+      border:1.5px solid #bca6dc;
+      box-shadow:0 0 0 3px rgba(248,244,252,.78),0 1px 4px rgba(112,88,145,.12);
+    }
+    #screen-dashboard:not(.hidden) .evo-card::after{
+      pointer-events:none;
+    }
+    #screen-dashboard:not(.hidden) .evo-card>*{
+      position:relative;
+      z-index:4;
+    }
+    @keyframes np-thread-flow{
+      from{background-position:0 0}
+      to{background-position:0 180px}
+    }
+
     #screen-dashboard:not(.hidden)>div:first-child>*{position:relative;z-index:1}
     @keyframes np-thread-drift{
       0%,100%{transform:translate3d(0,0,0) rotate(0deg);opacity:.72}
@@ -8688,6 +8737,44 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       #screen-dashboard:not(.hidden)>div:first-child::after{animation:none!important}
     }
     html.np-accessibility-reduced-motion #screen-dashboard:not(.hidden)>div:first-child::after{animation:none!important}
+  </style>
+
+
+  <!-- Nurse＋ Soft Thread app-wide visual language: background thread paths and subtle connector styling only. -->
+  <style id="nurse-plus-soft-thread-global">
+    /* A single continuous thread motif sits in the app shell behind existing screens. */
+    main.glass-card{
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 300' fill='none'%3E%3Cpath d='M214 -8C164 20 195 57 151 81S87 83 101 126 160 166 128 207 61 245 10 308' stroke='%23c8b6e4' stroke-width='1.6' stroke-linecap='round'/%3E%3Cpath d='M151 81C127 97 128 117 143 132S178 153 164 174' stroke='%23b9dfd1' stroke-width='1.4' stroke-linecap='round'/%3E%3Ccircle cx='151' cy='81' r='3' fill='%23c8b6e4'/%3E%3Ccircle cx='128' cy='207' r='2.8' fill='%23e6bfd1'/%3E%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 250' fill='none'%3E%3Cpath d='M-8 10C36 25 10 60 49 78S107 89 93 126 37 168 62 199 119 222 174 255' stroke='%23b9dfd1' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M49 78C71 90 71 106 57 118' stroke='%23e6bfd1' stroke-width='1.4' stroke-linecap='round'/%3E%3Ccircle cx='93' cy='126' r='2.8' fill='%23c8b6e4'/%3E%3C/svg%3E");
+      background-repeat:no-repeat,no-repeat;
+      background-position:right 8px top 10px,left 4px bottom 20px;
+      background-size:clamp(92px,24vw,160px) auto,clamp(76px,19vw,126px) auto;
+    }
+    /* Keep the thread concept consistent across existing screen cards without changing their layout. */
+    main.glass-card :is(.evo-card,.np-analytics-card,[class*="rounded-2xl"][class*="border"]){
+      border-color:rgba(201,184,224,.56);
+    }
+    main.glass-card :is(button,[role="button"]){
+      -webkit-tap-highlight-color:transparent;
+    }
+    main.glass-card :is(button,[role="button"]):focus-visible{
+      outline:2px solid rgba(167,139,205,.72);
+      outline-offset:3px;
+    }
+    /* Existing separators become fine thread-like strokes, not new controls or content. */
+    main.glass-card :is(.border-t,.border-b){
+      border-color:rgba(199,181,220,.44)!important;
+    }
+    @media(max-width:420px){
+      main.glass-card{
+        background-position:right -14px top 6px,left -12px bottom 14px;
+        background-size:90px auto,72px auto;
+      }
+    }
+    @media(prefers-reduced-motion:reduce){
+      #screen-dashboard:not(.hidden)>div:first-child::after{animation:none!important}
+    }
   </style>
 
 </body>
