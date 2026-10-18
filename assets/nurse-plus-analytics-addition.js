@@ -783,13 +783,13 @@
             );
           });
         }
-        if (!reduceMotion && typeof screen.animate === 'function' && screen.id !== SCREEN_ID) {
+        if (!reduceMotion && typeof screen.animate === 'function' && screen.id !== SCREEN_ID && screen.id !== 'screen-quiz-result') {
           screen.animate(
             [{ opacity: 0, transform: 'translateY(14px) scale(.992)', filter:'blur(1.5px)' }, { opacity: 1, transform: 'translateY(0) scale(1)', filter:'blur(0)' }],
             { duration: 1050, easing: 'cubic-bezier(.22,1,.36,1)' }
           );
         }
-        if (screen.id === 'screen-quiz-result') celebrateResult(screen);
+        // 正答率の表示・演出は index.html 側で一元管理する。ここでは再実行しない。
       });
     });
     document.querySelectorAll('[id^="screen-"]').forEach(screen => {
