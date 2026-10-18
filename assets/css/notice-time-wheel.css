@@ -1,0 +1,6 @@
+
+  .notice-time-wheel{height:108px;overflow-y:auto;overscroll-behavior:contain;scroll-snap-type:y mandatory;scrollbar-width:thin;scrollbar-color:#475569 transparent;border:1px solid #334155;border-radius:.65rem;background:rgba(2,6,23,.8);position:relative}
+  .notice-time-wheel-spacer{height:36px;flex:none}
+  .notice-time-wheel-item{height:36px;min-height:36px;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;color:#94a3b8;font-size:13px;font-weight:600;user-select:none}
+  .notice-time-wheel-item.is-selected{background:rgba(245,158,11,.14);color:#fbbf24;border-top:1px solid rgba(245,158,11,.35);border-bottom:1px solid rgba(245,158,11,.35)}
+  #ai-notice-hour-wheel .notice-time-wheel-item.is-selected,#ai-notice-minute-wheel .notice-time-wheel-item.is-selected{background:rgba(34,211,238,.12);color:#67e8f9;border-color:rgba(34,211,238,.35)}
