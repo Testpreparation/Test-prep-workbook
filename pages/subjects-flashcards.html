@@ -1,0 +1,233 @@
+<div id="screen-subjects" class="space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <h2 id="subjects-header-title" class="en-title text-xs text-slate-400 tracking-widest uppercase">Select Subject</h2>
+          <div class="flex items-center gap-3">
+            <button onclick="showDashboard()" class="px-3 py-1.5 rounded-lg bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/50 text-slate-300 text-xs font-medium transition">
+              ホーム
+            </button>
+            <span id="subject-count-display" class="text-xs text-slate-500 font-light">全18科目</span>
+            <!-- お知らせボタン -->
+            <button onclick="openNoticeModal()" class="relative px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition flex items-center gap-1.5">
+              <span>🔔</span>
+              <span>お知らせ</span>
+              <span id="notice-red-dot" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-slate-900"></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- スライドコンテナ -->
+        <div class="relative overflow-hidden w-full">
+          <div id="subjects-slider-track" class="flex transition-transform duration-300 ease-out w-[200%]" style="transform: translateX(0%);">
+            
+            <!-- Page 1: 演習問題 科目リスト -->
+            <div id="slider-page-1" class="w-1/2 pr-1 space-y-3">
+              <div id="subject-list-container" class="grid gap-3 pt-1 max-h-[60vh] overflow-y-auto pr-1.5 custom-scrollbar"></div>
+            </div>
+
+            <!-- Page 2: 暗記カード画面構造 -->
+            <div id="slider-page-2" class="w-1/2 pl-1 space-y-4 flex flex-col justify-between">
+              
+              <!-- ステップ1: 暗記カード 科目選択画面（シンプル化） -->
+              <div id="fc-step-1-subject-select" class="space-y-3">
+                <div id="flashcard-subject-list-container" class="grid gap-2.5 max-h-[60vh] overflow-y-auto pr-1 pt-1 custom-scrollbar">
+                  <!-- JS生成 -->
+                </div>
+              </div>
+
+              <!-- ★ ステップ2: 科目ダッシュボード画面（配置・デザイン最適化） -->
+              <div id="fc-step-2-dashboard" class="hidden space-y-4">
+                <div class="flex justify-between items-center pb-2.5 border-b border-slate-800">
+                  <button onclick="backToFlashcardStep(1)" class="text-xs text-amber-400 hover:text-amber-300 hover:underline flex items-center gap-1 font-medium transition">
+                    <span>← 科目選択へ</span>
+                  </button>
+                  <span id="fc-dash-subject-title" class="text-xs font-bold text-slate-100 tracking-wide font-mono px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700/60">科目名</span>
+                </div>
+
+                <!-- 洗練された進捗ステータスカード -->
+                <div class="p-4 rounded-2xl bg-gradient-to-br from-slate-900/90 via-slate-900/95 to-slate-950/90 border border-amber-500/20 shadow-xl space-y-3 relative overflow-hidden">
+                  <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-300 font-semibold tracking-wider flex items-center gap-2">
+                      <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_rgba(251,191,36,0.8)]"></span>
+                      <span>進行状況</span>
+                    </span>
+                    <div class="font-mono text-xs flex items-center gap-1.5">
+                      <span class="text-slate-400">習得:</span>
+                      <span id="fc-dash-learned-count" class="text-amber-400 font-bold text-sm">0</span>
+                      <span class="text-slate-600">/</span>
+                      <span id="fc-dash-total-count" class="text-slate-400">0</span>
+                      <span id="fc-dash-progress-percent" class="text-amber-300 font-bold ml-1.5 text-xs px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30">0%</span>
+                    </div>
+                  </div>
+                  
+                  <div class="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-slate-800/80 p-0.5 shadow-inner">
+                    <div id="fc-dash-progress-bar" class="h-full bg-gradient-to-r from-amber-600 via-amber-500 to-amber-300 rounded-full w-0 transition-all duration-500 ease-out shadow-[0_0_12px_rgba(245,158,11,0.5)]"></div>
+                  </div>
+                </div>
+
+                <!-- モード切替（表裏の入れ替え） -->
+                <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between shadow-sm">
+                  <div class="space-y-0.5">
+                    <div id="fc-toggle-status-title" class="text-xs font-bold text-slate-200">表: 単語 → 裏: 意味</div>
+                    <div class="text-[10px] text-slate-400 font-light">出題カードの表裏を反転します</div>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="fc-mode-toggle-switch" role="switch" aria-label="暗記カードの表裏を反転" onchange="toggleFlashcardModeSwitch(this.checked)" class="np-toggle-switch">
+                  </label>
+                </div>
+
+                <!-- 洗練されたサブアクションボタン群 -->
+                <div class="grid grid-cols-2 gap-2.5">
+                  <button onclick="openLearnedWordsModal()" class="py-3 px-3 rounded-xl bg-emerald-900/60 hover:bg-emerald-800/80 text-emerald-200 text-xs font-medium transition border border-emerald-700/60 active:scale-95 flex items-center justify-center gap-1.5 shadow-sm">
+                    <span>覚えた単語一覧</span>
+                  </button>
+                  <button onclick="resetLearnedWordsForCurrentSubject()" class="py-3 px-3 rounded-xl bg-rose-950/80 hover:bg-rose-900/90 text-rose-300 hover:text-rose-100 text-xs font-medium transition border border-rose-800/80 active:scale-95 flex items-center justify-center gap-1.5 shadow-sm">
+                    <span>覚えた単語をリセット</span>
+                  </button>
+                </div>
+
+                <!-- 問題数ゼロ時の警告表示 -->
+                <div id="fc-no-questions-warning" class="hidden p-3 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs text-center font-light">
+                  ⚠️ この科目には暗記カード問題が登録されていません
+                </div>
+
+                <!-- メインアクションボタン -->
+                <button id="fc-go-step3-btn" onclick="goToFlashcardTimeSetting()" class="w-full py-3.5 bg-gradient-to-r from-amber-700 via-amber-600 to-amber-500 hover:from-amber-600 hover:to-amber-400 disabled:from-slate-800 disabled:to-slate-900 disabled:text-slate-600 disabled:border-slate-800 disabled:cursor-not-allowed text-amber-50 rounded-xl text-xs font-semibold transition duration-200 transform active:scale-95 shadow-[0_4px_15px_rgba(217,119,6,0.3)] border border-amber-400/30 tracking-widest flex items-center justify-center gap-2">
+                  <span>学習条件を設定</span>
+                  <span>→</span>
+                </button>
+              </div>
+
+              <!-- ステップ3-A: 秒数選択専用画面 -->
+              <div id="fc-step-3-time" class="hidden space-y-5 text-center">
+                <div class="flex justify-between items-center pb-2 border-b border-slate-700/50">
+                  <button onclick="backToFlashcardStep(2)" class="text-xs text-amber-500 hover:underline">← 戻る</button>
+                  <span id="fc-time-subject-title" class="serif-title text-sm text-slate-300">秒数設定</span>
+                </div>
+
+                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
+                  <div class="space-y-1">
+                    <div class="text-xs text-slate-400 font-medium">1カードあたりの目標時間</div>
+                    <div class="text-3xl font-bold text-amber-500 font-mono"><span id="fc-time-slider-display">10</span> <span class="text-sm font-normal text-slate-500">秒</span></div>
+                  </div>
+                  <div class="px-2">
+                    <input type="range" id="fc-time-slider" min="5" max="30" step="5" value="10" oninput="document.getElementById('fc-time-slider-display').textContent = this.value" class="w-full">
+                    <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
+                      <span>5秒</span><span>15秒</span><span>30秒</span>
+                    </div>
+                  </div>
+                </div>
+
+                <button onclick="goToFlashcardCountSetting()" class="w-full py-3.5 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-xl text-xs font-semibold transition shadow-lg tracking-widest uppercase">
+                  枚数選択へ進む →
+                </button>
+              </div>
+
+              <!-- ステップ3-B: 枚数選択専用画面 -->
+              <div id="fc-step-3-count" class="hidden space-y-5 text-center">
+                <div class="flex justify-between items-center pb-2 border-b border-slate-700/50">
+                  <button onclick="goToFlashcardTimeSetting()" class="text-xs text-amber-500 hover:underline">← 秒数設定に戻る</button>
+                  <span id="fc-count-subject-title" class="serif-title text-sm text-slate-300">枚数設定</span>
+                </div>
+
+                <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
+                  <div class="space-y-1">
+                    <div class="text-xs text-slate-400 font-medium">学習するカード枚数</div>
+                    <div class="text-3xl font-bold text-amber-500 font-mono"><span id="fc-count-slider-display">10</span> <span class="text-sm font-normal text-slate-500">枚</span></div>
+                  </div>
+                  <div class="px-2">
+                    <input type="range" id="fc-count-slider" min="5" max="30" step="5" value="10" oninput="document.getElementById('fc-count-slider-display').textContent = this.value" class="w-full">
+                    <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
+                      <span>5枚</span><span>15枚</span><span>30枚</span>
+                    </div>
+                  </div>
+                </div>
+
+                <button onclick="startFlashcardPlay()" class="w-full py-3.5 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-xl text-xs font-semibold transition shadow-lg tracking-widest uppercase">
+                  暗記学習を開始する
+                </button>
+              </div>
+
+              <!-- ステップ4: 単語カード学習実行画面（リアルな3D単語カード＆洗練されたアクションボタン） -->
+              <div id="fc-step-4-play" class="hidden space-y-4 flex-col justify-between">
+                
+                <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                  <button onclick="backToFlashcardStep(2)" class="text-xs text-amber-500 hover:underline flex items-center gap-1">
+                    <span>← 中断</span>
+                  </button>
+                  <span id="flashcard-progress-num" class="text-xs font-mono text-amber-400 font-semibold">1 / 10</span>
+                </div>
+
+                <!-- 単語カード (リアルフリップ) -->
+                <div class="perspective-1000 w-full min-h-[220px] cursor-pointer py-1" onclick="flipFlashcard()">
+                  <div id="flashcard-card" class="relative w-full h-full min-h-[220px] duration-500 transform-style-3d flashcard-paper rounded-2xl border border-slate-700/80 p-6 flex flex-col justify-between">
+                    
+                    <!-- リング ＆ 穴デザイン -->
+                    <div class="absolute top-3 left-8 z-30">
+                      <div class="flashcard-hole">
+                        <div class="flashcard-ring-wire"></div>
+                      </div>
+                    </div>
+
+                    <!-- 表面 -->
+                    <div id="flashcard-front" class="absolute inset-0 p-6 pl-14 backface-hidden flex flex-col justify-between rounded-2xl flashcard-paper border border-slate-700/80">
+                      <div class="flex justify-between items-center text-[10px] text-amber-500/80 font-mono pt-1">
+                        <span id="fc-front-label">WORD</span>
+                        <span class="text-slate-500">TAP TO FLIP</span>
+                      </div>
+                      <div id="flashcard-question-text" class="text-lg font-semibold text-slate-100 text-center my-auto leading-relaxed px-2">
+                        ---
+                      </div>
+                      <div class="text-[10px] text-slate-500 text-center font-light">タップして裏面を表示 ↺</div>
+                    </div>
+
+                    <!-- 裏面 -->
+                    <div id="flashcard-back" class="absolute inset-0 p-6 pl-14 backface-hidden rotate-y-180 flex flex-col justify-between rounded-2xl bg-slate-950 border border-amber-500/40">
+                      <div class="flex justify-between items-center text-[10px] text-emerald-400 font-mono pt-1">
+                        <span id="fc-back-label">MEANING</span>
+                        <span class="text-amber-400">ANSWER</span>
+                      </div>
+                      <div class="my-auto space-y-2 text-center">
+                        <div id="flashcard-answer-text" class="text-base font-bold text-amber-400">---</div>
+                        <div id="flashcard-exp-text" class="text-xs text-slate-300 font-light leading-relaxed max-h-24 overflow-y-auto custom-scrollbar px-1">---</div>
+                      </div>
+                      <div class="text-[10px] text-slate-500 text-center font-light">タップして表面に戻る ↺</div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <!-- アクションボタン（覚えた！ & 次へ） -->
+                <div id="fc-action-buttons" class="flex items-center justify-between gap-3 pt-1">
+                  <button onclick="markCurrentCardLearned()" class="w-1/2 py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white font-semibold text-xs transition duration-200 transform active:scale-95 shadow-[0_4px_15px_rgba(16,185,129,0.35)] border border-emerald-400/30 flex items-center justify-center gap-2">
+                    <span class="text-sm">✓</span>
+                    <span class="tracking-wider">覚えた！</span>
+                  </button>
+                  <button onclick="nextFlashcard()" class="w-1/2 py-3.5 rounded-xl bg-gradient-to-r from-slate-800 via-slate-800 to-slate-700 hover:from-slate-700 hover:to-slate-600 text-slate-100 font-semibold text-xs transition duration-200 transform active:scale-95 border border-slate-600/60 shadow-[0_4px_12px_rgba(0,0,0,0.4)] flex items-center justify-center gap-2">
+                    <span class="tracking-wider">次へ</span>
+                    <span class="text-sm">→</span>
+                  </button>
+                </div>
+
+                <!-- 完了メッセージ -->
+                <div id="fc-completed-msg" class="hidden p-6 rounded-2xl bg-slate-900/90 border border-amber-500/40 text-center space-y-3 my-auto">
+                  <div class="text-3xl">🎉</div>
+                  <div class="text-xs font-mono text-amber-400 font-bold uppercase tracking-widest">COMPLETE!</div>
+                  <div class="text-sm font-bold text-slate-100">暗記学習カードの達成が完了しました！</div>
+                  <button onclick="backToFlashcardStep(2)" class="px-4 py-2 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-xl text-xs font-semibold transition">
+                    画面へ戻る
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        <!-- スライド用ページインジケータードット -->
+        <div id="subject-page-dots" class="flex items-center justify-center gap-2 pt-2">
+          <button id="dot-page-1" onclick="switchSubjectPage(0)" class="w-2.5 h-2.5 rounded-full bg-amber-500 transition-all duration-300" aria-label="1ページ目"></button>
+          <button id="dot-page-2" onclick="switchSubjectPage(1)" class="w-2.5 h-2.5 rounded-full bg-slate-700 hover:bg-slate-600 transition-all duration-300" aria-label="2ページ目（暗記カード）"></button>
+        </div>
+      </div>
