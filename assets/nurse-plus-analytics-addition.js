@@ -578,6 +578,15 @@
           <div class="np-analytics-card"><div class="np-analytics-metric">${streak}</div><div class="np-analytics-label">連続学習日数（既存記録）</div></div>
         </div>
         <section class="np-analytics-card">
+          <div class="flex justify-between items-center gap-2"><h3 class="text-sm font-semibold text-slate-100">直近7日間の学習記録</h3><span class="text-[10px] text-slate-500">合計 ${weekTotal} 件</span></div>
+          <p class="text-[10px] text-slate-500 mt-1">日ごとの記録件数。データがない日は0件です。</p>
+          <div class="np-analytics-bars">${days.map(d=>`<div class="np-analytics-bar-col" title="${esc(d.key)}：${d.count}件"><div class="text-[9px] text-slate-400">${d.count||''}</div><div class="np-analytics-bar" style="height:${Math.max(3,d.count/maxCount*82)}px;opacity:${d.count?1:.22}"></div><div class="np-analytics-day">${esc(d.label)}</div></div>`).join('')}</div>
+        </section>
+        <section class="np-analytics-card">
+          <div class="flex items-center justify-between gap-2"><h3 class="text-sm font-semibold text-slate-100">直近7日間の平均正答率</h3><span class="text-[10px] text-slate-500">日別推移</span></div>
+          <div class="np-analytics-bars">${days.map(d=>`<div class="np-analytics-bar-col" title="${esc(d.key)}：平均${d.count?d.avg+'%':'記録なし'}"><div class="text-[9px] text-slate-400">${d.count?d.avg+'%':''}</div><div class="np-analytics-bar" style="height:${Math.max(3,d.avg/100*82)}px;opacity:${d.count?1:.22};background:linear-gradient(180deg,#38bdf8,#2563eb)"></div><div class="np-analytics-day">${esc(d.label)}</div></div>`).join('')}</div>
+          <p class="text-[10px] text-slate-500 mt-2">その日に保存された演習結果の平均です。記録がない日は空欄になります。</p>
+        <section class="np-analytics-card">
           <h3 class="text-sm font-semibold text-slate-100">苦手分野の自動分析</h3>
           <p class="text-[10px] text-slate-500 mt-1">科目と出題モードごとの平均正答率から、復習の優先順位を提案します。</p>
           ${rows.map(row=>({ ...row, modeAvg: row.accuracy.length ? Math.round(row.accuracy.reduce((sum,value)=>sum+value,0)/row.accuracy.length) : null })).filter(row=>row.modeAvg!==null).sort((a,b)=>a.modeAvg-b.modeAvg).slice(0,3).map((row,index)=>`<div class="mt-3 rounded-xl border border-slate-700/70 bg-slate-950/40 p-3"><div class="flex items-start justify-between gap-3"><div><div class="text-xs font-semibold text-slate-100">${index+1}. ${esc(row.subject)}</div><div class="text-[10px] text-slate-400 mt-1">${esc(row.mode)} ・ ${row.accuracy.length}回の記録</div></div><div class="text-sm font-mono ${row.modeAvg<70?'text-rose-400':'text-amber-300'}">${row.modeAvg}%</div></div><p class="text-[10px] leading-5 text-slate-400 mt-2">${row.modeAvg<60?'最優先で復習：解説を確認し、同じ範囲をもう一度解き直しましょう。':row.modeAvg<70?'重点復習：間違えた問題と根拠をノートにまとめましょう.':'維持・定着：数日後に再演習して正答率を確認しましょう。'}</p></div>`).join('') || '<div class="np-analytics-empty">分析できる履歴がまだありません。問題を解くと苦手傾向を表示します。</div>'}
@@ -589,15 +598,6 @@
           </div>
           ${wrongQuestionRecords.length ? wrongQuestionRecords.slice(0,5).map((item,index)=>`<div class="mt-3 rounded-xl border border-slate-700/70 bg-slate-950/40 p-3"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><div class="text-[10px] text-amber-300">${index+1}. ${esc(item.subjectName || item.subjectId || '科目')} ・ ${esc(item.context && item.context.modeLabel || '演習')}</div><p class="mt-1 text-xs leading-5 text-slate-200">${esc(String(item.question.q || '問題文なし').slice(0,180))}</p></div><div class="shrink-0 text-right"><div class="text-xs font-semibold text-rose-300">${Math.max(0,Number(item.wrongCount||0)-Number(item.correctCount||0))}回</div><div class="text-[9px] text-slate-500">未解消</div></div></div><div class="mt-2 text-[10px] text-slate-500">不正解 ${Number(item.wrongCount||0)}回 ・ 正解 ${Number(item.correctCount||0)}回</div></div>`).join('') : '<div class="np-analytics-empty">問題単位の記録はまだありません。これから間違えた問題が自動で集計されます。</div>'}
         </section>
-        <section class="np-analytics-card">
-          <div class="flex justify-between items-center gap-2"><h3 class="text-sm font-semibold text-slate-100">直近7日間の学習記録</h3><span class="text-[10px] text-slate-500">合計 ${weekTotal} 件</span></div>
-          <p class="text-[10px] text-slate-500 mt-1">日ごとの記録件数。データがない日は0件です。</p>
-          <div class="np-analytics-bars">${days.map(d=>`<div class="np-analytics-bar-col" title="${esc(d.key)}：${d.count}件"><div class="text-[9px] text-slate-400">${d.count||''}</div><div class="np-analytics-bar" style="height:${Math.max(3,d.count/maxCount*82)}px;opacity:${d.count?1:.22}"></div><div class="np-analytics-day">${esc(d.label)}</div></div>`).join('')}</div>
-        </section>
-        <section class="np-analytics-card">
-          <div class="flex items-center justify-between gap-2"><h3 class="text-sm font-semibold text-slate-100">直近7日間の平均正答率</h3><span class="text-[10px] text-slate-500">日別推移</span></div>
-          <div class="np-analytics-bars">${days.map(d=>`<div class="np-analytics-bar-col" title="${esc(d.key)}：平均${d.count?d.avg+'%':'記録なし'}"><div class="text-[9px] text-slate-400">${d.count?d.avg+'%':''}</div><div class="np-analytics-bar" style="height:${Math.max(3,d.avg/100*82)}px;opacity:${d.count?1:.22};background:linear-gradient(180deg,#38bdf8,#2563eb)"></div><div class="np-analytics-day">${esc(d.label)}</div></div>`).join('')}</div>
-          <p class="text-[10px] text-slate-500 mt-2">その日に保存された演習結果の平均です。記録がない日は空欄になります。</p>
         </section>
         <section class="np-analytics-card">
           <h3 class="text-sm font-semibold text-slate-100">科目別の平均正答率</h3>
