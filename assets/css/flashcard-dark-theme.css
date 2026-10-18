@@ -1,0 +1,73 @@
+
+    /* 暗記カード画面だけ、ダークモード時にホワイトテーマの配色が残らないようにする。 */
+    html:not(.np-light-theme) #slider-page-2 { color:#e2e8f0 !important; }
+    html:not(.np-light-theme) #slider-page-2 [class*="bg-slate-950"] { background-color:#020617 !important; background-image:none !important; }
+    html:not(.np-light-theme) #slider-page-2 [class*="bg-slate-900"] { background-color:rgba(15,23,42,.92) !important; background-image:none !important; }
+    html:not(.np-light-theme) #slider-page-2 [class*="bg-slate-800"] { background-color:rgba(30,41,59,.88) !important; background-image:none !important; }
+    html:not(.np-light-theme) #slider-page-2 [class*="bg-slate-700"] { background-color:rgba(51,65,85,.72) !important; background-image:none !important; }
+    html:not(.np-light-theme) #slider-page-2 [class*="text-slate-100"] { color:#f1f5f9 !important; }
+    html:not(.np-light-theme) #slider-page-2 [class*="text-slate-200"] { color:#e2e8f0 !important; }
+    html:not(.np-light-theme) #slider-page-2 [class*="text-slate-300"] { color:#cbd5e1 !important; }
+    html:not(.np-light-theme) #slider-page-2 [class*="text-slate-400"] { color:#94a3b8 !important; }
+    html:not(.np-light-theme) #slider-page-2 [class*="text-slate-500"],
+    html:not(.np-light-theme) #slider-page-2 [class*="text-slate-600"] { color:#64748b !important; }
+    html:not(.np-light-theme) #slider-page-2 [class*="border-slate-800"] { border-color:rgba(30,41,59,.9) !important; }
+    html:not(.np-light-theme) #slider-page-2 [class*="border-slate-700"] { border-color:rgba(51,65,85,.8) !important; }
+    html:not(.np-light-theme) #slider-page-2 [class*="border-slate-600"] { border-color:rgba(71,85,105,.8) !important; }
+    html:not(.np-light-theme) #slider-page-2 #fc-step-2-dashboard > div:nth-child(2),
+    html:not(.np-light-theme) #slider-page-2 #fc-step-3-time > div.p-6,
+    html:not(.np-light-theme) #slider-page-2 #fc-step-3-count > div.p-6,
+    html:not(.np-light-theme) #slider-page-2 #fc-completed-msg {
+      background:rgba(15,23,42,.92) !important;
+      border-color:rgba(71,85,105,.6) !important;
+      color:#e2e8f0 !important;
+      box-shadow:0 8px 24px rgba(0,0,0,.2) !important;
+    }
+    html:not(.np-light-theme) #slider-page-2 #fc-dash-subject-title {
+      background:rgba(30,41,59,.8) !important; border-color:rgba(71,85,105,.6) !important; color:#f1f5f9 !important;
+    }
+    html:not(.np-light-theme) #slider-page-2 #fc-dash-progress-bar {
+      background:linear-gradient(90deg,#b9a2df,#c6e9dd) !important;
+    }
+    html:not(.np-light-theme) #slider-page-2 #flashcard-card,
+    html:not(.np-light-theme) #slider-page-2 #flashcard-front {
+      background:#0f172a !important;
+      background-image:linear-gradient(145deg,#0f172a,#111827) !important;
+      border-color:rgba(71,85,105,.8) !important;
+      color:#e2e8f0 !important;
+      box-shadow:inset 0 0 0 1px rgba(71,85,105,.45),0 12px 28px rgba(0,0,0,.28) !important;
+    }
+    html:not(.np-light-theme) #slider-page-2 #flashcard-back {
+      background:linear-gradient(145deg,#020617,#111827) !important;
+      border-color:rgba(245,158,11,.4) !important;
+      color:#e2e8f0 !important;
+    }
+    html:not(.np-light-theme) #slider-page-2 #flashcard-question-text,
+    html:not(.np-light-theme) #slider-page-2 #flashcard-answer-text,
+    html:not(.np-light-theme) #slider-page-2 #flashcard-exp-text { color:#e2e8f0 !important; }
+    html:not(.np-light-theme) #slider-page-2 .card-item {
+      background:linear-gradient(145deg,rgba(15,23,42,.96),rgba(2,6,23,.9)) !important;
+      border-color:rgba(71,85,105,.55) !important; color:#e2e8f0 !important;
+      box-shadow:0 6px 18px rgba(0,0,0,.18) !important;
+    }
+    html:not(.np-light-theme) #slider-page-2 .card-item [class*="text-slate-100"],
+    html:not(.np-light-theme) #slider-page-2 .card-item [class*="text-slate-200"] { color:#e2e8f0 !important; }
+    html:not(.np-light-theme) #slider-page-2 .card-item [class*="bg-amber-500/10"] {
+      background:rgba(245,158,11,.1) !important; border-color:rgba(245,158,11,.25) !important; color:#fbbf24 !important;
+    }
+    html:not(.np-light-theme) #slider-page-2 #fc-action-buttons button[class*="from-slate-"] {
+      background:linear-gradient(135deg,#334155,#1e293b) !important;
+      border-color:rgba(71,85,105,.8) !important; color:#e2e8f0 !important;
+      box-shadow:0 4px 12px rgba(0,0,0,.16) !important;
+    }
+    html:not(.np-light-theme) #slider-page-2 #fc-no-questions-warning {
+      background:rgba(127,29,29,.25) !important; border-color:rgba(244,63,94,.4) !important; color:#fda4af !important;
+    }
+    html:not(.np-light-theme) #slider-page-2 .flashcard-hole {
+      background:#1e293b !important; border-color:#475569 !important;
+      box-shadow:inset 0 2px 4px rgba(0,0,0,.35) !important;
+    }
+    html:not(.np-light-theme) #slider-page-2 .flashcard-ring-wire {
+      border-color:#475569 !important; box-shadow:0 3px 6px rgba(0,0,0,.25) !important;
+    }
+  
