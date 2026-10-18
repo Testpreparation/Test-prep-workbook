@@ -8688,7 +8688,57 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       #screen-dashboard:not(.hidden)>div:first-child::after{animation:none!important}
     }
     html.np-accessibility-reduced-motion #screen-dashboard:not(.hidden)>div:first-child::after{animation:none!important}
-  </style>
+  
+    /* One continuous thread visually links the existing home sections. */
+    #screen-dashboard:not(.hidden){
+      position:relative;
+      isolation:isolate;
+    }
+    #screen-dashboard:not(.hidden)::before{
+      content:"";
+      position:absolute;
+      z-index:2;
+      pointer-events:none;
+      left:1px;
+      top:112px;
+      bottom:8px;
+      width:13px;
+      opacity:.9;
+      background-repeat:repeat-y;
+      background-size:13px 180px;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='180' viewBox='0 0 13 180' fill='none'%3E%3Cpath d='M6 0C1 14 11 25 6 39S1 62 6 76 11 99 6 113 1 136 6 150 11 168 6 180' stroke='%23c5b1e4' stroke-width='1.7' stroke-linecap='round'/%3E%3Cpath d='M6 39C10 44 10 48 6 53M6 113C2 118 2 122 6 127' stroke='%23b7dcca' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E");
+      animation:np-thread-flow 12s linear infinite;
+    }
+    #screen-dashboard:not(.hidden) .evo-card{
+      overflow:visible!important;
+    }
+    #screen-dashboard:not(.hidden) .evo-card::before{
+      content:"";
+      position:absolute;
+      z-index:3;
+      pointer-events:none;
+      left:5px;
+      top:22px;
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:#f8f4fc;
+      border:1.5px solid #bca6dc;
+      box-shadow:0 0 0 3px rgba(248,244,252,.78),0 1px 4px rgba(112,88,145,.12);
+    }
+    #screen-dashboard:not(.hidden) .evo-card>*{
+      position:relative;
+      z-index:4;
+    }
+    @keyframes np-thread-flow{
+      from{background-position:0 0}
+      to{background-position:0 180px}
+    }
+    @media(prefers-reduced-motion:reduce){
+      #screen-dashboard:not(.hidden)::before{animation:none!important}
+    }
+    html.np-accessibility-reduced-motion #screen-dashboard:not(.hidden)::before{animation:none!important}
+</style>
 
 </body>
 </html>
