@@ -69,25 +69,6 @@
     };
   }
 
-  function getWeeklyReport(rows) {
-    const today = new Date();
-    const start = new Date(today.getFullYear(),today.getMonth(),today.getDate()-6);
-    const previousStart = new Date(today.getFullYear(),today.getMonth(),today.getDate()-13);
-    const previousEnd = new Date(today.getFullYear(),today.getMonth(),today.getDate()-7);
-    const current=[], previous=[], bySubject=new Map();
-    rows.forEach(row=>row.daily.forEach(item=>{
-      const p=item.date.split('/').map(Number); if(p.length!==3||p.some(n=>!Number.isFinite(n))) return;
-      const date=new Date(p[0],p[1]-1,p[2]);
-      const target=date>=start&&date<=new Date(today.getFullYear(),today.getMonth(),today.getDate(),23,59,59,999)?'current':date>=previousStart&&date<=previousEnd?'previous':'';
-      if(!target)return;
-      (target==='current'?current:previous).push(item.accuracy);
-      const stat=bySubject.get(row.subjectId)||{name:row.subject,current:[],previous:[]};
-      stat[target].push(item.accuracy); bySubject.set(row.subjectId,stat);
-    }));
-    const avg=a=>a.length?Math.round(a.reduce((s,v)=>s+v,0)/a.length):null;
-    return {currentCount:current.length,previousCount:previous.length,currentAvg:avg(current),previousAvg:avg(previous),
-      subjectChanges:[...bySubject.values()].map(x=>({name:x.name,currentAvg:avg(x.current),previousAvg:avg(x.previous),currentCount:x.current.length})).filter(x=>x.currentAvg!==null).sort((a,b)=>a.currentAvg-b.currentAvg)};
-  }
   function calculateStreak(rows) {
     const dates = new Set(rows.flatMap(row => row.daily.map(item => item.date)));
     try {
@@ -531,7 +512,6 @@
     const rows = getRows();
     const stats = getStats(rows);
     const streak = calculateStreak(rows);
-    const weeklyReport = getWeeklyReport(rows);
     const wrongQuestionRecords = (window.NursePlusWrongQuestions && typeof window.NursePlusWrongQuestions.getAll === 'function'
       ? window.NursePlusWrongQuestions.getAll() : [])
       .filter(item => item && item.question && Number(item.wrongCount || 0) > Number(item.correctCount || 0))
@@ -547,17 +527,6 @@
       count:item.values.length
     })).filter(x=>x.avg!==null).sort((a,b)=>a.avg-b.avg);
 
-    const days = [];
-    const today = new Date();
-    for (let i=6;i>=0;i--) {
-      const d = new Date(today.getFullYear(),today.getMonth(),today.getDate()-i);
-      const key = dateKey(d);
-      const entries = stats.dailyEntries.filter(x=>x.date===key);
-      days.push({key,label:(d.getMonth()+1)+'/'+d.getDate(),count:entries.length,
-        avg:entries.length ? Math.round(entries.reduce((a,b)=>a+b.accuracy,0)/entries.length) : 0});
-    }
-    const maxCount = Math.max(1,...days.map(d=>d.count));
-    const weekTotal = days.reduce((a,d)=>a+d.count,0);
     const noHistory = stats.attempts === 0 && stats.dailyEntries.length === 0;
     screen.innerHTML = `
       <div class="space-y-4">
@@ -572,32 +541,6 @@
           <div class="np-analytics-card"><div class="np-analytics-metric">${stats.best===null?'--':stats.best+'%'}</div><div class="np-analytics-label">最高正答率</div></div>
           <div class="np-analytics-card"><div class="np-analytics-metric">${streak}</div><div class="np-analytics-label">連続学習日数（既存記録）</div></div>
         </div>
-        <section class="np-analytics-card">
-          <div class="flex justify-between items-center gap-2"><h3 class="text-sm font-semibold text-slate-100">直近7日間の学習記録</h3><span class="text-[10px] text-slate-500">合計 ${weekTotal} 件</span></div>
-          <p class="text-[10px] text-slate-500 mt-1">日ごとの記録件数。データがない日は0件です。</p>
-          <div class="np-analytics-bars">${days.map(d=>`<div class="np-analytics-bar-col" title="${esc(d.key)}：${d.count}件"><div class="text-[9px] text-slate-400">${d.count||''}</div><div class="np-analytics-bar" style="height:${Math.max(3,d.count/maxCount*82)}px;opacity:${d.count?1:.22}"></div><div class="np-analytics-day">${esc(d.label)}</div></div>`).join('')}</div>
-        </section>
-        <section class="np-analytics-card">
-          <div class="flex items-center justify-between gap-2"><h3 class="text-sm font-semibold text-slate-100">直近7日間の平均正答率</h3><span class="text-[10px] text-slate-500">日別推移</span></div>
-          <div class="np-analytics-bars">${days.map(d=>`<div class="np-analytics-bar-col" title="${esc(d.key)}：平均${d.count?d.avg+'%':'記録なし'}"><div class="text-[9px] text-slate-400">${d.count?d.avg+'%':''}</div><div class="np-analytics-bar" style="height:${Math.max(3,d.avg/100*82)}px;opacity:${d.count?1:.22};background:linear-gradient(180deg,#38bdf8,#2563eb)"></div><div class="np-analytics-day">${esc(d.label)}</div></div>`).join('')}</div>
-          <p class="text-[10px] text-slate-500 mt-2">その日に保存された演習結果の平均です。記録がない日は空欄になります。</p>
-        </section>
-        <section class="np-analytics-card">
-          <div class="flex items-center justify-between gap-2"><h3 class="text-sm font-semibold text-slate-100">自分専用の週間学習レポート</h3><span class="text-[10px] text-slate-500">直近7日 vs 前の7日</span></div>
-          <p class="text-[10px] text-slate-400 mt-1">保存済みの演習結果から、今週の学習と成績の変化をまとめます。</p>
-          <div class="grid grid-cols-2 gap-2 mt-3">
-            <div class="rounded-xl bg-slate-950/50 border border-slate-700/60 p-3"><div class="text-[10px] text-slate-400">今週の演習記録</div><div class="text-xl font-semibold text-slate-100 mt-1">${weeklyReport.currentCount}件</div></div>
-            <div class="rounded-xl bg-slate-950/50 border border-slate-700/60 p-3"><div class="text-[10px] text-slate-400">今週の平均正答率</div><div class="text-xl font-semibold text-slate-100 mt-1">${weeklyReport.currentAvg===null?'--':weeklyReport.currentAvg+'%'}</div></div>
-          </div>
-          <div class="mt-3 rounded-xl bg-slate-950/40 p-3"><div class="text-xs text-slate-200">前の7日間との比較</div>
-            <div class="text-[11px] text-slate-400 mt-1">${weeklyReport.previousCount?'前週の平均：'+weeklyReport.previousAvg+'%':'前週の記録がないため、比較できません。'}</div>
-            <div class="text-[11px] ${weeklyReport.currentAvg!==null&&weeklyReport.previousAvg!==null?(weeklyReport.currentAvg>=weeklyReport.previousAvg?'text-emerald-300':'text-amber-300'):'text-slate-400'} mt-1">${weeklyReport.currentAvg!==null&&weeklyReport.previousAvg!==null?'正答率 '+(weeklyReport.currentAvg-weeklyReport.previousAvg>=0?'+':'')+(weeklyReport.currentAvg-weeklyReport.previousAvg)+'ポイント':'記録が増えると成績の変化を表示します。'}</div>
-          </div>
-          <div class="mt-3"><div class="text-xs font-semibold text-slate-200">今週の科目別まとめ</div>
-            ${weeklyReport.subjectChanges.length?weeklyReport.subjectChanges.map(item=>`<div class="np-analytics-row"><div><div class="text-xs text-slate-200">${esc(item.name)}</div><div class="text-[10px] text-slate-400 mt-1">${item.currentCount}件の記録${item.previousAvg!==null?' ・ 前週 '+item.previousAvg+'%':''}</div></div><div class="text-xs font-mono ${item.previousAvg!==null&&item.currentAvg>=item.previousAvg?'text-emerald-300':'text-amber-300'}">${item.currentAvg}%${item.previousAvg!==null?' ('+(item.currentAvg-item.previousAvg>=0?'+':'')+(item.currentAvg-item.previousAvg)+')':''}</div></div>`).join(''):'<div class="np-analytics-empty">今週の演習記録がまだありません。</div>'}
-          </div>
-          <p class="text-[10px] text-slate-500 mt-3">※ 保存済みの演習ごとの平均正答率です。問題単位の回答数ではありません。</p>
-        </section>
         <section class="np-analytics-card">
           <h3 class="text-sm font-semibold text-slate-100">苦手分野の自動分析</h3>
           <p class="text-[10px] text-slate-500 mt-1">科目と出題モードごとの平均正答率から、復習の優先順位を提案します。</p>
