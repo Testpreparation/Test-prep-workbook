@@ -537,10 +537,6 @@
           <div class="np-analytics-card"><div class="np-analytics-metric">${streak}</div><div class="np-analytics-label">連続学習日数（既存記録）</div></div>
         </div>
         <section class="np-analytics-card">
-          <div class="flex items-center justify-between gap-2"><div><h3 class="text-sm font-semibold text-slate-100">複数端末で同期</h3><p class="text-[10px] text-slate-400 mt-1">LINEログインした端末間で学習履歴を共有します。</p></div><button type="button" id="np-analytics-sync" class="np-analytics-back">今すぐ同期</button></div>
-          <p id="np-analytics-sync-status" class="text-[10px] text-slate-400 mt-3" role="status" aria-live="polite">同期するにはLINEログインとサーバー側のFirebase設定が必要です。</p>
-        </section>
-        <section class="np-analytics-card">
           <div class="flex justify-between items-center gap-2"><h3 class="text-sm font-semibold text-slate-100">直近7日間の学習記録</h3><span class="text-[10px] text-slate-500">合計 ${weekTotal} 件</span></div>
           <p class="text-[10px] text-slate-500 mt-1">日ごとの記録件数。データがない日は0件です。</p>
           <div class="np-analytics-bars">${days.map(d=>`<div class="np-analytics-bar-col" title="${esc(d.key)}：${d.count}件"><div class="text-[9px] text-slate-400">${d.count||''}</div><div class="np-analytics-bar" style="height:${Math.max(3,d.count/maxCount*82)}px;opacity:${d.count?1:.22}"></div><div class="np-analytics-day">${esc(d.label)}</div></div>`).join('')}</div>
@@ -590,9 +586,12 @@
       document.getElementById(SCREEN_ID)?.classList.add('hidden');
       if (typeof window.showDashboard === 'function') window.showDashboard();
     });
-    const syncButton = document.getElementById('np-analytics-sync');
-    const syncStatus = document.getElementById('np-analytics-sync-status');
-    syncButton?.addEventListener('click', () => syncStudyData(syncStatus, syncButton));
+    // 同期ボタンは設定 > アカウントに移動。動的に開く画面にも対応する。
+    document.getElementById('np-account-sync')?.addEventListener('click', event => {
+      const button = event.currentTarget;
+      const status = document.getElementById('np-account-sync-status');
+      syncStudyData(status, button);
+    });
     document.getElementById('np-open-wrong-review')?.addEventListener('click', () => {
       if (typeof window.evoOpenWrong === 'function') window.evoOpenWrong();
       else alert('復習画面を開けませんでした。ページを再読み込みしてください。');
@@ -1102,51 +1101,5 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, {once:true});
   else install();
-  // ACE: AIによる間違い問題の文章分析。入力された問題文だけを送信し、個人情報は送らない。
-  function installWrongAnswerAnalysis() {
-    const screen = document.getElementById(SCREEN_ID);
-    if (!screen || document.getElementById('np-ai-wrong-analysis')) return;
-    const section = document.createElement('section');
-    section.id = 'np-ai-wrong-analysis';
-    section.className = 'np-analytics-card';
-    section.innerHTML = `
-      <h3 class="text-sm font-semibold text-slate-100">AI間違い分析・復習提案</h3>
-      <p class="text-[10px] text-slate-400 mt-1">間違えた問題文・選択肢・解説を貼り付けると、弱点の知識と復習ポイントを整理します。氏名などの個人情報は入力しないでください。</p>
-      <textarea id="np-ai-wrong-text" rows="5" maxlength="12000" class="mt-3 w-full rounded-xl border border-slate-700 bg-slate-950/70 p-3 text-xs text-slate-100" placeholder="例：問題文／選択肢／正解／解説"></textarea>
-      <button id="np-ai-wrong-run" type="button" class="np-analytics-back mt-2">AIで弱点を分析</button>
-      <div id="np-ai-wrong-result" class="mt-3 text-xs leading-6 text-slate-200" role="status" aria-live="polite"></div>`;
-    const weekly = screen.querySelector('section.np-analytics-card');
-    if (weekly) weekly.parentNode.insertBefore(section, weekly.nextSibling);
-    else screen.appendChild(section);
-    section.querySelector('#np-ai-wrong-run')?.addEventListener('click', async () => {
-      const input = section.querySelector('#np-ai-wrong-text');
-      const output = section.querySelector('#np-ai-wrong-result');
-      const button = section.querySelector('#np-ai-wrong-run');
-      const text = (input?.value || '').trim();
-      if (text.length < 20) { output.textContent = '問題文・選択肢・解説などを20文字以上入力してください。'; return; }
-      button.disabled = true; output.textContent = '分析しています…';
-      try {
-        const response = await fetch((window.NURSE_LINE_API_BASE || '').replace(/\/$/, '') + '/api/learning/analyze-wrong-answers', {
-          method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({items:[{text}]})
-        });
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok || !data.success) throw new Error(data.message || 'AI分析に失敗しました。サーバー設定を確認してください。');
-        const report = data.analysis;
-        output.innerHTML = '';
-        const box = document.createElement('div');
-        box.className = 'rounded-xl border border-slate-700 bg-slate-950/40 p-3 whitespace-pre-wrap';
-        box.textContent = typeof report === 'string' ? report : JSON.stringify(report, null, 2);
-        output.appendChild(box);
-      } catch (error) {
-        output.textContent = error.message || 'AI分析に失敗しました。';
-      } finally { button.disabled = false; }
-    });
-  }
-
-  const aceOriginalRenderAnalytics = renderAnalytics;
-  renderAnalytics = function() {
-    aceOriginalRenderAnalytics();
-    installWrongAnswerAnalysis();
-  };
 
 })();
