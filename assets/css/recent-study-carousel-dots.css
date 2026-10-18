@@ -1,0 +1,9 @@
+
+    /* 直近7日間の学習カルーセルのドットをホワイトテーマの配色に合わせる。 */
+    html.np-light-theme #evo-recent-study-carousel + div[aria-label="カルーセルのページ"] button {
+      background-color: #d8c8f4 !important;
+    }
+    html.np-light-theme #evo-recent-study-carousel + div[aria-label="カルーセルのページ"] button.opacity-100 {
+      background-color: #b9a2df !important;
+    }
+  

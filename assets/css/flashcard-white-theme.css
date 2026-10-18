@@ -1,0 +1,101 @@
+
+    /* 暗記カード画面だけをホワイトテーマに対応させる。機能・配置は変更しない。 */
+    html.np-light-theme #slider-page-2 { color:#475569 !important; }
+    html.np-light-theme #slider-page-2 [class*="bg-slate-950"],
+    html.np-light-theme #slider-page-2 [class*="bg-slate-900"],
+    html.np-light-theme #slider-page-2 [class*="bg-slate-800"],
+    html.np-light-theme #slider-page-2 [class*="bg-slate-700"] {
+      background-color:#fffdfd !important;
+      background-image:none !important;
+    }
+    html.np-light-theme #slider-page-2 #fc-step-2-dashboard > div:nth-child(2),
+    html.np-light-theme #slider-page-2 #fc-step-3-time > div.p-6,
+    html.np-light-theme #slider-page-2 #fc-step-3-count > div.p-6,
+    html.np-light-theme #slider-page-2 #fc-completed-msg {
+      background:linear-gradient(145deg,#fffdfd,#f8f3ff) !important;
+      border-color:#e8def3 !important;
+      color:#475569 !important;
+      box-shadow:0 8px 24px rgba(71,55,95,.08) !important;
+    }
+    html.np-light-theme #slider-page-2 [class*="text-slate-100"],
+    html.np-light-theme #slider-page-2 [class*="text-slate-200"],
+    html.np-light-theme #slider-page-2 [class*="text-slate-300"] { color:#475569 !important; }
+    html.np-light-theme #slider-page-2 [class*="text-slate-400"],
+    html.np-light-theme #slider-page-2 [class*="text-slate-500"],
+    html.np-light-theme #slider-page-2 [class*="text-slate-600"] { color:#81758f !important; }
+    html.np-light-theme #slider-page-2 [class*="border-slate-800"],
+    html.np-light-theme #slider-page-2 [class*="border-slate-700"],
+    html.np-light-theme #slider-page-2 [class*="border-slate-600"] { border-color:#e8def3 !important; }
+    html.np-light-theme #slider-page-2 [class*="text-amber-50"],
+    html.np-light-theme #slider-page-2 [class*="text-amber-300"],
+    html.np-light-theme #slider-page-2 [class*="text-amber-400"],
+    html.np-light-theme #slider-page-2 [class*="text-amber-500"] { color:#70529b !important; }
+    html.np-light-theme #slider-page-2 [class*="border-amber-500"],
+    html.np-light-theme #slider-page-2 [class*="border-amber-400"] { border-color:#d8c8f4 !important; }
+    html.np-light-theme #slider-page-2 #fc-dash-subject-title {
+      background:#f3edfb !important; border-color:#e2d8f0 !important; color:#70529b !important;
+    }
+    html.np-light-theme #slider-page-2 #fc-dash-progress-bar {
+      background:linear-gradient(90deg,#b9a2df,#c6e9dd) !important;
+      box-shadow:none !important;
+    }
+    html.np-light-theme #slider-page-2 #fc-step-2-dashboard button[class*="bg-emerald-"],
+    html.np-light-theme #slider-page-2 #fc-action-buttons button[class*="from-emerald-"] {
+      background:linear-gradient(135deg,#d8f5e5,#c5efd9) !important;
+      border-color:#b7e5cd !important; color:#21694d !important;
+      box-shadow:0 4px 12px rgba(31,145,96,.10) !important;
+    }
+    html.np-light-theme #slider-page-2 #fc-step-2-dashboard button[class*="bg-rose-"] {
+      background:linear-gradient(135deg,#ffe7ed,#ffdae3) !important;
+      border-color:#f2c5d1 !important; color:#9f2949 !important;
+    }
+    html.np-light-theme #slider-page-2 #fc-go-step3-btn,
+    html.np-light-theme #slider-page-2 #fc-step-3-time > button,
+    html.np-light-theme #slider-page-2 #fc-step-3-count > button,
+    html.np-light-theme #slider-page-2 #fc-completed-msg button {
+      background:linear-gradient(135deg,#d8c8f4,#cdb8ec) !important;
+      border-color:#cdb8ec !important; color:#514166 !important;
+      box-shadow:0 4px 12px rgba(112,82,155,.14) !important;
+    }
+    html.np-light-theme #slider-page-2 #flashcard-card,
+    html.np-light-theme #slider-page-2 #flashcard-front {
+      background:#fffdfd !important;
+      background-image:linear-gradient(145deg,#fffdfd,#f8f3ff) !important;
+      border-color:#e8def3 !important;
+      color:#475569 !important;
+      box-shadow:inset 0 0 0 1px rgba(232,222,243,.7),0 12px 28px rgba(71,55,95,.12) !important;
+    }
+    html.np-light-theme #slider-page-2 #flashcard-back {
+      background:linear-gradient(145deg,#f8f3ff,#f0e8fb) !important;
+      border-color:#d8c8f4 !important;
+      color:#475569 !important;
+    }
+    html.np-light-theme #slider-page-2 #flashcard-question-text,
+    html.np-light-theme #slider-page-2 #flashcard-answer-text,
+    html.np-light-theme #slider-page-2 #flashcard-exp-text { color:#475569 !important; }
+    html.np-light-theme #slider-page-2 #fc-action-buttons button[class*="from-slate-"] {
+      background:linear-gradient(135deg,#eee6fa,#e4d8f5) !important;
+      border-color:#d8c8f4 !important; color:#5e438b !important;
+      box-shadow:0 4px 12px rgba(71,55,95,.10) !important;
+    }
+    html.np-light-theme #slider-page-2 #fc-no-questions-warning {
+      background:#fff0f3 !important; border-color:#f2c5d1 !important; color:#9f2949 !important;
+    }
+    html.np-light-theme #slider-page-2 .flashcard-hole {
+      background:#f8f3ff !important; border-color:#d8c8f4 !important;
+      box-shadow:inset 0 2px 4px rgba(71,55,95,.12) !important;
+    }
+    html.np-light-theme #slider-page-2 .flashcard-ring-wire {
+      border-color:#c5b6dc !important; box-shadow:0 3px 6px rgba(71,55,95,.14) !important;
+    }
+    html.np-light-theme #slider-page-2 .card-item {
+      background:linear-gradient(145deg,#fffdfd,#f8f3ff) !important;
+      border-color:#e8def3 !important; color:#475569 !important;
+      box-shadow:0 6px 18px rgba(71,55,95,.07) !important;
+    }
+    html.np-light-theme #slider-page-2 .card-item [class*="text-slate-100"],
+    html.np-light-theme #slider-page-2 .card-item [class*="text-slate-200"] { color:#475569 !important; }
+    html.np-light-theme #slider-page-2 .card-item [class*="bg-amber-500/10"] {
+      background:#f3edfb !important; border-color:#d8c8f4 !important; color:#70529b !important;
+    }
+  
