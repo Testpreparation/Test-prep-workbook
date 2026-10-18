@@ -5266,10 +5266,10 @@
         chartCard.className = 'evo-card mb-4';
         chartCard.innerHTML = '<div class="flex items-start justify-between gap-3 mb-3"><div><div class="text-xs font-semibold text-slate-200">科目別正答率の推移</div><div class="text-[10px] text-slate-500 mt-1">直近7日間・科目別</div></div><span class="evo-chip">7 DAYS</span></div><div id="evo-subject-bar-line-chart"></div><p id="evo-subject-bar-line-chart-note" class="text-[10px] text-slate-500 mt-2">科目ごとに色分け：縦棒と折れ線で表示</p>';
         const recentCard = recordsEl ? (recordsEl.closest('.evo-card') || recordsEl.parentElement) : null;
-        if (analyticsScreen) {
-          analyticsScreen.insertBefore(chartCard, analyticsScreen.firstChild);
-        } else if (recentCard && recentCard.parentNode) {
+        if (recentCard && recentCard.parentNode) {
           recentCard.parentNode.insertBefore(chartCard, recentCard);
+        } else if (analyticsScreen) {
+          analyticsScreen.appendChild(chartCard);
         } else if (recordsEl && recordsEl.parentNode) {
           recordsEl.parentNode.insertBefore(chartCard, recordsEl);
         }
@@ -5323,7 +5323,13 @@
       });
       data.forEach((subject,si)=>{
         const color=colors[si%colors.length];
-        const points=dates.map((date,i)=>Number.isFinite(subject.daily[date])?{x:x(i),y:y(subject.daily[date]),v:subject.daily[date],date}:null);
+        const points=dates.map((date,i)=>{
+          const value=subject.daily[date];
+          if(!Number.isFinite(value)) return null;
+          const groupStart=left+i*dayW+(dayW-(data.length*barW+Math.max(0,data.length-1)*gap))/2;
+          const barCenter=groupStart+si*(barW+gap)+barW/2;
+          return {x:barCenter,y:y(value),v:value,date};
+        });
         let segment=[];
         const flush=()=>{if(segment.length>1) lines+=`<polyline points="${segment.map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;segment=[];};
         points.forEach(p=>{if(!p){flush();return;}segment.push(p);lines+=`<circle cx="${p.x}" cy="${p.y}" r="3" fill="${color}" stroke="#fff" stroke-width="1"><title>${subject.name}: ${Math.round(p.v)}%（${p.date}）</title></circle>`;});
