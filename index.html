@@ -4642,7 +4642,7 @@
         },
         data: {
           title: 'データ管理',
-          body: '<p>この端末に保存された学習記録を確認・削除できます。</p><div class="mt-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-medium text-slate-700">学習記録</div><p class="mt-1">保存項目数：' + getStudyKeys().length + '件</p></div><button type="button" id="np-delete-study-data" class="mt-3 w-full rounded-lg border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm text-rose-700">この端末の学習記録を削除</button><p class="mt-2 text-xs text-slate-500">削除すると対象記録を元に戻せません。LINEログイン情報は削除しません。</p>'
+          body: '<p>この端末に保存された学習記録の管理と、アプリのキャッシュ更新ができます。</p><div class="mt-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-medium text-slate-700">学習記録</div><p class="mt-1">保存項目数：' + getStudyKeys().length + '件</p></div><button type="button" id="np-clear-app-cache" class="mt-3 w-full rounded-lg border border-violet-200 bg-violet-50 px-3 py-2.5 text-sm font-semibold text-violet-700">アプリのキャッシュをクリア</button><p class="mt-2 text-xs text-slate-500">古い画面が表示される場合に使用します。キャッシュとService Workerを更新します。学習記録やLINEログイン情報は削除しません。</p><p id="np-clear-app-cache-status" class="mt-2 text-xs text-slate-500" role="status" aria-live="polite"></p><button type="button" id="np-delete-study-data" class="mt-4 w-full rounded-lg border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm text-rose-700">この端末の学習記録を削除</button><p class="mt-2 text-xs text-slate-500">削除すると対象記録を元に戻せません。LINEログイン情報は削除しません。</p>'
         },
         accessibility: {
           title: 'アクセシビリティ',
@@ -4688,6 +4688,40 @@
       body.querySelector('#np-reduced-motion-toggle')?.addEventListener('change', event => {
         document.documentElement.classList.toggle('np-accessibility-reduced-motion', event.target.checked);
         localStorage.setItem('nurse_plus_reduced_motion', event.target.checked ? 'on' : 'off');
+      });
+      body.querySelector('#np-clear-app-cache')?.addEventListener('click', async event => {
+        const button = event.currentTarget;
+        const status = body.querySelector('#np-clear-app-cache-status');
+        if (!window.confirm('アプリのキャッシュをクリアして、最新版を読み込み直しますか？学習記録とLINEログイン情報は削除しません。')) return;
+        button.disabled = true;
+        button.textContent = 'キャッシュをクリア中…';
+        if (status) status.textContent = 'キャッシュとアプリの更新設定を確認しています。';
+        try {
+          if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            await Promise.all(cacheNames
+              .filter(name => name.startsWith('nurse-plus-pwa-'))
+              .map(name => caches.delete(name)));
+          }
+          if ('serviceWorker' in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(registrations
+              .filter(registration => {
+                const scriptURL = registration.active?.scriptURL || registration.waiting?.scriptURL || registration.installing?.scriptURL || '';
+                return scriptURL.startsWith(location.origin + '/Test-prep-workbook/');
+              })
+              .map(registration => registration.unregister()));
+          }
+          if (status) status.textContent = '完了しました。最新版を読み込み直します…';
+          const refreshUrl = new URL(location.href);
+          refreshUrl.searchParams.set('np_cache_refresh', String(Date.now()));
+          window.setTimeout(() => location.replace(refreshUrl.toString()), 350);
+        } catch (error) {
+          console.error('[Nurse＋] アプリのキャッシュクリアに失敗しました:', error);
+          if (status) status.textContent = '自動クリアに失敗しました。SafariのWebサイトデータから消去してください。';
+          button.disabled = false;
+          button.textContent = 'もう一度キャッシュをクリア';
+        }
       });
       body.querySelector('#np-delete-study-data')?.addEventListener('click', () => {
         if (!window.confirm('この端末の学習記録を削除しますか？この操作は取り消せません。')) return;
