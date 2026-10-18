@@ -5274,6 +5274,10 @@
           recordsEl.parentNode.insertBefore(chartCard, recordsEl);
         }
       }
+      // 既存カードが別画面に残っていても、表示対象の分析画面へ必ず移動する。
+      if (analyticsScreen && chartCard.parentElement !== analyticsScreen) {
+        analyticsScreen.insertBefore(chartCard, analyticsScreen.firstChild);
+      }
       const box = document.getElementById('evo-subject-bar-line-chart');
       const note = document.getElementById('evo-subject-bar-line-chart-note');
       if (!box) return;
