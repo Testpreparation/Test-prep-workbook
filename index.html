@@ -8618,5 +8618,76 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
   }
 </style>
 
+
+  <!-- Nurse＋ Soft Thread home concept: decorative styling only; no controls or behavior changed. -->
+  <style id="nurse-plus-soft-thread-home">
+    #screen-dashboard:not(.hidden)>div:first-child{
+      position:relative;
+      isolation:isolate;
+      min-height:112px;
+      padding-right:88px!important;
+    }
+    #screen-dashboard:not(.hidden)>div:first-child::after{
+      content:"";
+      position:absolute;
+      z-index:-1;
+      width:112px;
+      height:92px;
+      right:-5px;
+      top:-10px;
+      pointer-events:none;
+      opacity:.82;
+      background-repeat:no-repeat;
+      background-position:center;
+      background-size:contain;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 120' fill='none'%3E%3Cpath d='M145 8C110 6 118 37 88 42S44 20 35 48 67 82 44 101 13 105 5 115' stroke='%23c5b1e4' stroke-width='2.2' stroke-linecap='round'/%3E%3Cpath d='M144 8C126 24 141 46 119 61S84 66 89 88 113 103 125 117' stroke='%23b7dfd0' stroke-width='1.8' stroke-linecap='round'/%3E%3Cpath d='M88 42C76 50 78 61 87 67' stroke='%23e7bfd2' stroke-width='1.8' stroke-linecap='round'/%3E%3Ccircle cx='145' cy='8' r='3' fill='%23c5b1e4'/%3E%3Ccircle cx='5' cy='115' r='3' fill='%23b7dfd0'/%3E%3C/svg%3E");
+      animation:np-thread-drift 7s ease-in-out infinite;
+    }
+    #screen-dashboard:not(.hidden) .evo-card{
+      position:relative;
+      overflow:hidden;
+      isolation:isolate;
+    }
+    #screen-dashboard:not(.hidden) .evo-card::after{
+      content:"";
+      position:absolute;
+      z-index:-1;
+      pointer-events:none;
+      right:-18px;
+      top:-18px;
+      width:92px;
+      height:68px;
+      opacity:.34;
+      background-repeat:no-repeat;
+      background-size:contain;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 90' fill='none'%3E%3Cpath d='M118 3C91 5 105 26 78 32S44 18 35 39 66 61 49 76 24 78 8 88' stroke='%23b9a1db' stroke-width='1.7' stroke-linecap='round'/%3E%3Cpath d='M78 32C69 40 73 47 80 51' stroke='%23b7dcca' stroke-width='1.7' stroke-linecap='round'/%3E%3C/svg%3E");
+    }
+    #screen-dashboard:not(.hidden) .evo-card>*{position:relative}
+    @keyframes np-thread-drift{
+      0%,100%{transform:translate3d(0,0,0) rotate(0deg);opacity:.72}
+      50%{transform:translate3d(-2px,3px,0) rotate(1deg);opacity:.92}
+    }
+    #screen-dashboard:not(.hidden)>div:first-child button[onclick="showSubjectScreen()"]{
+      border-radius:17px!important;
+      background:linear-gradient(105deg,#eee6fa 0%,#f7eff9 55%,#e7f5ef 100%)!important;
+      border-color:rgba(186,162,218,.55)!important;
+      box-shadow:0 7px 18px rgba(143,120,174,.10),inset 0 1px 0 rgba(255,255,255,.95)!important;
+    }
+    #screen-dashboard:not(.hidden) .evo-card{
+      border-radius:22px!important;
+      border-color:#e8def2!important;
+      background:linear-gradient(145deg,rgba(255,255,255,.99),rgba(253,250,255,.98) 68%,rgba(244,251,248,.98))!important;
+    }
+    @media(max-width:420px){
+      #screen-dashboard:not(.hidden)>div:first-child{padding-right:74px!important}
+      #screen-dashboard:not(.hidden)>div:first-child::after{width:96px;height:82px;right:-7px;top:-7px}
+      #screen-dashboard:not(.hidden) .evo-card::after{width:72px;height:56px}
+    }
+    @media(prefers-reduced-motion:reduce){
+      #screen-dashboard:not(.hidden)>div:first-child::after{animation:none!important}
+    }
+    html.np-accessibility-reduced-motion #screen-dashboard:not(.hidden)>div:first-child::after{animation:none!important}
+  </style>
+
 </body>
 </html>
