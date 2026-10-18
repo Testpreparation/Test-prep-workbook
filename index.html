@@ -8619,82 +8619,166 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
 </style>
 
 
-  <!-- Nurse＋ Aurora × Water Flow home concept: visual styling only; existing structure and behavior are preserved. -->
-  <style id="nurse-plus-aurora-waterflow-home">
-    /* Aurora light: soft, atmospheric gradients rather than thread/line illustrations. */
+  <!-- Nurse＋ Premium Home UI: CSS-only refinement; all existing controls and behavior remain unchanged. -->
+  <style id="nurse-plus-premium-home">
+    /* Premium dashboard surface */
+    #screen-dashboard:not(.hidden){
+      --np-ink:#302740;
+      --np-muted:#847b92;
+      --np-lavender:#a78bd2;
+      --np-mint:#8fcbb5;
+      --np-line:rgba(205,191,224,.62);
+    }
     #screen-dashboard:not(.hidden)>div:first-child{
       position:relative;
       isolation:isolate;
-      min-height:108px;
+      overflow:hidden;
+      padding:24px 22px 20px!important;
+      min-height:0;
+      border:1px solid rgba(222,213,236,.92);
+      border-radius:27px;
+      background:
+        radial-gradient(ellipse at 92% 4%,rgba(195,177,230,.48) 0%,rgba(225,214,242,.2) 29%,transparent 53%),
+        radial-gradient(ellipse at 98% 100%,rgba(178,225,207,.43) 0%,transparent 45%),
+        linear-gradient(135deg,#fff 0%,#fdfaff 55%,#f5fbf8 100%);
+      box-shadow:0 14px 36px rgba(75,57,100,.075),inset 0 1px 0 rgba(255,255,255,.98);
     }
-    #screen-dashboard:not(.hidden)>div:first-child::before,
+    #screen-dashboard:not(.hidden)>div:first-child::before{
+      content:"";
+      position:absolute;
+      z-index:0;
+      width:190px;
+      height:145px;
+      right:-42px;
+      top:-60px;
+      border-radius:50%;
+      pointer-events:none;
+      background:radial-gradient(ellipse at center,rgba(188,165,226,.34),rgba(213,202,237,.14) 45%,transparent 73%);
+      filter:blur(4px);
+      animation:np-premium-glow 12s ease-in-out infinite;
+    }
     #screen-dashboard:not(.hidden)>div:first-child::after{
       content:"";
       position:absolute;
       z-index:0;
-      pointer-events:none;
+      width:160px;
+      height:85px;
+      right:-35px;
+      bottom:-43px;
       border-radius:50%;
-      filter:blur(9px);
-      transform-origin:center;
-    }
-    #screen-dashboard:not(.hidden)>div:first-child::before{
-      width:148px;
-      height:88px;
-      right:8px;
-      top:-12px;
-      opacity:.62;
-      background:radial-gradient(ellipse at 35% 45%,rgba(190,169,229,.62) 0%,rgba(221,207,242,.36) 42%,rgba(221,207,242,0) 76%);
-      animation:np-aurora-breathe 10s ease-in-out infinite;
-    }
-    #screen-dashboard:not(.hidden)>div:first-child::after{
-      width:132px;
-      height:72px;
-      right:-18px;
-      top:27px;
-      opacity:.62;
-      background:radial-gradient(ellipse at 45% 45%,rgba(174,222,204,.62) 0%,rgba(218,241,231,.34) 48%,rgba(218,241,231,0) 78%);
-      animation:np-water-drift 13s ease-in-out infinite;
+      pointer-events:none;
+      background:radial-gradient(ellipse at center,rgba(160,218,194,.3),transparent 72%);
+      filter:blur(7px);
     }
     #screen-dashboard:not(.hidden)>div:first-child>*{
       position:relative;
       z-index:1;
     }
-    /* Existing dashboard cards: flowing color washes stay behind the original content. */
+    #screen-dashboard:not(.hidden)>div:first-child .en-title{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      color:#9175b5!important;
+      font-size:9px!important;
+      letter-spacing:.24em!important;
+      font-weight:750!important;
+    }
+    #screen-dashboard:not(.hidden)>div:first-child .en-title::before{
+      content:"";
+      display:inline-block;
+      width:21px;
+      height:1.5px;
+      border-radius:99px;
+      background:linear-gradient(90deg,#a98dd5,#b2dfce);
+    }
+    #screen-dashboard:not(.hidden)>div:first-child h2{
+      margin-top:8px!important;
+      color:var(--np-ink)!important;
+      font-size:clamp(25px,6vw,31px)!important;
+      line-height:1.22!important;
+      letter-spacing:-.055em!important;
+      font-weight:750!important;
+    }
+    #screen-dashboard:not(.hidden)>div:first-child p{
+      margin-top:8px!important;
+      color:#81778f!important;
+      font-size:11px!important;
+      line-height:1.75!important;
+      letter-spacing:.015em;
+    }
+    /* Primary action: larger hit area and clear visual hierarchy, same existing onclick. */
+    #screen-dashboard:not(.hidden)>div:first-child button[onclick="showSubjectScreen()"]{
+      display:inline-flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      gap:12px!important;
+      width:auto!important;
+      min-width:156px;
+      min-height:46px!important;
+      margin-top:19px!important;
+      padding:0 19px!important;
+      border:1px solid rgba(178,157,211,.52)!important;
+      border-radius:15px!important;
+      background:linear-gradient(110deg,#a58aca 0%,#b5a0d8 53%,#9acdb9 100%)!important;
+      color:#fff!important;
+      font-size:12px!important;
+      font-weight:700!important;
+      letter-spacing:.035em!important;
+      box-shadow:0 8px 18px rgba(142,117,179,.2),inset 0 1px 0 rgba(255,255,255,.38)!important;
+      transition:transform .2s ease,box-shadow .2s ease,filter .2s ease!important;
+    }
+    #screen-dashboard:not(.hidden)>div:first-child button[onclick="showSubjectScreen()"]::after{
+      content:"↗";
+      font-size:14px;
+      line-height:1;
+      opacity:.9;
+    }
+    #screen-dashboard:not(.hidden)>div:first-child button[onclick="showSubjectScreen()"]:hover{
+      filter:saturate(1.06) brightness(1.02);
+      transform:translateY(-2px)!important;
+      box-shadow:0 12px 24px rgba(142,117,179,.24),inset 0 1px 0 rgba(255,255,255,.42)!important;
+    }
+    #screen-dashboard:not(.hidden)>div:first-child button[onclick="showSubjectScreen()"]:active{
+      transform:scale(.975)!important;
+      box-shadow:0 4px 10px rgba(142,117,179,.18)!important;
+    }
+    /* Existing cards become distinct, calm surfaces with a subtle ambient color wash. */
     #screen-dashboard:not(.hidden) .evo-card{
       position:relative;
-      overflow:hidden!important;
       isolation:isolate;
-      border-radius:22px!important;
-      border:1px solid rgba(222,212,237,.9)!important;
-      background:linear-gradient(145deg,rgba(255,255,255,.99) 0%,rgba(253,250,255,.98) 58%,rgba(244,251,248,.98) 100%)!important;
-      box-shadow:0 9px 25px rgba(92,72,117,.055),inset 0 1px 0 rgba(255,255,255,.95)!important;
-      transition:box-shadow .24s ease,border-color .24s ease,transform .24s ease!important;
+      overflow:hidden!important;
+      padding:clamp(17px,4.2vw,23px)!important;
+      border:1px solid rgba(224,216,237,.92)!important;
+      border-radius:23px!important;
+      background:linear-gradient(145deg,#fff 0%,#fdfbff 63%,#f5fbf8 100%)!important;
+      box-shadow:0 10px 27px rgba(73,55,96,.055),inset 0 1px 0 rgba(255,255,255,.98)!important;
+      transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease!important;
     }
-    #screen-dashboard:not(.hidden) .evo-card::before,
+    #screen-dashboard:not(.hidden) .evo-card::before{
+      content:"";
+      position:absolute;
+      z-index:0;
+      pointer-events:none;
+      width:155px;
+      height:105px;
+      right:-62px;
+      top:-56px;
+      border-radius:50%;
+      background:radial-gradient(ellipse at center,rgba(194,176,227,.34) 0%,rgba(227,218,243,.15) 48%,transparent 74%);
+      filter:blur(5px);
+    }
     #screen-dashboard:not(.hidden) .evo-card::after{
       content:"";
       position:absolute;
       z-index:0;
       pointer-events:none;
+      width:125px;
+      height:70px;
+      left:-55px;
+      bottom:-43px;
       border-radius:50%;
-      filter:blur(8px);
-      opacity:.52;
-    }
-    #screen-dashboard:not(.hidden) .evo-card::before{
-      width:170px;
-      height:100px;
-      right:-58px;
-      top:-50px;
-      background:radial-gradient(ellipse at center,rgba(198,180,232,.58) 0%,rgba(225,215,243,.25) 48%,rgba(225,215,243,0) 76%);
-      animation:np-water-drift 14s ease-in-out infinite;
-    }
-    #screen-dashboard:not(.hidden) .evo-card::after{
-      width:142px;
-      height:78px;
-      left:-58px;
-      bottom:-48px;
-      background:radial-gradient(ellipse at center,rgba(179,224,207,.52) 0%,rgba(218,241,231,.24) 50%,rgba(218,241,231,0) 78%);
-      animation:np-aurora-breathe 16s ease-in-out infinite reverse;
+      background:radial-gradient(ellipse at center,rgba(173,222,203,.26) 0%,transparent 72%);
+      filter:blur(6px);
     }
     #screen-dashboard:not(.hidden) .evo-card>*{
       position:relative;
@@ -8703,108 +8787,133 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
     #screen-dashboard:not(.hidden) .evo-card>div:first-child>span,
     #screen-dashboard:not(.hidden) .evo-card>div:first-child>div>div,
     #screen-dashboard:not(.hidden) .evo-card .text-xs.font-semibold{
-      color:#625472!important;
+      color:#514660!important;
     }
-    #screen-dashboard:not(.hidden)>div:first-child button[onclick="showSubjectScreen()"]{
-      min-height:46px!important;
-      margin-top:16px!important;
-      border:1px solid rgba(186,162,218,.52)!important;
-      border-radius:16px!important;
-      background:linear-gradient(105deg,#eee6fa 0%,#f6effb 52%,#eaf6f1 100%)!important;
-      color:#715a91!important;
+    #screen-dashboard:not(.hidden) .evo-card>div:first-child .text-xs.font-semibold{
       font-size:13px!important;
-      font-weight:650!important;
-      letter-spacing:.035em!important;
-      box-shadow:0 7px 18px rgba(143,120,174,.10),inset 0 1px 0 rgba(255,255,255,.9)!important;
-      transition:transform .2s ease,box-shadow .2s ease,filter .2s ease!important;
+      letter-spacing:-.015em;
     }
-    #screen-dashboard:not(.hidden)>div:first-child button[onclick="showSubjectScreen()"]:hover{
-      filter:saturate(1.04)!important;
-      box-shadow:0 10px 22px rgba(143,120,174,.15),inset 0 1px 0 rgba(255,255,255,.95)!important;
-      transform:translateY(-1px)!important;
-    }
-    #screen-dashboard:not(.hidden)>div:first-child button[onclick="showSubjectScreen()"]:active{
-      transform:scale(.985)!important;
-    }
+    /* Date controls: compact but comfortably tappable. */
     #screen-dashboard:not(.hidden) #evo-condition-prev,
     #screen-dashboard:not(.hidden) #evo-condition-next{
-      width:30px!important;
-      height:30px!important;
+      width:34px!important;
+      height:34px!important;
       display:inline-flex!important;
       align-items:center!important;
       justify-content:center!important;
-      border:1px solid #e7dcf2!important;
-      border-radius:10px!important;
-      background:linear-gradient(145deg,#f7f2fc,#edf7f3)!important;
-      color:#80699d!important;
-      box-shadow:0 2px 7px rgba(92,72,117,.05)!important;
-      transition:transform .18s ease,background .18s ease!important;
+      border:1px solid rgba(218,207,233,.95)!important;
+      border-radius:12px!important;
+      background:linear-gradient(145deg,#fff,#f2edf9)!important;
+      color:#786293!important;
+      font-size:16px!important;
+      box-shadow:0 3px 8px rgba(91,69,120,.06)!important;
+      transition:transform .18s ease,background .18s ease,box-shadow .18s ease!important;
     }
     #screen-dashboard:not(.hidden) #evo-condition-prev:active,
-    #screen-dashboard:not(.hidden) #evo-condition-next:active{transform:scale(.94)!important}
+    #screen-dashboard:not(.hidden) #evo-condition-next:active{
+      transform:scale(.93)!important;
+      box-shadow:0 1px 3px rgba(91,69,120,.08)!important;
+    }
     #screen-dashboard:not(.hidden) #evo-condition-date{
-      color:#8e829b!important;
+      color:#8a7e99!important;
+      font-size:10px!important;
       font-variant-numeric:tabular-nums;
     }
+    /* Analytics chip */
     #screen-dashboard:not(.hidden) .evo-chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
       border-radius:999px!important;
-      padding:5px 9px!important;
-      background:rgba(240,234,250,.9)!important;
-      border:1px solid #e3d7f1!important;
+      padding:6px 10px!important;
+      background:rgba(241,235,250,.88)!important;
+      border:1px solid rgba(224,213,240,.9)!important;
       color:#80669e!important;
-      letter-spacing:.08em!important;
-      font-size:9px!important;
+      letter-spacing:.1em!important;
+      font-size:8px!important;
+      font-weight:750!important;
+    }
+    #screen-dashboard:not(.hidden) .evo-chip::before{
+      content:"";
+      width:5px;
+      height:5px;
+      border-radius:50%;
+      background:#9bcdb9;
+      box-shadow:0 0 0 3px rgba(155,205,185,.16);
+    }
+    /* The four existing log values receive individual visual grouping, without changing data. */
+    #screen-dashboard:not(.hidden) .evo-card:has(#evo-total-attempts) .grid.grid-cols-2>div{
+      min-width:0;
+      padding:15px 7px!important;
+      border:1px solid rgba(230,222,240,.8);
+      border-radius:16px;
+      background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(248,245,252,.76));
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.95);
+    }
+    #screen-dashboard:not(.hidden) .evo-card:has(#evo-total-attempts) .grid.grid-cols-2>div.border-t{
+      border-top:1px solid rgba(230,222,240,.8)!important;
     }
     #screen-dashboard:not(.hidden) #evo-total-attempts,
     #screen-dashboard:not(.hidden) #evo-avg,
     #screen-dashboard:not(.hidden) #evo-best,
     #screen-dashboard:not(.hidden) #evo-streak{
       font-variant-numeric:tabular-nums!important;
-      letter-spacing:-.035em!important;
+      letter-spacing:-.045em!important;
+      font-size:clamp(22px,5.6vw,27px)!important;
+      line-height:1.05!important;
     }
     #screen-dashboard:not(.hidden) #evo-total-attempts,
-    #screen-dashboard:not(.hidden) #evo-best{color:#5b506d!important}
-    #screen-dashboard:not(.hidden) #evo-avg{color:#9173b7!important}
-    #screen-dashboard:not(.hidden) #evo-streak{color:#6fae9c!important}
+    #screen-dashboard:not(.hidden) #evo-best{color:#4f455e!important}
+    #screen-dashboard:not(.hidden) #evo-avg{color:#9677bd!important}
+    #screen-dashboard:not(.hidden) #evo-streak{color:#65a88f!important}
+    #screen-dashboard:not(.hidden) .evo-card:has(#evo-total-attempts) .grid.grid-cols-2>div>div:first-child{
+      color:#8a8097!important;
+      font-size:9px!important;
+      letter-spacing:.025em;
+      line-height:1.5;
+    }
     #screen-dashboard:not(.hidden) .evo-progress{
       height:7px!important;
       border-radius:999px!important;
-      background:#eee7f6!important;
+      background:#eee8f5!important;
       overflow:hidden!important;
     }
     #screen-dashboard:not(.hidden) .evo-progress>span{
       border-radius:999px!important;
-      background:linear-gradient(90deg,#b8a0dc 0%,#d6c7eb 48%,#a8d9c7 100%)!important;
+      background:linear-gradient(90deg,#a991d0 0%,#cbbbe5 48%,#9fd5bf 100%)!important;
     }
-    #screen-dashboard:not(.hidden) .border-t{border-color:#eee6f4!important}
-    @keyframes np-aurora-breathe{
-      0%,100%{transform:translate3d(0,0,0) scale(1);opacity:.42}
-      50%{transform:translate3d(-5px,4px,0) scale(1.08);opacity:.7}
-    }
-    @keyframes np-water-drift{
-      0%,100%{transform:translate3d(0,0,0) scale(1)}
-      50%{transform:translate3d(-7px,3px,0) scale(1.06)}
+    #screen-dashboard:not(.hidden) .border-t{border-color:rgba(229,220,239,.9)!important}
+    @keyframes np-premium-glow{
+      0%,100%{transform:translate3d(0,0,0) scale(1);opacity:.7}
+      50%{transform:translate3d(-7px,5px,0) scale(1.08);opacity:1}
     }
     @media(max-width:420px){
-      #screen-dashboard:not(.hidden)>div:first-child{min-height:100px}
-      #screen-dashboard:not(.hidden)>div:first-child::before{width:120px;height:72px;right:0;top:-8px}
-      #screen-dashboard:not(.hidden)>div:first-child::after{width:105px;height:60px;right:-15px;top:24px}
-      #screen-dashboard:not(.hidden) .evo-card{border-radius:18px!important}
+      #screen-dashboard:not(.hidden)>div:first-child{
+        padding:21px 17px 18px!important;
+        border-radius:23px;
+      }
+      #screen-dashboard:not(.hidden)>div:first-child h2{font-size:26px!important}
+      #screen-dashboard:not(.hidden)>div:first-child button[onclick="showSubjectScreen()"]{
+        width:100%!important;
+        min-height:48px!important;
+      }
+      #screen-dashboard:not(.hidden) .evo-card{
+        padding:16px!important;
+        border-radius:20px!important;
+      }
+      #screen-dashboard:not(.hidden) .evo-card:has(#evo-total-attempts) .grid.grid-cols-2>div{
+        padding:13px 5px!important;
+        border-radius:14px;
+      }
     }
     @media(prefers-reduced-motion:reduce){
       #screen-dashboard:not(.hidden)>div:first-child::before,
-      #screen-dashboard:not(.hidden)>div:first-child::after,
-      #screen-dashboard:not(.hidden) .evo-card::before,
-      #screen-dashboard:not(.hidden) .evo-card::after,
       #screen-dashboard:not(.hidden) .evo-card,
       #screen-dashboard:not(.hidden)>div:first-child button[onclick="showSubjectScreen()"],
       #screen-dashboard:not(.hidden) #evo-condition-prev,
       #screen-dashboard:not(.hidden) #evo-condition-next{animation:none!important;transition:none!important}
     }
-    html.np-accessibility-reduced-motion #screen-dashboard:not(.hidden)>div:first-child::before,
-    html.np-accessibility-reduced-motion #screen-dashboard:not(.hidden)>div:first-child::after,
-    html.np-accessibility-reduced-motion #screen-dashboard:not(.hidden) .evo-card::before,
-    html.np-accessibility-reduced-motion #screen-dashboard:not(.hidden) .evo-card::after{animation:none!important}
+    html.np-accessibility-reduced-motion #screen-dashboard:not(.hidden)>div:first-child::before{animation:none!important}
   </style>
 
 </body>
