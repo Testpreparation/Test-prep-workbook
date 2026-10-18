@@ -1,0 +1,100 @@
+<div id="modal-questions-editor" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div class="glass-card w-full max-w-2xl rounded-2xl p-5 sm:p-6 space-y-4 border border-slate-700/60 shadow-2xl max-h-[90vh] overflow-y-auto my-auto">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+        <div>
+          <div class="en-title text-[10px] text-amber-500/80 tracking-widest uppercase font-semibold">QUESTION EDITOR</div>
+          <h3 id="editor-subject-title" class="serif-title text-lg text-slate-100">問題の編集</h3>
+        </div>
+        <button onclick="closeQuestionsEditorModal()" class="text-slate-400 text-sm p-1 transition hover:text-white">✕</button>
+      </div>
+
+      <!-- 編集ターゲット切替タブ (演習問題 ↔ 暗記カード) -->
+      <div class="flex border-b border-slate-800 bg-slate-950/60 rounded-xl p-1 gap-1">
+        <button id="editor-tab-quiz" onclick="switchEditorCategory('quiz')" class="w-1/2 py-2 rounded-lg text-xs font-bold transition text-center bg-amber-500 text-slate-950">
+          演習テスト問題
+        </button>
+        <button id="editor-tab-flashcard" onclick="switchEditorCategory('flashcard')" class="w-1/2 py-2 rounded-lg text-xs font-bold transition text-center text-slate-400 hover:text-slate-200">
+          暗記カード専用問題
+        </button>
+      </div>
+
+      <!-- 暗記カード専用 科目全体表示/非表示スイッチ -->
+      <div id="editor-flashcard-subject-visibility-wrap" class="hidden p-3.5 rounded-xl bg-slate-900/90 border border-amber-500/30 flex items-center justify-between">
+        <div class="space-y-0.5">
+          <div class="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+            <span>この科目の暗記カード機能を有効化</span>
+          </div>
+          <div class="text-[10px] text-slate-400">OFFにするとユーザーの暗記カード科目一覧で非表示になります</div>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" id="editor-fc-subject-toggle-switch" onchange="toggleSubjectFlashcardVisibility(this.checked)" class="sr-only peer">
+          <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500 shadow-inner"></div>
+        </label>
+      </div>
+
+      <!-- ★ Gemini AI問題自動生成エリア -->
+      <div id="editor-ai-panel-wrapper" class="p-4 rounded-xl bg-gradient-to-r from-amber-950/40 via-slate-900 to-amber-950/40 border border-amber-500/30 space-y-3">
+        <div class="flex justify-between items-center cursor-pointer" onclick="toggleAiGeneratorPanel()">
+          <div class="flex items-center gap-2">
+            <span class="text-sm">✨</span>
+            <span class="text-xs font-semibold text-amber-300">Gemini AIで画像/テキストから問題生成</span>
+          </div>
+          <span id="ai-panel-toggle-icon" class="text-xs text-amber-400">▼ 開く</span>
+        </div>
+
+        <div id="ai-generator-panel" class="hidden space-y-3 pt-2 border-t border-amber-500/20">
+          <p class="text-[11px] text-slate-400 font-light">
+            教科書や問題集の画像（またはテキスト）を解析し、自動で選択肢と解答付きの問題データを作成・追加します。
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div class="sm:col-span-2 space-y-1">
+              <label class="text-[10px] text-amber-400 block">1. 画像から作成 (省略可):</label>
+              <input type="file" id="ai-input-image" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-amber-500/20 file:text-amber-300 hover:file:bg-amber-500/30 cursor-pointer">
+            </div>
+            <div class="space-y-1">
+              <label class="text-[10px] text-amber-400 block">2. 生成数:</label>
+              <select id="ai-generate-count-select" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
+                <option value="1">1問生成</option>
+                <option value="2">2問生成</option>
+                <option value="3">3問生成</option>
+                <option value="5">5問生成</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-[10px] text-amber-400 block">3. テキスト・指示 (省略可):</label>
+            <textarea id="ai-input-text" placeholder="例: 以下の内容から重要ポイントを問題にしてください..." class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-amber-500 h-16"></textarea>
+          </div>
+
+          <button onclick="generateQuestionWithGemini()" id="ai-generate-btn" class="w-full py-2.5 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-amber-50 text-xs font-semibold rounded-lg transition shadow flex items-center justify-center gap-2">
+            <span>✨ Gemini AIで問題を自動生成する</span>
+          </button>
+          <div id="ai-generate-loading" class="hidden text-center text-xs text-amber-400 font-light animate-pulse">
+            AIが問題を解析・作成中です... しばらくお待ちください
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center">
+        <p id="editor-type-desc" class="text-[11px] text-slate-400 font-light">各問題の文言、選択肢、解説を変更できます。</p>
+        <button onclick="addNewQuestionToEditor()" class="px-3 py-1.5 bg-amber-700 hover:bg-amber-600 text-amber-50 text-xs rounded-lg transition font-medium">＋ 問題を追加</button>
+      </div>
+
+      <!-- モード切替 (演習問題用) -->
+      <div id="editor-mode-selector-container" class="hidden p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1.5">
+        <label class="text-[11px] text-amber-400 font-medium block">編集する形式・モードを選択:</label>
+        <select id="editor-mode-select" onchange="changeEditorMode(this.value)" class="w-full bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 focus:outline-none focus:border-amber-500">
+        </select>
+      </div>
+
+      <!-- 問題カード一覧 -->
+      <div id="editor-questions-list" class="space-y-4"></div>
+
+      <div class="pt-2 flex gap-3">
+        <button onclick="closeQuestionsEditorModal()" class="w-1/2 py-2.5 bg-slate-800 text-slate-300 rounded-lg text-xs hover:bg-slate-700 transition">キャンセル</button>
+        <button onclick="saveEditedQuestions()" class="w-1/2 py-2.5 bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold text-xs rounded-lg transition shadow tracking-widest">変更を全保存する</button>
+      </div>
+    </div>
+  </div>
