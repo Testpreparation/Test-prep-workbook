@@ -1,0 +1,204 @@
+<div id="screen-time-select" class="hidden space-y-6 text-center">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button id="time-back-btn" onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 戻る</button>
+          <span id="time-subject-title" class="serif-title text-sm text-slate-300">制限時間選択</span>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-6">
+          <div class="space-y-2">
+            <div class="text-xs text-slate-400 uppercase tracking-widest font-medium">1問あたりの制限時間を選択</div>
+            <div class="text-4xl font-bold text-amber-500 font-mono"><span id="time-slider-display">30</span> <span class="text-sm font-normal text-slate-500">秒</span></div>
+          </div>
+          <div class="px-2">
+            <input type="range" id="time-select-slider" min="10" max="30" step="10" value="30" oninput="updateTimeSliderValue(this.value)" class="w-full">
+            <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
+              <span>10秒</span><span>20秒</span><span>30秒</span>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="proceedToCountOrStart()" class="w-full py-3.5 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-xl text-xs font-semibold transition shadow-lg tracking-widest">次へ進む</button>
+      </div>
+
+      <!-- 画面1.5: モード選択 -->
+      <div id="screen-round-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button id="round-back-btn" onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 戻る</button>
+          <span id="round-subject-title" class="serif-title text-sm text-slate-300">モード選択</span>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 py-4">
+          <select id="roundSelect" class="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg p-2.5 focus:ring-amber-500 focus:border-amber-500 w-full sm:w-auto">
+            <option value="1">第1回</option>
+            <option value="2">第2回</option>
+            <option value="3">第3回</option>
+            <option value="4">第4回</option>
+            <option value="5">第5回</option>
+            <option value="6">第6回</option>
+            <option value="7">第7回</option>
+            <option value="8">第8回</option>
+            <option value="9">第9回</option>
+            <option value="10">第10回</option>
+            <option value="quiz">小テスト</option>
+            <option value="all">総合練習問題</option>
+          </select>
+          <button id="startButton" class="w-full sm:w-auto px-5 py-2.5 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-lg text-sm font-semibold transition">次へ進む</button>
+        </div>
+
+        <div id="quizContainer"></div>
+      </div>
+
+      <!-- 画面1.6: 問題数選択画面 -->
+      <div id="screen-count-select" class="hidden space-y-6 text-center">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button id="count-back-btn" onclick="showTimeSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 戻る</button>
+          <span id="count-subject-title" class="serif-title text-sm text-slate-300">問題数選択</span>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-6">
+          <div class="space-y-2">
+            <div class="text-xs text-slate-400 uppercase tracking-widest font-medium">出題数を選択</div>
+            <div class="text-4xl font-bold text-amber-500 font-mono"><span id="slider-count-display">10</span> <span class="text-sm font-normal text-slate-500">問</span></div>
+          </div>
+          <div class="px-2">
+            <input type="range" id="quiz-count-slider" min="5" max="30" step="5" value="10" oninput="updateSliderValue(this.value)" class="w-full">
+            <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
+              <span>5問</span><span>10問</span><span>15問</span><span>20問</span><span>25問</span><span>30問</span>
+            </div>
+          </div>
+          <label class="flex items-center justify-center gap-2 text-xs text-slate-300 cursor-pointer">
+            <input type="checkbox" id="weak-question-toggle" class="accent-amber-500">
+            <span>苦手問題を優先して出題</span>
+          </label>
+        </div>
+
+        <button onclick="startQuiz()" class="w-full py-3.5 bg-amber-700 hover:bg-amber-600 text-amber-50 rounded-xl text-xs font-semibold transition shadow-lg tracking-widest">演習を開始する</button>
+      </div>
+
+      <!-- 画面2: クイズ開始前設定 (SOLO) -->
+      <div id="screen-quiz-start" class="hidden space-y-6 text-center">
+        <div class="pb-3 border-b border-slate-700/50 flex items-center justify-between">
+          <button id="start-back-btn" onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 戻る</button>
+          <span id="quiz-subject-title" class="serif-title text-sm text-slate-300">科目名</span>
+        </div>
+       
+        <div class="py-2 space-y-2">
+          <div class="en-title text-3xl text-amber-500/90 font-semibold">PRACTICE QUIZ</div>
+          <h2 id="start-screen-heading" class="serif-title text-2xl text-slate-100">演習問題</h2>
+          <p id="start-screen-desc" class="text-xs text-slate-400 font-light leading-relaxed max-w-sm mx-auto">
+            過去問データベースから問題が出題されます。
+          </p>
+        </div>
+
+        <div id="count-selector-container" class="hidden space-y-6 p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
+          <div class="space-y-2">
+            <div class="text-xs text-slate-400 uppercase tracking-widest font-medium">出題数を選択</div>
+            <div class="text-4xl font-bold text-amber-500 font-mono"><span id="slider-count-display-deprecated">10</span> <span class="text-sm font-normal text-slate-500">問</span></div>
+          </div>
+          <div class="px-2">
+            <input type="range" id="quiz-count-slider-deprecated" min="5" max="30" step="5" value="10" oninput="updateSliderValue(this.value)" class="w-full">
+            <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
+              <span>5問</span><span>10問</span><span>15問</span><span>20問</span><span>25問</span><span>30問</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="highscore-badge" class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs flex justify-between items-center max-w-xs mx-auto">
+          <span class="text-slate-400 font-light flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.8１.588-1.8１h3.46１a1 １ ０ ００.９５１-.６９l１.０７-３.２９２z"/></svg>
+            最高記録:
+          </span>
+          <span id="start-screen-highscore" class="font-bold text-amber-400">未挑戦</span>
+        </div>
+
+        <button id="start-screen-submit-btn" onclick="handleStartScreenSubmit()" class="w-full py-4 rounded-xl bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold text-sm transition shadow-lg tracking-widest">
+          次へ進む
+        </button>
+      </div>
+
+      <!-- 画面3: クイズ実行画面 (SOLO) -->
+      <div id="screen-quiz-play" class="hidden space-y-5">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50 text-xs">
+          <span id="quiz-progress-text" class="en-title text-amber-500 font-semibold uppercase">QUESTION 1 / 10</span>
+          <div class="flex items-center gap-3">
+            <span id="quiz-score-live" class="text-slate-400 font-light">正解: 0</span>
+            <button onclick="quitQuiz()" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-rose-900/40 text-slate-400 hover:text-rose-300 border border-slate-700 transition text-[11px]">✕ 中断</button>
+          </div>
+        </div>
+
+        <!-- 30秒制限時間タイマーバー -->
+        <div class="w-full bg-slate-800/80 h-2 rounded-full overflow-hidden border border-slate-700/50">
+          <div id="quiz-timer-bar" class="h-full bg-amber-500 w-full transition-all duration-100 ease-linear"></div>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+          <div id="quiz-question-number" class="text-[11px] text-amber-500/80 font-medium">Q1</div>
+          <div id="quiz-question-text" class="text-sm text-slate-100 leading-relaxed font-normal">---</div>
+         
+          <!-- 問題画像表示領域 -->
+          <div id="quiz-image-container" class="hidden my-3">
+            <img id="quiz-image" src="" alt="問題画像" class="max-h-64 rounded-lg mx-auto border border-slate-700/80 object-contain shadow">
+          </div>
+
+          <!-- 語群 (wordBox) 表示領域 -->
+          <div id="quiz-wordbox-container" class="hidden mt-3 p-3 rounded-lg bg-slate-950/70 border border-slate-700/50 text-xs">
+            <div class="text-[11px] text-amber-400 font-medium mb-1.5 flex items-center gap-1">
+              <span>【語群】</span>
+            </div>
+            <div id="quiz-wordbox-content" class="text-slate-300 leading-relaxed space-y-1"></div>
+          </div>
+        </div>
+
+        <!-- 選択肢コンテナ -->
+        <div id="quiz-options-container" class="space-y-2.5"></div>
+
+        <!-- キーボード入力用コンテナ -->
+        <div id="quiz-keyboard-input-container" class="hidden space-y-3">
+          <p class="text-xs text-amber-400 font-medium">正しい用語・文字を入力してください。</p>
+          <div class="flex gap-2">
+            <input type="text" id="quiz-keyboard-input" placeholder="例: 用語または文字を入力" onkeydown="if(event.key==='Enter') submitKeyboardAnswer()" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-xs focus:outline-none focus:border-amber-500">
+            <button onclick="submitKeyboardAnswer()" class="px-5 py-2.5 bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold rounded-xl text-xs transition shadow-lg shrink-0">
+              解答
+            </button>
+          </div>
+        </div>
+
+        <!-- 複数選択用 回答確定ボタン -->
+        <button id="quiz-submit-multi-btn" onclick="submitMultipleAnswers()" class="hidden w-full py-3 bg-amber-700 hover:bg-amber-600 text-amber-50 font-semibold rounded-xl text-xs transition shadow-lg tracking-widest">
+          選択した内容で回答する
+        </button>
+
+        <div id="quiz-feedback-box" class="hidden p-4 rounded-xl border text-xs leading-relaxed space-y-2">
+          <div id="quiz-feedback-title" class="font-bold text-sm"></div>
+          <div id="quiz-feedback-desc" class="text-slate-300"></div>
+          <button id="quiz-next-btn" onclick="nextQuestion()" class="w-full mt-2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition">次へ進む →</button>
+        </div>
+      </div>
+
+      <!-- 画面4: クイズ結果画面 (SOLO) -->
+      <div id="screen-quiz-result" class="hidden text-center space-y-6 py-4">
+        <div class="en-title text-xs text-amber-500/80 tracking-widest uppercase">RESULT</div>
+        <h2 class="serif-title text-2xl text-slate-100">演習完了</h2>
+
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 max-w-xs mx-auto space-y-2 relative overflow-hidden">
+          <div id="new-record-badge" class="hidden absolute top-2 right-2 bg-amber-500/20 border border-amber-500/50 text-amber-300 text-[10px] px-2 py-0.5 rounded-full font-bold animate-pulse flex items-center gap-1">
+            <span>BEST RECORD</span>
+          </div>
+          <div class="text-xs text-slate-400" id="result-score-title">全0問中 0問正解</div>
+          <div class="text-4xl font-bold text-amber-400"><span id="final-score-val">0</span><span class="text-2xl font-normal text-amber-400">%</span> <span id="final-total-val" class="text-base font-normal text-slate-400 hidden">/ 10</span></div>
+          <div id="final-eval-text" class="text-xs text-amber-500/90 pt-2 font-light">素晴らしい集中力です！</div>
+        </div>
+
+        <!-- 今回の記録 & 挑戦履歴 (最大10件) -->
+        <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 text-left space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+            <span class="text-xs font-semibold text-slate-200">挑戦履歴（最大10件）</span>
+            <span class="text-[10px] text-slate-500 font-mono">HISTORY</span>
+          </div>
+          <div id="quiz-attempt-history-list" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button onclick="startQuiz()" class="w-1/2 py-3.5 rounded-xl bg-amber-700 hover:bg-amber-600 text-amber-50 text-xs font-medium transition">もう一度挑戦する</button>
+          <button onclick="showSubjectScreen()" class="w-1/2 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition">科目選択へ戻る</button>
+        </div>
+      </div>

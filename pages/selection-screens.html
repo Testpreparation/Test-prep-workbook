@@ -1,0 +1,360 @@
+<div id="screen-semester-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline">← 科目選択へ戻る</button>
+          <span id="semester-subject-title" class="serif-title text-sm text-slate-300">学期を選択</span>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3 pt-2">
+          <button id="semester-spring-btn" onclick="selectSemester('2026_spring')" class="p-4 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-500/50 text-slate-100 font-medium text-sm transition flex items-center justify-between group shadow">
+            <span>2026春学期</span>
+            <span class="text-xs text-slate-500 group-hover:text-amber-400 transition">選択 →</span>
+          </button>
+
+          <button id="semester-autumn-btn" onclick="selectSemester('2026_autumn')" class="p-4 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-500/50 text-slate-100 font-medium text-sm transition flex items-center justify-between group shadow">
+            <span>2026秋学期</span>
+            <span class="text-xs text-slate-500 group-hover:text-amber-400 transition">選択 →</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 画面1.1: 生理学 モード選択 -->
+      <div id="screen-physiology-mode-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">生理学 モード選択</span>
+          <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline whitespace-nowrap">科目一覧</button>
+        </div>
+
+        <div class="space-y-3 pt-2">
+          <button onclick="selectPhysiologyMode('past')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">PHY-1</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">過去問</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">生理学の過去問演習</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+
+          <button onclick="selectPhysiologyMode('quiz')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">PHY-2</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">小テスト</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">生理学の小テスト演習</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 画面1.2: 解剖学 コース選択 -->
+      <div id="screen-anatomy-mode-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">解剖学 モード選択</span>
+          <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline whitespace-nowrap">科目一覧</button>
+        </div>
+
+        <div class="space-y-3 pt-2">
+          <button onclick="selectAnatomyMode('basic')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">ANA-1</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">練習問題</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">小テスト・ちいかわの問題</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+
+          <button onclick="selectAnatomyMode('applied')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 font-mono text-xs font-bold">ANA-2</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">応用問題</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">小テスト・ちいかわの問題の応用(AIを使用してます。)</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 画面1.2.5: 公衆衛生学 モード選択 -->
+      <div id="screen-publichealth-mode-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">公衆衛生学 モード選択</span>
+          <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline whitespace-nowrap">科目一覧</button>
+        </div>
+
+        <div class="space-y-3 pt-2">
+          <button onclick="selectPublicHealthMode('past')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">PUB-1</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">過去問</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">公衆衛生学の過去問演習</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+
+          <button onclick="selectPublicHealthMode('exercise')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-bold">PUB-2</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">演習問題</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">公衆衛生学の演習問題</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+
+          <button onclick="selectPublicHealthMode('national')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 font-mono text-xs font-bold">PUB-3</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">模擬国家試験</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">国家試験形式の模擬問題</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 画面1.2.6: 公衆衛生看護学概論 モード選択 -->
+      <div id="screen-phn-mode-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">公衆衛生看護学概論 モード選択</span>
+          <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline whitespace-nowrap">科目一覧</button>
+        </div>
+
+        <div class="space-y-3 pt-2">
+          <button onclick="selectPHNMode('basic')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">PHN-1</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">練習問題</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">公衆衛生看護学概論の練習問題</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+
+          <button onclick="selectPHNMode('exercise')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-bold">PHN-2</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">演習問題</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">公衆衛生看護学概論の演習問題</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+        </div>
+      </div>
+
+     
+      <!-- 病理学 モード選択 -->
+      <div id="screen-pathology-mode-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">病理学 モード選択</span>
+          <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline whitespace-nowrap">科目一覧</button>
+        </div>
+
+        <div class="space-y-3 pt-2">
+          <button onclick="selectPathologyMode('quiz')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">小テスト</span>
+            <span class="text-slate-500 group-hover:text-amber-400">→</span>
+          </button>
+
+          <button onclick="selectPathologyMode('practice')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">小テスト練習</span>
+            <span class="text-slate-500 group-hover:text-amber-400">→</span>
+          </button>
+
+          <button onclick="selectPathologyMode('exercise')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400">→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 病理学 回数選択 -->
+      <div id="screen-pathology-round-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showPathologyModeSelectionScreen()" class="text-xs text-amber-500 hover:underline">← モード選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">病理学 回数選択</span>
+          <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline whitespace-nowrap">科目一覧</button>
+        </div>
+
+        <div id="pathology-round-select-label" class="text-sm text-slate-300 pt-2">
+          回数を選択してください
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <button onclick="selectPathologyRound(1)" class="card-item p-4 rounded-xl text-sm">第1回</button>
+          <button onclick="selectPathologyRound(2)" class="card-item p-4 rounded-xl text-sm">第2回</button>
+          <button onclick="selectPathologyRound(3)" class="card-item p-4 rounded-xl text-sm">第3回</button>
+        </div>
+      </div>
+
+
+
+      <!-- 薬理学 モード選択 -->
+      <div id="screen-pharmacology-mode-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">薬理学 モード選択</span>
+          <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline whitespace-nowrap">科目一覧</button>
+        </div>
+        <div class="space-y-3 pt-2">
+          <button onclick="selectPharmacologyMode('exercise')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div><div class="text-sm font-medium text-slate-100 group-hover:text-amber-300">演習問題</div><div class="text-[11px] text-slate-400 mt-0.5">薬理学の演習問題</div></div><span class="text-slate-500 group-hover:text-amber-400">→</span>
+          </button>
+          <button onclick="selectPharmacologyMode('past')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div><div class="text-sm font-medium text-slate-100 group-hover:text-amber-300">過去問</div><div class="text-[11px] text-slate-400 mt-0.5">薬理学の過去問</div></div><span class="text-slate-500 group-hover:text-amber-400">→</span>
+          </button>
+          <button onclick="selectPharmacologyMode('nurse_national_6years')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div><div class="text-sm font-medium text-slate-100 group-hover:text-amber-300">過去6年看護師国家試験</div><div class="text-[11px] text-slate-400 mt-0.5">薬理学に関する過去6年の看護師国家試験問題</div></div><span class="text-slate-500 group-hover:text-amber-400">→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 看護学方法論Ⅲ モード選択 -->
+      <div id="screen-nursing-method-3-mode-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">看護学方法論Ⅲ モード選択</span>
+          <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline whitespace-nowrap">科目一覧</button>
+        </div>
+        <div class="space-y-3 pt-2">
+          <button onclick="selectNursingMethod3Mode('practice')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">練習問題</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+          <button onclick="selectNursingMethod3Mode('quiz')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">小テスト</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+          <button onclick="selectNursingMethod3Mode('exercise')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">演習問題</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+        </div>
+      </div>
+
+      <!-- 栄養学 モード選択 -->
+      <div id="screen-nutrition-mode-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">栄養学 モード選択</span>
+          <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline whitespace-nowrap">科目一覧</button>
+        </div>
+        <div class="space-y-3 pt-2">
+          <button onclick="selectNutritionMode('exercise')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">演習問題</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+          <button onclick="selectNutritionMode('quiz')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group"><span class="text-sm font-medium text-slate-100 group-hover:text-amber-300">小テスト</span><span class="text-slate-500 group-hover:text-amber-400">→</span></button>
+        </div>
+      </div>
+
+      <!-- 画面1.3: 看護学方法論Ⅰ コース選択 -->
+      <div id="screen-nursing-mode-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">看護学方法論Ⅰ モード選択</span>
+          <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline whitespace-nowrap">科目一覧</button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+          <button onclick="selectNursingRound('1')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第1回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('2')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第2回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('3')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第3回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('4')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第4回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('5')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第5回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('6')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第6回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('7')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第7回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('8')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第8回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('9')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第9回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('10')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-slate-100 group-hover:text-amber-300">第10回演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('quiz')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-amber-400 group-hover:text-amber-300">小テスト演習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+          <button onclick="selectNursingRound('all')" class="card-item w-full p-3 rounded-xl text-left flex items-center justify-between group">
+            <span class="text-xs font-medium text-amber-400 group-hover:text-amber-300">総合練習問題</span>
+            <span class="text-slate-500 group-hover:text-amber-400 text-xs">→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 画面1.3.5: 生化学 解答形式選択画面 -->
+      <div id="screen-biochemistry-format-select" class="hidden space-y-4">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-700/50">
+          <button onclick="showSemesterSelectionScreen()" class="text-xs text-amber-500 hover:underline">← 学期選択へ戻る</button>
+          <span class="serif-title text-sm text-slate-300">生化学 解答形式選択</span>
+          <button onclick="showSubjectScreen()" class="text-xs text-amber-500 hover:underline whitespace-nowrap">科目一覧</button>
+        </div>
+
+        <div class="space-y-3 pt-2">
+          <button onclick="selectBiochemistryFormat('choice')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">BIO-1</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">選択式</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">ボタンタップで解答する通常の四肢択一形式</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+
+          <button onclick="selectBiochemistryFormat('keyboard')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-bold">BIO-2</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">記述式 (キーボード入力)</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">キーボードで文字・用語を入力して回答する形式</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+
+          <button onclick="selectBiochemistryFormat('fill')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-sky-500/10 border border-sky-500/30 text-sky-400 font-mono text-xs font-bold">BIO-3</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">穴埋式 (キーボード入力)</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">文章中の空欄に答えを入力する形式</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>
+        </div>
+      </div>
