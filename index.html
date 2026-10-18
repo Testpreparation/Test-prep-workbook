@@ -5255,11 +5255,83 @@
       });
     }
 
+    function evoRenderSubjectBarLineChart(now = new Date()) {
+      const recordsEl = document.getElementById('evo-recent-7d-records');
+      if (!recordsEl) return;
+      let chartCard = document.getElementById('evo-subject-bar-line-chart-card');
+      if (!chartCard) {
+        chartCard = document.createElement('section');
+        chartCard.id = 'evo-subject-bar-line-chart-card';
+        chartCard.className = 'evo-card mb-4';
+        chartCard.innerHTML = '<div class="flex items-start justify-between gap-3 mb-3"><div><div class="text-xs font-semibold text-slate-200">科目別正答率の推移</div><div class="text-[10px] text-slate-500 mt-1">直近7日間・科目別</div></div><span class="evo-chip">7 DAYS</span></div><div id="evo-subject-bar-line-chart"></div><p id="evo-subject-bar-line-chart-note" class="text-[10px] text-slate-500 mt-2">科目ごとに色分け：縦棒と折れ線で表示</p>';
+        recordsEl.parentNode.insertBefore(chartCard, recordsEl);
+      }
+      const box = document.getElementById('evo-subject-bar-line-chart');
+      const note = document.getElementById('evo-subject-bar-line-chart-note');
+      if (!box) return;
+      const toKey = date => `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+      const dates = Array.from({length:7}, (_, i) => toKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6 + i)));
+      const list = Array.isArray(subjects) ? subjects : (Array.isArray(defaultSubjects) ? defaultSubjects : []);
+      const colors = ['#60a5fa','#34d399','#fbbf24','#fb7185','#c084fc','#22d3ee','#f97316','#a3e635','#f472b9','#818cf8','#fb923c','#2dd4bf'];
+      const data = [];
+      list.forEach(subject => {
+        if (!subject || !subject.id) return;
+        const daily = {};
+        dates.forEach(date => { daily[date] = null; });
+        Object.keys(localStorage).forEach(key => {
+          if (!key.startsWith(`history_accuracy_daily_${subject.id}_`)) return;
+          try {
+            const saved = JSON.parse(localStorage.getItem(key) || '[]');
+            if (!Array.isArray(saved)) return;
+            saved.forEach(record => {
+              if (!record || !dates.includes(record.date) || !Number.isFinite(Number(record.accuracy))) return;
+              daily[record.date] = daily[record.date] === null ? Number(record.accuracy) : (daily[record.date] + Number(record.accuracy)) / 2;
+            });
+          } catch (_) {}
+        });
+        if (dates.some(date => Number.isFinite(daily[date]))) data.push({name:subject.name || subject.code || subject.id, daily});
+      });
+      if (!data.length) {
+        box.innerHTML = '<div class="text-center text-[11px] text-slate-500 py-5">まだ科目別の正答率記録がありません。</div>';
+        if (note) note.textContent = '演習履歴が保存されると、科目ごとの縦棒と折れ線が表示されます。';
+        return;
+      }
+      const width=700, height=220, left=28, right=8, top=12, bottom=34;
+      const plotW=width-left-right, plotH=height-top-bottom, base=top+plotH;
+      const x=i=>left+(i+.5)*(plotW/7), y=v=>top+(100-Math.max(0,Math.min(100,v)))*plotH/100;
+      const dayW=plotW/7, groupW=dayW*.76, gap=2;
+      const barW=Math.max(3,Math.min(16,(groupW-gap*Math.max(0,data.length-1))/data.length));
+      let bars='', lines='', legend='';
+      [0,50,100].forEach(v=>{bars+=`<line x1="${left}" y1="${y(v)}" x2="${width-right}" y2="${y(v)}" stroke="currentColor" stroke-opacity=".12"/><text x="${left-5}" y="${y(v)+4}" fill="#94a3b8" text-anchor="end" font-size="10">${v}</text>`;});
+      dates.forEach((date,di)=>{
+        const start=left+di*dayW+(dayW-(data.length*barW+Math.max(0,data.length-1)*gap))/2;
+        data.forEach((subject,si)=>{
+          const v=subject.daily[date]; if(!Number.isFinite(v)) return;
+          const color=colors[si%colors.length], bx=start+si*(barW+gap);
+          bars+=`<rect x="${bx}" y="${y(v)}" width="${barW}" height="${Math.max(1,base-y(v))}" rx="2" fill="${color}" opacity=".36"><title>${subject.name}: ${Math.round(v)}%（${date}）</title></rect>`;
+        });
+        const label=date.split('/').slice(1).join('/');
+        bars+=`<text x="${x(di)}" y="${height-12}" fill="#94a3b8" text-anchor="middle" font-size="10">${label}</text>`;
+      });
+      data.forEach((subject,si)=>{
+        const color=colors[si%colors.length];
+        const points=dates.map((date,i)=>Number.isFinite(subject.daily[date])?{x:x(i),y:y(subject.daily[date]),v:subject.daily[date],date}:null);
+        let segment=[];
+        const flush=()=>{if(segment.length>1) lines+=`<polyline points="${segment.map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;segment=[];};
+        points.forEach(p=>{if(!p){flush();return;}segment.push(p);lines+=`<circle cx="${p.x}" cy="${p.y}" r="3" fill="${color}" stroke="#fff" stroke-width="1"><title>${subject.name}: ${Math.round(p.v)}%（${p.date}）</title></circle>`;});
+        flush();
+        legend+=`<span class="inline-flex items-center gap-1.5 text-[10px] text-slate-400"><span class="inline-block w-2 h-2 rounded-full" style="background:${color}"></span>${subject.name}</span>`;
+      });
+      box.innerHTML=`<svg role="img" aria-label="直近7日間の科目別正答率。縦棒と折れ線を科目ごとに色分け" viewBox="0 0 ${width} ${height}" class="block w-full" style="height:auto;max-height:260px;overflow:visible">${bars}${data.length?lines:''}</svg><div class="flex flex-wrap gap-x-3 gap-y-1.5 mt-3">${legend}</div>`;
+      if(note) note.textContent='縦棒：各日の正答率／折れ線：科目ごとの推移。記録のない日は線でつないでいません。';
+    }
+
     function evoRenderRecentStudyCarousel(now = new Date()) {
       const accuracyEl = document.getElementById('evo-recent-7d-accuracy');
       const summaryEl = document.getElementById('evo-recent-7d-summary');
       const recordsEl = document.getElementById('evo-recent-7d-records');
       if (!accuracyEl || !summaryEl || !recordsEl) return;
+      evoRenderSubjectBarLineChart(now);
       let allSessions = [];
       try {
         const saved = JSON.parse(localStorage.getItem('nurse_plus_study_sessions') || '[]');
