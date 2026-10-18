@@ -314,7 +314,8 @@ body > div.w-full.max-w-xl.mx-auto {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  body > div.w-full.max-w-xl.mx-auto {
+  /* Start only when the in-page startup overlay begins to dismiss. */
+  body > div.w-full.max-w-xl.mx-auto.np-cinematic-home-reveal-active {
     animation: np-cinematic-home-reveal 780ms cubic-bezier(.16, 1, .3, 1) both;
   }
 }
