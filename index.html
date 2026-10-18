@@ -6208,6 +6208,18 @@
           el._npAccuracyFrame=null;
           // アニメーション完了時に、計算済みの正答率を必ず最終値として固定する。
           el.textContent=String(goal);
+          // カウントアップ完了後に一瞬だけ数値を弾ませ、結果発表のメリハリを付ける。
+          // 数値や採点には触れず、transform のみを短くアニメーションする。
+          if (typeof el.animate === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            el.animate(
+              [
+                { transform: 'scale(1)' },
+                { transform: 'scale(1.14)', offset: 0.38 },
+                { transform: 'scale(1)' }
+              ],
+              { duration: 420, easing: 'cubic-bezier(.22,1,.36,1)' }
+            );
+          }
           if(el._npAccuracyFallback)clearTimeout(el._npAccuracyFallback);
           el._npAccuracyFallback=null;
           el._npAccuracyResolve=null;
