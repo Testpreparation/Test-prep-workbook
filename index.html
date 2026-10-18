@@ -5265,14 +5265,17 @@
         chartCard.id = 'evo-subject-bar-line-chart-card';
         chartCard.className = 'evo-card mb-4';
         chartCard.innerHTML = '<div class="flex items-start justify-between gap-3 mb-3"><div><div class="text-xs font-semibold text-slate-200">科目別正答率の推移</div><div class="text-[10px] text-slate-500 mt-1">直近7日間・科目別</div></div><span class="evo-chip">7 DAYS</span></div><div id="evo-subject-bar-line-chart"></div><p id="evo-subject-bar-line-chart-note" class="text-[10px] text-slate-500 mt-2">科目ごとに色分け：縦棒と折れ線で表示</p>';
-        const recentCard = recordsEl ? (recordsEl.closest('.evo-card') || recordsEl.parentElement) : null;
-        if (recentCard && recentCard.parentNode) {
-          recentCard.parentNode.insertBefore(chartCard, recentCard);
-        } else if (analyticsScreen) {
-          analyticsScreen.appendChild(chartCard);
-        } else if (recordsEl && recordsEl.parentNode) {
-          recordsEl.parentNode.insertBefore(chartCard, recordsEl);
-        }
+      }
+      // 参考イメージの構成に合わせ、統計カードの下、
+      // 「直近7日間の学習記録」カードの直上へ毎回配置する。
+      // 既存のグラフが別位置に残っている場合も、描画のたびに正しい位置へ戻す。
+      const recentCard = recordsEl ? (recordsEl.closest('.evo-card') || recordsEl.parentElement) : null;
+      if (recentCard && recentCard.parentNode) {
+        recentCard.parentNode.insertBefore(chartCard, recentCard);
+      } else if (recordsEl && recordsEl.parentNode) {
+        recordsEl.parentNode.insertBefore(chartCard, recordsEl);
+      } else if (analyticsScreen && chartCard.parentNode !== analyticsScreen) {
+        analyticsScreen.appendChild(chartCard);
       }
       const box = document.getElementById('evo-subject-bar-line-chart');
       const note = document.getElementById('evo-subject-bar-line-chart-note');
