@@ -7391,7 +7391,13 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         if (!startup || !pageLoaded || !backendWakeFinished || startupHideScheduled) return;
         startupHideScheduled = true;
         const remaining = Math.max(0, 3000 - (performance.now() - startupStartedAt));
-        window.setTimeout(() => startup.classList.add('is-hidden'), remaining);
+        window.setTimeout(() => {
+          startup.classList.add('is-hidden');
+          // Start the home reveal at the same moment the startup overlay fades,
+          // rather than during page loading while the overlay still covers it.
+          const appShell = document.querySelector('body > div.w-full.max-w-xl.mx-auto');
+          if (appShell) appShell.classList.add('np-cinematic-home-reveal-active');
+        }, remaining);
       };
 
       // 起動画面の表示中にRenderへアクセスして休止状態からの復帰を促す。
