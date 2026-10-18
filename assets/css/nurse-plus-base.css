@@ -539,3 +539,17 @@
     #drawer-settings-accordion[open] #drawer-settings-chevron{transform:rotate(180deg)}
     @media(prefers-reduced-motion:reduce){#nav-drawer,#drawer-settings-content.drawer-settings-dropdown,#drawer-settings-chevron{transition:none!important}}
   
+
+/* Visible fallback if a split screen asset cannot be loaded. */
+.np-bootstrap-error {
+  position: fixed;
+  z-index: 99999;
+  inset: 12px 12px auto;
+  padding: 14px;
+  border: 1px solid #e6b8b8;
+  border-radius: 14px;
+  background: #fff5f5;
+  color: #7f1d1d;
+  font: 14px/1.6 sans-serif;
+  box-shadow: 0 8px 30px #0002;
+}
