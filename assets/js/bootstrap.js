@@ -33,7 +33,7 @@ function npShowBootstrapError(error) {
   const message = document.createElement("div");
   message.id = "nurse-plus-bootstrap-error";
   message.setAttribute("role", "alert");
-  message.style.cssText = "position:fixed;z-index:99999;inset:12px 12px auto;padding:14px;border:1px solid #e6b8b8;border-radius:14px;background:#fff5f5;color:#7f1d1d;font:14px/1.6 sans-serif;box-shadow:0 8px 30px #0002";
+  message.className = "np-bootstrap-error";
   message.textContent = "Nurse＋の画面を読み込めませんでした。通信環境を確認して、ページを再読み込みしてください。";
   document.body.appendChild(message);
 }
