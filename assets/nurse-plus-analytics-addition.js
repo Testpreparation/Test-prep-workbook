@@ -589,30 +589,15 @@
           </div>
           ${wrongQuestionRecords.length ? wrongQuestionRecords.slice(0,5).map((item,index)=>`<div class="mt-3 rounded-xl border border-slate-700/70 bg-slate-950/40 p-3"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><div class="text-[10px] text-amber-300">${index+1}. ${esc(item.subjectName || item.subjectId || '科目')} ・ ${esc(item.context && item.context.modeLabel || '演習')}</div><p class="mt-1 text-xs leading-5 text-slate-200">${esc(String(item.question.q || '問題文なし').slice(0,180))}</p></div><div class="shrink-0 text-right"><div class="text-xs font-semibold text-rose-300">${Math.max(0,Number(item.wrongCount||0)-Number(item.correctCount||0))}回</div><div class="text-[9px] text-slate-500">未解消</div></div></div><div class="mt-2 text-[10px] text-slate-500">不正解 ${Number(item.wrongCount||0)}回 ・ 正解 ${Number(item.correctCount||0)}回</div></div>`).join('') : '<div class="np-analytics-empty">問題単位の記録はまだありません。これから間違えた問題が自動で集計されます。</div>'}
         </section>
-        <section class="np-analytics-card np-recent-carousel-card">
-          <div class="flex items-center justify-between gap-2 mb-3">
-            <h3 class="text-sm font-semibold text-slate-100">直近7日間の学習</h3>
-            <span class="text-[10px] text-slate-400">横にスワイプできます →</span>
-          </div>
-          <div id="np-recent-7d-carousel" class="np-recent-7d-carousel">
-            <article class="np-recent-7d-slide" aria-label="直近7日間の学習記録">
-              <div class="flex items-center justify-between gap-2"><div class="text-xs font-medium text-slate-200">直近7日間の学習記録</div><span class="text-[10px] text-slate-500">合計 ${weekTotal} 件</span></div>
-              <p class="text-[10px] text-slate-500 mt-1">日ごとの記録件数。データがない日は0件です。</p>
-              <div class="np-analytics-bars mt-2">${days.map(d=>`<div class="np-analytics-bar-col" title="${esc(d.key)}：${d.count}件"><div class="text-[9px] text-slate-400">${d.count||''}</div><div class="np-analytics-bar" style="height:${Math.max(3,d.count/maxCount*82)}px;opacity:${d.count?1:.22}"></div><div class="np-analytics-day">${esc(d.label)}</div></div>`).join('')}</div>
-              <div id="np-recent-7d-records" class="mt-3 space-y-2"><p class="text-[10px] text-slate-500">学習記録を読み込み中…</p></div>
-            </article>
-            <article class="np-recent-7d-slide" aria-label="直近7日間の平均正答率">
-              <div class="text-xs font-medium text-slate-200">直近7日間の平均正答率</div>
-              <div id="np-recent-7d-accuracy" class="mt-2 text-3xl font-mono font-bold text-amber-400">--</div>
-              <p id="np-recent-7d-summary" class="mt-1 text-[10px] text-slate-400">直近7日間の演習記録を集計します。</p>
-              <div class="np-analytics-bars mt-3">${days.map(d=>`<div class="np-analytics-bar-col" title="${esc(d.key)}：平均${d.count?d.avg+'%':'記録なし'}"><div class="text-[9px] text-slate-400">${d.count?d.avg+'%':''}</div><div class="np-analytics-bar" style="height:${Math.max(3,d.avg/100*82)}px;opacity:${d.count?1:.22};background:linear-gradient(180deg,#38bdf8,#2563eb)"></div><div class="np-analytics-day">${esc(d.label)}</div></div>`).join('')}</div>
-              <p class="text-[10px] text-slate-500 mt-2">その日に保存された演習結果の平均です。記録がない日は空欄になります。</p>
-            </article>
-          </div>
-          <div class="np-recent-7d-dots" role="group" aria-label="カルーセルのページ">
-            <button type="button" aria-label="1ページ目：学習記録" aria-current="true"></button>
-            <button type="button" aria-label="2ページ目：平均正答率" aria-current="false"></button>
-          </div>
+        <section class="np-analytics-card">
+          <div class="flex justify-between items-center gap-2"><h3 class="text-sm font-semibold text-slate-100">直近7日間の学習記録</h3><span class="text-[10px] text-slate-500">合計 ${weekTotal} 件</span></div>
+          <p class="text-[10px] text-slate-500 mt-1">日ごとの記録件数。データがない日は0件です。</p>
+          <div class="np-analytics-bars">${days.map(d=>`<div class="np-analytics-bar-col" title="${esc(d.key)}：${d.count}件"><div class="text-[9px] text-slate-400">${d.count||''}</div><div class="np-analytics-bar" style="height:${Math.max(3,d.count/maxCount*82)}px;opacity:${d.count?1:.22}"></div><div class="np-analytics-day">${esc(d.label)}</div></div>`).join('')}</div>
+        </section>
+        <section class="np-analytics-card">
+          <div class="flex items-center justify-between gap-2"><h3 class="text-sm font-semibold text-slate-100">直近7日間の平均正答率</h3><span class="text-[10px] text-slate-500">日別推移</span></div>
+          <div class="np-analytics-bars">${days.map(d=>`<div class="np-analytics-bar-col" title="${esc(d.key)}：平均${d.count?d.avg+'%':'記録なし'}"><div class="text-[9px] text-slate-400">${d.count?d.avg+'%':''}</div><div class="np-analytics-bar" style="height:${Math.max(3,d.avg/100*82)}px;opacity:${d.count?1:.22};background:linear-gradient(180deg,#38bdf8,#2563eb)"></div><div class="np-analytics-day">${esc(d.label)}</div></div>`).join('')}</div>
+          <p class="text-[10px] text-slate-500 mt-2">その日に保存された演習結果の平均です。記録がない日は空欄になります。</p>
         </section>
         <section class="np-analytics-card">
           <h3 class="text-sm font-semibold text-slate-100">科目別の平均正答率</h3>
@@ -622,43 +607,6 @@
         <p class="text-[10px] text-slate-500 leading-5">※ 分析は保存済みの正答率履歴を集計します。同期機能を使うには、LINEログインとRender側のFirebase Admin設定が必要です。</p>
       </div>`;
     animateAnalyticsInfographics(screen);
-    const recentCarousel = document.getElementById('np-recent-7d-carousel');
-    if (recentCarousel) {
-      let recentSessions = safeArray('nurse_plus_study_sessions');
-      const now = new Date();
-      const dayKey = date => date.getFullYear() + '/' + String(date.getMonth() + 1).padStart(2, '0') + '/' + String(date.getDate()).padStart(2, '0');
-      const startKey = dayKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6));
-      const endKey = dayKey(now);
-      recentSessions = recentSessions.filter(item => item && item.date && item.date >= startKey && item.date <= endKey)
-        .sort((a,b) => String(b.timestamp || b.date).localeCompare(String(a.timestamp || a.date)));
-      const questionCount = recentSessions.reduce((sum,item) => sum + Math.max(0,safeNumber(item.total)),0);
-      const correctCount = recentSessions.reduce((sum,item) => sum + Math.max(0,safeNumber(item.score)),0);
-      const accuracyEl = document.getElementById('np-recent-7d-accuracy');
-      const summaryEl = document.getElementById('np-recent-7d-summary');
-      const recordsEl = document.getElementById('np-recent-7d-records');
-      if (accuracyEl) accuracyEl.textContent = questionCount ? Math.round(correctCount / questionCount * 100) + '%' : '--';
-      if (summaryEl) summaryEl.textContent = recentSessions.length
-        ? '演習' + recentSessions.length + '回・' + questionCount + '問を集計'
-        : '直近7日間の記録はまだありません。演習を完了すると集計されます。';
-      if (recordsEl) recordsEl.innerHTML = recentSessions.length
-        ? recentSessions.slice(0,5).map(item => {
-            const total = Math.max(0,safeNumber(item.total));
-            const score = Math.max(0,safeNumber(item.score));
-            const acc = total ? Math.round(score / total * 100) : safeNumber(item.accuracy);
-            return '<div class="flex items-center justify-between gap-2 rounded-lg px-3 py-2" style="background:rgba(148,163,184,.12)"><div class="min-w-0"><div class="text-[11px] font-medium text-slate-200">' + esc(item.timestamp || item.date) + '</div><div class="mt-0.5 text-[10px] text-slate-400">' + total + '問中 ' + score + '問正解</div></div><div class="shrink-0 text-xs font-mono font-semibold text-amber-400">' + acc + '%</div></div>';
-          }).join('')
-        : '<p class="text-[10px] text-slate-500">直近7日間の学習記録はありません。</p>';
-      const dots = screen.querySelectorAll('.np-recent-7d-dots button');
-      const updateDots = () => {
-        const page = Math.round(recentCarousel.scrollLeft / Math.max(1, recentCarousel.clientWidth - 28));
-        dots.forEach((dot,index) => dot.setAttribute('aria-current', String(index === Math.min(1,Math.max(0,page)))));
-      };
-      recentCarousel.addEventListener('scroll', updateDots, {passive:true});
-      dots.forEach((dot,index) => dot.addEventListener('click', () => {
-        const slide = recentCarousel.children[index];
-        if (slide) recentCarousel.scrollTo({left:slide.offsetLeft - recentCarousel.offsetLeft + recentCarousel.scrollLeft,behavior:'smooth'});
-      }));
-    }
     document.getElementById('np-analytics-back')?.addEventListener('click', () => {
       document.getElementById(SCREEN_ID)?.classList.add('hidden');
       if (typeof window.showDashboard === 'function') window.showDashboard();
