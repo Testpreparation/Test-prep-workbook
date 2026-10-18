@@ -373,3 +373,13 @@ body :is(button, [role="button"], input, select, textarea) {
   font-family: 'Noto Sans JP', sans-serif;
   letter-spacing: .01em;
 }
+
+
+/* Keep the flashcard setup modal/page at a consistent height across steps. */
+#slider-page-2 {
+  height: clamp(430px, 68vh, 620px);
+  min-height: 0;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
