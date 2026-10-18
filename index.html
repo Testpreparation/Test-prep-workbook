@@ -5614,8 +5614,18 @@
       hideAllScreens();
       document.getElementById('screen-subjects').classList.remove('hidden');
       document.getElementById('study-breadcrumbs')?.classList.add('hidden');
+
+      // 科目一覧へ戻るたびに暗記カード側の選択状態を初期化し、
+      // 暗記カードページとページ切替ドットを再び操作できるようにする。
+      flashcardSubjectLocked = false;
+      const dots = document.getElementById('subject-page-dots');
+      if (dots) dots.classList.remove('hidden');
+      const track = document.getElementById('subjects-slider-track');
+      if (track) track.style.transform = 'translateX(0%)';
+
       switchSubjectPage(0);
       renderSubjectList();
+      renderFlashcardSubjectList();
     }
 
     function renderSubjectList() {
