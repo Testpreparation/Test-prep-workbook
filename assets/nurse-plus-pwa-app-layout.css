@@ -285,3 +285,52 @@ html.np-light-theme #screen-quiz-result button {
     padding: .9rem;
   }
 }
+
+
+/* Cinematic parallax reveal after the native/PWA launch screen has dismissed.
+   Keep the existing launch screen and all app behavior unchanged. */
+@keyframes np-cinematic-home-reveal {
+  0% {
+    opacity: 0;
+    filter: blur(7px);
+    transform: perspective(1200px) translate3d(0, 18px, -90px) scale(.965) rotateX(1.2deg);
+  }
+  58% {
+    opacity: .88;
+    filter: blur(1.5px);
+    transform: perspective(1200px) translate3d(0, 3px, -12px) scale(.992) rotateX(.2deg);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: perspective(1200px) translate3d(0, 0, 0) scale(1) rotateX(0);
+  }
+}
+
+/* Animate only the app shell once on initial render, not internal screen changes. */
+body > div.max-w-xl {
+  transform-origin: center center;
+  backface-visibility: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body > div.max-w-xl {
+    animation: np-cinematic-home-reveal 780ms cubic-bezier(.16, 1, .3, 1) both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body > div.max-w-xl {
+    animation: none !important;
+    filter: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
+
+html.np-accessibility-reduced-motion body > div.max-w-xl {
+  animation: none !important;
+  filter: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+}
