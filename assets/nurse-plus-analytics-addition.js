@@ -593,6 +593,7 @@
           <div class="flex items-center justify-between gap-2"><h3 class="text-sm font-semibold text-slate-100">直近7日間の平均正答率</h3><span class="text-[10px] text-slate-500">日別推移</span></div>
           <div class="np-analytics-bars">${days.map(d=>`<div class="np-analytics-bar-col" title="${esc(d.key)}：平均${d.count?d.avg+'%':'記録なし'}"><div class="text-[9px] text-slate-400">${d.count?d.avg+'%':''}</div><div class="np-analytics-bar" style="height:${Math.max(3,d.avg/100*82)}px;opacity:${d.count?1:.22};background:linear-gradient(180deg,#38bdf8,#2563eb)"></div><div class="np-analytics-day">${esc(d.label)}</div></div>`).join('')}</div>
           <p class="text-[10px] text-slate-500 mt-2">その日に保存された演習結果の平均です。記録がない日は空欄になります。</p>
+        </section>
         <section class="np-analytics-card">
           <h3 class="text-sm font-semibold text-slate-100">苦手分野の自動分析</h3>
           <p class="text-[10px] text-slate-500 mt-1">科目と出題モードごとの平均正答率から、復習の優先順位を提案します。</p>
@@ -604,7 +605,6 @@
             <button type="button" id="np-open-wrong-review" class="np-analytics-back shrink-0">復習する</button>
           </div>
           ${wrongQuestionRecords.length ? wrongQuestionRecords.slice(0,5).map((item,index)=>`<div class="mt-3 rounded-xl border border-slate-700/70 bg-slate-950/40 p-3"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><div class="text-[10px] text-amber-300">${index+1}. ${esc(item.subjectName || item.subjectId || '科目')} ・ ${esc(item.context && item.context.modeLabel || '演習')}</div><p class="mt-1 text-xs leading-5 text-slate-200">${esc(String(item.question.q || '問題文なし').slice(0,180))}</p></div><div class="shrink-0 text-right"><div class="text-xs font-semibold text-rose-300">${Math.max(0,Number(item.wrongCount||0)-Number(item.correctCount||0))}回</div><div class="text-[9px] text-slate-500">未解消</div></div></div><div class="mt-2 text-[10px] text-slate-500">不正解 ${Number(item.wrongCount||0)}回 ・ 正解 ${Number(item.correctCount||0)}回</div></div>`).join('') : '<div class="np-analytics-empty">問題単位の記録はまだありません。これから間違えた問題が自動で集計されます。</div>'}
-        </section>
         </section>
         <section class="np-analytics-card">
           <h3 class="text-sm font-semibold text-slate-100">科目別の平均正答率</h3>
