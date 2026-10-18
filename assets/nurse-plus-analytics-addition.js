@@ -586,12 +586,16 @@
       document.getElementById(SCREEN_ID)?.classList.add('hidden');
       if (typeof window.showDashboard === 'function') window.showDashboard();
     });
-    // 同期ボタンは設定 > アカウントに移動。動的に開く画面にも対応する。
-    document.getElementById('np-account-sync')?.addEventListener('click', event => {
-      const button = event.currentTarget;
-      const status = document.getElementById('np-account-sync-status');
-      syncStudyData(status, button);
-    });
+    // 同期ボタンは設定 > アカウントに移動。動的に生成される設定画面にも委譲イベントで対応する。
+    if (!document.documentElement.dataset.npAccountSyncHandler) {
+      document.documentElement.dataset.npAccountSyncHandler = '1';
+      document.addEventListener('click', event => {
+        const button = event.target.closest('#np-account-sync');
+        if (!button) return;
+        const status = document.getElementById('np-account-sync-status');
+        syncStudyData(status, button);
+      });
+    }
     document.getElementById('np-open-wrong-review')?.addEventListener('click', () => {
       if (typeof window.evoOpenWrong === 'function') window.evoOpenWrong();
       else alert('復習画面を開けませんでした。ページを再読み込みしてください。');
