@@ -3778,8 +3778,20 @@
 
     function resetAllDataToDefault() {
       if (confirm("全ての科目の平均正答率履歴データを削除しますか？")) {
+        // 科目別・モード別の履歴と日別推移をまとめて削除する。
+        // 学習セッションや週間・月間レポートの記録は、この操作では削除しない。
         subjects.forEach(s => {
-          localStorage.removeItem(`history_accuracy_${s.id}`);
+          if (!s || !s.id) return;
+          const exactKey = `history_accuracy_${s.id}`;
+          localStorage.removeItem(exactKey);
+          const modePrefix = `history_accuracy_${s.id}_`;
+          const dailyPrefix = `history_accuracy_daily_${s.id}_`;
+          const keysToRemove = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && (key.startsWith(modePrefix) || key.startsWith(dailyPrefix))) keysToRemove.push(key);
+          }
+          keysToRemove.forEach(key => localStorage.removeItem(key));
         });
         alert("平均正答率データをリセットしました。");
         renderSubjectList();
@@ -4728,7 +4740,19 @@
         const keys = [];
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
-          if (key && (key.startsWith('history_accuracy_') || ['study_days','study_streak','study_last_date','evo_today_done','nurse_plus_sync_owned_records','nurse_plus_sync_last_cloud_records'].includes(key))) keys.push(key);
+          if (key && (
+            key.startsWith('history_accuracy_') ||
+            [
+              'study_days',
+              'study_streak',
+              'study_last_date',
+              'evo_today_done',
+              'nurse_plus_study_sessions',
+              'nurse_plus_accuracy_baseline',
+              'nurse_plus_sync_owned_records',
+              'nurse_plus_sync_last_cloud_records'
+            ].includes(key)
+          )) keys.push(key);
         }
         keys.forEach(key => localStorage.removeItem(key));
         closeSettingsDetail();
