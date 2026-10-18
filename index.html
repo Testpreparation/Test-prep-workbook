@@ -6178,8 +6178,8 @@
     }
     function npAnimateAccuracy(target, correctCount, questionCount){
       const el=document.getElementById('final-score-val');
-      if(!el)return;
-      // 結果画面に表示した正答数を最優先し、渡された引数が古い場合も表示値と一致させる。
+      if(!el)return Promise.resolve(0);
+      // 正答数と総問題数を正として最終正答率を一度だけ算出する。
       const title=document.getElementById('result-score-title')?.textContent||'';
       const match=title.match(/全\s*(\d+)\s*問中\s*(\d+)\s*問正解/);
       const titleTotal=match?Number(match[1]):NaN;
@@ -6193,8 +6193,8 @@
       const supplied=Number(target);
       const goal=Math.max(0,Math.min(100,Number.isFinite(calculated)?calculated:(Number.isFinite(supplied)&&supplied>=0&&supplied<=100?Math.round(supplied):0)));
       if(el._npAccuracyFrame)cancelAnimationFrame(el._npAccuracyFrame);
-      if(el._npAccuracyTimer)clearTimeout(el._npAccuracyTimer);
       if(el._npAccuracyFallback)clearTimeout(el._npAccuracyFallback);
+      if(el._npAccuracyResolve)el._npAccuracyResolve(null);
       const runId=(Number(el._npAccuracyRunId)||0)+1;
       el._npAccuracyRunId=runId;
       el._npAccuracyGoal=goal;
@@ -6202,34 +6202,40 @@
       el.style.removeProperty('opacity');
       el.style.removeProperty('transition');
       el.textContent='0';
-      const started=performance.now(),duration=1900;
-      let lastTick=-1,completed=false;
-      const finish=()=>{
-        if(el._npAccuracyRunId!==runId||completed)return;
-        completed=true;
-        if(el._npAccuracyFrame)cancelAnimationFrame(el._npAccuracyFrame);
-        el._npAccuracyFrame=null;
-        el.textContent=String(goal);
-        if(el._npAccuracyFallback)clearTimeout(el._npAccuracyFallback);
-        el._npAccuracyFallback=null;
-        npResultChime(goal);
-      };
-      el._npAccuracyFallback=setTimeout(finish,duration+500);
-      const frame=now=>{
-        if(el._npAccuracyRunId!==runId||completed)return;
-        const p=Math.min(1,Math.max(0,(now-started)/duration));
-        const eased=1-Math.pow(1-p,3.4);
-        const value=p>=1?goal:Math.round(goal*eased);
-        el.textContent=String(value);
-        const tick=Math.floor(value/4);
-        if(tick>lastTick&&p<1){
-          lastTick=tick;
-          if(tick>0&&npAudio.sfx&&!npAudio.muted)npTone(520+Math.min(520,tick*18),.045,.0028,0);
-        }
-        if(p<1)el._npAccuracyFrame=requestAnimationFrame(frame);
-        else{el._npAccuracyFrame=null;finish();}
-      };
-      el._npAccuracyFrame=requestAnimationFrame(frame);
+      return new Promise(resolve=>{
+        el._npAccuracyResolve=resolve;
+        const started=performance.now(),duration=1900;
+        let lastTick=-1,completed=false;
+        const finish=()=>{
+          if(el._npAccuracyRunId!==runId||completed)return;
+          completed=true;
+          if(el._npAccuracyFrame)cancelAnimationFrame(el._npAccuracyFrame);
+          el._npAccuracyFrame=null;
+          // アニメーション完了時に、計算済みの正答率を必ず最終値として固定する。
+          el.textContent=String(goal);
+          if(el._npAccuracyFallback)clearTimeout(el._npAccuracyFallback);
+          el._npAccuracyFallback=null;
+          el._npAccuracyResolve=null;
+          npResultChime(goal);
+          resolve(goal);
+        };
+        el._npAccuracyFallback=setTimeout(finish,duration+500);
+        const frame=now=>{
+          if(el._npAccuracyRunId!==runId||completed)return;
+          const p=Math.min(1,Math.max(0,(now-started)/duration));
+          const eased=1-Math.pow(1-p,3.4);
+          const value=p>=1?goal:Math.round(goal*eased);
+          el.textContent=String(value);
+          const tick=Math.floor(value/4);
+          if(tick>lastTick&&p<1){
+            lastTick=tick;
+            if(tick>0&&npAudio.sfx&&!npAudio.muted)npTone(520+Math.min(520,tick*18),.045,.0028,0);
+          }
+          if(p<1)el._npAccuracyFrame=requestAnimationFrame(frame);
+          else{el._npAccuracyFrame=null;finish();}
+        };
+        el._npAccuracyFrame=requestAnimationFrame(frame);
+      });
     }
     function npUpdateAudioUI(){const s=document.getElementById('quiz-sfx-toggle'),v=document.getElementById('quiz-audio-volume'),m=document.getElementById('quiz-audio-mute');if(s)s.checked=npAudio.sfx;if(v)v.value=Math.round(npAudio.volume*100);const label=document.getElementById('quiz-audio-volume-label');if(label)label.textContent=Math.round(npAudio.volume*100)+'%';if(m)m.textContent=npAudio.muted?'音をオンにする':'すべての音をオフにする';}
     (function(){const unlockAudio=()=>{npInitAudio();};document.addEventListener('pointerdown',unlockAudio,{passive:true});document.addEventListener('touchstart',unlockAudio,{passive:true});document.addEventListener('keydown',unlockAudio);document.addEventListener('change',e=>{const t=e.target;if(t.id==='quiz-sfx-toggle'){npAudio.sfx=t.checked;localStorage.setItem('nurse_plus_audio_sfx',t.checked?'on':'off');if(npAudio.sfx)npUiSound('toggle');}if(t.id==='quiz-audio-volume'){npAudio.volume=Number(t.value)/100;localStorage.setItem('nurse_plus_audio_volume',String(Number(t.value)));const label=document.getElementById('quiz-audio-volume-label');if(label)label.textContent=t.value+'%';if(npAudio.master&&npAudio.ctx)npAudio.master.gain.setTargetAtTime(npAudio.muted?0:npAudio.volume,npAudio.ctx.currentTime,.1);}});document.addEventListener('click',e=>{const mute=e.target.closest&&e.target.closest('#quiz-audio-mute');if(mute){npAudio.muted=!npAudio.muted;localStorage.setItem('nurse_plus_audio_muted',npAudio.muted?'on':'off');if(npAudio.master&&npAudio.ctx)npAudio.master.gain.setTargetAtTime(npAudio.muted?0:npAudio.volume,npAudio.ctx.currentTime,.08);npUpdateAudioUI();if(!npAudio.muted)npUiSound('toggle');return;}const target=e.target.closest&&e.target.closest('button,[role="button"],input[type="radio"],input[type="checkbox"],a[href]');if(!target||target.disabled||target.id==='quiz-sfx-toggle'||target.id==='quiz-audio-volume')return;if(target.matches('input[type="radio"],input[type="checkbox"]')){npUiSound('select');return;}if(target.closest('#quiz-options-container,[data-question-option],.quiz-option,.quiz-opt-btn')){npUiSound('select');return;}if(target.matches('#quiz-next-btn')){npUiSound('next');return;}if(target.matches('#quiz-submit-multi-btn,#quiz-keyboard-input-container button')){npUiSound('submit');return;}if(target.matches('[aria-expanded="true"],[data-state="open"]')){npUiSound('close');return;}if(target.matches('[aria-expanded="false"],[data-state="closed"]')){npUiSound('open');return;}if(target.matches('a[href]')){npUiSound('nav');return;}const label=(target.getAttribute('aria-label')||target.innerText||target.textContent||'').trim().replace(/\s+/g,' ').slice(0,50);if(/開始|スタート|挑戦する|演習を始める|はじめる/.test(label)){npUiSound('start');return;}if(/結果を見る|完了|終了|提出|確定/.test(label)){npUiSound('finish');return;}if(/戻る|ホーム|閉じる|キャンセル/.test(label)){npUiSound('back');return;}if(/設定|オーディオ|テーマ|通知/.test(label)){npUiSound('settings');return;}if(/科目|モード|選択|カード/.test(label)){npUiSound('nav');return;}npUiSound('tap');});})();
@@ -6924,37 +6930,31 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       const accRate = total > 0 ? Math.round((score / total) * 100) : 0;
 
       document.getElementById('result-score-title').textContent = `全${total}問中 ${score}問正解`;
-      npAnimateAccuracy(accRate, score, total);
-      // アニメーション側の処理が中断された場合も、結果発表の表示値を正しい正答率へ確定する。
-      const resultAccuracyEl = document.getElementById('final-score-val');
-      const resultTitleText = document.getElementById('result-score-title')?.textContent || '';
-      const resultTitleMatch = resultTitleText.match(/全\s*(\d+)\s*問中\s*(\d+)\s*問正解/);
-      const expectedAccuracy = resultTitleMatch && Number(resultTitleMatch[1]) > 0
-        ? Math.round(Number(resultTitleMatch[2]) / Number(resultTitleMatch[1]) * 100)
-        : accRate;
-      setTimeout(() => {
-        if (resultAccuracyEl && Number(resultAccuracyEl.textContent) !== expectedAccuracy) {
-          resultAccuracyEl.textContent = String(expectedAccuracy);
-        }
-      }, 2500);
-      
+      // 正答率のカウントアップが完了するまで、結果コメント・演出・効果音の発表を待つ。
       const evalText = document.getElementById('final-eval-text');
-      if (accRate === 100) {
-        evalText.textContent = "素晴らしい！満点達成です！";
-        if (typeof confetti === 'function') {
-          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+      npAnimateAccuracy(accRate, score, total).then(finalAccuracy => {
+        if (finalAccuracy !== accRate) {
+          // 表示タイトルと採点結果に差がある場合は、採点結果の正答率を最終値にする。
+          const accuracyEl = document.getElementById('final-score-val');
+          if (accuracyEl) accuracyEl.textContent = String(accRate);
         }
-        npUiSound('success');
-      } else if (accRate >= 80) {
-        evalText.textContent = "合格ライン達成！大変優秀です。";
-        npUiSound('success');
-      } else if (accRate >= 60) {
-        evalText.textContent = "あと一歩！間違えた箇所を復習しましょう。";
-        npUiSound('select');
-      } else {
-        evalText.textContent = "繰り返し練習して基礎を固めましょう。";
-        npUiSound('close');
-      }
+        if (accRate === 100) {
+          evalText.textContent = "素晴らしい！満点達成です！";
+          if (typeof confetti === 'function') {
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+          }
+          npUiSound('success');
+        } else if (accRate >= 80) {
+          evalText.textContent = "合格ライン達成！大変優秀です。";
+          npUiSound('success');
+        } else if (accRate >= 60) {
+          evalText.textContent = "あと一歩！間違えた箇所を復習しましょう。";
+          npUiSound('select');
+        } else {
+          evalText.textContent = "繰り返し練習して基礎を固めましょう。";
+          npUiSound('close');
+        }
+      });
 
       const key = getHighscoreKey();
       const prevBest = localStorage.getItem(key);
