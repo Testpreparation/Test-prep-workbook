@@ -5521,6 +5521,19 @@
         return screen && !screen.classList.contains('hidden');
       });
 
+      // パンくずが表示される学習画面では、同じ移動先のヘッダー戻るボタンを重ねて表示しない。
+      const breadcrumbStageActive = Boolean(activeStage && currentSubject);
+      screenStages.forEach(([id]) => {
+        const screen = document.getElementById(id);
+        if (!screen) return;
+        screen.querySelectorAll('button[onclick]').forEach((button) => {
+          const action = button.getAttribute('onclick') || '';
+          const duplicatesBreadcrumb = /showSubjectScreen\(|showSemesterSelectionScreen\(|showPathologyModeSelectionScreen\(/.test(action);
+          if (!duplicatesBreadcrumb) return;
+          button.classList.toggle('hidden', breadcrumbStageActive && id === activeStage[0]);
+        });
+      });
+
       if (!activeStage || !currentSubject) {
         nav.classList.add('hidden');
         list.replaceChildren();
