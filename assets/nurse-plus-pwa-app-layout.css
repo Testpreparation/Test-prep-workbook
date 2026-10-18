@@ -335,3 +335,19 @@ html.np-accessibility-reduced-motion body > div.w-full.max-w-xl.mx-auto {
   transform: none !important;
   opacity: 1 !important;
 }
+
+
+/* App finish: subtle, consistent mobile interaction feedback. */
+html.np-light-theme #screen-data-analysis .np-analytics-card,
+html.np-light-theme #screen-analytics-addition .np-analytics-card {
+  border-radius: 1.15rem;
+  transition: box-shadow .22s ease, border-color .22s ease;
+}
+html.np-light-theme #screen-data-analysis .np-analytics-card:focus-within,
+html.np-light-theme #screen-analytics-addition .np-analytics-card:focus-within { border-color:#d7c5ef; }
+html.np-accessibility-reduced-motion *,
+html.np-accessibility-reduced-motion *::before,
+html.np-accessibility-reduced-motion *::after {
+  scroll-behavior:auto !important; animation-duration:.01ms !important;
+  animation-iteration-count:1 !important; transition-duration:.01ms !important;
+}
