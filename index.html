@@ -1590,6 +1590,12 @@
         <div class="w-full bg-slate-800/80 h-2 rounded-full overflow-hidden border border-slate-700/50">
           <div id="quiz-timer-bar" class="h-full bg-amber-500 w-full transition-all duration-100 ease-linear"></div>
         </div>
+        <div id="quiz-audio-controls" class="flex flex-wrap items-center gap-3 rounded-xl border border-slate-700/60 bg-slate-900/50 px-3 py-2 text-[11px] text-slate-300">
+          <label class="inline-flex items-center gap-1.5"><input id="quiz-bgm-toggle" type="checkbox" checked class="accent-amber-500"> ♫ BGM</label>
+          <label class="inline-flex items-center gap-1.5"><input id="quiz-sfx-toggle" type="checkbox" checked class="accent-amber-500"> 効果音</label>
+          <label class="inline-flex items-center gap-2 flex-1 min-w-[100px]"><span>音量</span><input id="quiz-audio-volume" type="range" min="0" max="100" value="25" class="w-full accent-amber-500" aria-label="音量"></label>
+          <button type="button" id="quiz-audio-mute" class="rounded-lg border border-slate-700 px-2 py-1">音をオフ</button>
+        </div>
 
         <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
           <div id="quiz-question-number" class="text-[11px] text-amber-500/80 font-medium">Q1</div>
@@ -6117,7 +6123,16 @@
       return !!item && Number(item.wrong || 0) > Number(item.correct || 0);
     }
 
+    const npAudio={ctx:null,master:null,timer:null,bgm:true,sfx:true,volume:.25,muted:false,step:0};
+    function npInitAudio(){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;if(!npAudio.ctx){npAudio.ctx=new AC();npAudio.master=npAudio.ctx.createGain();npAudio.master.gain.value=npAudio.volume;npAudio.master.connect(npAudio.ctx.destination);}if(npAudio.ctx.state==='suspended')npAudio.ctx.resume().catch(()=>{});return npAudio.ctx;}
+    function npTone(freq,dur,vol,delay=0){const c=npInitAudio();if(!c||npAudio.muted||!npAudio.sfx)return;const o=c.createOscillator(),g=c.createGain(),t=c.currentTime+delay;o.type='sine';o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.025);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(npAudio.master);o.start(t);o.stop(t+dur+.03);}
+    function npAnswerSound(ok){if(ok){npTone(659.25,.2,.07);npTone(783.99,.26,.05,.1);}else npTone(293.66,.2,.035);}
+    function npStartBgm(){const c=npInitAudio();if(!c||!npAudio.bgm||npAudio.muted||npAudio.timer)return;const chords=[[130.81,164.81,196],[110,130.81,164.81],[87.31,110,130.81],[98,123.47,146.83]];const play=()=>{if(!npAudio.bgm||npAudio.muted)return;const chord=chords[npAudio.step++%chords.length],t=c.currentTime;chord.forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain(),filter=c.createBiquadFilter();o.type='sine';o.frequency.value=f;filter.type='lowpass';filter.frequency.value=500;g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.012-i*.002,t+1.5);g.gain.setValueAtTime(.01-i*.001,t+4);g.gain.exponentialRampToValueAtTime(.0001,t+5.8);o.connect(filter);filter.connect(g);g.connect(npAudio.master);o.start(t);o.stop(t+5.85);});};play();npAudio.timer=setInterval(play,5800);}
+    function npStopBgm(){if(npAudio.timer)clearInterval(npAudio.timer);npAudio.timer=null;}
+    function npUpdateAudioUI(){const b=document.getElementById('quiz-bgm-toggle'),s=document.getElementById('quiz-sfx-toggle'),v=document.getElementById('quiz-audio-volume'),m=document.getElementById('quiz-audio-mute');if(b)b.checked=npAudio.bgm;if(s)s.checked=npAudio.sfx;if(v)v.value=Math.round(npAudio.volume*100);if(m)m.textContent=npAudio.muted?'音をオン':'音をオフ';}
+    (function(){document.addEventListener('change',e=>{const t=e.target;if(t.id==='quiz-bgm-toggle'){npAudio.bgm=t.checked;if(t.checked&&!npAudio.muted)npStartBgm();else npStopBgm();}if(t.id==='quiz-sfx-toggle')npAudio.sfx=t.checked;if(t.id==='quiz-audio-volume'){npAudio.volume=Number(t.value)/100;if(npAudio.master)npAudio.master.gain.setTargetAtTime(npAudio.muted?0:npAudio.volume,npAudio.ctx.currentTime,.1);}});document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#quiz-audio-mute')){npAudio.muted=!npAudio.muted;if(npAudio.master&&npAudio.ctx)npAudio.master.gain.setTargetAtTime(npAudio.muted?0:npAudio.volume,npAudio.ctx.currentTime,.08);if(npAudio.muted)npStopBgm();else if(npAudio.bgm)npStartBgm();npUpdateAudioUI();return;}if(e.target.closest&&e.target.closest('#quiz-next-btn, #quiz-submit-multi-btn, #quiz-keyboard-input-container button')&&npAudio.sfx&&!npAudio.muted)npTone(520,.05,.02);});})();
     function startQuiz() {
+      npInitAudio(); if(npAudio.bgm&&!npAudio.muted)npStartBgm(); npUpdateAudioUI();
       prioritizeWeakQuestions = !!document.getElementById('weak-question-toggle')?.checked;
       const isAutumn = (currentSemester === '2026_autumn');
 
@@ -6620,6 +6635,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         }
       }
 
+      if(npAudio.sfx&&!npAudio.muted)npAnswerSound(isCorrect);
       saveWeakQuestionResult(q, isCorrect);
 
       const fbBox = document.getElementById('quiz-feedback-box');
@@ -6697,6 +6713,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         }
       }
 
+      if(npAudio.sfx&&!npAudio.muted)npAnswerSound(isCorrect);
       saveWeakQuestionResult(q, isCorrect);
 
       if (isCorrect) {
@@ -6728,6 +6745,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       const userSorted = [...userSelectedArray].filter(v => v >= 0).sort((a,b) => a-b).join(',');
       const isCorrect = (!isTimeout && userSorted.length > 0 && correctSorted === userSorted);
 
+      if(npAudio.sfx&&!npAudio.muted)npAnswerSound(isCorrect);
       saveWeakQuestionResult(q, isCorrect);
 
       buttons.forEach((btn, idx) => {
@@ -6769,6 +6787,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
 
     function quitQuiz() {
       if (confirm("現在の演習を終了して科目選択画面へ戻りますか？")) {
+        npStopBgm();
         stopQuizTimer();
         showSubjectScreen();
       }
@@ -6796,6 +6815,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
     }
 
     function showResultScreen() {
+      npStopBgm();
       stopQuizTimer();
       hideAllScreens();
       document.getElementById('screen-quiz-result').classList.remove('hidden');
