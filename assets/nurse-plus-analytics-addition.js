@@ -431,6 +431,13 @@
         border-color:#d9c8ef !important;color:#604a80 !important;
       }
       #${SCREEN_ID} { animation: npAnalyticsEnter 1.05s cubic-bezier(.22,1,.36,1) both; }
+      /* 画面全体のtransform/filterがモーダルの重なり順やfixed位置を閉じ込めないようにする。 */
+      #${SCREEN_ID} {
+        transform:none !important;
+        filter:none !important;
+        animation:none !important;
+        isolation:auto !important;
+      }
       @keyframes npAnalyticsEnter { from { opacity:0; transform:translateY(18px) scale(.985); filter:blur(2px); } to { opacity:1; transform:translateY(0) scale(1); filter:blur(0); } }
       .np-analytics-card { background:rgba(15,23,42,.72);border:1px solid rgba(148,163,184,.18);border-radius:16px;padding:14px; }
       .np-analytics-metric { font-size:24px;line-height:1.25;font-weight:700;letter-spacing:-.04em;color:#f8fafc; }
