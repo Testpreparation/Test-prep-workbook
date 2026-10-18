@@ -1,0 +1,71 @@
+<div id="user-settings-overlay" onclick="closeUserSettings()" class="hidden fixed inset-0 bg-slate-950/65 backdrop-blur-sm z-[70]"></div>
+  <section id="user-settings-modal" role="dialog" aria-modal="true" aria-labelledby="user-settings-title" class="hidden fixed z-[71] inset-x-4 top-1/2 -translate-y-1/2 max-w-md mx-auto rounded-2xl border border-slate-700 bg-slate-900/95 backdrop-blur-xl shadow-2xl p-5 text-slate-200 max-h-[85vh] overflow-y-auto">
+    <div class="flex items-center justify-between gap-3 pb-4 border-b border-slate-700">
+      <div><div class="en-title text-[10px] tracking-[.2em] text-amber-400">SETTINGS</div><h2 id="user-settings-title" class="serif-title text-xl mt-1">設定</h2><p class="text-xs text-slate-400 mt-1">アカウントやアプリの表示を管理します。</p></div>
+      <button type="button" onclick="closeUserSettings()" class="rounded-lg p-2 text-slate-400 hover:text-white hover:bg-slate-800" aria-label="設定を閉じる">✕</button>
+    </div>
+    <div class="space-y-3 pt-4" id="settings-accordion">
+      <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-emerald-300">◉</span>アカウント</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
+        <div class="px-4 pb-4"><button type="button" onclick="openSettingsDetail('account')" class="np-settings-entry"><span>アカウント</span><span aria-hidden="true">›</span></button></div>
+      </details>
+      <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-amber-300">⚙</span>一般</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
+        <div class="px-4 pb-4 space-y-2">
+          <button id="np-theme-settings-card" type="button" class="w-full flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left cursor-pointer hover:bg-slate-800/70 transition" aria-label="テーマ・外観を開く"><span class="font-semibold text-sm">テーマ・外観</span><span class="text-slate-400" aria-hidden="true">›</span></button>
+          <button type="button" onclick="openSettingsDetail('audio')" class="np-settings-entry"><span>オーディオ</span><span aria-hidden="true">›</span></button>
+          <button type="button" onclick="openSettingsDetail('notifications')" class="np-settings-entry"><span>通知設定</span><span aria-hidden="true">›</span></button>
+          <button type="button" onclick="openSettingsDetail('accessibility')" class="np-settings-entry"><span>アクセシビリティ</span><span aria-hidden="true">›</span></button>
+        </div>
+      </details>
+      <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-sky-300">◇</span>プライバシー</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
+        <div class="px-4 pb-4 space-y-2">
+          <button type="button" onclick="openSettingsDetail('privacy')" class="np-settings-entry"><span>プライバシー</span><span aria-hidden="true">›</span></button>
+        </div>
+      </details>
+      <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-rose-300">▤</span>データ管理</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
+        <div class="px-4 pb-4"><button type="button" onclick="openSettingsDetail('data')" class="np-settings-entry"><span>データ管理</span><span aria-hidden="true">›</span></button></div>
+      </details>
+      <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-violet-300">♡</span>ヘルプ・サポート</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
+        <div class="px-4 pb-4 space-y-2">
+          <button type="button" onclick="openSettingsDetail('help')" class="np-settings-entry"><span>ヘルプ・サポート</span><span aria-hidden="true">›</span></button>
+        </div>
+      </details>
+      <details class="group rounded-xl border border-slate-700 bg-slate-800/40 overflow-hidden">
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-100"><span class="flex items-center gap-2"><span class="text-slate-300">ⓘ</span>アプリ情報</span><span class="settings-chevron text-slate-400 transition-transform group-open:rotate-180">⌄</span></summary>
+        <div class="px-4 pb-4 space-y-2">
+          <button type="button" onclick="openSettingsDetail('info')" class="np-settings-entry"><span>アプリ情報</span><span aria-hidden="true">›</span></button>
+        </div>
+      </details>
+      <details class="group rounded-xl border border-amber-500/25 bg-amber-500/5 overflow-hidden">
+        <summary class="list-none cursor-pointer flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-amber-200"><span class="flex items-center gap-2"><span>♙</span>管理者</span><span class="settings-chevron text-amber-300 transition-transform group-open:rotate-180">⌄</span></summary>
+        <div class="px-4 pb-4"><div class="rounded-xl border border-amber-500/25 bg-slate-900/60 p-4"><div class="font-semibold text-sm">管理者メニュー</div><p class="text-xs text-slate-400 mt-1">管理者パスワードを入力して、管理者機能を開きます。</p><button type="button" onclick="openAdminAuthFromSettings()" class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-300 hover:bg-amber-500/20 transition"><span>管理者メニューを開く</span><span aria-hidden="true">→</span></button></div></div>
+      </details>
+    </div>
+    <button type="button" onclick="closeUserSettings()" class="mt-5 w-full rounded-xl border border-slate-700 bg-slate-800/70 py-3 text-sm hover:bg-slate-700 transition">閉じる</button>
+  </section>
+  <div id="np-theme-settings-overlay" class="hidden fixed inset-0 z-[90] bg-slate-950/65 backdrop-blur-sm" onclick="closeThemeSettingsPage()"></div>
+  <section id="np-theme-settings-modal" class="hidden fixed z-[91] inset-x-4 top-1/2 -translate-y-1/2 max-w-md mx-auto rounded-2xl border border-slate-200 bg-white/95 p-5 text-slate-700 shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="np-theme-settings-title">
+    <div class="flex items-center justify-between gap-3 pb-4 border-b border-slate-200">
+      <div><div class="text-[10px] tracking-[.2em] text-violet-400">APPEARANCE</div><h2 id="np-theme-settings-title" class="text-xl font-semibold mt-1">テーマ・外観</h2><p class="text-xs text-slate-500 mt-1">アプリ全体の表示モードを設定します。</p></div>
+      <button type="button" onclick="closeThemeSettingsPage()" class="rounded-lg p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100" aria-label="テーマ設定を閉じる">✕</button>
+    </div>
+    <div id="np-theme-settings-modal-content" class="pt-4">
+      <p class="text-sm text-slate-600 mb-4">アプリ全体の表示モードを切り替えます。初期設定はホワイトです。</p>
+      <button id="np-theme-toggle" type="button" aria-pressed="false" aria-label="ダークモードに切り替え" title="テーマを切り替え"><span id="np-theme-icon" aria-hidden="true">☾</span><span id="np-theme-label">ダーク</span></button>
+    </div>
+    <button type="button" onclick="closeThemeSettingsPage()" class="mt-5 w-full rounded-xl border border-slate-200 bg-slate-50 py-3 text-sm hover:bg-slate-100 transition">戻る</button>
+  </section>
+
+  <div id="np-settings-detail-overlay" class="hidden fixed inset-0 z-[92] bg-slate-950/65 backdrop-blur-sm" onclick="closeSettingsDetail()"></div>
+  <section id="np-settings-detail-modal" class="hidden fixed z-[93] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-md rounded-2xl border border-slate-200 bg-white/95 p-5 text-slate-700 shadow-2xl max-h-[80vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="np-settings-detail-title">
+    <div class="flex items-center justify-between gap-3 pb-4 border-b border-slate-200">
+      <h2 id="np-settings-detail-title" class="text-xl font-semibold">設定</h2>
+      <button type="button" onclick="closeSettingsDetail()" class="rounded-lg p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100" aria-label="設定画面を閉じる">✕</button>
+    </div>
+    <div id="np-settings-detail-body" class="pt-4 text-sm leading-7 text-slate-600"></div>
+    <button type="button" onclick="closeSettingsDetail()" class="mt-5 w-full rounded-xl border border-slate-200 bg-slate-50 py-3 text-sm hover:bg-slate-100 transition">戻る</button>
+  </section>
