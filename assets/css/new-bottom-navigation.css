@@ -97,3 +97,33 @@ body.np-bottom-nav-active #np-new-flashcard-entry {
 body.np-bottom-nav-active #np-new-flashcard-entry .np-fc-entry-icon {
   font-size: 24px !important;
 }
+
+
+/* In new-navigation home cards, show only the subject marker and subject name. */
+body.np-bottom-nav-active #subject-list-container > button > div:first-child > div > div:nth-child(2),
+body.np-bottom-nav-active #subject-list-container > button > div:last-child {
+  display: none !important;
+}
+body.np-bottom-nav-active #subject-list-container > button > div:first-child {
+  width: 100% !important;
+  justify-content: center !important;
+  gap: 12px !important;
+}
+body.np-bottom-nav-active #subject-list-container > button > div:first-child > span {
+  display: grid !important;
+  place-items: center !important;
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  padding: 0 !important;
+  border-radius: 12px !important;
+  font-size: 11px !important;
+}
+body.np-bottom-nav-active #subject-list-container > button > div:first-child > div {
+  min-width: 0 !important;
+}
+body.np-bottom-nav-active #subject-list-container > button > div:first-child > div > div:first-child {
+  font-size: 14px !important;
+  line-height: 1.35 !important;
+  text-align: left !important;
+}
