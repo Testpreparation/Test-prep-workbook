@@ -73,7 +73,7 @@
         // 初回アクセス時、LINE未ログインならログイン案内を表示する。
         // ログイン済みなら再表示しない。お知らせ機能には触れない。
         document.addEventListener('DOMContentLoaded', () => {
-          if (localStorage.getItem('nurse_line_user_name')) return;
+          if (localStorage.getItem('nurse_line_user_name') && localStorage.getItem('nurse_line_user_session') && localStorage.getItem('nurse_line_user_id')) return;
           if (document.getElementById('nurse-line-first-login-modal')) return;
 
           const modal = document.createElement('div');
