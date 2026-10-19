@@ -4865,11 +4865,37 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         const isUserChosen = userSelectedArray.includes(idx);
 
         if (isTargetCorrect) {
-          btn.classList.add('bg-emerald-950/60', 'border-emerald-500/80', 'text-emerald-200');
-        } else if (isUserChosen && !isTargetCorrect) {
-          btn.classList.add('bg-rose-950/60', 'border-rose-500/80', 'text-rose-200');
+          btn.classList.add(
+            'bg-emerald-900/90',
+            'border-2',
+            'border-emerald-300',
+            'ring-2',
+            'ring-emerald-400/70',
+            'ring-inset',
+            'text-emerald-50',
+            'shadow-[0_0_0_2px_rgba(52,211,153,0.16)]'
+          );
+          const badge = document.createElement('span');
+          badge.className = 'shrink-0 ml-2 rounded-md border border-emerald-200 bg-emerald-300 px-2 py-1 text-[10px] font-extrabold tracking-wide text-emerald-950';
+          badge.textContent = '✓ 正解';
+          btn.appendChild(badge);
+        } else if (isUserChosen) {
+          btn.classList.add(
+            'bg-rose-900/90',
+            'border-2',
+            'border-rose-300',
+            'ring-2',
+            'ring-rose-400/70',
+            'ring-inset',
+            'text-rose-50',
+            'shadow-[0_0_0_2px_rgba(251,113,133,0.16)]'
+          );
+          const badge = document.createElement('span');
+          badge.className = 'shrink-0 ml-2 rounded-md border border-rose-200 bg-rose-300 px-2 py-1 text-[10px] font-extrabold tracking-wide text-rose-950';
+          badge.textContent = '✕ あなたの回答';
+          btn.appendChild(badge);
         } else {
-          btn.classList.add('opacity-40');
+          btn.classList.add('opacity-50');
         }
       });
 
