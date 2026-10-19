@@ -64,6 +64,8 @@
       status.id = 'np-pwa-status';
       status.setAttribute('role', 'status');
       status.innerHTML = '<span class="np-pwa-dot"></span><span class="np-pwa-status-text">オンライン</span>';
+      status.hidden = true;
+      status.setAttribute('aria-hidden', 'true');
       document.body.appendChild(status);
       const updateStatus = () => {
         const offline = !navigator.onLine;
