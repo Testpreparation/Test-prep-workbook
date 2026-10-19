@@ -3314,6 +3314,9 @@
       renderDashboard();
     }
     function showDataAnalysis(){
+      // 別画面へ移動するときは、お知らせモーダルを自動で閉じる。
+      const noticeModal = document.getElementById('modal-notice');
+      if (noticeModal) noticeModal.classList.add('hidden');
       hideAllScreens();
       const el=document.getElementById('screen-data-analysis');
       if(el) el.classList.remove('hidden');
