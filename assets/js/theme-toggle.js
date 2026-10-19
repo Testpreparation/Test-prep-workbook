@@ -25,6 +25,23 @@
     applyTheme(toggle.checked ? 'dark' : 'light');
   });
 
+  // 設定内の「テーマ・外観」画面を開閉する関数をグローバルに公開する。
+  // index.html のオーバーレイ／モーダル構造をそのまま利用する。
+  window.openThemeSettingsPage = function() {
+    const overlay = document.getElementById('np-theme-settings-overlay');
+    const modal = document.getElementById('np-theme-settings-modal');
+    if (!overlay || !modal) return;
+    overlay.classList.remove('hidden');
+    modal.classList.remove('hidden');
+  };
+
+  window.closeThemeSettingsPage = function() {
+    const overlay = document.getElementById('np-theme-settings-overlay');
+    const modal = document.getElementById('np-theme-settings-modal');
+    if (modal) modal.classList.add('hidden');
+    if (overlay) overlay.classList.add('hidden');
+  };
+
   const themeCard = document.getElementById('np-theme-settings-card');
   if (themeCard) {
     themeCard.addEventListener('click', event => {
