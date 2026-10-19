@@ -33,10 +33,29 @@
     const noticesPage = document.getElementById('np-bottom-menu-notices-page');
     if (noticesPage) noticesPage.classList.add('hidden');
     body.classList.remove('np-bottom-menu-notices-view', 'np-bottom-menu-analysis-view');
-    if (typeof window.showSubjectScreen === 'function') {
-      window.showSubjectScreen();
-      setActive('home');
-    }
+    let attempts = 0;
+    const showHomeWhenReady = () => {
+      if (!getEnabled()) return;
+      const subjects = document.getElementById('screen-subjects');
+      const subjectList = document.getElementById('subject-list-container');
+      const showSubjectScreen = window.showSubjectScreen;
+      if (typeof showSubjectScreen === 'function') {
+        showSubjectScreen();
+        if (subjects) subjects.classList.remove('hidden');
+        setActive('home');
+        // 初期化処理が後から画面を切り替えるケースに備え、短時間だけ再確認する。
+        if (attempts < 12 && (!subjectList || subjectList.children.length === 0)) {
+          attempts += 1;
+          window.setTimeout(showHomeWhenReady, 250);
+        }
+        return;
+      }
+      if (attempts < 20) {
+        attempts += 1;
+        window.setTimeout(showHomeWhenReady, 250);
+      }
+    };
+    showHomeWhenReady();
   };
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeBottomMenuHome, { once: true });
