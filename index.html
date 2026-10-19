@@ -166,6 +166,13 @@
       <button type="button" onclick="closeThemeSettingsPage()" class="rounded-lg p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100" aria-label="テーマ設定を閉じる">✕</button>
     </div>
     <div id="np-theme-settings-modal-content" class="pt-4">
+      <div class="mb-4">
+        <p class="text-sm text-slate-600 mb-3">スマートフォンのメニュー表示を選択できます。</p>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" id="np-nav-style-bottom" class="rounded-xl border px-3 py-3 text-sm font-semibold transition" aria-pressed="true">下部メニュー</button>
+          <button type="button" id="np-nav-style-original" class="rounded-xl border px-3 py-3 text-sm font-semibold transition" aria-pressed="false">従来のメニュー</button>
+        </div>
+      </div>
       <p class="text-sm text-slate-600 mb-4">アプリ全体の表示モードを切り替えます。初期設定はホワイトです。</p>
       <button id="np-theme-toggle" type="button" aria-pressed="false" aria-label="ダークモードに切り替え" title="テーマを切り替え"><span id="np-theme-icon" aria-hidden="true">☾</span><span id="np-theme-label">ダーク</span></button>
     </div>
@@ -1654,6 +1661,10 @@
   <!-- Nurse＋ PWA navigation improvements: screen transitions, browser back, LINE external-browser guidance -->
   <style id="np-mobile-bottom-navigation-style">
     /* スマートフォンのみ下部ナビを表示。既存の背景・配色・PC表示は変更しない */
+    body.np-use-original-nav #np-mobile-bottom-nav { display:none !important; }
+    @media (max-width: 767px) {
+      body.np-use-original-nav { padding-bottom: 0 !important; }
+    }
     #np-mobile-bottom-nav { display:none; }
     @media (max-width: 767px) {
       body { padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
@@ -1684,6 +1695,43 @@
     }
   </style>
   <link rel="stylesheet" href="./assets/css/pwa-navigation.css" id="nurse-plus-pwa-navigation-style">
+
+  <script id="np-mobile-nav-style-switch">
+    (() => {
+      const body = document.body;
+      const bottomButton = document.getElementById('np-nav-style-bottom');
+      const originalButton = document.getElementById('np-nav-style-original');
+      const key = 'nurse_plus_mobile_nav_style';
+      const isMobile = () => window.matchMedia('(max-width: 767px)').matches;
+      const apply = style => {
+        const useOriginal = style === 'original';
+        body.classList.toggle('np-use-original-nav', useOriginal && isMobile());
+        [bottomButton, originalButton].forEach(button => {
+          if (!button) return;
+          const active = button === (useOriginal ? originalButton : bottomButton);
+          button.setAttribute('aria-pressed', String(active));
+          button.style.borderColor = active ? '#c4b5fd' : '#e5e7eb';
+          button.style.background = active ? '#f3e8ff' : '#ffffff';
+          button.style.color = active ? '#6d28d9' : '#6b7280';
+        });
+      };
+      let selected = 'bottom';
+      try { selected = localStorage.getItem(key) === 'original' ? 'original' : 'bottom'; } catch (_) {}
+      apply(selected);
+      bottomButton?.addEventListener('click', () => {
+        selected = 'bottom';
+        try { localStorage.setItem(key, selected); } catch (_) {}
+        apply(selected);
+      });
+      originalButton?.addEventListener('click', () => {
+        selected = 'original';
+        try { localStorage.setItem(key, selected); } catch (_) {}
+        apply(selected);
+      });
+      window.addEventListener('resize', () => apply(selected), { passive: true });
+    })();
+  </script>
+
   <script id="nurse-plus-pwa-navigation" src="./assets/js/pwa-navigation.js"></script>
   <nav id="np-mobile-bottom-nav" aria-label="メインメニュー">
     <button type="button" data-np-nav="home" aria-current="page" onclick="showDashboard()" aria-label="ホーム">
