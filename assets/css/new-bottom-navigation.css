@@ -21,7 +21,7 @@ body.np-bottom-nav-active #np-new-flashcard-entry{display:flex;width:100%;margin
 #np-new-flashcard-entry .np-fc-entry-icon{font-size:28px;color:#58bcae}
 #np-new-screen{display:none}
 body.np-bottom-nav-active #np-new-screen[data-visible=true]{display:block}
-body.np-bottom-nav-active #screen-data-analysis{display:none!important}
+body.np-bottom-nav-active #screen-data-analysis[data-np-new-nav-visible=true]{display:block!important}
 body.np-bottom-nav-active #screen-subjects[data-np-hidden=true]{display:none!important}
 body.np-bottom-nav-active #screen-subjects[data-np-flashcards=true] #slider-page-1{display:none!important}
 body.np-bottom-nav-active #screen-subjects[data-np-flashcards=true] #slider-page-2{display:block!important;width:100%!important;padding:0!important}
