@@ -1696,6 +1696,23 @@
       #np-mobile-bottom-nav button:active { transform:scale(.96); }
     }
   </style>
+
+  <!-- 科目選択後の学習画面では下部メニューを画面外へ退避 -->
+  <style id="np-bottom-nav-hide-after-subject-selection">
+    @media (max-width: 767px) {
+      #np-mobile-bottom-nav.np-bottom-nav-away {
+        transform: translateY(calc(100% + 24px + env(safe-area-inset-bottom))) !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+      }
+      body.np-bottom-nav-learning-active { padding-bottom: 0 !important; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #np-mobile-bottom-nav { transition-duration: 0ms !important; }
+    }
+  </style>
+
   <link rel="stylesheet" href="./assets/css/pwa-navigation.css" id="nurse-plus-pwa-navigation-style">
   <script id="nurse-plus-pwa-navigation" src="./assets/js/pwa-navigation.js"></script>
   <nav id="np-mobile-bottom-nav" aria-label="メインメニュー">
@@ -1835,6 +1852,43 @@
 
 
   <!-- Nurse＋ navigation repair: ensure drawer/settings controls are wired and responsive. -->
+
+  <script id="np-bottom-nav-subject-selection-sync">
+    (() => {
+      const nav = document.getElementById('np-mobile-bottom-nav');
+      if (!nav) return;
+      const learningScreens = new Set([
+        'screen-semester-select', 'screen-physiology-mode-select',
+        'screen-anatomy-mode-select', 'screen-publichealth-mode-select',
+        'screen-phn-mode-select', 'screen-pathology-mode-select',
+        'screen-pathology-round-select', 'screen-pharmacology-mode-select',
+        'screen-nursing-mode-select', 'screen-nursing-method-3-mode-select',
+        'screen-nutrition-mode-select', 'screen-biochemistry-format-select',
+        'screen-time-select', 'screen-round-select', 'screen-count-select',
+        'screen-quiz-start', 'screen-quiz-play', 'screen-quiz-result',
+        'screen-multi-lobby', 'screen-multi-room', 'screen-multi-play'
+      ]);
+      let scheduled = false;
+      const sync = () => {
+        scheduled = false;
+        const active = Array.from(document.querySelectorAll('[id^="screen-"]'))
+          .find(screen => !screen.classList.contains('hidden'));
+        const hide = !!(active && learningScreens.has(active.id));
+        nav.classList.toggle('np-bottom-nav-away', hide);
+        document.body.classList.toggle('np-bottom-nav-learning-active', hide);
+      };
+      const schedule = () => {
+        if (scheduled) return;
+        scheduled = true;
+        requestAnimationFrame(sync);
+      };
+      new MutationObserver(schedule).observe(document.body, {
+        subtree: true, attributes: true, attributeFilter: ['class']
+      });
+      sync();
+    })();
+  </script>
+
   <script id="np-navigation-controls-repair">
     (() => {
       'use strict';
