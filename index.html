@@ -1768,34 +1768,67 @@
     <button type="button" data-np-nav="home" aria-current="page" onclick="showDashboard()" aria-label="ホーム">
       <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><path d="M3 10.8 12 3l9 7.8v9a1.2 1.2 0 0 1-1.2 1.2h-5.1v-6.2H9.3V21H4.2A1.2 1.2 0 0 1 3 19.8z"/></svg><span>ホーム</span>
     </button>
-    <button type="button" data-np-nav="analytics" onclick="if (window.NursePlusAnalyticsAddition && typeof window.NursePlusAnalyticsAddition.open === 'function') window.NursePlusAnalyticsAddition.open(); else if (typeof window.showDataAnalysis === 'function') window.showDataAnalysis();" aria-label="データ分析">
+    <button type="button" data-np-nav="analytics" onclick="if (typeof window.showDataAnalysis === 'function') window.showDataAnalysis(); else if (window.NursePlusAnalyticsAddition && typeof window.NursePlusAnalyticsAddition.open === 'function') window.NursePlusAnalyticsAddition.open();" aria-label="データ分析">
       <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><rect x="3" y="12" width="4.5" height="9" rx="1.2"/><rect x="9.8" y="7" width="4.5" height="14" rx="1.2"/><rect x="16.6" y="3" width="4.5" height="18" rx="1.2"/></svg><span>データ分析</span>
     </button>
     <button type="button" data-np-nav="notices" onclick="openNoticeModal()" aria-label="お知らせ">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>お知らせ</span>
     </button>
-    <button type="button" data-np-nav="settings" onclick="document.getElementById('user-settings-overlay').classList.remove('hidden');document.getElementById('user-settings-modal').classList.remove('hidden')" aria-label="設定">
+    <button type="button" data-np-nav="settings" onclick="openBottomNavSettings()" aria-label="設定">
       <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><path d="m19.4 13.5 1.2.9-1.8 3.1-1.4-.6a7.8 7.8 0 0 1-1.7 1l-.2 1.6h-3.6l-.2-1.6a7.8 7.8 0 0 1-1.7-1l-1.4.6-1.8-3.1 1.2-.9a7.2 7.2 0 0 1 0-2l-1.2-.9 1.8-3.1 1.4.6a7.8 7.8 0 0 1 1.7-1l.2-1.6h3.6l.2 1.6a7.8 7.8 0 0 1 1.7 1l1.4-.6 1.8 3.1-1.2.9a7.2 7.2 0 0 1 0 2ZM13.7 15a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/></svg><span>設定</span>
     </button>
   </nav>
-  <script>
+  <script id="np-bottom-nav-active-state-fix">
     (() => {
       const nav = document.getElementById('np-mobile-bottom-nav');
       if (!nav) return;
+      const notice = document.getElementById('modal-notice');
+      const settingsOverlay = document.getElementById('user-settings-overlay');
+      const settingsModal = document.getElementById('user-settings-modal');
+      const setActive = key => nav.querySelectorAll('button[data-np-nav]').forEach(btn => {
+        if (btn.dataset.npNav === key) btn.setAttribute('aria-current','page');
+        else btn.removeAttribute('aria-current');
+      });
+      window.openBottomNavSettings = () => {
+        if (notice) notice.classList.add('hidden');
+        if (settingsOverlay) settingsOverlay.classList.remove('hidden');
+        if (settingsModal) settingsModal.classList.remove('hidden');
+        setActive('settings');
+      };
+      const originalOpenNotice = window.openNoticeModal;
+      window.openNoticeModal = function() {
+        if (settingsOverlay) settingsOverlay.classList.add('hidden');
+        if (settingsModal) settingsModal.classList.add('hidden');
+        if (typeof originalOpenNotice === 'function') originalOpenNotice();
+        else if (notice) notice.classList.remove('hidden');
+        setActive('notices');
+      };
+      const originalCloseNotice = window.closeNoticeModal;
+      window.closeNoticeModal = function() {
+        if (typeof originalCloseNotice === 'function') originalCloseNotice();
+        else if (notice) notice.classList.add('hidden');
+        if (nav.querySelector('[data-np-nav="notices"][aria-current="page"]')) setActive('');
+      };
       const sync = () => {
+        if (notice && !notice.classList.contains('hidden')) { setActive('notices'); return; }
+        if ((settingsOverlay && !settingsOverlay.classList.contains('hidden')) ||
+            (settingsModal && !settingsModal.classList.contains('hidden'))) { setActive('settings'); return; }
         const active = Array.from(document.querySelectorAll('[id^="screen-"]')).find(el => !el.classList.contains('hidden'));
         const id = active && active.id;
-        const key = id === 'screen-data-analysis' ? 'analytics' : id === 'screen-dashboard' ? 'home' : '';
-        nav.querySelectorAll('button').forEach(btn => {
-          if (key && btn.dataset.npNav === key) btn.setAttribute('aria-current','page');
-          else btn.removeAttribute('aria-current');
-        });
+        const key = id === 'screen-data-analysis' || id === 'screen-analytics-addition' ? 'analytics' : id === 'screen-dashboard' ? 'home' : '';
+        setActive(key);
       };
       new MutationObserver(sync).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class']});
+      nav.querySelector('[data-np-nav="home"]')?.addEventListener('click', () => setActive('home'));
+      nav.querySelector('[data-np-nav="analytics"]')?.addEventListener('click', () => {
+        if (notice) notice.classList.add('hidden');
+        if (settingsOverlay) settingsOverlay.classList.add('hidden');
+        if (settingsModal) settingsModal.classList.add('hidden');
+        setActive('analytics');
+      });
       sync();
     })();
   </script>
-
 
 
   <link rel="stylesheet" href="./assets/css/recent-study-carousel-dots.css" id="nurse-plus-recent-study-carousel-light-dots">
@@ -1906,29 +1939,29 @@
         const sourceHTML = source.innerHTML;
         if (sourceHTML !== lastSourceHTML) {
           target.innerHTML = sourceHTML;
-          const cardStyles = {
-            anatomy: { icon: '♙', bg: '#fff0f6', border: '#f8d9e8', color: '#d65b91' },
-            biochemistry: { icon: '⚗', bg: '#fff8ec', border: '#f5e5ca', color: '#d6a14d' },
-            physiology: { icon: '♥', bg: '#eef6ff', border: '#d8e8fb', color: '#5b9de9' },
-            public_health: { icon: '✺', bg: '#edfbf8', border: '#d4f2eb', color: '#50b9a9' },
-            public_health_nursing: { icon: '♧', bg: '#f7f0ff', border: '#e9dcfb', color: '#a477d7' },
-            nutrition: { icon: '🥣', bg: '#fff2eb', border: '#f9dfd2', color: '#df9365' },
-            pharmacology: { icon: '💊', bg: '#fff0f6', border: '#f8d9e8', color: '#d65b91' },
-            nursing_method: { icon: '♧', bg: '#eef6ff', border: '#d8e8fb', color: '#5b9de9' }
-          };
-          target.querySelectorAll(':scope > button').forEach(button => {
-            const id = button.dataset.id || button.getAttribute('data-id') || '';
-            const style = cardStyles[id] || { icon: '✚', bg: '#edfbf8', border: '#d4f2eb', color: '#50b9a9' };
-            const sourceButton = Array.from(source.querySelectorAll(':scope > button'))[Array.from(target.children).indexOf(button)];
-            const name = (sourceButton?.innerText || '').split('\\n').map(value => value.trim()).filter(Boolean).find(value => !/^(選択|演習|暗記|準備中|全\\d)/.test(value)) || id;
-            button.style.cssText = 'min-width:0;min-height:110px;padding:14px 12px;border-radius:20px;border:1px solid '+style.border+';background:'+style.bg+';color:'+style.color+';box-shadow:0 5px 16px rgba(92,75,122,.07);display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:8px;';
-            button.innerHTML = '<span aria-hidden="true" style="font-size:34px;line-height:1;flex:0 0 auto;">'+style.icon+'</span><span style="font-size:13px;font-weight:700;line-height:1.45;color:#675a72;text-align:left;flex:1;overflow-wrap:anywhere;">'+name+'</span><span aria-hidden="true" style="font-size:25px;color:'+style.color+';flex:0 0 auto;">›</span>';
+          const cards = [
+            { match: /解剖学/, icon: '♧', bg: '#fff0f6', border: '#f8d9e8', color: '#d65b91' },
+            { match: /生化学/, icon: '⚗', bg: '#fff8ec', border: '#f5e5ca', color: '#d6a14d' },
+            { match: /生理学/, icon: '♥', bg: '#eef6ff', border: '#d8e8fb', color: '#5b9de9' },
+            { match: /^公衆衛生学$/, icon: '✺', bg: '#edfbf8', border: '#d4f2eb', color: '#50b9a9' },
+            { match: /公衆衛生看護学概論/, icon: '♧', bg: '#f7f0ff', border: '#e9dcfb', color: '#a477d7' },
+            { match: /栄養学/, icon: '🥣', bg: '#fff2eb', border: '#f9dfd2', color: '#df9365' },
+            { match: /薬理学/, icon: '💊', bg: '#fff0f6', border: '#f8d9e8', color: '#d65b91' },
+            { match: /看護学方法論Ⅲ/, icon: '✚', bg: '#eef6ff', border: '#d8e8fb', color: '#5b9de9' },
+            { match: /暗記カード/, icon: '▤', bg: '#edfbf8', border: '#d4f2eb', color: '#50b9a9' }
+          ];
+          target.querySelectorAll(':scope > button').forEach((button, index) => {
+            const original = source.querySelectorAll(':scope > button')[index];
+            const originalText = (original?.innerText || original?.textContent || '').replace(/\\s+/g, ' ').trim();
+            const card = cards.find(item => item.match.test(originalText)) || { icon: '✚', bg: '#edfbf8', border: '#d4f2eb', color: '#50b9a9' };
+            const subjectName = (originalText.match(/解剖学|生化学|生理学|公衆衛生看護学概論|公衆衛生学|栄養学|薬理学|看護学方法論Ⅲ|暗記カード/) || [originalText])[0];
+            button.style.cssText = 'min-width:0;min-height:110px;padding:14px 12px;border-radius:20px;border:1px solid '+card.border+';background:'+card.bg+';color:'+card.color+';box-shadow:0 5px 16px rgba(92,75,122,.07);display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:8px;';
+            button.innerHTML = '<span aria-hidden="true" style="font-size:34px;line-height:1;flex:0 0 auto;">'+card.icon+'</span><span style="font-size:13px;font-weight:700;line-height:1.45;color:#675a72;text-align:left;flex:1;overflow-wrap:anywhere;">'+subjectName+'</span><span aria-hidden="true" style="font-size:25px;color:'+card.color+';flex:0 0 auto;">›</span>';
           });
           lastSourceHTML = sourceHTML;
         }
         if (count) count.textContent = source.children.length ? source.children.length + '科目' : '';
       };
-
       const observer = new MutationObserver(() => {
         if (!dashboard.classList.contains('hidden')) requestAnimationFrame(syncSubjects);
       });
