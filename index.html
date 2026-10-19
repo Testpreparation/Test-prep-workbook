@@ -1661,6 +1661,56 @@
   <!-- Nurse＋ PWA navigation improvements: screen transitions, browser back, LINE external-browser guidance -->
   <style id="np-mobile-bottom-navigation-style">
     /* スマートフォンのみ下部ナビを表示。既存の背景・配色・PC表示は変更しない */
+    @media (max-width: 767px) {
+      body:not(.np-use-original-nav) #screen-dashboard { display:none !important; }
+      body:not(.np-use-original-nav) #screen-subjects:not(.hidden) #subjects-header-title { font-size:0; }
+      body:not(.np-use-original-nav) #screen-subjects:not(.hidden) #subjects-header-title::after {
+        content:"科目を選択"; font-size:13px; letter-spacing:.12em;
+      }
+      body:not(.np-use-original-nav) #screen-subjects:not(.hidden) > div:first-child > div > button[onclick="showDashboard()"] { display:none; }
+      body:not(.np-use-original-nav) #screen-subjects:not(.hidden) > div:first-child { align-items:center; }
+      body:not(.np-use-original-nav) #screen-subjects:not(.hidden) #subjects-slider-track { width:200%; }
+      body:not(.np-use-original-nav) #screen-subjects:not(.hidden) #slider-page-1 {
+        padding-right:8px;
+      }
+      body:not(.np-use-original-nav) #screen-subjects:not(.hidden) #subject-list-container {
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:10px;
+        max-height:calc(100dvh - 190px);
+        padding:6px 2px 12px;
+      }
+      body:not(.np-use-original-nav) #screen-subjects:not(.hidden) #subject-list-container > button {
+        min-height:104px;
+        padding:12px 10px;
+        flex-direction:column;
+        align-items:flex-start;
+        justify-content:space-between;
+        gap:8px;
+        border-radius:18px;
+        border:1px solid rgba(196,181,253,.28);
+        background:rgba(255,255,255,.055);
+        box-shadow:0 4px 14px rgba(30,20,55,.06);
+      }
+      body:not(.np-use-original-nav) #screen-subjects:not(.hidden) #subject-list-container > button > div:first-child {
+        gap:8px; align-items:flex-start; width:100%;
+      }
+      body:not(.np-use-original-nav) #screen-subjects:not(.hidden) #subject-list-container > button > div:first-child > span {
+        padding:4px 6px; font-size:10px; flex-shrink:0;
+      }
+      body:not(.np-use-original-nav) #screen-subjects:not(.hidden) #subject-list-container > button > div:first-child > div { min-width:0; }
+      body:not(.np-use-original-nav) #screen-subjects:not(.hidden) #subject-list-container > button > div:first-child > div > div:first-child {
+        font-size:12px; line-height:1.45; overflow-wrap:anywhere;
+      }
+      body:not(.np-use-original-nav) #screen-subjects:not(.hidden) #subject-list-container > button > div:first-child > div > div:nth-child(2) { display:none; }
+      body:not(.np-use-original-nav) #screen-subjects:not(.hidden) #subject-list-container > button > div:last-child {
+        width:100%; justify-content:space-between; align-items:center;
+      }
+      body:not(.np-use-original-nav) #screen-subjects:not(.hidden) #subject-list-container > button > div:last-child > div { text-align:left; }
+      body:not(.np-use-original-nav) #screen-subjects:not(.hidden) #subject-list-container > button > div:last-child > div > div:first-child { display:none; }
+      body:not(.np-use-original-nav) #screen-subjects:not(.hidden) #subject-list-container > button > div:last-child > div > div:last-child { font-size:11px; }
+      body:not(.np-use-original-nav) #screen-subjects:not(.hidden) #screen-dashboard { display:none; }
+    }
+
     body.np-use-original-nav #np-mobile-bottom-nav { display:none !important; }
     @media (max-width: 767px) {
       body.np-use-original-nav { padding-bottom: 0 !important; }
@@ -1734,7 +1784,7 @@
 
   <script id="nurse-plus-pwa-navigation" src="./assets/js/pwa-navigation.js"></script>
   <nav id="np-mobile-bottom-nav" aria-label="メインメニュー">
-    <button type="button" data-np-nav="home" aria-current="page" onclick="showDashboard()" aria-label="ホーム">
+    <button type="button" data-np-nav="home" aria-current="page" onclick="showSubjectScreen()" aria-label="ホーム">
       <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><path d="M3 10.8 12 3l9 7.8v9a1.2 1.2 0 0 1-1.2 1.2h-5.1v-6.2H9.3V21H4.2A1.2 1.2 0 0 1 3 19.8z"/></svg><span>ホーム</span>
     </button>
     <button type="button" data-np-nav="analytics" onclick="showDataAnalysis()" aria-label="データ分析">
