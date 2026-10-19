@@ -1832,6 +1832,25 @@
       const count = document.getElementById('np-mobile-home-subject-count');
       if (!dashboard || !source || !target) return;
 
+      // 複製したホーム用科目ボタンは元のイベントリスナーを引き継がないため、
+      // タップを元の科目ボタンへ委譲し、既存の選択処理を確実に実行する。
+      if (!target.dataset.npClickForwarderReady) {
+        target.dataset.npClickForwarderReady = 'true';
+        target.addEventListener('click', event => {
+          const clonedButton = event.target.closest('button');
+          if (!clonedButton || !target.contains(clonedButton)) return;
+          const buttons = Array.from(target.querySelectorAll(':scope > button'));
+          const index = buttons.indexOf(clonedButton);
+          const sourceButtons = Array.from(source.querySelectorAll(':scope > button'));
+          const originalButton = sourceButtons[index];
+          if (!originalButton || originalButton.disabled) return;
+          event.preventDefault();
+          event.stopPropagation();
+          if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+          originalButton.click();
+        }, true);
+      }
+
       const syncSubjects = () => {
         if (window.innerWidth > 767 || dashboard.classList.contains('hidden')) return;
         if (typeof window.renderSubjectList === 'function') window.renderSubjectList();
