@@ -42,16 +42,16 @@
     if (overlay) overlay.classList.add('hidden');
   };
 
-  const themeCard = document.getElementById('np-theme-settings-card');
-  if (themeCard) {
-    themeCard.addEventListener('click', event => {
-      if (event.target.closest('#np-theme-toggle')) return;
-      openThemeSettingsPage();
-    });
-    themeCard.addEventListener('keydown', event => {
-      if (event.target !== themeCard || !['Enter', ' '].includes(event.key)) return;
-      event.preventDefault();
-      openThemeSettingsPage();
-    });
-  }
+  // 動的な設定モーダルや画面の再描画後も確実に反応するよう、委譲イベントで開く。
+  document.addEventListener('click', event => {
+    const themeCard = event.target.closest('#np-theme-settings-card');
+    if (!themeCard || event.target.closest('#np-theme-toggle')) return;
+    if (typeof window.openThemeSettingsPage === 'function') window.openThemeSettingsPage();
+  });
+  document.addEventListener('keydown', event => {
+    const themeCard = event.target.closest('#np-theme-settings-card');
+    if (!themeCard || !['Enter', ' '].includes(event.key)) return;
+    event.preventDefault();
+    if (typeof window.openThemeSettingsPage === 'function') window.openThemeSettingsPage();
+  });
 })();
