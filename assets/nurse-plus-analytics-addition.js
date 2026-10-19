@@ -128,6 +128,54 @@
   const SYNC_OWNED_KEY = 'nurse_plus_sync_owned_records';
   const SYNC_CLOUD_KEY = 'nurse_plus_sync_last_cloud_records';
   const SYNC_DEVICE_KEY = 'nurse_plus_sync_device_id';
+  const ACTIVE_STUDY_ACCOUNT_KEY = 'nurse_plus_active_study_account';
+  const ACCOUNT_RECORDS_PREFIX = 'nurse_plus_account_study_records_';
+
+  function studyRecordKeys() {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('history_accuracy_') ||
+          ['study_streak', 'study_last_date', 'study_days', 'evo_today_done'].includes(key))) keys.push(key);
+    }
+    return keys;
+  }
+
+  function snapshotLocalStudyRecords() {
+    const snapshot = {};
+    studyRecordKeys().forEach(key => { snapshot[key] = localStorage.getItem(key); });
+    return snapshot;
+  }
+
+  function restoreStudyAccount(userId) {
+    const activeUserId = localStorage.getItem(ACTIVE_STUDY_ACCOUNT_KEY);
+    if (activeUserId === userId) return;
+    if (activeUserId) {
+      localStorage.setItem(ACCOUNT_RECORDS_PREFIX + encodeURIComponent(activeUserId), JSON.stringify(snapshotLocalStudyRecords()));
+      studyRecordKeys().forEach(key => localStorage.removeItem(key));
+    }
+    const targetKey = ACCOUNT_RECORDS_PREFIX + encodeURIComponent(userId);
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem(targetKey) || 'null'); } catch (_) {}
+    if (saved && typeof saved === 'object' && !Array.isArray(saved)) {
+      studyRecordKeys().forEach(key => localStorage.removeItem(key));
+      Object.entries(saved).forEach(([key, raw]) => {
+        if ((key.startsWith('history_accuracy_') || ['study_streak', 'study_last_date', 'study_days', 'evo_today_done'].includes(key)) && typeof raw === 'string') {
+          localStorage.setItem(key, raw);
+        }
+      });
+    }
+    localStorage.setItem(ACTIVE_STUDY_ACCOUNT_KEY, userId);
+  }
+
+  function saveStudyAccountSnapshot(userId) {
+    if (!userId || localStorage.getItem(ACTIVE_STUDY_ACCOUNT_KEY) !== userId) return;
+    localStorage.setItem(ACCOUNT_RECORDS_PREFIX + encodeURIComponent(userId), JSON.stringify(snapshotLocalStudyRecords()));
+  }
+
+  function accountSyncKey(prefix, userId) {
+    return prefix + '_' + encodeURIComponent(userId);
+  }
 
   function getSyncDeviceId() {
     let id = localStorage.getItem(SYNC_DEVICE_KEY);
@@ -215,16 +263,20 @@
 
   async function syncStudyData(statusEl, buttonEl) {
     const token = localStorage.getItem('nurse_line_user_session');
-    if (!token) {
+    const userId = localStorage.getItem('nurse_line_user_id');
+    if (!token || !userId) {
       if (statusEl) statusEl.textContent = '同期するには先にLINEログインしてください。';
       return;
     }
     if (buttonEl) { buttonEl.disabled = true; buttonEl.textContent = '同期中…'; }
     if (statusEl) statusEl.textContent = 'この端末の学習記録を確認しています…';
     try {
+      restoreStudyAccount(userId);
       const current = collectStudyRecords();
-      const ownedSaved = readObject(SYNC_OWNED_KEY);
-      const lastCloud = readObject(SYNC_CLOUD_KEY);
+      const ownedKey = accountSyncKey(SYNC_OWNED_KEY, userId);
+      const cloudKey = accountSyncKey(SYNC_CLOUD_KEY, userId);
+      const ownedSaved = readObject(ownedKey);
+      const lastCloud = readObject(cloudKey);
       let owned;
       if (!Object.keys(ownedSaved).length) {
         // 初回はこの端末の記録をこの端末のスナップショットとして登録する。
@@ -244,8 +296,8 @@
       await requestStudySync('PUT', { deviceId: getSyncDeviceId(), records: owned }, token);
       const cloud = await requestStudySync('GET', null, token);
       const cloudRecords = cloud.records || {};
-      localStorage.setItem(SYNC_OWNED_KEY, JSON.stringify(owned));
-      localStorage.setItem(SYNC_CLOUD_KEY, JSON.stringify(cloudRecords));
+      localStorage.setItem(ownedKey, JSON.stringify(owned));
+      localStorage.setItem(cloudKey, JSON.stringify(cloudRecords));
 
       Object.entries(cloudRecords).forEach(([key, value]) => {
         if (key.startsWith('history_accuracy_') && Array.isArray(value)) {
@@ -259,6 +311,7 @@
         }
       });
 
+      saveStudyAccountSnapshot(userId);
       const updatedRows = getRows();
       calculateStreak(updatedRows);
       renderAnalytics();
@@ -633,6 +686,20 @@
         syncStudyData(status, button);
       });
     }
+    // LINEログイン済みなら起動時にも同期し、手動操作を待たず別端末へ反映する。
+    const startAutomaticStudySync = () => {
+      if (!localStorage.getItem('nurse_line_user_session') || !localStorage.getItem('nurse_line_user_id')) return;
+      window.setTimeout(() => {
+        syncStudyData(document.getElementById('np-account-sync-status'), null);
+      }, 900);
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', startAutomaticStudySync, { once: true });
+    } else {
+      startAutomaticStudySync();
+    }
+    window.NursePlusStudySync = syncStudyData;
+
     document.getElementById('np-open-wrong-review')?.addEventListener('click', () => {
       if (typeof window.evoOpenWrong === 'function') window.evoOpenWrong();
       else alert('復習画面を開けませんでした。ページを再読み込みしてください。');
