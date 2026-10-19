@@ -53,24 +53,73 @@
         inFlight.set(path, promise);
         return promise;
       }
-      function semesterPaths(semester) {
-        const folder = semester === '2026_spring' ? '2026春学期/' : '2026秋学期/';
-        return sourceNodes.map(node => node.dataset.npQuestionSrc).filter(path => path.includes(folder));
+      function selectedModePaths(paths, subject, mode) {
+        const id = subject.id || '';
+        const bySubject = {
+          anatomy: /解剖生理学\\//,
+          biochemistry: /生化学\\//,
+          physiology: /生理学\\//,
+          public_health: /公衆衛生学\\//,
+          public_health_nursing: /公衆衛生看護学概論\\//,
+          nutrition: /栄養学\\//,
+          pharmacology: /薬理学\\//,
+          nursing_method_3: /看護学方法論Ⅲ\\//,
+          pathology: /病理学\\//
+        };
+        const pattern = bySubject[id];
+        let selected = pattern ? paths.filter(path => pattern.test(path)) : [];
+        if (!selected.length) return selected;
+        const modeText = String(mode || '').toLowerCase();
+        const modeFolder = {
+          exercise: /演習問題/,
+          practice: /練習問題/,
+          quiz: /小テスト/,
+          test: /小テスト/,
+          national: /模擬国家試験|過去問/,
+          past: /過去問/,
+          basic: /基礎問題/,
+          fill: /穴埋め式/,
+          choice: /選択式/
+        };
+        const matchingMode = Object.entries(modeFolder).find(([key]) => modeText.includes(key));
+        if (matchingMode) {
+          const narrowed = selected.filter(path => matchingMode[1].test(path));
+          if (narrowed.length) selected = narrowed;
+        }
+        // 1つのモードが複数回に分割されている科目は、選択した回のファイルだけを取得する。
+        if (id === 'pathology' && window.currentPathologyRound) {
+          const round = String(window.currentPathologyRound).match(/\\d+/)?.[0];
+          if (round) selected = selected.filter(path => path.includes('第' + round + '回'));
+        }
+        return selected;
       }
       let lastSelectionKey = '';
       window.NursePlusQuestionLoader = {
         async loadForSelection(semesterValue, subjectValue, pharmacologyMode, biochemistryFormat) {
           const semester = semesterValue || '2026_autumn';
           const subject = subjectValue || {};
+          const modes = {
+            anatomy: window.currentAnatomyMode,
+            physiology: window.currentPhysiologyMode,
+            public_health: window.currentPublicHealthMode,
+            public_health_nursing: window.currentPHNMode,
+            nutrition: window.currentNutritionMode,
+            nursing_method_3: window.currentNursingMethod3Mode,
+            pathology: window.currentPathologyMode,
+            pharmacology: pharmacologyMode,
+            biochemistry: biochemistryFormat
+          };
+          const mode = modes[subject.id] || '';
           const isBiochemistryFill = subject.id === 'biochemistry' && biochemistryFormat === 'fill';
           const isPharmacologyNational = subject.id === 'pharmacology' && pharmacologyMode === 'nurse_national_6years';
-          const key = [semester, subject.id || '', isBiochemistryFill ? 'fill' : '', isPharmacologyNational ? 'national6' : ''].join(':');
-          if (key === lastSelectionKey && !isBiochemistryFill && !isPharmacologyNational) return;
-          const paths = semesterPaths(semester);
+          const key = [semester, subject.id || '', mode, window.currentPathologyRound || ''].join(':');
+          if (key === lastSelectionKey) return;
+          const folder = semester === '2026_spring' ? '2026春学期/' : '2026秋学期/';
+          const semesterSourcePaths = sourceNodes.map(node => node.dataset.npQuestionSrc).filter(path => path.includes(folder));
+          const paths = selectedModePaths(semesterSourcePaths, subject, mode);
           if (isBiochemistryFill) paths.push('./科目/生化学/穴埋め式/biochemistry_fill.js');
           if (isPharmacologyNational) paths.push('./科目/薬理学/看護師国家試験過去6年/pharmacology_nurse_national_6years.js');
-          const uniquePaths = [...new Set(paths)];
-          for (const path of uniquePaths) await loadScript(path);
+          for (const path of [...new Set(paths)]) await loadScript(path);
           lastSelectionKey = key;
         }
       };
@@ -1762,6 +1811,48 @@
     }
   </style>
 
+  <script id="np-bottom-nav-screen-state">
+    (() => {
+      const nav = document.getElementById('np-mobile-bottom-nav');
+      if (!nav) {
+        document.addEventListener('DOMContentLoaded', () => {
+          const retry = document.getElementById('np-mobile-bottom-nav');
+          if (retry) window.dispatchEvent(new Event('np-nav-ready'));
+        }, { once: true });
+      }
+      const update = () => {
+        const bar = document.getElementById('np-mobile-bottom-nav');
+        if (!bar) return;
+        const screens = Array.from(document.querySelectorAll('[id^="screen-"]'));
+        const visible = screens.filter(el => !el.classList.contains('hidden'));
+        const dashboard = visible.some(el => el.id === 'screen-dashboard');
+        const analysis = visible.some(el => /analysis|analytics/.test(el.id));
+        const modalOpen = ['modal-notice','user-settings-overlay','user-settings-modal'].some(id => {
+          const el = document.getElementById(id);
+          return el && !el.classList.contains('hidden');
+        });
+        const hide = !dashboard && !analysis && !modalOpen && visible.length > 0;
+        bar.classList.toggle('np-bottom-nav-away', hide);
+        document.body.classList.toggle('np-bottom-nav-learning-active', hide);
+        const key = modalOpen
+          ? (document.getElementById('modal-notice') && !document.getElementById('modal-notice').classList.contains('hidden') ? 'notices' : 'settings')
+          : dashboard ? 'home' : analysis ? 'analytics' : '';
+        bar.querySelectorAll('button[data-np-nav]').forEach(button => {
+          if (key && button.dataset.npNav === key) button.setAttribute('aria-current','page');
+          else button.removeAttribute('aria-current');
+        });
+      };
+      new MutationObserver(update).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class']});
+      document.addEventListener('click', event => {
+        const button = event.target.closest('#np-mobile-bottom-nav button[data-np-nav]');
+        if (!button) return;
+        if (button.dataset.npNav === 'home') setTimeout(update, 0);
+        if (button.dataset.npNav === 'analytics') setTimeout(update, 0);
+      }, true);
+      window.addEventListener('np-nav-ready', update);
+      update();
+    })();
+  </script>
   <link rel="stylesheet" href="./assets/css/pwa-navigation.css" id="nurse-plus-pwa-navigation-style">
   <script id="nurse-plus-pwa-navigation" src="./assets/js/pwa-navigation.js"></script>
   <nav id="np-mobile-bottom-nav" aria-label="メインメニュー">
