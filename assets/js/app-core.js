@@ -2250,15 +2250,7 @@
           showStartScreen();
         });
       }
-      // 下部メニューが有効な場合は、更新直後も科目一覧をホームとして表示する。
-      // bottom-menu-reference-layout.js と初期画面の切替が競合しないよう、ここで分岐する。
-      let bottomMenuEnabled = false;
-      try { bottomMenuEnabled = localStorage.getItem('nurse_plus_bottom_menu_enabled') === 'true'; } catch (_) {}
-      if (bottomMenuEnabled && typeof showSubjectScreen === 'function') {
-        showSubjectScreen();
-      } else {
-        showDashboard();
-      }
+      showDashboard();
     });
 
     function initRealtimeSync() {
