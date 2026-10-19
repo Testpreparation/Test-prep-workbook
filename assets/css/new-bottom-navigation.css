@@ -32,3 +32,17 @@ body.np-bottom-nav-active #screen-subjects[data-np-flashcards=true] #subjects-sl
 /* In the new navigation mode, notice dismissal is handled by switching tabs. */
 body.np-bottom-nav-active #modal-notice .glass-card > div:first-child > button,
 body.np-bottom-nav-active #modal-notice .glass-card > button:last-child { display:none !important; }
+
+
+/* Prevent legacy centered settings dialogs from leaking into the new settings tab. */
+body.np-bottom-nav-active[data-np-new-settings-visible="true"] #user-settings-overlay,
+body.np-bottom-nav-active[data-np-new-settings-visible="true"] #user-settings-modal,
+body.np-bottom-nav-active[data-np-new-settings-visible="true"] #np-theme-settings-overlay,
+body.np-bottom-nav-active[data-np-new-settings-visible="true"] #np-theme-settings-modal,
+body.np-bottom-nav-active[data-np-new-settings-visible="true"] #np-settings-detail-overlay,
+body.np-bottom-nav-active[data-np-new-settings-visible="true"] #np-settings-detail-modal { display:none !important; }
+
+/* Keep the settings page aligned with the other new-navigation screens. */
+body.np-bottom-nav-active #np-new-screen { margin-top:0 !important; padding-top:0 !important; }
+body.np-bottom-nav-active #np-new-screen[data-visible="true"] { min-height:calc(100vh - 8rem); }
+body.np-bottom-nav-active #np-new-screen-content > header { margin-top:0 !important; padding-top:1rem !important; }
