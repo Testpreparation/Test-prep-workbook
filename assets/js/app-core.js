@@ -3860,29 +3860,29 @@
     }
 
     function showStartScreen() {
-      if (window.__npQuestionLoadInProgress) return;
-      if (window.NursePlusQuestionLoader && !window.__npQuestionLoadBypassOnce) {
+      if (window.NursePlusQuestionLoader && !window.__npQuestionLoadInProgress) {
         window.__npQuestionLoadInProgress = true;
-        hideAllScreens();
-        const loadingScreen = document.getElementById('screen-quiz-start');
-        const heading = document.getElementById('start-screen-heading');
-        const desc = document.getElementById('start-screen-desc');
-        if (loadingScreen) loadingScreen.classList.remove('hidden');
-        if (heading) heading.textContent = '問題データを準備しています…';
-        if (desc) desc.textContent = '選択した問題を読み込んでいます。完了するまでこの画面のままお待ちください。';
         window.NursePlusQuestionLoader.loadForSelection(currentSemester, currentSubject, currentPharmacologyMode, currentBiochemistryFormat).then(() => {
           window.__npQuestionLoadInProgress = false;
-          window.__npQuestionLoadBypassOnce = true;
           showStartScreen();
         }).catch(error => {
           window.__npQuestionLoadInProgress = false;
           console.error('[Nurse＋] 問題データの準備に失敗しました', error);
-          if (heading) heading.textContent = '問題データを読み込めませんでした。戻ってモードを選び直してください。';
-          if (desc) desc.textContent = error.message || '問題データの読み込みに失敗しました。';
+          hideAllScreens();
+          const start = document.getElementById('screen-quiz-start');
+          if (start) start.classList.remove('hidden');
+          const heading = document.getElementById('start-screen-heading');
+          if (heading) heading.textContent = '問題データを読み込めませんでした。通信を確認して、もう一度お試しください。';
         });
+        hideAllScreens();
+        const loadingScreen = document.getElementById('screen-quiz-start');
+        if (loadingScreen) {
+          loadingScreen.classList.remove('hidden');
+          const heading = document.getElementById('start-screen-heading');
+          if (heading) heading.textContent = '問題データを準備しています…';
+        }
         return;
       }
-      if (window.__npQuestionLoadBypassOnce) window.__npQuestionLoadBypassOnce = false;
       hideAllScreens();
       document.getElementById('screen-quiz-start').classList.remove('hidden');
       updateStudyBreadcrumb();
