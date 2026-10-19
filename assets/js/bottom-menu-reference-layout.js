@@ -63,6 +63,22 @@
       if (modal) modal.classList.remove('hidden');
     }
   });
+  // 学期選択モーダルが表示されている間は、下部ナビゲーションを隠す。
+  const isSemesterSelectionOpen = () => {
+    const candidates = document.querySelectorAll('[role="dialog"], [aria-modal="true"], .modal, [id*="modal"], [class*="modal"]');
+    return Array.from(candidates).some(el => {
+      if (!el || el.offsetParent === null || el.getClientRects().length === 0) return false;
+      const text = (el.innerText || el.textContent || '').replace(/\\s+/g, ' ');
+      const hasSemesterChoice = /学期/.test(text) && /(春|秋|学期選択|学期を選択)/.test(text);
+      return hasSemesterChoice && el.querySelectorAll('button,[role="button"]').length > 0;
+    });
+  };
+  const updateSemesterNavVisibility = () => {
+    body.classList.toggle('np-semester-selection-open', getEnabled() && isSemesterSelectionOpen());
+  };
+  const modalObserver = new MutationObserver(updateSemesterNavVisibility);
+  modalObserver.observe(document.body, {subtree:true,childList:true,attributes:true,attributeFilter:['class','style','aria-hidden']});
+  updateSemesterNavVisibility();
   const updateActiveFromScreen = () => {
     if (!getEnabled()) return;
     const subjects = document.getElementById('screen-subjects');
