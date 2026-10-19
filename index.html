@@ -1762,6 +1762,14 @@
     }
   </style>
 
+  <!-- 下部メニュー時のホームは科目選択を中心にし、学習ホームの概要を非表示 -->
+  <style id="np-mobile-bottom-nav-hide-study-dashboard">
+    @media (max-width: 767px) {
+      #screen-dashboard > div:first-child,
+      #screen-dashboard > .evo-card { display: none !important; }
+    }
+  </style>
+
   <!-- スマートフォン下部メニュー時のみ、既存の科目ボタンをホームに表示 -->
   <style id="np-mobile-home-subjects-style">
     @media (max-width: 767px) {
