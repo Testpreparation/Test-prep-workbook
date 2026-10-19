@@ -127,3 +127,43 @@ body.np-bottom-nav-active #subject-list-container > button > div:first-child > d
   line-height: 1.35 !important;
   text-align: left !important;
 }
+
+
+/* Smooth sliding focus indicator for the new bottom navigation. */
+body.np-bottom-nav-active #np-new-bottom-navigation {
+  position: fixed;
+  isolation: isolate;
+}
+body.np-bottom-nav-active #np-new-bottom-navigation::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 8px;
+  bottom: 8px;
+  left: 6px;
+  width: calc((100% - 12px) / 4);
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(250,226,239,.96), rgba(238,229,250,.9));
+  box-shadow: 0 3px 12px rgba(210,135,180,.12);
+  transform: translateX(calc(var(--np-nav-active-index, 0) * 100%));
+  transition: transform 460ms cubic-bezier(.22, 1, .36, 1);
+  pointer-events: none;
+}
+#np-new-bottom-navigation button {
+  position: relative;
+  z-index: 1;
+  background: transparent !important;
+  transition: color 280ms ease, transform 280ms cubic-bezier(.2,.8,.2,1);
+}
+#np-new-bottom-navigation button[aria-current=page] {
+  color: #ed75a4;
+}
+#np-new-bottom-navigation button:active {
+  transform: scale(.94);
+}
+@media (prefers-reduced-motion: reduce) {
+  body.np-bottom-nav-active #np-new-bottom-navigation::before,
+  #np-new-bottom-navigation button {
+    transition: none !important;
+  }
+}
