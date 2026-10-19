@@ -53,9 +53,31 @@
     if (route === 'home') {
       if (typeof window.showSubjectScreen === 'function') window.showSubjectScreen();
     } else if (route === 'analytics') {
+      document.body.classList.add('np-bottom-menu-analysis-view');
+      document.body.classList.remove('np-bottom-menu-notices-view');
       if (typeof window.showDataAnalysis === 'function') window.showDataAnalysis();
+      window.setTimeout(() => {
+        const screen = document.getElementById('screen-data-analysis');
+        if (screen) {
+          screen.querySelectorAll('button').forEach(button => {
+            if (/戻る|ホーム/.test(button.innerText || '') && button.getClientRects().length) button.classList.add('np-analysis-hide-home-button');
+          });
+        }
+      }, 100);
     } else if (route === 'notices') {
-      if (typeof window.openNoticeModal === 'function') window.openNoticeModal();
+      document.body.classList.remove('np-bottom-menu-analysis-view');
+      document.body.classList.add('np-bottom-menu-notices-view');
+      document.querySelectorAll('[id^="screen-"]').forEach(el => el.classList.add('hidden'));
+      const page = document.getElementById('np-bottom-menu-notices-page');
+      if (page) {
+        page.classList.remove('hidden');
+        const source = document.querySelector('#notice-modal .notice-list, #notice-modal .modal-body, #notice-modal .p-4, #notice-modal');
+        const target = document.getElementById('np-bottom-menu-notices-content');
+        if (source && target && !target.dataset.loaded) {
+          target.innerHTML = source.innerHTML;
+          target.dataset.loaded = 'true';
+        }
+      }
     } else if (route === 'settings') {
       const overlay = document.getElementById('user-settings-overlay');
       const modal = document.getElementById('user-settings-modal');
@@ -83,7 +105,9 @@
     if (!getEnabled()) return;
     const subjects = document.getElementById('screen-subjects');
     const analytics = document.getElementById('screen-data-analysis');
-    if (subjects && !subjects.classList.contains('hidden')) setActive('home');
+    const notices = document.getElementById('np-bottom-menu-notices-page');
+    if (notices && !notices.classList.contains('hidden')) setActive('notices');
+    else if (subjects && !subjects.classList.contains('hidden')) { setActive('home'); body.classList.remove('np-bottom-menu-analysis-view','np-bottom-menu-notices-view'); }
     else if (analytics && !analytics.classList.contains('hidden')) setActive('analytics');
   };
   const observer = new MutationObserver(updateActiveFromScreen);
