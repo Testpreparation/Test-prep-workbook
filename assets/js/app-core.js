@@ -3857,6 +3857,29 @@
     }
 
     function showStartScreen() {
+      if (window.NursePlusQuestionLoader && !window.__npQuestionLoadInProgress) {
+        window.__npQuestionLoadInProgress = true;
+        window.NursePlusQuestionLoader.loadForSelection(currentSemester, currentSubject, currentPharmacologyMode, currentBiochemistryFormat).then(() => {
+          window.__npQuestionLoadInProgress = false;
+          showStartScreen();
+        }).catch(error => {
+          window.__npQuestionLoadInProgress = false;
+          console.error('[Nurse＋] 問題データの準備に失敗しました', error);
+          hideAllScreens();
+          const start = document.getElementById('screen-quiz-start');
+          if (start) start.classList.remove('hidden');
+          const heading = document.getElementById('start-screen-heading');
+          if (heading) heading.textContent = '問題データを読み込めませんでした。通信を確認して、もう一度お試しください。';
+        });
+        hideAllScreens();
+        const loadingScreen = document.getElementById('screen-quiz-start');
+        if (loadingScreen) {
+          loadingScreen.classList.remove('hidden');
+          const heading = document.getElementById('start-screen-heading');
+          if (heading) heading.textContent = '問題データを準備しています…';
+        }
+        return;
+      }
       hideAllScreens();
       document.getElementById('screen-quiz-start').classList.remove('hidden');
       updateStudyBreadcrumb();
