@@ -16,11 +16,43 @@ if(!$('np-new-flashcard-entry')){let b=document.createElement('button');b.id='np
 if(!$('np-new-screen')){let s=document.createElement('section');s.id=SHELL;s.className='w-full max-w-xl mx-auto space-y-4';s.innerHTML='<div id="np-new-screen-content"></div>';document.body.append(s)}}
 function active(k){const nav=$(NAV);const buttons=nav?Array.from(nav.querySelectorAll('[data-nav]')):[];const index=buttons.findIndex(b=>b.dataset.nav===k);if(nav&&index>=0)nav.style.setProperty('--np-nav-active-index',String(index));buttons.forEach(b=>b.setAttribute('aria-current',b.dataset.nav===k?'page':'false'))}
 function hideNotice(){let m=$('modal-notice');if(m)m.classList.add('hidden');}
+function renderNavAnalyticsCopy(){
+  const source=$('screen-analytics-addition');
+  const legacyHost=$('screen-data-analysis');
+  if(!source||!legacyHost)return;
+  let copy=$('np-new-nav-analytics-copy');
+  if(!copy){
+    copy=document.createElement('section');
+    copy.id='np-new-nav-analytics-copy';
+    copy.className='space-y-4';
+    copy.setAttribute('aria-label','下部メニュー専用データ分析');
+    const content=$('np-new-screen-content');
+    if(!content)return;
+    content.replaceChildren(copy);
+  }
+  const clone=source.cloneNode(true);
+  clone.id='np-new-nav-analytics-copy-content';
+  clone.querySelectorAll('[id]').forEach(el=>{el.id='np-new-nav-copy-'+el.id});
+  clone.querySelectorAll('[for]').forEach(el=>el.htmlFor='np-new-nav-copy-'+el.htmlFor);
+  copy.replaceChildren(clone);
+  copy.style.display='block';
+  legacyHost.classList.add('hidden');
+  legacyHost.style.display='none';
+}
 function closeStraySettingsModals(){['user-settings-overlay','user-settings-modal','np-theme-settings-overlay','np-theme-settings-modal','np-settings-detail-overlay','np-settings-detail-modal'].forEach(id=>{let el=$(id);if(el)el.classList.add('hidden')})}
-function resetScreens(){hideNotice();document.body.removeAttribute('data-np-new-settings-visible');let s=$('np-new-screen');if(s)s.dataset.visible='false';let a=$('screen-subjects');if(a){a.removeAttribute('data-np-hidden');a.removeAttribute('data-np-flashcards')}let d=$('screen-dashboard');if(d)d.classList.add('hidden');let an=$('screen-data-analysis');if(an){an.classList.add('hidden');an.style.display='';an.removeAttribute('data-np-new-nav-visible');let title=an.querySelector(':scope > .np-new-analytics-title');if(title)title.remove();}if(a)a.dataset.npHidden='true'}
+function resetScreens(){hideNotice();document.body.removeAttribute('data-np-new-settings-visible');let copy=$('np-new-nav-analytics-copy');if(copy)copy.replaceChildren();let s=$('np-new-screen');if(s)s.dataset.visible='false';let a=$('screen-subjects');if(a){a.removeAttribute('data-np-hidden');a.removeAttribute('data-np-flashcards')}let d=$('screen-dashboard');if(d)d.classList.add('hidden');let an=$('screen-data-analysis');if(an){an.classList.add('hidden');an.style.display='';an.removeAttribute('data-np-new-nav-visible');let title=an.querySelector(':scope > .np-new-analytics-title');if(title)title.remove();}if(a)a.dataset.npHidden='true'}
 function go(k){if(!enabled())return;resetScreens();active(k);
 if(k==='home'){let a=$('screen-subjects');if(a){a.removeAttribute('data-np-hidden');a.classList.remove('hidden');if(typeof window.showSubjectScreen==='function')window.showSubjectScreen()}return}
-if(k==='analytics'){const an=$('screen-data-analysis');if(an){an.dataset.npNewNavVisible='true';an.classList.remove('hidden');an.style.display='block'}if(typeof window.showDataAnalysis==='function'){window.showDataAnalysis()}const panel=$('screen-analytics-addition');const revealExistingAnalytics=()=>{if(an){an.dataset.npNewNavVisible='true';an.classList.remove('hidden');an.style.display='block'}if(panel){panel.classList.remove('hidden');panel.style.display='block'}};revealExistingAnalytics();requestAnimationFrame(revealExistingAnalytics);return}
+if(k==='analytics'){
+  const shellEl=$('np-new-screen'),content=$('np-new-screen-content');
+  if(shellEl)shellEl.dataset.visible='true';
+  if(content)content.innerHTML='<header class="text-center py-5"><p class="text-xs tracking-[.22em] text-violet-400">STUDY ANALYTICS</p><h1 class="text-2xl font-semibold mt-2">データ分析</h1></header><div id="np-new-nav-analytics-copy" class="space-y-4"></div>';
+  const an=$('screen-data-analysis');
+  if(an){an.classList.remove('hidden');an.style.display='block'}
+  if(typeof window.showDataAnalysis==='function')window.showDataAnalysis();
+  const render=()=>renderNavAnalyticsCopy();
+  render();requestAnimationFrame(render);setTimeout(render,80);return
+}
 if(k==='notice'){let a=$('screen-subjects');if(a)a.dataset.npHidden='true';if(typeof window.openNoticeModal==='function')window.openNoticeModal();else{let m=$('modal-notice');if(m)m.classList.remove('hidden')}return}
 if(k==='settings'){closeStraySettingsModals();document.body.setAttribute('data-np-new-settings-visible','true');let s=$('np-new-screen'),c=$('np-new-screen-content');s.dataset.visible='true';c.innerHTML='<header class="text-center py-5"><p class="text-xs tracking-[.22em] text-violet-400">PREFERENCES</p><h1 class="text-2xl font-semibold mt-2">設定</h1></header><div class="grid gap-3">'+[['account','アカウント'],['appearance','テーマ・外観'],['audio','オーディオ'],['notifications','通知設定'],['accessibility','アクセシビリティ'],['privacy','プライバシー'],['data','データ管理'],['help','ヘルプ・サポート'],['info','アプリ情報']].map(([k,t])=>'<button class="np-new-setting-card" data-setting="'+k+'">'+t+'<span>›</span></button>').join('')+'</div>';c.onclick=e=>{let b=e.target.closest('[data-setting]');if(!b)return;let k=b.dataset.setting;document.body.removeAttribute('data-np-new-settings-visible');if(k==='appearance'){if(typeof window.openThemeSettingsPage==='function')window.openThemeSettingsPage();else if(typeof window.openUserSettings==='function')window.openUserSettings()}else if(typeof window.openSettingsDetail==='function')window.openSettingsDetail(k);else if(typeof window.openUserSettings==='function')window.openUserSettings()};return}}
 function flashcards(){hideNotice();let a=$('screen-subjects');if(!a)return;a.classList.remove('hidden');a.removeAttribute('data-np-hidden');a.dataset.npFlashcards='true';if(typeof window.showSubjectScreen==='function')window.showSubjectScreen();let t=$('subjects-slider-track');if(t)t.style.transform='translateX(-50%)';active('home')}
