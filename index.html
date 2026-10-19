@@ -28,156 +28,58 @@
   <!-- データベース用の共通オブジェクトを先に初期化 -->
   <script src="./assets/js/quiz-db-bootstrap.js"></script>
 
-
-  <!-- 問題データは起動時に読み込まず、モード選択後に選択学期分を遅延読み込み -->
-  <script id="np-lazy-question-data-loader">
-    (() => {
-      const loaded = new Set();
-      const inFlight = new Map();
-      const sourceNodes = Array.from(document.querySelectorAll('script[data-np-question-src]'));
-      const normalize = path => path.replace(/^\.\//, '');
-      function loadScript(path) {
-        path = normalize(path);
-        if (loaded.has(path)) return Promise.resolve();
-        if (inFlight.has(path)) return inFlight.get(path);
-        const source = sourceNodes.find(node => normalize(node.dataset.npQuestionSrc) === path);
-        if (!source) return Promise.resolve();
-        const promise = new Promise((resolve, reject) => {
-          const script = document.createElement('script');
-          script.src = source.dataset.npQuestionSrc;
-          script.async = false;
-          script.onload = () => { loaded.add(path); inFlight.delete(path); resolve(); };
-          script.onerror = () => { inFlight.delete(path); console.error('[Nurse＋] 問題データを読み込めませんでした:', path); reject(new Error('問題データの読み込みに失敗しました: ' + path)); };
-          document.head.appendChild(script);
-        });
-        inFlight.set(path, promise);
-        return promise;
-      }
-      function selectedModePaths(paths, subject, mode) {
-        const id = subject.id || '';
-        const bySubject = {
-          anatomy: /解剖生理学\\//,
-          biochemistry: /生化学\\//,
-          physiology: /生理学\\//,
-          public_health: /公衆衛生学\\//,
-          public_health_nursing: /公衆衛生看護学概論\\//,
-          nutrition: /栄養学\\//,
-          pharmacology: /薬理学\\//,
-          nursing_method_3: /看護学方法論Ⅲ\\//,
-          pathology: /病理学\\//
-        };
-        const pattern = bySubject[id];
-        let selected = pattern ? paths.filter(path => pattern.test(path)) : [];
-        if (!selected.length) return selected;
-        const modeText = String(mode || '').toLowerCase();
-        const modeFolder = {
-          exercise: /演習問題/,
-          practice: /練習問題/,
-          quiz: /小テスト/,
-          test: /小テスト/,
-          national: /模擬国家試験|過去問/,
-          past: /過去問/,
-          basic: /基礎問題/,
-          fill: /穴埋め式/,
-          choice: /選択式/
-        };
-        const matchingMode = Object.entries(modeFolder).find(([key]) => modeText.includes(key));
-        if (matchingMode) {
-          const narrowed = selected.filter(path => matchingMode[1].test(path));
-          if (narrowed.length) selected = narrowed;
-        }
-        // 1つのモードが複数回に分割されている科目は、選択した回のファイルだけを取得する。
-        if (id === 'pathology' && window.currentPathologyRound) {
-          const round = String(window.currentPathologyRound).match(/\\d+/)?.[0];
-          if (round) selected = selected.filter(path => path.includes('第' + round + '回'));
-        }
-        return selected;
-      }
-      let lastSelectionKey = '';
-      window.NursePlusQuestionLoader = {
-        async loadForSelection(semesterValue, subjectValue, pharmacologyMode, biochemistryFormat) {
-          const semester = semesterValue || '2026_autumn';
-          const subject = subjectValue || {};
-          const modes = {
-            anatomy: window.currentAnatomyMode,
-            physiology: window.currentPhysiologyMode,
-            public_health: window.currentPublicHealthMode,
-            public_health_nursing: window.currentPHNMode,
-            nutrition: window.currentNutritionMode,
-            nursing_method_3: window.currentNursingMethod3Mode,
-            pathology: window.currentPathologyMode,
-            pharmacology: pharmacologyMode,
-            biochemistry: biochemistryFormat
-          };
-          const mode = modes[subject.id] || '';
-          const isBiochemistryFill = subject.id === 'biochemistry' && biochemistryFormat === 'fill';
-          const isPharmacologyNational = subject.id === 'pharmacology' && pharmacologyMode === 'nurse_national_6years';
-          const key = [semester, subject.id || '', mode, window.currentPathologyRound || ''].join(':');
-          if (key === lastSelectionKey) return;
-          const folder = semester === '2026_spring' ? '2026春学期/' : '2026秋学期/';
-          const semesterSourcePaths = sourceNodes.map(node => node.dataset.npQuestionSrc).filter(path => path.includes(folder));
-          const paths = selectedModePaths(semesterSourcePaths, subject, mode);
-          if (isBiochemistryFill) paths.push('./科目/生化学/穴埋め式/biochemistry_fill.js');
-          if (isPharmacologyNational) paths.push('./科目/薬理学/看護師国家試験過去6年/pharmacology_nurse_national_6years.js');
-          for (const path of [...new Set(paths)]) await loadScript(path);
-          lastSelectionKey = key;
-        }
-      };
-    })();
-  </script>
-
-  <!-- 問題データの読み込み先一覧（実際の読み込みはモード選択後） -->
-  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/解剖生理学/2026春学期/練習問題/anatomy2026harugakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/生化学/2026春学期/選択式/biochemistry2026harugakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/医療概論/2026春学期/練習問題/Medicine2026harugakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/微生物学/2026春学期/練習問題/microbiology2026harugakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/心理学/2026春学期/練習問題/mindbehavior2026harugakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/看護学方法論Ⅲ/2026春学期/練習問題/nursingmethod2026harugakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/看護学方法論Ⅲ/2026春学期/演習問題/nursingmethod3_exercise2026harugakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/看護学方法論Ⅲ/2026春学期/練習問題/nursingmethod3_practice2026harugakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/看護学方法論Ⅲ/2026春学期/小テスト/nursingmethod3_quiz2026harugakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/薬理学/2026春学期/演習問題/pharmacology_exercise2026harugakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/薬理学/2026春学期/過去問/pharmacology_past2026harugakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/心理学/2026春学期/練習問題/psychology2026harugakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/栄養学/2026春学期/演習問題/nutrition_exercise_2026harugakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/栄養学/2026春学期/小テスト/nutrition_quiz_2026harugakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/公衆衛生学/2026春学期/演習問題/publichealth_exercise2026harugakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/公衆衛生学/2026春学期/模擬国家試験/publichealth_national2026harugakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/公衆衛生学/2026春学期/過去問/publichealth_past2026harugakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/公衆衛生看護学概論/2026春学期/基礎問題/publichealthnursing_basic2026harugakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/公衆衛生看護学概論/2026春学期/演習問題/publichealthnursing_exercise2026harugakki.js"></script>
+  <!-- 各科目の外部問題データベースJSの読み込み（春学期） -->
+  <script src="./科目/解剖生理学/2026春学期/練習問題/anatomy2026harugakki.js"></script>
+  <script src="科目/生化学/2026春学期/選択式/biochemistry2026harugakki.js"></script>
+  <script src="./科目/医療概論/2026春学期/練習問題/Medicine2026harugakki.js"></script>
+  <script src="./科目/微生物学/2026春学期/練習問題/microbiology2026harugakki.js"></script>
+  <script src="./科目/心理学/2026春学期/練習問題/mindbehavior2026harugakki.js"></script>
+  <script src="科目/看護学方法論Ⅲ/2026春学期/練習問題/nursingmethod2026harugakki.js"></script>
+  <script src="科目/看護学方法論Ⅲ/2026春学期/演習問題/nursingmethod3_exercise2026harugakki.js"></script>
+  <script src="科目/看護学方法論Ⅲ/2026春学期/練習問題/nursingmethod3_practice2026harugakki.js"></script>
+  <script src="科目/看護学方法論Ⅲ/2026春学期/小テスト/nursingmethod3_quiz2026harugakki.js"></script>
+  <script src="科目/薬理学/2026春学期/演習問題/pharmacology_exercise2026harugakki.js"></script>
+  <script src="科目/薬理学/2026春学期/過去問/pharmacology_past2026harugakki.js"></script>
+  <script src="科目/心理学/2026春学期/練習問題/psychology2026harugakki.js"></script>
+  <script src="科目/栄養学/2026春学期/演習問題/nutrition_exercise_2026harugakki.js"></script>
+  <script src="科目/栄養学/2026春学期/小テスト/nutrition_quiz_2026harugakki.js"></script>
+  <script src="科目/公衆衛生学/2026春学期/演習問題/publichealth_exercise2026harugakki.js"></script>
+  <script src="科目/公衆衛生学/2026春学期/模擬国家試験/publichealth_national2026harugakki.js"></script>
+  <script src="科目/公衆衛生学/2026春学期/過去問/publichealth_past2026harugakki.js"></script>
+  <script src="科目/公衆衛生看護学概論/2026春学期/基礎問題/publichealthnursing_basic2026harugakki.js"></script>
+  <script src="科目/公衆衛生看護学概論/2026春学期/演習問題/publichealthnursing_exercise2026harugakki.js"></script>
 
   <!-- 各科目の外部問題データベースJSの読み込み（秋学期） -->
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/解剖生理学/2026秋学期/練習問題/anatomy2026akigakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/生化学/2026秋学期/選択式/biochemistry2026akigakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/生化学/穴埋め式/biochemistry_fill.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/医療概論/2026秋学期/練習問題/Medicine2026akigakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/微生物学/2026秋学期/練習問題/microbiology2026akigakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/心理学/2026秋学期/練習問題/mindbehavior2026akigakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod2026akigakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/看護学方法論Ⅲ/2026秋学期/演習問題/nursingmethod3_exercise2026akigakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod3_practice2026akigakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/看護学方法論Ⅲ/2026秋学期/小テスト/nursingmethod3_quiz2026akigakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/薬理学/2026秋学期/演習問題/pharmacology_exercise2026akigakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/薬理学/2026秋学期/過去問/pharmacology_past2026akigakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/心理学/2026秋学期/練習問題/psychology2026akigakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/栄養学/2026秋学期/演習問題/nutrition_exercise_2026akigakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/栄養学/2026秋学期/小テスト/nutrition_quiz_2026akigakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/公衆衛生学/2026秋学期/演習問題/publichealth_exercise2026akigakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/公衆衛生学/2026秋学期/模擬国家試験/publichealth_national2026akigakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/公衆衛生学/2026秋学期/過去問/publichealth_past2026akigakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/公衆衛生看護学概論/2026秋学期/基礎問題/publichealthnursing_basic2026akigakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/公衆衛生看護学概論/2026秋学期/演習問題/publichealthnursing_exercise2026akigakki.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第1回/pathology_range_2026akigakki_1.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第2回/pathology_range_2026akigakki_2.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第3回/pathology_range_2026akigakki_3.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/病理学/2026秋学期/演習問題/演習問題　第1回/pathology_exercise_2026akigakki_1.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/病理学/2026秋学期/演習問題/演習問題　第2回/pathology_exercise_2026akigakki_2.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/病理学/2026秋学期/演習問題/演習問題　第3回/pathology_exercise_2026akigakki_3.js"></script>
-  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/生理学/2026秋学期/小テスト/physiology2026akigakki_quiz.js"></script>
+  <script src="科目/解剖生理学/2026秋学期/練習問題/anatomy2026akigakki.js"></script>
+  <script src="./科目/生化学/2026秋学期/選択式/biochemistry2026akigakki.js"></script>
+  <script src="./科目/生化学/穴埋め式/biochemistry_fill.js" onerror="console.log('biochemistry_fill.js 未検出。')"></script>
+  <script src="科目/医療概論/2026秋学期/練習問題/Medicine2026akigakki.js"></script>
+  <script src="科目/微生物学/2026秋学期/練習問題/microbiology2026akigakki.js"></script>
+  <script src="科目/心理学/2026秋学期/練習問題/mindbehavior2026akigakki.js"></script>
+  <script src="科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod2026akigakki.js"></script>
+  <script src="科目/看護学方法論Ⅲ/2026秋学期/演習問題/nursingmethod3_exercise2026akigakki.js"></script>
+  <script src="./科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod3_practice2026akigakki.js"></script>
+  <script src="科目/看護学方法論Ⅲ/2026秋学期/小テスト/nursingmethod3_quiz2026akigakki.js"></script>
+  <script src="科目/薬理学/2026秋学期/演習問題/pharmacology_exercise2026akigakki.js"></script>
+  <script src="科目/薬理学/2026秋学期/過去問/pharmacology_past2026akigakki.js"></script>
+  <script src="科目/心理学/2026秋学期/練習問題/psychology2026akigakki.js"></script>
+  <script src="./科目/栄養学/2026秋学期/演習問題/nutrition_exercise_2026akigakki.js"></script>
+  <script src="./科目/栄養学/2026秋学期/小テスト/nutrition_quiz_2026akigakki.js"></script>
+  <script src="./科目/公衆衛生学/2026秋学期/演習問題/publichealth_exercise2026akigakki.js"></script>
+  <script src="./科目/公衆衛生学/2026秋学期/模擬国家試験/publichealth_national2026akigakki.js"></script>
+  <script src="./科目/公衆衛生学/2026秋学期/過去問/publichealth_past2026akigakki.js"></script>
+  <script src="科目/公衆衛生看護学概論/2026秋学期/基礎問題/publichealthnursing_basic2026akigakki.js"></script>
+  <script src="./科目/公衆衛生看護学概論/2026秋学期/演習問題/publichealthnursing_exercise2026akigakki.js"></script>
+  <script src="./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第1回/pathology_range_2026akigakki_1.js"></script>
+<script src="./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第2回/pathology_range_2026akigakki_2.js"></script>
+<script src="./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第3回/pathology_range_2026akigakki_3.js"></script>
+<script src="./科目/病理学/2026秋学期/演習問題/演習問題　第1回/pathology_exercise_2026akigakki_1.js"></script>
+<script src="./科目/病理学/2026秋学期/演習問題/演習問題　第2回/pathology_exercise_2026akigakki_2.js"></script>
+<script src="./科目/病理学/2026秋学期/演習問題/演習問題　第3回/pathology_exercise_2026akigakki_3.js"></script>
+<script src="./科目/生理学/2026秋学期/小テスト/physiology2026akigakki_quiz.js"></script>
 
 
-  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/薬理学/看護師国家試験過去6年/pharmacology_nurse_national_6years.js"></script>
+  <script src="./科目/薬理学/看護師国家試験過去6年/pharmacology_nurse_national_6years.js"></script>
 
   <!-- ★ 暗記カード専用の独立外部JSファイルを読み込み -->
   <script src="./科目/公衆衛生学/2026秋学期/暗記カード/flashcard_data.js" onerror="console.log('公衆衛生学 flashcard_data.js 未検出。')"></script>
@@ -265,7 +167,7 @@
     </div>
     <div id="np-theme-settings-modal-content" class="pt-4">
       <p class="text-sm text-slate-600 mb-4">アプリ全体の表示モードを切り替えます。初期設定はホワイトです。</p>
-      <div class="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white/70 px-4 py-3"><span id="np-theme-label" class="text-sm font-medium text-slate-700">ホワイトモード</span><label class="relative inline-flex items-center cursor-pointer"><input id="np-theme-toggle" type="checkbox" role="switch" aria-label="ダークモード" aria-checked="false" class="np-toggle-switch"><span class="sr-only">ダークモード</span></label></div>
+      <button id="np-theme-toggle" type="button" aria-pressed="false" aria-label="ダークモードに切り替え" title="テーマを切り替え"><span id="np-theme-icon" aria-hidden="true">☾</span><span id="np-theme-label">ダーク</span></button>
     </div>
     <button type="button" onclick="closeThemeSettingsPage()" class="mt-5 w-full rounded-xl border border-slate-200 bg-slate-50 py-3 text-sm hover:bg-slate-100 transition">戻る</button>
   </section>
@@ -285,7 +187,7 @@
 
   <!-- スライドメニュー -->
   <div id="nav-overlay" onclick="closeNavDrawer()" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 transition-opacity"></div>
-  <div id="nav-drawer" class="fixed top-0 left-0 h-full w-72 glass-card bg-slate-900/95 border-r border-slate-800 z-50 transform -translate-x-full p-6 flex flex-col justify-between shadow-2xl overflow-y-auto" style="transition:transform 180ms cubic-bezier(.2,.7,.25,1),opacity 160ms ease;">
+  <div id="nav-drawer" class="fixed top-0 left-0 h-full w-72 glass-card bg-slate-900/95 border-r border-slate-800 z-50 transform -translate-x-full transition-transform duration-700 p-6 flex flex-col justify-between shadow-2xl overflow-y-auto" style="transition:transform 680ms cubic-bezier(.16,1,.3,1),opacity 520ms cubic-bezier(.16,1,.3,1);">
     <div>
       <div class="flex items-center justify-between pb-4 border-b border-slate-800">
         <span class="en-title text-xs text-amber-500/80 tracking-widest uppercase font-semibold">NAVIGATION MENU</span>
@@ -340,22 +242,10 @@
           <div class="en-title text-[10px] text-amber-500 tracking-[.22em] font-semibold">STUDY HOME</div>
           <h2 class="serif-title text-xl text-slate-100 mt-1">学習ホーム</h2>
           <p class="text-[11px] text-slate-400 mt-1">現在の学習状況を確認できます。</p>
-          <button id="np-home-subjects-open-all" onclick="showSubjectScreen()" class="w-full mt-3 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition">
+          <button onclick="showSubjectScreen()" class="w-full mt-3 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition">
             科目一覧
           </button>
         </div>
-
-        <!-- スマートフォンの下部メニュー利用時は、ホームに科目を直接表示 -->
-        <section id="np-mobile-home-subjects" class="hidden" aria-label="科目一覧">
-          <div class="flex items-center justify-between gap-2 mb-3">
-            <div>
-              <h3 class="text-sm font-semibold text-slate-100">科目から学習を始める</h3>
-              <p class="text-[10px] text-slate-400 mt-1">学習したい科目を選択してください</p>
-            </div>
-            <span id="np-mobile-home-subject-count" class="text-[10px] text-slate-500"></span>
-          </div>
-          <div id="np-mobile-home-subject-grid" class="grid grid-cols-2 gap-2.5"></div>
-        </section>
 
         <div class="evo-card">
           <div class="flex justify-between items-center mb-3">
@@ -1754,7 +1644,6 @@
   <link rel="stylesheet" href="./assets/css/data-analysis-polish.css">
 
   <script id="nurse-plus-pwa-experience" src="./assets/js/pwa-experience.js"></script>
-  <style id="np-hide-online-status-badge">#np-pwa-status { display: none !important; }</style>
 
 
   <script id="nurse-plus-theme-toggle" src="./assets/js/theme-toggle.js"></script>
@@ -1763,163 +1652,8 @@
 
 
   <!-- Nurse＋ PWA navigation improvements: screen transitions, browser back, LINE external-browser guidance -->
-  <style id="np-mobile-bottom-navigation-style">
-    /* スマートフォンのみ下部ナビを表示。既存の背景・配色・PC表示は変更しない */
-    #np-mobile-bottom-nav { display:none; }
-    @media (max-width: 767px) {
-      body { padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
-      #np-mobile-bottom-nav {
-        display:grid;
-        grid-template-columns:repeat(4,minmax(0,1fr));
-        position:fixed;
-        z-index:60;
-        left:12px; right:12px;
-        bottom:calc(8px + env(safe-area-inset-bottom));
-        padding:10px 6px 8px;
-        border-radius:28px;
-        border:1px solid rgba(255,255,255,.68);
-        background:rgba(255,255,255,.78);
-        box-shadow:0 8px 30px rgba(80,65,105,.12);
-        backdrop-filter:blur(18px);
-        -webkit-backdrop-filter:blur(18px);
-      }
-      #np-mobile-bottom-nav button {
-        display:flex; flex-direction:column; align-items:center; justify-content:center;
-        gap:4px; min-width:0; min-height:54px; border:0; background:transparent;
-        color:#9b91b7; font:600 11px/1.2 'Noto Sans JP',sans-serif;
-        -webkit-tap-highlight-color:transparent; touch-action:manipulation;
-      }
-      #np-mobile-bottom-nav button svg { width:25px; height:25px; stroke:currentColor; }
-      #np-mobile-bottom-nav button[aria-current="page"] { color:#ed83a8; }
-      #np-mobile-bottom-nav button:active { transform:scale(.96); }
-    }
-  </style>
-
-  <!-- 科目選択後の学習画面では下部メニューを画面外へ退避 -->
-  <style id="np-bottom-nav-hide-after-subject-selection">
-    @media (max-width: 767px) {
-      #np-mobile-bottom-nav.np-bottom-nav-away {
-        transform: translateY(calc(100% + 24px + env(safe-area-inset-bottom))) !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-        pointer-events: none !important;
-      }
-      body.np-bottom-nav-learning-active { padding-bottom: 0 !important; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      #np-mobile-bottom-nav { transition-duration: 0ms !important; }
-    }
-  </style>
-
-  <script id="np-bottom-nav-screen-state">
-    (() => {
-      const nav = document.getElementById('np-mobile-bottom-nav');
-      if (!nav) {
-        document.addEventListener('DOMContentLoaded', () => {
-          const retry = document.getElementById('np-mobile-bottom-nav');
-          if (retry) window.dispatchEvent(new Event('np-nav-ready'));
-        }, { once: true });
-      }
-      const update = () => {
-        const bar = document.getElementById('np-mobile-bottom-nav');
-        if (!bar) return;
-        const screens = Array.from(document.querySelectorAll('[id^="screen-"]'));
-        const visible = screens.filter(el => !el.classList.contains('hidden'));
-        const dashboard = visible.some(el => el.id === 'screen-dashboard');
-        const analysis = visible.some(el => /analysis|analytics/.test(el.id));
-        const modalOpen = ['modal-notice','user-settings-overlay','user-settings-modal'].some(id => {
-          const el = document.getElementById(id);
-          return el && !el.classList.contains('hidden');
-        });
-        const hide = !dashboard && !analysis && !modalOpen && visible.length > 0;
-        bar.classList.toggle('np-bottom-nav-away', hide);
-        document.body.classList.toggle('np-bottom-nav-learning-active', hide);
-        const key = modalOpen
-          ? (document.getElementById('modal-notice') && !document.getElementById('modal-notice').classList.contains('hidden') ? 'notices' : 'settings')
-          : dashboard ? 'home' : analysis ? 'analytics' : '';
-        bar.querySelectorAll('button[data-np-nav]').forEach(button => {
-          if (key && button.dataset.npNav === key) button.setAttribute('aria-current','page');
-          else button.removeAttribute('aria-current');
-        });
-      };
-      new MutationObserver(update).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class']});
-      document.addEventListener('click', event => {
-        const button = event.target.closest('#np-mobile-bottom-nav button[data-np-nav]');
-        if (!button) return;
-        if (button.dataset.npNav === 'home') setTimeout(update, 0);
-        if (button.dataset.npNav === 'analytics') setTimeout(update, 0);
-      }, true);
-      window.addEventListener('np-nav-ready', update);
-      update();
-    })();
-  </script>
   <link rel="stylesheet" href="./assets/css/pwa-navigation.css" id="nurse-plus-pwa-navigation-style">
   <script id="nurse-plus-pwa-navigation" src="./assets/js/pwa-navigation.js"></script>
-  <nav id="np-mobile-bottom-nav" aria-label="メインメニュー">
-    <button type="button" data-np-nav="home" aria-current="page" onclick="showDashboard()" aria-label="ホーム">
-      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><path d="M3 10.8 12 3l9 7.8v9a1.2 1.2 0 0 1-1.2 1.2h-5.1v-6.2H9.3V21H4.2A1.2 1.2 0 0 1 3 19.8z"/></svg><span>ホーム</span>
-    </button>
-    <button type="button" data-np-nav="analytics" onclick="if (typeof window.showDataAnalysis === 'function') window.showDataAnalysis(); else if (window.NursePlusAnalyticsAddition && typeof window.NursePlusAnalyticsAddition.open === 'function') window.NursePlusAnalyticsAddition.open();" aria-label="データ分析">
-      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><rect x="3" y="12" width="4.5" height="9" rx="1.2"/><rect x="9.8" y="7" width="4.5" height="14" rx="1.2"/><rect x="16.6" y="3" width="4.5" height="18" rx="1.2"/></svg><span>データ分析</span>
-    </button>
-    <button type="button" data-np-nav="notices" onclick="openNoticeModal()" aria-label="お知らせ">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>お知らせ</span>
-    </button>
-    <button type="button" data-np-nav="settings" onclick="openBottomNavSettings()" aria-label="設定">
-      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><path d="m19.4 13.5 1.2.9-1.8 3.1-1.4-.6a7.8 7.8 0 0 1-1.7 1l-.2 1.6h-3.6l-.2-1.6a7.8 7.8 0 0 1-1.7-1l-1.4.6-1.8-3.1 1.2-.9a7.2 7.2 0 0 1 0-2l-1.2-.9 1.8-3.1 1.4.6a7.8 7.8 0 0 1 1.7-1l.2-1.6h3.6l.2 1.6a7.8 7.8 0 0 1 1.7 1l1.4-.6 1.8 3.1-1.2.9a7.2 7.2 0 0 1 0 2ZM13.7 15a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/></svg><span>設定</span>
-    </button>
-  </nav>
-  <script id="np-bottom-nav-active-state-fix">
-    (() => {
-      const nav = document.getElementById('np-mobile-bottom-nav');
-      if (!nav) return;
-      const notice = document.getElementById('modal-notice');
-      const settingsOverlay = document.getElementById('user-settings-overlay');
-      const settingsModal = document.getElementById('user-settings-modal');
-      const setActive = key => nav.querySelectorAll('button[data-np-nav]').forEach(btn => {
-        if (btn.dataset.npNav === key) btn.setAttribute('aria-current','page');
-        else btn.removeAttribute('aria-current');
-      });
-      window.openBottomNavSettings = () => {
-        if (notice) notice.classList.add('hidden');
-        if (settingsOverlay) settingsOverlay.classList.remove('hidden');
-        if (settingsModal) settingsModal.classList.remove('hidden');
-        setActive('settings');
-      };
-      const originalOpenNotice = window.openNoticeModal;
-      window.openNoticeModal = function() {
-        if (settingsOverlay) settingsOverlay.classList.add('hidden');
-        if (settingsModal) settingsModal.classList.add('hidden');
-        if (typeof originalOpenNotice === 'function') originalOpenNotice();
-        else if (notice) notice.classList.remove('hidden');
-        setActive('notices');
-      };
-      const originalCloseNotice = window.closeNoticeModal;
-      window.closeNoticeModal = function() {
-        if (typeof originalCloseNotice === 'function') originalCloseNotice();
-        else if (notice) notice.classList.add('hidden');
-        if (nav.querySelector('[data-np-nav="notices"][aria-current="page"]')) setActive('');
-      };
-      const sync = () => {
-        if (notice && !notice.classList.contains('hidden')) { setActive('notices'); return; }
-        if ((settingsOverlay && !settingsOverlay.classList.contains('hidden')) ||
-            (settingsModal && !settingsModal.classList.contains('hidden'))) { setActive('settings'); return; }
-        const active = Array.from(document.querySelectorAll('[id^="screen-"]')).find(el => !el.classList.contains('hidden'));
-        const id = active && active.id;
-        const key = id === 'screen-data-analysis' || id === 'screen-analytics-addition' ? 'analytics' : id === 'screen-dashboard' ? 'home' : '';
-        setActive(key);
-      };
-      new MutationObserver(sync).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class']});
-      nav.querySelector('[data-np-nav="home"]')?.addEventListener('click', () => setActive('home'));
-      nav.querySelector('[data-np-nav="analytics"]')?.addEventListener('click', () => {
-        if (notice) notice.classList.add('hidden');
-        if (settingsOverlay) settingsOverlay.classList.add('hidden');
-        if (settingsModal) settingsModal.classList.add('hidden');
-        setActive('analytics');
-      });
-      sync();
-    })();
-  </script>
 
 
   <link rel="stylesheet" href="./assets/css/recent-study-carousel-dots.css" id="nurse-plus-recent-study-carousel-light-dots">
@@ -1943,223 +1677,6 @@
 
   <!-- Nurse＋ App-like Home UI: restore the original soft visual direction and refine touch interaction with CSS only. -->
   <link rel="stylesheet" href="./assets/css/app-home-refinement.css" id="nurse-plus-app-home-refinement">
-
-  <!-- 下部メニュー利用時は、ドロワー内の重複する科目一覧・データ分析への導線を非表示 -->
-  <style id="np-mobile-bottom-nav-hide-duplicate-shortcuts">
-    @media (max-width: 767px) {
-      #nav-drawer button[onclick*="showDataAnalysis"],
-      #nav-drawer button[onclick*="showSubjectScreen"] { display: none !important; }
-    }
-  </style>
-
-  <!-- 下部メニュー時のホームは科目選択を中心にし、学習ホームの概要を非表示 -->
-  <style id="np-mobile-bottom-nav-hide-study-dashboard">
-    @media (max-width: 767px) {
-      #screen-dashboard > div:first-child,
-      #screen-dashboard > .evo-card { display: none !important; }
-    }
-  </style>
-
-  <!-- スマートフォン下部メニュー時のみ、既存の科目ボタンをホームに表示 -->
-  <style id="np-mobile-home-subjects-style">
-    @media (max-width: 767px) {
-      #np-mobile-home-subjects { display:block !important; }
-      #np-home-subjects-open-all { display:none !important; }
-      #np-mobile-home-subject-grid > button {
-        min-width:0; min-height:94px; padding:12px 10px;
-        border-radius:16px; border:1px solid rgba(221,211,241,.9);
-        background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(248,244,255,.94));
-        color:#5f536f; box-shadow:0 4px 14px rgba(92,75,122,.07);
-        align-items:flex-start; gap:8px;
-      }
-      #np-mobile-home-subject-grid > button > div:first-child { min-width:0; gap:7px; align-items:flex-start; }
-      #np-mobile-home-subject-grid > button > div:first-child > span {
-        flex:0 0 auto; font-size:9px; padding:3px 5px; border-radius:7px;
-      }
-      #np-mobile-home-subject-grid > button > div:first-child > div { min-width:0; text-align:left; }
-      #np-mobile-home-subject-grid > button > div:first-child > div > div:first-child {
-        color:#5f536f; font-size:11px; line-height:1.45; overflow-wrap:anywhere;
-      }
-      #np-mobile-home-subject-grid > button > div:first-child > div > div:last-child {
-        color:#9287a2; font-size:9px; line-height:1.45;
-      }
-      #np-mobile-home-subject-grid > button > div:last-child {
-        width:100%; display:flex; justify-content:space-between; align-items:center;
-        gap:4px; margin-top:auto;
-      }
-      #np-mobile-home-subject-grid > button > div:last-child > div:first-child { text-align:left; }
-      #np-mobile-home-subject-grid > button > div:last-child > div:first-child > div:first-child { font-size:9px; color:#9a90a8; }
-      #np-mobile-home-subject-grid > button > div:last-child > div:first-child > div:last-child { font-size:11px; color:#8b79ad; }
-      #np-mobile-home-subject-grid > button > span { font-size:11px; }
-      #np-mobile-home-subject-grid > button:disabled { opacity:.65; }
-    }
-    @media (min-width: 768px) {
-      #np-mobile-home-subjects { display:none !important; }
-    }
-  </style>
-  <script id="np-mobile-home-subjects-script">
-    (() => {
-      const dashboard = document.getElementById('screen-dashboard');
-      const source = document.getElementById('subject-list-container');
-      const target = document.getElementById('np-mobile-home-subject-grid');
-      const count = document.getElementById('np-mobile-home-subject-count');
-      if (!dashboard || !source || !target) return;
-
-      // 複製したホーム用科目ボタンは元のイベントリスナーを引き継がないため、
-      // タップを元の科目ボタンへ委譲し、既存の選択処理を確実に実行する。
-      if (!target.dataset.npClickForwarderReady) {
-        target.dataset.npClickForwarderReady = 'true';
-        target.addEventListener('click', event => {
-          const clonedButton = event.target.closest('button');
-          if (!clonedButton || !target.contains(clonedButton)) return;
-          const buttons = Array.from(target.querySelectorAll(':scope > button'));
-          const index = buttons.indexOf(clonedButton);
-          const sourceButtons = Array.from(source.querySelectorAll(':scope > button'));
-          const originalButton = sourceButtons[index];
-          if (!originalButton || originalButton.disabled) return;
-          event.preventDefault();
-          event.stopPropagation();
-          if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
-          originalButton.click();
-        }, true);
-      }
-
-      let lastSourceHTML = null;
-      const syncSubjects = () => {
-        if (window.innerWidth > 767 || dashboard.classList.contains('hidden')) return;
-        const sourceHTML = source.innerHTML;
-        if (sourceHTML !== lastSourceHTML) {
-          target.innerHTML = sourceHTML;
-          const cards = [
-            { match: /解剖学/, icon: '♧', bg: '#fff0f6', border: '#f8d9e8', color: '#d65b91' },
-            { match: /生化学/, icon: '⚗', bg: '#fff8ec', border: '#f5e5ca', color: '#d6a14d' },
-            { match: /生理学/, icon: '♥', bg: '#eef6ff', border: '#d8e8fb', color: '#5b9de9' },
-            { match: /^公衆衛生学$/, icon: '✺', bg: '#edfbf8', border: '#d4f2eb', color: '#50b9a9' },
-            { match: /公衆衛生看護学概論/, icon: '♧', bg: '#f7f0ff', border: '#e9dcfb', color: '#a477d7' },
-            { match: /栄養学/, icon: '🥣', bg: '#fff2eb', border: '#f9dfd2', color: '#df9365' },
-            { match: /薬理学/, icon: '💊', bg: '#fff0f6', border: '#f8d9e8', color: '#d65b91' },
-            { match: /看護学方法論Ⅲ/, icon: '✚', bg: '#eef6ff', border: '#d8e8fb', color: '#5b9de9' },
-            { match: /暗記カード/, icon: '▤', bg: '#edfbf8', border: '#d4f2eb', color: '#50b9a9' }
-          ];
-          target.querySelectorAll(':scope > button').forEach((button, index) => {
-            const original = source.querySelectorAll(':scope > button')[index];
-            const originalText = (original?.innerText || original?.textContent || '').replace(/\\s+/g, ' ').trim();
-            const card = cards.find(item => item.match.test(originalText)) || { icon: '✚', bg: '#edfbf8', border: '#d4f2eb', color: '#50b9a9' };
-            const subjectName = (originalText.match(/解剖学|生化学|生理学|公衆衛生看護学概論|公衆衛生学|栄養学|薬理学|看護学方法論Ⅲ|暗記カード/) || [originalText])[0];
-            button.style.cssText = 'min-width:0;min-height:110px;padding:14px 12px;border-radius:20px;border:1px solid '+card.border+';background:'+card.bg+';color:'+card.color+';box-shadow:0 5px 16px rgba(92,75,122,.07);display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:8px;';
-            button.innerHTML = '<span aria-hidden="true" style="font-size:34px;line-height:1;flex:0 0 auto;">'+card.icon+'</span><span style="font-size:13px;font-weight:700;line-height:1.45;color:#675a72;text-align:left;flex:1;overflow-wrap:anywhere;">'+subjectName+'</span><span aria-hidden="true" style="font-size:25px;color:'+card.color+';flex:0 0 auto;">›</span>';
-          });
-          lastSourceHTML = sourceHTML;
-        }
-        if (count) count.textContent = source.children.length ? source.children.length + '科目' : '';
-      };
-      const observer = new MutationObserver(() => {
-        if (!dashboard.classList.contains('hidden')) requestAnimationFrame(syncSubjects);
-      });
-      observer.observe(dashboard, { attributes:true, attributeFilter:['class'] });
-      observer.observe(source, { childList:true, subtree:true });
-      window.addEventListener('resize', syncSubjects, { passive:true });
-      document.addEventListener('DOMContentLoaded', syncSubjects, { once:true });
-      if (!dashboard.classList.contains('hidden')) syncSubjects();
-    })();
-  </script>
-
-
-  <!-- Nurse＋ navigation repair: ensure drawer/settings controls are wired and responsive. -->
-
-  <script id="np-bottom-nav-subject-selection-sync">
-    (() => {
-      const nav = document.getElementById('np-mobile-bottom-nav');
-      if (!nav) return;
-      const learningScreens = new Set([
-        'screen-semester-select', 'screen-physiology-mode-select',
-        'screen-anatomy-mode-select', 'screen-publichealth-mode-select',
-        'screen-phn-mode-select', 'screen-pathology-mode-select',
-        'screen-pathology-round-select', 'screen-pharmacology-mode-select',
-        'screen-nursing-mode-select', 'screen-nursing-method-3-mode-select',
-        'screen-nutrition-mode-select', 'screen-biochemistry-format-select',
-        'screen-time-select', 'screen-round-select', 'screen-count-select',
-        'screen-quiz-start', 'screen-quiz-play', 'screen-quiz-result',
-        'screen-multi-lobby', 'screen-multi-room', 'screen-multi-play'
-      ]);
-      let scheduled = false;
-      const sync = () => {
-        scheduled = false;
-        const active = Array.from(document.querySelectorAll('[id^="screen-"]'))
-          .find(screen => !screen.classList.contains('hidden'));
-        const hide = !!(active && learningScreens.has(active.id));
-        nav.classList.toggle('np-bottom-nav-away', hide);
-        document.body.classList.toggle('np-bottom-nav-learning-active', hide);
-      };
-      const schedule = () => {
-        if (scheduled) return;
-        scheduled = true;
-        requestAnimationFrame(sync);
-      };
-      const screenObserver = new MutationObserver(schedule);
-      document.querySelectorAll('[id^="screen-"]').forEach(screen => {
-        screenObserver.observe(screen, { attributes: true, attributeFilter: ['class'] });
-      });
-      sync();
-    })();
-  </script>
-
-  <script id="np-navigation-controls-repair">
-    (() => {
-      'use strict';
-      const get = id => document.getElementById(id);
-      const openDrawer = () => {
-        const drawer = get('nav-drawer');
-        const overlay = get('nav-overlay');
-        if (!drawer || !overlay) return;
-        drawer.classList.remove('-translate-x-full');
-        drawer.classList.add('translate-x-0');
-        overlay.classList.remove('hidden');
-        document.body.classList.add('np-nav-drawer-open');
-        const trigger = document.querySelector('button[onclick*="toggleNavDrawer"]');
-        if (trigger) trigger.setAttribute('aria-expanded', 'true');
-      };
-      window.closeNavDrawer = () => {
-        const drawer = get('nav-drawer');
-        const overlay = get('nav-overlay');
-        if (drawer) {
-          drawer.classList.add('-translate-x-full');
-          drawer.classList.remove('translate-x-0');
-        }
-        if (overlay) overlay.classList.add('hidden');
-        document.body.classList.remove('np-nav-drawer-open');
-        const trigger = document.querySelector('button[onclick*="toggleNavDrawer"]');
-        if (trigger) trigger.setAttribute('aria-expanded', 'false');
-      };
-      window.toggleNavDrawer = () => {
-        const drawer = get('nav-drawer');
-        if (!drawer) return;
-        if (drawer.classList.contains('-translate-x-full')) openDrawer();
-        else window.closeNavDrawer();
-      };
-      window.closeUserSettings = () => {
-        get('user-settings-overlay')?.classList.add('hidden');
-        get('user-settings-modal')?.classList.add('hidden');
-      };
-      window.openUserSettings = () => {
-        get('user-settings-overlay')?.classList.remove('hidden');
-        get('user-settings-modal')?.classList.remove('hidden');
-      };
-      const settingsButton = document.querySelector('#np-mobile-bottom-nav [data-np-nav="settings"]');
-      if (settingsButton) {
-        settingsButton.addEventListener('click', event => {
-          event.preventDefault();
-          window.openUserSettings();
-        });
-      }
-      document.addEventListener('keydown', event => {
-        if (event.key === 'Escape') {
-          window.closeNavDrawer();
-          window.closeUserSettings();
-        }
-      });
-    })();
-  </script>
 
 </body>
 </html>

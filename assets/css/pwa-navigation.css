@@ -4,7 +4,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .np-screen-enter-motion {
-      animation: np-screen-enter-motion .12s cubic-bezier(.2,.7,.25,1) both;
+      animation: np-screen-enter-motion .24s cubic-bezier(.2,.7,.25,1) both;
     }
     #np-line-browser-guide {
       position: fixed;
