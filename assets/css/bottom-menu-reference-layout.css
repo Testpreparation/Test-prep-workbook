@@ -73,3 +73,8 @@ body.np-bottom-menu-enabled.np-bottom-menu-notices-view #screen-dashboard,
 body.np-bottom-menu-enabled.np-bottom-menu-notices-view #screen-subjects,
 body.np-bottom-menu-enabled.np-bottom-menu-notices-view #screen-data-analysis { display:none !important; }
 @media (min-width:700px) { .np-bottom-menu-notices-page { padding:32px 28px 48px; } }
+
+/* 学期選択から演習終了まで、下部ナビと右上アクションを非表示 */
+body.np-bottom-menu-enabled.np-study-flow-open #np-reference-bottom-nav,
+body.np-bottom-menu-enabled.np-study-flow-open .np-reference-top-actions { display:none !important; }
+body.np-bottom-menu-enabled.np-study-flow-open { padding-bottom:0 !important; }
