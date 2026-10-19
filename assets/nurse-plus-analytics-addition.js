@@ -686,18 +686,6 @@
         syncStudyData(status, button);
       });
     }
-    // LINEログイン済みなら起動時にも同期し、手動操作を待たず別端末へ反映する。
-    const startAutomaticStudySync = () => {
-      if (!localStorage.getItem('nurse_line_user_session') || !localStorage.getItem('nurse_line_user_id')) return;
-      window.setTimeout(() => {
-        syncStudyData(document.getElementById('np-account-sync-status'), null);
-      }, 900);
-    };
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', startAutomaticStudySync, { once: true });
-    } else {
-      startAutomaticStudySync();
-    }
     window.NursePlusStudySync = syncStudyData;
 
     document.getElementById('np-open-wrong-review')?.addEventListener('click', () => {
@@ -1098,7 +1086,20 @@
     // 画面内のタップでパネルだけを隠すと、基本の4項目だけが残るため、
     // クリック位置に応じてパネル単体を非表示にする処理は行わない。
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, {once:true});
-  else install();
+  function startAutomaticStudySync() {
+    if (!localStorage.getItem('nurse_line_user_session') || !localStorage.getItem('nurse_line_user_id')) return;
+    window.setTimeout(() => {
+      syncStudyData(document.getElementById('np-account-sync-status'), null);
+    }, 900);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      install();
+      startAutomaticStudySync();
+    }, {once:true});
+  } else {
+    install();
+    startAutomaticStudySync();
+  }
 
 })();
