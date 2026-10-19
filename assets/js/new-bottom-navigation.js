@@ -46,7 +46,7 @@ if(k==='home'){let a=$('screen-subjects');if(a){a.removeAttribute('data-np-hidde
 if(k==='analytics'){
   const shellEl=$('np-new-screen'),content=$('np-new-screen-content');
   if(shellEl)shellEl.dataset.visible='true';
-  if(content)content.innerHTML='<header class="text-center py-5"><p class="text-xs tracking-[.22em] text-violet-400">STUDY ANALYTICS</p><h1 class="text-2xl font-semibold mt-2">データ分析</h1></header><div id="np-new-nav-analytics-copy" class="space-y-4"></div>';
+  if(content)content.innerHTML='<div id="np-new-nav-analytics-copy" class="space-y-4"></div>';
   const an=$('screen-data-analysis');
   if(an){an.classList.remove('hidden');an.style.display='block'}
   if(typeof window.showDataAnalysis==='function')window.showDataAnalysis();
