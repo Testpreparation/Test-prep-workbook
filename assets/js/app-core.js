@@ -4867,7 +4867,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         if (isTargetCorrect) {
           btn.classList.add(
             'bg-emerald-900/90',
-            'border-2',
+            'border-[3px]',
             'border-emerald-300',
             'ring-2',
             'ring-emerald-400/70',
