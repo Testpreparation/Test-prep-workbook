@@ -1,19 +1,34 @@
 
     (() => {
       try {
-        const params = new URLSearchParams(window.location.search);
-        const lineName = params.get('line_name');
-
-        if (lineName) {
-          localStorage.setItem('nurse_line_user_name', lineName);
-          params.delete('line_name');
-          const query = params.toString();
-          const cleanUrl = window.location.pathname + (query ? '?' + query : '') + window.location.hash;
-          window.history.replaceState({}, document.title, cleanUrl);
-          console.info('LINE表示名をこの端末に保存しました。');
+        // LINE callback sends credentials in the URL fragment (#), not the query string (?).
+        const fragment = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+        const queryParams = new URLSearchParams(window.location.search);
+        const lineName = fragment.get('line_name') || queryParams.get('line_name');
+        const lineUserId = fragment.get('line_user_id') || queryParams.get('line_user_id');
+        const lineSession = fragment.get('line_session') || queryParams.get('line_session');
+        const hasLineCallback = Boolean(lineName || lineUserId || lineSession);
+        if (lineName) localStorage.setItem('nurse_line_user_name', lineName);
+        if (lineUserId) localStorage.setItem('nurse_line_user_id', lineUserId);
+        if (lineSession) {
+          localStorage.setItem('nurse_line_user_session', lineSession);
+          window.NURSE_LINE_SESSION = lineSession;
+        }
+        if (hasLineCallback) {
+          window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+          console.info('LINEログイン情報を保存しました。');
         }
 
         const savedName = localStorage.getItem('nurse_line_user_name');
+        const savedSession = localStorage.getItem('nurse_line_user_session');
+        if (savedSession) {
+          fetch('https://nurse-line-system.onrender.com/api/user/visit', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + savedSession }
+          }).then(response => {
+            if (!response.ok) console.warn('LINE利用履歴の記録に失敗:', response.status);
+          }).catch(error => console.warn('LINE利用履歴の記録に失敗:', error));
+        }
         if (savedName) {
           window.NURSE_LINE_USER_NAME = savedName;
           console.info('保存済みLINE表示名:', savedName);
