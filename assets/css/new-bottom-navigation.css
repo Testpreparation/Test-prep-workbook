@@ -46,3 +46,27 @@ body.np-bottom-nav-active[data-np-new-settings-visible="true"] #np-settings-deta
 body.np-bottom-nav-active #np-new-screen { margin-top:0 !important; padding-top:0 !important; }
 body.np-bottom-nav-active #np-new-screen[data-visible="true"] { min-height:calc(100vh - 8rem); }
 body.np-bottom-nav-active #np-new-screen-content > header { margin-top:0 !important; padding-top:1rem !important; }
+
+/* Simple home subject cards: keep only the subject icon and name. */
+body.np-bottom-nav-active #subject-list-container > * {
+  min-height: 88px !important;
+  padding: 16px 12px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  text-align: center !important;
+  border-radius: 20px !important;
+}
+body.np-bottom-nav-active #subject-list-container > * p,
+body.np-bottom-nav-active #subject-list-container > * small,
+body.np-bottom-nav-active #subject-list-container > * .text-xs,
+body.np-bottom-nav-active #subject-list-container > * .text-sm:not(:first-child) {
+  display: none !important;
+}
+body.np-bottom-nav-active #subject-list-container > * svg,
+body.np-bottom-nav-active #subject-list-container > * .subject-icon,
+body.np-bottom-nav-active #subject-list-container > * [class*="icon"] {
+  flex-shrink: 0;
+}
