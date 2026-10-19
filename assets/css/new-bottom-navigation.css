@@ -70,3 +70,30 @@ body.np-bottom-nav-active #subject-list-container > * .subject-icon,
 body.np-bottom-nav-active #subject-list-container > * [class*="icon"] {
   flex-shrink: 0;
 }
+
+
+/* Keep all subject cards the same size in the new bottom-navigation home. */
+body.np-bottom-nav-active #subject-list-container {
+  grid-auto-rows: 104px !important;
+  align-items: stretch !important;
+}
+body.np-bottom-nav-active #subject-list-container > * {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  height: 104px !important;
+  min-height: 104px !important;
+  max-height: 104px !important;
+}
+
+/* Make the separate flashcard entry more compact vertically. */
+body.np-bottom-nav-active #np-new-flashcard-entry {
+  min-height: 64px !important;
+  height: 64px !important;
+  margin-top: 10px !important;
+  margin-bottom: 4px !important;
+  padding: 10px 16px !important;
+  border-radius: 18px !important;
+}
+body.np-bottom-nav-active #np-new-flashcard-entry .np-fc-entry-icon {
+  font-size: 24px !important;
+}
