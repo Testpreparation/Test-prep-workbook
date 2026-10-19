@@ -3125,7 +3125,7 @@
         data.forEach((subject,si)=>{
           const v=subject.daily[date]; if(!Number.isFinite(v)) return;
           const color=colors[si%colors.length], bx=start+si*(barW+gap);
-          bars+=`<rect x="${bx}" y="${y(v)}" width="${barW}" height="${Math.max(1,base-y(v))}" rx="2" fill="${color}" opacity=".36"><title>${subject.name}: ${Math.round(v)}%（${date}）</title></rect>`;
+          bars+=`<rect class="evo-subject-chart-bar" x="${bx}" y="${y(v)}" width="${barW}" height="${Math.max(1,base-y(v))}" rx="2" fill="${color}" opacity=".36"><title>${subject.name}: ${Math.round(v)}%（${date}）</title></rect>`;
         });
         const label=date.split('/').slice(1).join('/');
         bars+=`<text x="${x(di)}" y="${height-12}" fill="#94a3b8" text-anchor="middle" font-size="10">${label}</text>`;
@@ -3140,13 +3140,51 @@
           return {x:barCenter,y:y(value),v:value,date};
         });
         let segment=[];
-        const flush=()=>{if(segment.length>1) lines+=`<polyline points="${segment.map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;segment=[];};
-        points.forEach(p=>{if(!p){flush();return;}segment.push(p);lines+=`<circle cx="${p.x}" cy="${p.y}" r="3" fill="${color}" stroke="#fff" stroke-width="1"><title>${subject.name}: ${Math.round(p.v)}%（${p.date}）</title></circle>`;});
+        const flush=()=>{if(segment.length>1) lines+=`<polyline points="${segment.map(p=>p.x+','+p.y).join(' ')}" fill="none" class="evo-subject-chart-line" stroke="${color}" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;segment=[];};
+        points.forEach(p=>{if(!p){flush();return;}segment.push(p);lines+=`<circle class="evo-subject-chart-point" cx="${p.x}" cy="${p.y}" r="3" fill="${color}" stroke="#fff" stroke-width="1"><title>${subject.name}: ${Math.round(p.v)}%（${p.date}）</title></circle>`;});
         flush();
         legend+=`<span class="inline-flex items-center gap-1.5 text-[10px] text-slate-400"><span class="inline-block w-2 h-2 rounded-full" style="background:${color}"></span>${subject.name}</span>`;
       });
       box.innerHTML=`<svg role="img" aria-label="直近7日間の科目別正答率。縦棒と折れ線を科目ごとに色分け" viewBox="0 0 ${width} ${height}" class="block w-full" style="height:auto;max-height:260px;overflow:visible">${bars}${data.length?lines:''}</svg><div class="flex flex-wrap gap-x-3 gap-y-1.5 mt-3">${legend}</div>`;
-      if(note) note.textContent='縦棒：各日の正答率／折れ線：科目ごとの推移。記録のない日は線でつないでいません。';
+      // Infographic motion: draw thin trend lines, raise bars from the baseline, then reveal data points.
+      // Respect the user's reduced-motion accessibility preference.
+      const chartSvg = box.querySelector('svg');
+      const reduceChartMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (chartSvg && !reduceChartMotion) {
+        chartSvg.querySelectorAll('.evo-subject-chart-bar').forEach((bar, index) => {
+          bar.style.transformBox = 'fill-box';
+          bar.style.transformOrigin = 'center bottom';
+          bar.style.transform = 'scaleY(0)';
+          bar.style.opacity = '0.12';
+          bar.style.transition = 'transform 900ms cubic-bezier(.22,1,.36,1) ' + Math.min(index * 28, 560) + 'ms, opacity 500ms ease ' + Math.min(index * 28, 560) + 'ms';
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            bar.style.transform = 'scaleY(1)';
+            bar.style.opacity = '.36';
+          }));
+        });
+        chartSvg.querySelectorAll('.evo-subject-chart-line').forEach((line, index) => {
+          try {
+            const length = line.getTotalLength();
+            if (!Number.isFinite(length) || length <= 0) return;
+            line.style.strokeDasharray = String(length);
+            line.style.strokeDashoffset = String(length);
+            line.style.transition = 'stroke-dashoffset 1250ms cubic-bezier(.22,1,.36,1) ' + Math.min(index * 140, 700) + 'ms';
+            requestAnimationFrame(() => requestAnimationFrame(() => { line.style.strokeDashoffset = '0'; }));
+          } catch (_) {}
+        });
+        chartSvg.querySelectorAll('.evo-subject-chart-point').forEach((point, index) => {
+          point.style.transformBox = 'fill-box';
+          point.style.transformOrigin = 'center';
+          point.style.transform = 'scale(.25)';
+          point.style.opacity = '0';
+          point.style.transition = 'transform 420ms cubic-bezier(.22,1,.36,1) ' + (Math.min(index * 55, 900) + 550) + 'ms, opacity 350ms ease ' + (Math.min(index * 55, 900) + 550) + 'ms';
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            point.style.transform = 'scale(1)';
+            point.style.opacity = '1';
+          }));
+        });
+      }
+      if(note) note.textContent='縦棒：各日の正答率／細い折れ線：科目ごとの推移。記録のない日は線でつないでいません。';
     }
     // 追加分析画面の描画完了後からも呼び出せるように公開する。
     window.evoRenderSubjectBarLineChart = evoRenderSubjectBarLineChart;
