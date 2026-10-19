@@ -70,7 +70,7 @@
         status.dataset.state = offline ? 'offline' : 'online';
         status.querySelector('.np-pwa-status-text').textContent = offline
           ? 'オフライン：保存済みの内容を表示中'
-          : (navigator.serviceWorker && navigator.serviceWorker.controller ? 'オフライン利用に対応' : 'オンライン');
+          : 'オンライン';
         status.title = offline
           ? '一度読み込んだページ・問題データを中心に利用できます。未読込の問題や外部サービスは使えない場合があります。'
           : '通信状態を表示しています。';
