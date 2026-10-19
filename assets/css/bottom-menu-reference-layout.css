@@ -34,3 +34,21 @@ body.np-bottom-menu-enabled #user-settings-overlay { z-index:89; }
  .np-reference-top-actions { right:24px; }
 }
 @media (prefers-reduced-motion:reduce) { .np-reference-icon-button,.np-reference-bottom-nav button { transition:none; } }
+
+/* 下部メニューON時：参考画像に合わせて科目カードをシンプルに */
+body.np-bottom-menu-enabled #screen-subjects .flex.justify-between.items-center.pb-3.border-b { display:none !important; }
+body.np-bottom-menu-enabled #screen-subjects #subjects-slider-track { width:100% !important; transform:translateX(0) !important; }
+body.np-bottom-menu-enabled #screen-subjects #slider-page-1 { width:100% !important; padding:0 !important; }
+body.np-bottom-menu-enabled #screen-subjects #slider-page-2 { display:none !important; }
+body.np-bottom-menu-enabled #screen-subjects #subject-list-container { display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px !important; max-height:none !important; overflow:visible !important; padding:10px 0 12px !important; }
+body.np-bottom-menu-enabled #screen-subjects #subject-list-container > * { min-width:0 !important; min-height:94px !important; padding:14px 12px !important; border-radius:20px !important; box-shadow:0 5px 16px rgba(115,91,145,.07) !important; }
+body.np-bottom-menu-enabled #screen-subjects #subject-list-container > * > * { min-width:0; }
+body.np-bottom-menu-enabled #np-bottom-flashcard-card { grid-column:1 / -1; width:100%; min-height:94px; display:flex; align-items:center; gap:16px; padding:16px 22px; border-radius:20px; border:1px solid #d6f2ee; background:linear-gradient(110deg,rgba(232,250,247,.96),rgba(241,250,248,.96)); color:#477c79; text-align:left; box-shadow:0 5px 16px rgba(82,160,150,.08); transition:transform .18s ease,box-shadow .18s ease; }
+body.np-bottom-menu-enabled #np-bottom-flashcard-card:active { transform:scale(.985); }
+#np-bottom-flashcard-card svg { width:42px; height:42px; flex:none; stroke:currentColor; fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+#np-bottom-flashcard-card .np-bottom-flashcard-title { flex:1; font-size:17px; font-weight:600; }
+#np-bottom-flashcard-card .np-bottom-flashcard-chevron { width:20px; height:20px; }
+@media (min-width:700px) {
+ body.np-bottom-menu-enabled #screen-subjects #subject-list-container { grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px !important; }
+ body.np-bottom-menu-enabled #np-bottom-flashcard-card { grid-column:1 / -1; }
+}

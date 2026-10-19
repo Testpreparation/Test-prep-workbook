@@ -27,6 +27,24 @@
     });
   }
   apply(getEnabled(), false);
+  // Reference-style full-width flashcard card after the subject grid.
+  const subjectList = document.getElementById('subject-list-container');
+  if (subjectList && !document.getElementById('np-bottom-flashcard-card')) {
+    const flashcardCard = document.createElement('button');
+    flashcardCard.type = 'button';
+    flashcardCard.id = 'np-bottom-flashcard-card';
+    flashcardCard.innerHTML = '<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="5" width="19" height="22" rx="3" transform="rotate(-8 4 5)"></rect><rect x="9" y="7" width="19" height="22" rx="3"></rect><path d="M14 14h9M14 18h9M14 22h6"></path></svg><span class="np-bottom-flashcard-title">暗記カード</span><svg class="np-bottom-flashcard-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"></path></svg>';
+    subjectList.insertAdjacentElement('afterend', flashcardCard);
+    flashcardCard.addEventListener('click', () => {
+      const track = document.getElementById('subjects-slider-track');
+      const page2 = document.getElementById('slider-page-2');
+      if (track) track.style.transform = 'translateX(-50%)';
+      if (page2) page2.style.display = '';
+      const flashcardSubjects = document.getElementById('flashcard-subject-list-container');
+      if (flashcardSubjects) flashcardSubjects.scrollTop = 0;
+      setActive('home');
+    });
+  }
   if (nav) nav.addEventListener('click', event => {
     const button = event.target.closest('button[data-np-nav]');
     if (!button) return;
