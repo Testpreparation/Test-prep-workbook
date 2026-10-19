@@ -55,41 +55,51 @@
       }
       function selectedModePaths(paths, subject, mode) {
         const id = subject.id || '';
-        const bySubject = {
-          anatomy: /解剖生理学\\//,
-          biochemistry: /生化学\\//,
-          physiology: /生理学\\//,
-          public_health: /公衆衛生学\\//,
-          public_health_nursing: /公衆衛生看護学概論\\//,
-          nutrition: /栄養学\\//,
-          pharmacology: /薬理学\\//,
-          nursing_method_3: /看護学方法論Ⅲ\\//,
-          pathology: /病理学\\//
+        const subjectFolders = {
+          anatomy: '解剖生理学/',
+          biochemistry: '生化学/',
+          physiology: '生理学/',
+          public_health: '公衆衛生学/',
+          public_health_nursing: '公衆衛生看護学概論/',
+          nutrition: '栄養学/',
+          pharmacology: '薬理学/',
+          nursing_method_3: '看護学方法論Ⅲ/',
+          pathology: '病理学/'
         };
-        const pattern = bySubject[id];
-        let selected = pattern ? paths.filter(path => pattern.test(path)) : [];
-        if (!selected.length) return selected;
-        const modeText = String(mode || '').toLowerCase();
-        const modeFolder = {
-          exercise: /演習問題/,
-          practice: /練習問題/,
-          quiz: /小テスト/,
-          test: /小テスト/,
-          national: /模擬国家試験|過去問/,
-          past: /過去問/,
-          basic: /基礎問題/,
-          fill: /穴埋め式/,
-          choice: /選択式/
+        const folder = subjectFolders[id];
+        if (!folder) return [];
+        let selected = paths.filter(path => path.includes(folder));
+        if (!selected.length) return [];
+        const modeFolderBySubject = {
+          biochemistry: { choice: '選択式', keyboard: null, fill: null },
+          public_health: { exercise: '演習問題', past: '過去問', national: '模擬国家試験' },
+          public_health_nursing: { basic: '基礎問題', exercise: '演習問題' },
+          nutrition: { exercise: '演習問題', quiz: '小テスト' },
+          pharmacology: { exercise: '演習問題', past: '過去問' },
+          nursing_method_3: { practice: '練習問題', quiz: '小テスト', exercise: '演習問題' },
+          pathology: { practice: '小テスト練習', quiz: '小テスト練習', exercise: '演習問題' }
         };
-        const matchingMode = Object.entries(modeFolder).find(([key]) => modeText.includes(key));
-        if (matchingMode) {
-          const narrowed = selected.filter(path => matchingMode[1].test(path));
-          if (narrowed.length) selected = narrowed;
+        const modeMap = modeFolderBySubject[id];
+        if (modeMap && Object.prototype.hasOwnProperty.call(modeMap, mode)) {
+          const folderName = modeMap[mode];
+          if (folderName) {
+            const narrowed = selected.filter(path => path.includes('/' + folderName + '/'));
+            if (!narrowed.length) return [];
+            selected = narrowed;
+          }
+        } else if (id === 'biochemistry' && mode === 'fill') {
+          selected = [];
+        } else if (id === 'pharmacology' && mode === 'nurse_national_6years') {
+          selected = [];
         }
-        // 1つのモードが複数回に分割されている科目は、選択した回のファイルだけを取得する。
+        // 科目内に複数の回がある場合は、選択した回だけに限定する。
         if (id === 'pathology' && window.currentPathologyRound) {
           const round = String(window.currentPathologyRound).match(/\\d+/)?.[0];
           if (round) selected = selected.filter(path => path.includes('第' + round + '回'));
+        }
+        // 生化学は選択式と穴埋め式を混在させない。
+        if (id === 'biochemistry' && mode === 'choice') {
+          selected = selected.filter(path => path.includes('/選択式/'));
         }
         return selected;
       }
@@ -1813,47 +1823,50 @@
 
   <script id="np-bottom-nav-screen-state">
     (() => {
-      const nav = document.getElementById('np-mobile-bottom-nav');
-      if (!nav) {
-        document.addEventListener('DOMContentLoaded', () => {
-          const retry = document.getElementById('np-mobile-bottom-nav');
-          if (retry) window.dispatchEvent(new Event('np-nav-ready'));
-        }, { once: true });
-      }
+      const getNav = () => document.getElementById('np-mobile-bottom-nav');
+      const isVisible = el => !!el && !el.classList.contains('hidden') && getComputedStyle(el).display !== 'none';
       const update = () => {
-        const bar = document.getElementById('np-mobile-bottom-nav');
+        const bar = getNav();
         if (!bar) return;
         const screens = Array.from(document.querySelectorAll('[id^="screen-"]'));
-        const visible = screens.filter(el => !el.classList.contains('hidden'));
+        const visible = screens.filter(isVisible);
         const dashboard = visible.some(el => el.id === 'screen-dashboard');
         const analysis = visible.some(el => /analysis|analytics/.test(el.id));
-        const modalOpen = ['modal-notice','user-settings-overlay','user-settings-modal'].some(id => {
-          const el = document.getElementById(id);
-          return el && !el.classList.contains('hidden');
-        });
-        const hide = !dashboard && !analysis && !modalOpen && visible.length > 0;
+        const selectorOpen = [
+          'semester-select-modal','mode-select-modal','subject-select-modal',
+          'anatomy-mode-selection-screen','biochemistry-format-selection-screen',
+          'physiology-mode-selection-screen','public-health-mode-selection-screen',
+          'phn-mode-selection-screen','nutrition-mode-selection-screen',
+          'pharmacology-mode-selection-screen','nursing-method3-mode-selection-screen',
+          'pathology-mode-selection-screen','pathology-round-selection-screen'
+        ].some(id => isVisible(document.getElementById(id)));
+        const notice = isVisible(document.getElementById('modal-notice'));
+        const settings = isVisible(document.getElementById('user-settings-overlay')) || isVisible(document.getElementById('user-settings-modal'));
+        const modalOpen = notice || settings;
+        const learningScreen = visible.some(el => el.id !== 'screen-dashboard' && !/analysis|analytics/.test(el.id));
+        const hide = (selectorOpen || learningScreen) && !modalOpen;
         bar.classList.toggle('np-bottom-nav-away', hide);
         document.body.classList.toggle('np-bottom-nav-learning-active', hide);
-        const key = modalOpen
-          ? (document.getElementById('modal-notice') && !document.getElementById('modal-notice').classList.contains('hidden') ? 'notices' : 'settings')
-          : dashboard ? 'home' : analysis ? 'analytics' : '';
+        let key = '';
+        if (notice) key = 'notices';
+        else if (settings) key = 'settings';
+        else if (analysis) key = 'analytics';
+        else if (dashboard || selectorOpen || learningScreen) key = 'home';
         bar.querySelectorAll('button[data-np-nav]').forEach(button => {
           if (key && button.dataset.npNav === key) button.setAttribute('aria-current','page');
           else button.removeAttribute('aria-current');
         });
       };
-      new MutationObserver(update).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class']});
+      const observer = new MutationObserver(update);
+      observer.observe(document.body,{subtree:true,attributes:true,attributeFilter:['class','style']});
       document.addEventListener('click', event => {
-        const button = event.target.closest('#np-mobile-bottom-nav button[data-np-nav]');
-        if (!button) return;
-        if (button.dataset.npNav === 'home') setTimeout(update, 0);
-        if (button.dataset.npNav === 'analytics') setTimeout(update, 0);
+        if (event.target.closest('#np-mobile-bottom-nav button[data-np-nav]')) setTimeout(update, 0);
       }, true);
+      document.addEventListener('DOMContentLoaded', update, { once: true });
       window.addEventListener('np-nav-ready', update);
       update();
     })();
-  </script>
-  <link rel="stylesheet" href="./assets/css/pwa-navigation.css" id="nurse-plus-pwa-navigation-style">
+  </script>  <link rel="stylesheet" href="./assets/css/pwa-navigation.css" id="nurse-plus-pwa-navigation-style">
   <script id="nurse-plus-pwa-navigation" src="./assets/js/pwa-navigation.js"></script>
   <nav id="np-mobile-bottom-nav" aria-label="メインメニュー">
     <button type="button" data-np-nav="home" aria-current="page" onclick="showDashboard()" aria-label="ホーム">
