@@ -19,17 +19,5 @@
         event.stopPropagation();
         applyTheme(button.checked ? 'dark' : 'light');
       });
-      const themeCard = document.getElementById('np-theme-settings-card');
-      if (themeCard) {
-        themeCard.addEventListener('click', event => {
-          if (event.target.closest('#np-theme-toggle')) return;
-          openThemeSettingsPage();
-        });
-        themeCard.addEventListener('keydown', event => {
-          if (event.target !== themeCard || !['Enter', ' '].includes(event.key)) return;
-          event.preventDefault();
-          openThemeSettingsPage();
-        });
-      }
     })();
   
