@@ -1661,6 +1661,16 @@
   <!-- Nurse＋ PWA navigation improvements: screen transitions, browser back, LINE external-browser guidance -->
   <style id="np-mobile-bottom-navigation-style">
     /* スマートフォンのみ下部ナビを表示。既存の背景・配色・PC表示は変更しない */
+    #np-mobile-top-actions { display:none; }
+    @media (max-width: 767px) {
+      body:not(.np-use-original-nav) #np-mobile-top-actions { display:flex; position:fixed; z-index:59; top:calc(12px + env(safe-area-inset-top)); right:16px; align-items:center; gap:10px; }
+      body:not(.np-use-original-nav) #np-mobile-top-actions button { position:relative; width:44px; height:44px; display:grid; place-items:center; border-radius:999px; border:1px solid rgba(255,255,255,.72); background:rgba(255,255,255,.78); color:#9185ad; box-shadow:0 5px 18px rgba(80,65,105,.10); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); touch-action:manipulation; }
+      body:not(.np-use-original-nav) #np-mobile-top-actions svg { width:22px; height:22px; }
+      body:not(.np-use-original-nav) #np-mobile-top-actions .np-notice-dot { position:absolute; width:8px; height:8px; border-radius:50%; background:#f4729a; right:7px; top:7px; box-shadow:0 0 0 2px rgba(255,255,255,.9); }
+      body:not(.np-use-original-nav) #screen-subjects:not(.hidden) { padding-top:48px; }
+      body:not(.np-use-original-nav) #user-settings-modal.np-mobile-settings-direct { left:16px; right:16px; top:50%; bottom:auto; width:auto; max-width:420px; transform:translateY(-50%); margin-left:auto; margin-right:auto; }
+    }
+
     @media (max-width: 767px) {
       body:not(.np-use-original-nav) #screen-dashboard { display:none !important; }
       body:not(.np-use-original-nav) #screen-subjects:not(.hidden) #subjects-header-title { font-size:0; }
@@ -1783,6 +1793,10 @@
   </script>
 
   <script id="nurse-plus-pwa-navigation" src="./assets/js/pwa-navigation.js"></script>
+  <div id="np-mobile-top-actions" aria-label="アカウントとお知らせ">
+    <button type="button" onclick="openNoticeModal()" aria-label="お知らせ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><span class="np-notice-dot" aria-hidden="true"></span></button>
+    <button type="button" onclick="document.getElementById('user-settings-overlay').classList.remove('hidden');document.getElementById('user-settings-modal').classList.remove('hidden');document.getElementById('user-settings-modal').classList.add('np-mobile-settings-direct')" aria-label="アカウント"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><path d="M12 12a4.2 4.2 0 1 0 0-8.4 4.2 4.2 0 0 0 0 8.4ZM4 21a8 8 0 0 1 16 0z"/></svg></button>
+  </div>
   <nav id="np-mobile-bottom-nav" aria-label="メインメニュー">
     <button type="button" data-np-nav="home" aria-current="page" onclick="showSubjectScreen()" aria-label="ホーム">
       <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><path d="M3 10.8 12 3l9 7.8v9a1.2 1.2 0 0 1-1.2 1.2h-5.1v-6.2H9.3V21H4.2A1.2 1.2 0 0 1 3 19.8z"/></svg><span>ホーム</span>
@@ -1793,7 +1807,7 @@
     <button type="button" data-np-nav="notices" onclick="openNoticeModal()" aria-label="お知らせ">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>お知らせ</span>
     </button>
-    <button type="button" data-np-nav="settings" onclick="document.getElementById('user-settings-overlay').classList.remove('hidden');document.getElementById('user-settings-modal').classList.remove('hidden')" aria-label="設定">
+    <button type="button" data-np-nav="settings" onclick="document.getElementById('user-settings-overlay').classList.remove('hidden');document.getElementById('user-settings-modal').classList.remove('hidden');if(window.matchMedia('(max-width: 767px)').matches&&!document.body.classList.contains('np-use-original-nav'))document.getElementById('user-settings-modal').classList.add('np-mobile-settings-direct')" aria-label="設定">
       <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><path d="m19.4 13.5 1.2.9-1.8 3.1-1.4-.6a7.8 7.8 0 0 1-1.7 1l-.2 1.6h-3.6l-.2-1.6a7.8 7.8 0 0 1-1.7-1l-1.4.6-1.8-3.1 1.2-.9a7.2 7.2 0 0 1 0-2l-1.2-.9 1.8-3.1 1.4.6a7.8 7.8 0 0 1 1.7-1l.2-1.6h3.6l.2 1.6a7.8 7.8 0 0 1 1.7 1l1.4-.6 1.8 3.1-1.2.9a7.2 7.2 0 0 1 0 2ZM13.7 15a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/></svg><span>設定</span>
     </button>
   </nav>
