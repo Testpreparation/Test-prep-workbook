@@ -27,6 +27,22 @@
     });
   }
   apply(getEnabled(), false);
+  // リロード直後に空白にならないよう、下部メニューONなら科目一覧を初期表示する。
+  const initializeBottomMenuHome = () => {
+    if (!getEnabled()) return;
+    const noticesPage = document.getElementById('np-bottom-menu-notices-page');
+    if (noticesPage) noticesPage.classList.add('hidden');
+    body.classList.remove('np-bottom-menu-notices-view', 'np-bottom-menu-analysis-view');
+    if (typeof window.showSubjectScreen === 'function') {
+      window.showSubjectScreen();
+      setActive('home');
+    }
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeBottomMenuHome, { once: true });
+  } else {
+    window.setTimeout(initializeBottomMenuHome, 0);
+  }
   // Reference-style full-width flashcard card after the subject grid.
   const subjectList = document.getElementById('subject-list-container');
   if (subjectList && !document.getElementById('np-bottom-flashcard-card')) {
@@ -49,6 +65,11 @@
     const button = event.target.closest('button[data-np-nav]');
     if (!button) return;
     const route = button.dataset.npNav;
+    // 別ページへ移動したら専用お知らせページを必ず閉じる。
+    const noticesPage = document.getElementById('np-bottom-menu-notices-page');
+    if (route !== 'notices' && noticesPage) noticesPage.classList.add('hidden');
+    if (route !== 'notices') body.classList.remove('np-bottom-menu-notices-view');
+    if (route !== 'analytics') body.classList.remove('np-bottom-menu-analysis-view');
     setActive(route);
     if (route === 'home') {
       if (typeof window.showSubjectScreen === 'function') window.showSubjectScreen();
