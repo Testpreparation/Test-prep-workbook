@@ -28,58 +28,107 @@
   <!-- データベース用の共通オブジェクトを先に初期化 -->
   <script src="./assets/js/quiz-db-bootstrap.js"></script>
 
-  <!-- 各科目の外部問題データベースJSの読み込み（春学期） -->
-  <script src="./科目/解剖生理学/2026春学期/練習問題/anatomy2026harugakki.js"></script>
-  <script src="科目/生化学/2026春学期/選択式/biochemistry2026harugakki.js"></script>
-  <script src="./科目/医療概論/2026春学期/練習問題/Medicine2026harugakki.js"></script>
-  <script src="./科目/微生物学/2026春学期/練習問題/microbiology2026harugakki.js"></script>
-  <script src="./科目/心理学/2026春学期/練習問題/mindbehavior2026harugakki.js"></script>
-  <script src="科目/看護学方法論Ⅲ/2026春学期/練習問題/nursingmethod2026harugakki.js"></script>
-  <script src="科目/看護学方法論Ⅲ/2026春学期/演習問題/nursingmethod3_exercise2026harugakki.js"></script>
-  <script src="科目/看護学方法論Ⅲ/2026春学期/練習問題/nursingmethod3_practice2026harugakki.js"></script>
-  <script src="科目/看護学方法論Ⅲ/2026春学期/小テスト/nursingmethod3_quiz2026harugakki.js"></script>
-  <script src="科目/薬理学/2026春学期/演習問題/pharmacology_exercise2026harugakki.js"></script>
-  <script src="科目/薬理学/2026春学期/過去問/pharmacology_past2026harugakki.js"></script>
-  <script src="科目/心理学/2026春学期/練習問題/psychology2026harugakki.js"></script>
-  <script src="科目/栄養学/2026春学期/演習問題/nutrition_exercise_2026harugakki.js"></script>
-  <script src="科目/栄養学/2026春学期/小テスト/nutrition_quiz_2026harugakki.js"></script>
-  <script src="科目/公衆衛生学/2026春学期/演習問題/publichealth_exercise2026harugakki.js"></script>
-  <script src="科目/公衆衛生学/2026春学期/模擬国家試験/publichealth_national2026harugakki.js"></script>
-  <script src="科目/公衆衛生学/2026春学期/過去問/publichealth_past2026harugakki.js"></script>
-  <script src="科目/公衆衛生看護学概論/2026春学期/基礎問題/publichealthnursing_basic2026harugakki.js"></script>
-  <script src="科目/公衆衛生看護学概論/2026春学期/演習問題/publichealthnursing_exercise2026harugakki.js"></script>
+
+  <!-- 問題データは起動時に読み込まず、モード選択後に選択学期分を遅延読み込み -->
+  <script id="np-lazy-question-data-loader">
+    (() => {
+      const loaded = new Set();
+      const inFlight = new Map();
+      const sourceNodes = Array.from(document.querySelectorAll('script[data-np-question-src]'));
+      const normalize = path => path.replace(/^\.\//, '');
+      function loadScript(path) {
+        path = normalize(path);
+        if (loaded.has(path)) return Promise.resolve();
+        if (inFlight.has(path)) return inFlight.get(path);
+        const source = sourceNodes.find(node => normalize(node.dataset.npQuestionSrc) === path);
+        if (!source) return Promise.resolve();
+        const promise = new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = source.dataset.npQuestionSrc;
+          script.async = false;
+          script.onload = () => { loaded.add(path); inFlight.delete(path); resolve(); };
+          script.onerror = () => { inFlight.delete(path); console.error('[Nurse＋] 問題データを読み込めませんでした:', path); reject(new Error('問題データの読み込みに失敗しました: ' + path)); };
+          document.head.appendChild(script);
+        });
+        inFlight.set(path, promise);
+        return promise;
+      }
+      function semesterPaths(semester) {
+        const folder = semester === '2026_spring' ? '2026春学期/' : '2026秋学期/';
+        return sourceNodes.map(node => node.dataset.npQuestionSrc).filter(path => path.includes(folder));
+      }
+      let lastSelectionKey = '';
+      window.NursePlusQuestionLoader = {
+        async loadForSelection(semesterValue, subjectValue, pharmacologyMode, biochemistryFormat) {
+          const semester = semesterValue || '2026_autumn';
+          const subject = subjectValue || {};
+          const isBiochemistryFill = subject.id === 'biochemistry' && biochemistryFormat === 'fill';
+          const isPharmacologyNational = subject.id === 'pharmacology' && pharmacologyMode === 'nurse_national_6years';
+          const key = [semester, subject.id || '', isBiochemistryFill ? 'fill' : '', isPharmacologyNational ? 'national6' : ''].join(':');
+          if (key === lastSelectionKey && !isBiochemistryFill && !isPharmacologyNational) return;
+          const paths = semesterPaths(semester);
+          if (isBiochemistryFill) paths.push('./科目/生化学/穴埋め式/biochemistry_fill.js');
+          if (isPharmacologyNational) paths.push('./科目/薬理学/看護師国家試験過去6年/pharmacology_nurse_national_6years.js');
+          const uniquePaths = [...new Set(paths)];
+          for (const path of uniquePaths) await loadScript(path);
+          lastSelectionKey = key;
+        }
+      };
+    })();
+  </script>
+
+  <!-- 問題データの読み込み先一覧（実際の読み込みはモード選択後） -->
+  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/解剖生理学/2026春学期/練習問題/anatomy2026harugakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/生化学/2026春学期/選択式/biochemistry2026harugakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/医療概論/2026春学期/練習問題/Medicine2026harugakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/微生物学/2026春学期/練習問題/microbiology2026harugakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/心理学/2026春学期/練習問題/mindbehavior2026harugakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/看護学方法論Ⅲ/2026春学期/練習問題/nursingmethod2026harugakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/看護学方法論Ⅲ/2026春学期/演習問題/nursingmethod3_exercise2026harugakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/看護学方法論Ⅲ/2026春学期/練習問題/nursingmethod3_practice2026harugakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/看護学方法論Ⅲ/2026春学期/小テスト/nursingmethod3_quiz2026harugakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/薬理学/2026春学期/演習問題/pharmacology_exercise2026harugakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/薬理学/2026春学期/過去問/pharmacology_past2026harugakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/心理学/2026春学期/練習問題/psychology2026harugakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/栄養学/2026春学期/演習問題/nutrition_exercise_2026harugakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/栄養学/2026春学期/小テスト/nutrition_quiz_2026harugakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/公衆衛生学/2026春学期/演習問題/publichealth_exercise2026harugakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/公衆衛生学/2026春学期/模擬国家試験/publichealth_national2026harugakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/公衆衛生学/2026春学期/過去問/publichealth_past2026harugakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/公衆衛生看護学概論/2026春学期/基礎問題/publichealthnursing_basic2026harugakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/公衆衛生看護学概論/2026春学期/演習問題/publichealthnursing_exercise2026harugakki.js"></script>
 
   <!-- 各科目の外部問題データベースJSの読み込み（秋学期） -->
-  <script src="科目/解剖生理学/2026秋学期/練習問題/anatomy2026akigakki.js"></script>
-  <script src="./科目/生化学/2026秋学期/選択式/biochemistry2026akigakki.js"></script>
-  <script src="./科目/生化学/穴埋め式/biochemistry_fill.js" onerror="console.log('biochemistry_fill.js 未検出。')"></script>
-  <script src="科目/医療概論/2026秋学期/練習問題/Medicine2026akigakki.js"></script>
-  <script src="科目/微生物学/2026秋学期/練習問題/microbiology2026akigakki.js"></script>
-  <script src="科目/心理学/2026秋学期/練習問題/mindbehavior2026akigakki.js"></script>
-  <script src="科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod2026akigakki.js"></script>
-  <script src="科目/看護学方法論Ⅲ/2026秋学期/演習問題/nursingmethod3_exercise2026akigakki.js"></script>
-  <script src="./科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod3_practice2026akigakki.js"></script>
-  <script src="科目/看護学方法論Ⅲ/2026秋学期/小テスト/nursingmethod3_quiz2026akigakki.js"></script>
-  <script src="科目/薬理学/2026秋学期/演習問題/pharmacology_exercise2026akigakki.js"></script>
-  <script src="科目/薬理学/2026秋学期/過去問/pharmacology_past2026akigakki.js"></script>
-  <script src="科目/心理学/2026秋学期/練習問題/psychology2026akigakki.js"></script>
-  <script src="./科目/栄養学/2026秋学期/演習問題/nutrition_exercise_2026akigakki.js"></script>
-  <script src="./科目/栄養学/2026秋学期/小テスト/nutrition_quiz_2026akigakki.js"></script>
-  <script src="./科目/公衆衛生学/2026秋学期/演習問題/publichealth_exercise2026akigakki.js"></script>
-  <script src="./科目/公衆衛生学/2026秋学期/模擬国家試験/publichealth_national2026akigakki.js"></script>
-  <script src="./科目/公衆衛生学/2026秋学期/過去問/publichealth_past2026akigakki.js"></script>
-  <script src="科目/公衆衛生看護学概論/2026秋学期/基礎問題/publichealthnursing_basic2026akigakki.js"></script>
-  <script src="./科目/公衆衛生看護学概論/2026秋学期/演習問題/publichealthnursing_exercise2026akigakki.js"></script>
-  <script src="./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第1回/pathology_range_2026akigakki_1.js"></script>
-<script src="./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第2回/pathology_range_2026akigakki_2.js"></script>
-<script src="./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第3回/pathology_range_2026akigakki_3.js"></script>
-<script src="./科目/病理学/2026秋学期/演習問題/演習問題　第1回/pathology_exercise_2026akigakki_1.js"></script>
-<script src="./科目/病理学/2026秋学期/演習問題/演習問題　第2回/pathology_exercise_2026akigakki_2.js"></script>
-<script src="./科目/病理学/2026秋学期/演習問題/演習問題　第3回/pathology_exercise_2026akigakki_3.js"></script>
-<script src="./科目/生理学/2026秋学期/小テスト/physiology2026akigakki_quiz.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/解剖生理学/2026秋学期/練習問題/anatomy2026akigakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/生化学/2026秋学期/選択式/biochemistry2026akigakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/生化学/穴埋め式/biochemistry_fill.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/医療概論/2026秋学期/練習問題/Medicine2026akigakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/微生物学/2026秋学期/練習問題/microbiology2026akigakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/心理学/2026秋学期/練習問題/mindbehavior2026akigakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod2026akigakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/看護学方法論Ⅲ/2026秋学期/演習問題/nursingmethod3_exercise2026akigakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod3_practice2026akigakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/看護学方法論Ⅲ/2026秋学期/小テスト/nursingmethod3_quiz2026akigakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/薬理学/2026秋学期/演習問題/pharmacology_exercise2026akigakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/薬理学/2026秋学期/過去問/pharmacology_past2026akigakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/心理学/2026秋学期/練習問題/psychology2026akigakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/栄養学/2026秋学期/演習問題/nutrition_exercise_2026akigakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/栄養学/2026秋学期/小テスト/nutrition_quiz_2026akigakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/公衆衛生学/2026秋学期/演習問題/publichealth_exercise2026akigakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/公衆衛生学/2026秋学期/模擬国家試験/publichealth_national2026akigakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/公衆衛生学/2026秋学期/過去問/publichealth_past2026akigakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="科目/公衆衛生看護学概論/2026秋学期/基礎問題/publichealthnursing_basic2026akigakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/公衆衛生看護学概論/2026秋学期/演習問題/publichealthnursing_exercise2026akigakki.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第1回/pathology_range_2026akigakki_1.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第2回/pathology_range_2026akigakki_2.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第3回/pathology_range_2026akigakki_3.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/病理学/2026秋学期/演習問題/演習問題　第1回/pathology_exercise_2026akigakki_1.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/病理学/2026秋学期/演習問題/演習問題　第2回/pathology_exercise_2026akigakki_2.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/病理学/2026秋学期/演習問題/演習問題　第3回/pathology_exercise_2026akigakki_3.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/生理学/2026秋学期/小テスト/physiology2026akigakki_quiz.js"></script>
 
 
-  <script src="./科目/薬理学/看護師国家試験過去6年/pharmacology_nurse_national_6years.js"></script>
+  <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/薬理学/看護師国家試験過去6年/pharmacology_nurse_national_6years.js"></script>
 
   <!-- ★ 暗記カード専用の独立外部JSファイルを読み込み -->
   <script src="./科目/公衆衛生学/2026秋学期/暗記カード/flashcard_data.js" onerror="console.log('公衆衛生学 flashcard_data.js 未検出。')"></script>
