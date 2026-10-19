@@ -3857,10 +3857,13 @@
     }
 
     function showStartScreen() {
-      if (window.NursePlusQuestionLoader && !window.__npQuestionLoadInProgress) {
+      if (window.__npQuestionLoadBypassOnce) {
+        window.__npQuestionLoadBypassOnce = false;
+      } else if (window.NursePlusQuestionLoader && !window.__npQuestionLoadInProgress) {
         window.__npQuestionLoadInProgress = true;
         window.NursePlusQuestionLoader.loadForSelection(currentSemester, currentSubject, currentPharmacologyMode, currentBiochemistryFormat).then(() => {
           window.__npQuestionLoadInProgress = false;
+          window.__npQuestionLoadBypassOnce = true;
           showStartScreen();
         }).catch(error => {
           window.__npQuestionLoadInProgress = false;
