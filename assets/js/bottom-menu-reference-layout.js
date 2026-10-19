@@ -135,8 +135,27 @@
       return hasSemesterChoice && el.querySelectorAll('button,[role="button"]').length > 0;
     });
   };
+  const isStudyFlowOpen = () => {
+    // 学期選択から問題演習・結果・終了画面まで、学習フロー中は下部メニューを隠す。
+    const visibleDialog = Array.from(document.querySelectorAll('[role="dialog"], [aria-modal="true"], .modal, [id*="modal"], [class*="modal"]'))
+      .some(el => el && el.offsetParent !== null && el.getClientRects().length > 0 &&
+        /学期/.test((el.innerText || el.textContent || '').replace(/\\s+/g, ' ')) &&
+        el.querySelectorAll('button,[role="button"]').length > 0);
+    if (visibleDialog) return true;
+    const candidates = document.querySelectorAll('[id*="quiz"], [id*="exercise"], [id*="question"], [id*="result"], [id*="semester"], [class*="quiz"], [class*="exercise"], [class*="question"], [class*="result"], [class*="semester"]');
+    return Array.from(candidates).some(el => {
+      if (!el || el.offsetParent === null || el.getClientRects().length === 0) return false;
+      const idClass = ((el.id || '') + ' ' + (typeof el.className === 'string' ? el.className : '')).toLowerCase();
+      const text = (el.innerText || el.textContent || '').replace(/\\s+/g, ' ');
+      const isStudyContainer = /(quiz|exercise|question|result|semester|exam|test|practice)/.test(idClass) ||
+        /^(学期選択|問題演習|演習問題|解答結果|結果画面|演習終了)/.test(text);
+      return isStudyContainer && !el.classList.contains('hidden');
+    });
+  };
   const updateSemesterNavVisibility = () => {
-    body.classList.toggle('np-semester-selection-open', getEnabled() && isSemesterSelectionOpen());
+    const inStudyFlow = getEnabled() && isStudyFlowOpen();
+    body.classList.toggle('np-semester-selection-open', inStudyFlow);
+    body.classList.toggle('np-study-flow-open', inStudyFlow);
   };
   const modalObserver = new MutationObserver(updateSemesterNavVisibility);
   modalObserver.observe(document.body, {subtree:true,childList:true,attributes:true,attributeFilter:['class','style','aria-hidden']});
