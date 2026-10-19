@@ -2,8 +2,10 @@
     (() => {
       const key = 'nurse_plus_theme';
       const root = document.documentElement;
+      const initThemeToggle = () => {
       const button = document.getElementById('np-theme-toggle');
-      if (!button) return;
+      if (!button || button.dataset.npThemeBound === 'true') return;
+      button.dataset.npThemeBound = 'true';
       const applyTheme = theme => {
         const isLight = theme !== 'dark';
         root.classList.toggle('np-light-theme', isLight);
@@ -19,5 +21,11 @@
         event.stopPropagation();
         applyTheme(button.checked ? 'dark' : 'light');
       });
+      };
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initThemeToggle, { once: true });
+      } else {
+        initThemeToggle();
+      }
     })();
   
