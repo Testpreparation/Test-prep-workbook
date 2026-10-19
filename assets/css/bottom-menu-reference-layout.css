@@ -52,3 +52,8 @@ body.np-bottom-menu-enabled #np-bottom-flashcard-card:active { transform:scale(.
  body.np-bottom-menu-enabled #screen-subjects #subject-list-container { grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px !important; }
  body.np-bottom-menu-enabled #np-bottom-flashcard-card { grid-column:1 / -1; }
 }
+
+/* 学期選択中はナビゲーションと上部アクションを隠し、選択画面を優先 */
+body.np-bottom-menu-enabled.np-semester-selection-open #np-reference-bottom-nav,
+body.np-bottom-menu-enabled.np-semester-selection-open .np-reference-top-actions { display:none !important; }
+body.np-bottom-menu-enabled.np-semester-selection-open { padding-bottom:0 !important; }
