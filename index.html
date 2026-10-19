@@ -35,64 +35,63 @@
       const loaded = new Set();
       const inFlight = new Map();
       const sourceNodes = Array.from(document.querySelectorAll('script[data-np-question-src]'));
-      const normalize = path => String(path || '').replace(/^\.\//, '').replace(/\\/g, '/');
+      const normalize = path => path.replace(/^\.\//, '');
       function loadScript(path) {
-        const normalized = normalize(path);
-        if (loaded.has(normalized)) return Promise.resolve();
-        if (inFlight.has(normalized)) return inFlight.get(normalized);
-        const source = sourceNodes.find(node => normalize(node.dataset.npQuestionSrc) === normalized);
-        const src = source ? source.dataset.npQuestionSrc : path;
+        path = normalize(path);
+        if (loaded.has(path)) return Promise.resolve();
+        if (inFlight.has(path)) return inFlight.get(path);
+        const source = sourceNodes.find(node => normalize(node.dataset.npQuestionSrc) === path);
+        if (!source) return Promise.resolve();
         const promise = new Promise((resolve, reject) => {
           const script = document.createElement('script');
-          script.src = src;
+          script.src = source.dataset.npQuestionSrc;
           script.async = false;
-          script.onload = () => { loaded.add(normalized); inFlight.delete(normalized); resolve(); };
-          script.onerror = () => { inFlight.delete(normalized); console.error('[Nurse＋] 問題データを読み込めませんでした:', src); reject(new Error('問題データの読み込みに失敗しました: ' + src)); };
+          script.onload = () => { loaded.add(path); inFlight.delete(path); resolve(); };
+          script.onerror = () => { inFlight.delete(path); console.error('[Nurse＋] 問題データを読み込めませんでした:', path); reject(new Error('問題データの読み込みに失敗しました: ' + path)); };
           document.head.appendChild(script);
         });
-        inFlight.set(normalized, promise);
+        inFlight.set(path, promise);
         return promise;
       }
       function selectedModePaths(paths, subject, mode) {
         const id = subject.id || '';
-        const folders = {
-          anatomy: ['解剖生理学/'],
-          biochemistry: ['生化学/'],
-          physiology: ['生理学/'],
-          public_health: ['公衆衛生学/'],
-          public_health_nursing: ['公衆衛生看護学概論/'],
-          nutrition: ['栄養学/'],
-          pharmacology: ['薬理学/'],
-          nursing_method_3: ['看護学方法論Ⅲ/'],
-          pathology: ['病理学/']
+        const bySubject = {
+          anatomy: /解剖生理学\\//,
+          biochemistry: /生化学\\//,
+          physiology: /生理学\\//,
+          public_health: /公衆衛生学\\//,
+          public_health_nursing: /公衆衛生看護学概論\\//,
+          nutrition: /栄養学\\//,
+          pharmacology: /薬理学\\//,
+          nursing_method_3: /看護学方法論Ⅲ\\//,
+          pathology: /病理学\\//
         };
-        const subjectFolders = folders[id];
-        if (!subjectFolders) return [];
-        let candidates = paths.filter(path => subjectFolders.some(folder => normalize(path).includes(folder)));
+        const pattern = bySubject[id];
+        let selected = pattern ? paths.filter(path => pattern.test(path)) : [];
+        if (!selected.length) return selected;
         const modeText = String(mode || '').toLowerCase();
-        const modeTokens = {
-          exercise: ['演習問題'], practice: ['練習問題'], quiz: ['小テスト'],
-          test: ['小テスト'], national: ['模擬国家試験','看護師国家試験','看護師国家試験過去6年'],
-          past: ['過去問','過去6年'], basic: ['基礎問題'], fill: ['穴埋め式'],
-          choice: ['選択式']
+        const modeFolder = {
+          exercise: /演習問題/,
+          practice: /練習問題/,
+          quiz: /小テスト/,
+          test: /小テスト/,
+          national: /模擬国家試験|過去問/,
+          past: /過去問/,
+          basic: /基礎問題/,
+          fill: /穴埋め式/,
+          choice: /選択式/
         };
-        let token = Object.keys(modeTokens).find(key => modeText.includes(key));
-        if (id === 'biochemistry' && mode === 'fill') return [];
-        if (id === 'pharmacology' && mode === 'nurse_national_6years') return [];
-        if (token) {
-          const narrowed = candidates.filter(path => modeTokens[token].some(part => normalize(path).includes(part)));
-          if (narrowed.length) candidates = narrowed;
-          else if (modeTokens[token].length && ['exercise','practice','quiz','test','national','past','basic','fill','choice'].includes(token)) {
-            // 出題モードの名称とファイル名が異なる科目は、選択科目のファイルだけに限定して安全にフォールバック。
-            const hasModeFolders = candidates.some(path => /演習問題|練習問題|小テスト|模擬国家試験|過去問|基礎問題|穴埋め式|選択式/.test(normalize(path)));
-            if (hasModeFolders) candidates = candidates.filter(path => !/演習問題|練習問題|小テスト|模擬国家試験|過去問|基礎問題|穴埋め式|選択式/.test(normalize(path)));
-          }
+        const matchingMode = Object.entries(modeFolder).find(([key]) => modeText.includes(key));
+        if (matchingMode) {
+          const narrowed = selected.filter(path => matchingMode[1].test(path));
+          if (narrowed.length) selected = narrowed;
         }
+        // 1つのモードが複数回に分割されている科目は、選択した回のファイルだけを取得する。
         if (id === 'pathology' && window.currentPathologyRound) {
-          const round = String(window.currentPathologyRound).match(/\d+/)?.[0];
-          if (round) candidates = candidates.filter(path => normalize(path).includes('第' + round + '回'));
+          const round = String(window.currentPathologyRound).match(/\\d+/)?.[0];
+          if (round) selected = selected.filter(path => path.includes('第' + round + '回'));
         }
-        return candidates;
+        return selected;
       }
       let lastSelectionKey = '';
       window.NursePlusQuestionLoader = {
@@ -100,26 +99,33 @@
           const semester = semesterValue || '2026_autumn';
           const subject = subjectValue || {};
           const modes = {
-            anatomy: window.currentAnatomyMode, physiology: window.currentPhysiologyMode,
-            public_health: window.currentPublicHealthMode, public_health_nursing: window.currentPHNMode,
-            nutrition: window.currentNutritionMode, nursing_method_3: window.currentNursingMethod3Mode,
-            pathology: window.currentPathologyMode, pharmacology: pharmacologyMode, biochemistry: biochemistryFormat
+            anatomy: window.currentAnatomyMode,
+            physiology: window.currentPhysiologyMode,
+            public_health: window.currentPublicHealthMode,
+            public_health_nursing: window.currentPHNMode,
+            nutrition: window.currentNutritionMode,
+            nursing_method_3: window.currentNursingMethod3Mode,
+            pathology: window.currentPathologyMode,
+            pharmacology: pharmacologyMode,
+            biochemistry: biochemistryFormat
           };
           const mode = modes[subject.id] || '';
-          const key = [semester,subject.id || '',String(mode),window.currentPathologyRound || ''].join(':');
+          const isBiochemistryFill = subject.id === 'biochemistry' && biochemistryFormat === 'fill';
+          const isPharmacologyNational = subject.id === 'pharmacology' && pharmacologyMode === 'nurse_national_6years';
+          const key = [semester, subject.id || '', mode, window.currentPathologyRound || ''].join(':');
           if (key === lastSelectionKey) return;
           const folder = semester === '2026_spring' ? '2026春学期/' : '2026秋学期/';
-          const semesterPaths = sourceNodes.map(node => node.dataset.npQuestionSrc).filter(path => normalize(path).includes(folder));
-          const paths = selectedModePaths(semesterPaths, subject, mode);
-          if (subject.id === 'biochemistry' && mode === 'fill') paths.push('./科目/生化学/穴埋め式/biochemistry_fill.js');
-          if (subject.id === 'pharmacology' && mode === 'nurse_national_6years') paths.push('./科目/薬理学/看護師国家試験過去6年/pharmacology_nurse_national_6years.js');
-          if (!paths.length) throw new Error('選択した科目・モードに対応する問題ファイルが見つかりません: ' + subject.id + ' / ' + mode);
+          const semesterSourcePaths = sourceNodes.map(node => node.dataset.npQuestionSrc).filter(path => path.includes(folder));
+          const paths = selectedModePaths(semesterSourcePaths, subject, mode);
+          if (isBiochemistryFill) paths.push('./科目/生化学/穴埋め式/biochemistry_fill.js');
+          if (isPharmacologyNational) paths.push('./科目/薬理学/看護師国家試験過去6年/pharmacology_nurse_national_6years.js');
           for (const path of [...new Set(paths)]) await loadScript(path);
           lastSelectionKey = key;
         }
       };
     })();
   </script>
+
   <!-- 問題データの読み込み先一覧（実際の読み込みはモード選択後） -->
   <script type="application/x-nurseplus-question-data" data-np-question-src="./科目/解剖生理学/2026春学期/練習問題/anatomy2026harugakki.js"></script>
   <script type="application/x-nurseplus-question-data" data-np-question-src="科目/生化学/2026春学期/選択式/biochemistry2026harugakki.js"></script>
