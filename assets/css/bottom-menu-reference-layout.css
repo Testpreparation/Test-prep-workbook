@@ -78,3 +78,6 @@ body.np-bottom-menu-enabled.np-bottom-menu-notices-view #screen-data-analysis { 
 body.np-bottom-menu-enabled.np-study-flow-open #np-reference-bottom-nav,
 body.np-bottom-menu-enabled.np-study-flow-open .np-reference-top-actions { display:none !important; }
 body.np-bottom-menu-enabled.np-study-flow-open { padding-bottom:0 !important; }
+
+/* 下部メニューON時はドット操作で暗記カード一覧へ移動させず、ホームの専用カードから開く */
+body.np-bottom-menu-enabled #subject-page-dots.np-bottom-menu-hide-subject-dots { display:none !important; }
