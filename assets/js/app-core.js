@@ -4583,7 +4583,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         if (q.isMultiple) {
           submitBtn.classList.remove('hidden');
           container.innerHTML = q.options.map((opt, idx) => `
-            <button id="opt-btn-${idx}" onclick="toggleOptionSelect(${idx})" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center gap-3">
+            <button type="button" id="opt-btn-${idx}" onclick="toggleOptionSelect(${idx})" class="touch-manipulation select-none quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center gap-3">
               <span id="opt-check-${idx}" class="w-4 h-4 rounded border border-slate-600 bg-slate-950 flex items-center justify-center font-bold text-[10px] text-amber-400 shrink-0"></span>
               <span>${opt}</span>
             </button>
@@ -4591,7 +4591,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         } else {
           submitBtn.classList.add('hidden');
           container.innerHTML = q.options.map((opt, idx) => `
-            <button onclick="handleSingleAnswer(${idx})" class="quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center justify-between">
+            <button type="button" onclick="handleSingleAnswer(${idx})" class="touch-manipulation select-none quiz-opt-btn w-full p-3.5 rounded-xl border border-slate-700/60 bg-slate-900/60 text-slate-200 text-xs text-left hover:bg-slate-800 transition flex items-center justify-between">
               <span>${opt}</span>
               <span class="opt-mark hidden font-bold"></span>
             </button>
@@ -4606,6 +4606,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       if (isAnswered) return;
       const btn = document.getElementById(`opt-btn-${idx}`);
       const check = document.getElementById(`opt-check-${idx}`);
+      if (!btn || !check) return;
 
       if (selectedIndices.has(idx)) {
         selectedIndices.delete(idx);
