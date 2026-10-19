@@ -167,7 +167,7 @@
     </div>
     <div id="np-theme-settings-modal-content" class="pt-4">
       <p class="text-sm text-slate-600 mb-4">アプリ全体の表示モードを切り替えます。初期設定はホワイトです。</p>
-      <button id="np-theme-toggle" type="button" aria-pressed="false" aria-label="ダークモードに切り替え" title="テーマを切り替え"><span id="np-theme-icon" aria-hidden="true">☾</span><span id="np-theme-label">ダーク</span></button>
+      <div class="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white/70 px-4 py-3"><span id="np-theme-label" class="text-sm font-medium text-slate-700">ホワイトモード</span><label class="relative inline-flex items-center cursor-pointer"><input id="np-theme-toggle" type="checkbox" role="switch" aria-label="ダークモード" aria-checked="false" class="np-toggle-switch"><span class="sr-only">ダークモード</span></label></div>
     </div>
     <button type="button" onclick="closeThemeSettingsPage()" class="mt-5 w-full rounded-xl border border-slate-200 bg-slate-50 py-3 text-sm hover:bg-slate-100 transition">戻る</button>
   </section>
