@@ -242,10 +242,22 @@
           <div class="en-title text-[10px] text-amber-500 tracking-[.22em] font-semibold">STUDY HOME</div>
           <h2 class="serif-title text-xl text-slate-100 mt-1">学習ホーム</h2>
           <p class="text-[11px] text-slate-400 mt-1">現在の学習状況を確認できます。</p>
-          <button onclick="showSubjectScreen()" class="w-full mt-3 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition">
+          <button id="np-home-subjects-open-all" onclick="showSubjectScreen()" class="w-full mt-3 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition">
             科目一覧
           </button>
         </div>
+
+        <!-- スマートフォンの下部メニュー利用時は、ホームに科目を直接表示 -->
+        <section id="np-mobile-home-subjects" class="hidden" aria-label="科目一覧">
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <div>
+              <h3 class="text-sm font-semibold text-slate-100">科目から学習を始める</h3>
+              <p class="text-[10px] text-slate-400 mt-1">学習したい科目を選択してください</p>
+            </div>
+            <span id="np-mobile-home-subject-count" class="text-[10px] text-slate-500"></span>
+          </div>
+          <div id="np-mobile-home-subject-grid" class="grid grid-cols-2 gap-2.5"></div>
+        </section>
 
         <div class="evo-card">
           <div class="flex justify-between items-center mb-3">
@@ -1741,6 +1753,69 @@
 
   <!-- Nurse＋ App-like Home UI: restore the original soft visual direction and refine touch interaction with CSS only. -->
   <link rel="stylesheet" href="./assets/css/app-home-refinement.css" id="nurse-plus-app-home-refinement">
+
+  <!-- スマートフォン下部メニュー時のみ、既存の科目ボタンをホームに表示 -->
+  <style id="np-mobile-home-subjects-style">
+    @media (max-width: 767px) {
+      #np-mobile-home-subjects { display:block !important; }
+      #np-home-subjects-open-all { display:none !important; }
+      #np-mobile-home-subject-grid > button {
+        min-width:0; min-height:94px; padding:12px 10px;
+        border-radius:16px; border:1px solid rgba(221,211,241,.9);
+        background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(248,244,255,.94));
+        color:#5f536f; box-shadow:0 4px 14px rgba(92,75,122,.07);
+        align-items:flex-start; gap:8px;
+      }
+      #np-mobile-home-subject-grid > button > div:first-child { min-width:0; gap:7px; align-items:flex-start; }
+      #np-mobile-home-subject-grid > button > div:first-child > span {
+        flex:0 0 auto; font-size:9px; padding:3px 5px; border-radius:7px;
+      }
+      #np-mobile-home-subject-grid > button > div:first-child > div { min-width:0; text-align:left; }
+      #np-mobile-home-subject-grid > button > div:first-child > div > div:first-child {
+        color:#5f536f; font-size:11px; line-height:1.45; overflow-wrap:anywhere;
+      }
+      #np-mobile-home-subject-grid > button > div:first-child > div > div:last-child {
+        color:#9287a2; font-size:9px; line-height:1.45;
+      }
+      #np-mobile-home-subject-grid > button > div:last-child {
+        width:100%; display:flex; justify-content:space-between; align-items:center;
+        gap:4px; margin-top:auto;
+      }
+      #np-mobile-home-subject-grid > button > div:last-child > div:first-child { text-align:left; }
+      #np-mobile-home-subject-grid > button > div:last-child > div:first-child > div:first-child { font-size:9px; color:#9a90a8; }
+      #np-mobile-home-subject-grid > button > div:last-child > div:first-child > div:last-child { font-size:11px; color:#8b79ad; }
+      #np-mobile-home-subject-grid > button > span { font-size:11px; }
+      #np-mobile-home-subject-grid > button:disabled { opacity:.65; }
+    }
+    @media (min-width: 768px) {
+      #np-mobile-home-subjects { display:none !important; }
+    }
+  </style>
+  <script id="np-mobile-home-subjects-script">
+    (() => {
+      const dashboard = document.getElementById('screen-dashboard');
+      const source = document.getElementById('subject-list-container');
+      const target = document.getElementById('np-mobile-home-subject-grid');
+      const count = document.getElementById('np-mobile-home-subject-count');
+      if (!dashboard || !source || !target) return;
+
+      const syncSubjects = () => {
+        if (window.innerWidth > 767 || dashboard.classList.contains('hidden')) return;
+        if (typeof window.renderSubjectList === 'function') window.renderSubjectList();
+        target.innerHTML = source.innerHTML;
+        if (count) count.textContent = source.children.length ? source.children.length + '科目' : '';
+      };
+
+      const observer = new MutationObserver(() => {
+        if (!dashboard.classList.contains('hidden')) requestAnimationFrame(syncSubjects);
+      });
+      observer.observe(dashboard, { attributes:true, attributeFilter:['class'] });
+      observer.observe(source, { childList:true, subtree:true });
+      window.addEventListener('resize', syncSubjects, { passive:true });
+      document.addEventListener('DOMContentLoaded', syncSubjects, { once:true });
+      if (!dashboard.classList.contains('hidden')) syncSubjects();
+    })();
+  </script>
 
 </body>
 </html>
