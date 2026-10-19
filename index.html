@@ -1906,6 +1906,24 @@
         const sourceHTML = source.innerHTML;
         if (sourceHTML !== lastSourceHTML) {
           target.innerHTML = sourceHTML;
+          const cardStyles = {
+            anatomy: { icon: '♙', bg: '#fff0f6', border: '#f8d9e8', color: '#d65b91' },
+            biochemistry: { icon: '⚗', bg: '#fff8ec', border: '#f5e5ca', color: '#d6a14d' },
+            physiology: { icon: '♥', bg: '#eef6ff', border: '#d8e8fb', color: '#5b9de9' },
+            public_health: { icon: '✺', bg: '#edfbf8', border: '#d4f2eb', color: '#50b9a9' },
+            public_health_nursing: { icon: '♧', bg: '#f7f0ff', border: '#e9dcfb', color: '#a477d7' },
+            nutrition: { icon: '🥣', bg: '#fff2eb', border: '#f9dfd2', color: '#df9365' },
+            pharmacology: { icon: '💊', bg: '#fff0f6', border: '#f8d9e8', color: '#d65b91' },
+            nursing_method: { icon: '♧', bg: '#eef6ff', border: '#d8e8fb', color: '#5b9de9' }
+          };
+          target.querySelectorAll(':scope > button').forEach(button => {
+            const id = button.dataset.id || button.getAttribute('data-id') || '';
+            const style = cardStyles[id] || { icon: '✚', bg: '#edfbf8', border: '#d4f2eb', color: '#50b9a9' };
+            const sourceButton = Array.from(source.querySelectorAll(':scope > button'))[Array.from(target.children).indexOf(button)];
+            const name = (sourceButton?.innerText || '').split('\\n').map(value => value.trim()).filter(Boolean).find(value => !/^(選択|演習|暗記|準備中|全\\d)/.test(value)) || id;
+            button.style.cssText = 'min-width:0;min-height:110px;padding:14px 12px;border-radius:20px;border:1px solid '+style.border+';background:'+style.bg+';color:'+style.color+';box-shadow:0 5px 16px rgba(92,75,122,.07);display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:8px;';
+            button.innerHTML = '<span aria-hidden="true" style="font-size:34px;line-height:1;flex:0 0 auto;">'+style.icon+'</span><span style="font-size:13px;font-weight:700;line-height:1.45;color:#675a72;text-align:left;flex:1;overflow-wrap:anywhere;">'+name+'</span><span aria-hidden="true" style="font-size:25px;color:'+style.color+';flex:0 0 auto;">›</span>';
+          });
           lastSourceHTML = sourceHTML;
         }
         if (count) count.textContent = source.children.length ? source.children.length + '科目' : '';
