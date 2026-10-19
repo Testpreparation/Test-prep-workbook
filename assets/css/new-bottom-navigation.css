@@ -28,3 +28,7 @@ body.np-bottom-nav-active #screen-subjects[data-np-flashcards=true] #slider-page
 body.np-bottom-nav-active #screen-subjects[data-np-flashcards=true] #subjects-slider-track{width:100%!important}
 .np-new-setting-card{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:17px 18px;border:1px solid rgba(190,170,215,.35);border-radius:18px;background:rgba(255,255,255,.75);color:#675a7d;text-align:left;font-weight:600;box-shadow:0 5px 16px rgba(120,95,145,.06)}
 @media(min-width:768px){body.np-bottom-nav-active #subject-list-container{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}body.np-bottom-nav-active #np-new-bottom-navigation{left:50%;right:auto;transform:translateX(-50%);width:min(680px,calc(100% - 40px));min-height:82px}#np-new-bottom-navigation button{font-size:13px}}
+
+/* In the new navigation mode, notice dismissal is handled by switching tabs. */
+body.np-bottom-nav-active #modal-notice .glass-card > div:first-child > button,
+body.np-bottom-nav-active #modal-notice .glass-card > button:last-child { display:none !important; }
