@@ -73,8 +73,13 @@
     flashcardCard.addEventListener('click', () => {
       const track = document.getElementById('subjects-slider-track');
       const page2 = document.getElementById('slider-page-2');
+      const page1 = document.getElementById('slider-page-1');
+      const dots = document.getElementById('subject-page-dots');
       if (track) track.style.transform = 'translateX(-50%)';
       if (page2) page2.style.display = '';
+      if (page1) page1.setAttribute('aria-hidden', 'true');
+      if (page2) page2.setAttribute('aria-hidden', 'false');
+      if (dots && getEnabled()) dots.classList.add('np-bottom-menu-hide-subject-dots');
       const flashcardSubjects = document.getElementById('flashcard-subject-list-container');
       if (flashcardSubjects) flashcardSubjects.scrollTop = 0;
       setActive('home');
