@@ -1,0 +1,1 @@
+(function(){'use strict';document.addEventListener('np:navigation',function(e){if(e.detail&&e.detail.screen==='settings'){const modal=document.getElementById('user-settings-modal'),overlay=document.getElementById('user-settings-overlay');if(modal&&overlay){modal.classList.remove('hidden');overlay.classList.remove('hidden');}}});})();
