@@ -197,7 +197,7 @@
         const card = document.createElement('button');
         card.type = 'button';
         card.className = 'np-home-subject-card card-item np-tone-' + subject.tone;
-        card.innerHTML = '<span class="np-home-subject-code" aria-hidden="true">' + subject.code + '</span><span class="np-home-subject-content"><span class="np-home-subject-name">' + subject.name + '</span><span class="np-home-subject-description">過去問・小テスト対応</span></span><span class="np-home-subject-status" aria-hidden="true">›</span>';
+        card.innerHTML = '<span class="np-home-subject-code" aria-hidden="true">' + subject.code + '</span><span class="np-home-subject-content"><span class="np-home-subject-name">' + subject.name + '</span><span class="np-home-subject-description">過去問・小テスト対応</span></span><span class="np-home-subject-average"><span class="np-home-subject-average-label">平均正答率</span><strong>-- %</strong></span><span class="np-home-subject-status" aria-hidden="true">→</span>';
         card.addEventListener('click', () => {
           if (typeof window.selectSubject === 'function') {
             window.selectSubject(subject.id);
@@ -239,18 +239,18 @@
       #np-home-subject-grid[hidden] { display: none !important; }
       html.np-bottom-menu-enabled #np-home-subject-grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: minmax(0, 1fr);
         gap: 12px;
         width: 100%;
         padding: 4px 0 12px;
       }
       .np-home-subject-card {
         min-width: 0; width: 100%; min-height: 88px; display: flex; align-items: center; gap: 18px;
-        padding: 18px 22px; border-radius: 22px; text-align: left; justify-content: flex-start;
-        color: #5f5878; border: 1px solid var(--np-card-border, #f1e7f2);
-        box-shadow: 0 5px 16px rgba(133, 112, 156, .07); transition: transform .18s ease, box-shadow .18s ease;
+        padding: 18px 22px; border-radius: 26px; text-align: left; justify-content: flex-start;
+        color: #77639a; background: rgba(255,255,255,.72); border: 1px solid #e6d9f2;
+        box-shadow: 0 5px 16px rgba(133, 112, 156, .06); transition: transform .18s ease, box-shadow .18s ease;
       }
-      .np-home-subject-card:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(133, 112, 156, .12); }
+      .np-home-subject-card:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(133, 112, 156, .10); }
       .np-tone-pink { background: linear-gradient(120deg,#fff0f6,#fcebf3); --np-card-border:#f5dce9; --np-icon-color:#e979ad; --np-text-color:#8c5276; }
       .np-tone-amber { background: linear-gradient(120deg,#fff8ec,#fff4e6); --np-card-border:#f4e7d3; --np-icon-color:#e8b65c; --np-text-color:#866641; }
       .np-tone-blue { background: linear-gradient(120deg,#eff5ff,#edf2ff); --np-card-border:#dce7fb; --np-icon-color:#6b9fe8; --np-text-color:#4c668f; }
@@ -258,18 +258,17 @@
       .np-tone-lavender { background: linear-gradient(120deg,#f8f1ff,#f4edff); --np-card-border:#e9def7; --np-icon-color:#a57ad4; --np-text-color:#70578e; }
       .np-tone-peach { background: linear-gradient(120deg,#fff2eb,#ffede5); --np-card-border:#f7ded2; --np-icon-color:#e9a064; --np-text-color:#8b5a4d; }
       .np-home-subject-icon { display:none; }
-      .np-home-subject-code { display:inline-flex; align-items:center; justify-content:center; flex:0 0 48px; width:48px; min-height:48px; color:var(--np-icon-color); font-size:16px; font-weight:700; line-height:1; }
+      .np-home-subject-code { display:inline-flex; align-items:center; justify-content:center; flex:0 0 72px; width:72px; min-height:42px; border:1px solid #d9c4f1; border-radius:13px; color:#8268a8; background:rgba(250,246,255,.9); font-size:16px; font-weight:700; line-height:1; }
       .np-home-subject-content { min-width:0; flex:1; display:flex; flex-direction:column; align-items:flex-start; gap:4px; }
-      .np-home-subject-name { min-width: 0; font-size: 16px; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; color: var(--np-text-color); }
+      .np-home-subject-name { min-width: 0; font-size: 16px; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; color: #78629b; }
+      .np-home-subject-average { flex:0 0 94px; display:flex; flex-direction:column; align-items:flex-end; gap:2px; color:#927fa8; font-size:12px; line-height:1.35; }
+      .np-home-subject-average strong { font-size:15px; color:#8064a0; font-weight:700; }
       .np-home-subject-description { font-size:12px; line-height:1.4; color:var(--np-text-color); opacity:.78; }
       .np-home-subject-status { flex: 0 0 auto; color: var(--np-icon-color); font-size: 30px; line-height: 1; }
       .np-home-flashcard-card { grid-column: 1 / -1; width: 100%; }
       @media (min-width: 900px) {
-        html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+        html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
         .np-home-subject-card { padding: 18px 22px; }
-      }
-      @media (max-width: 899px) {
-        html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
       }
       @media (max-width: 480px) {
         .np-home-subject-card { min-height: 96px; padding: 14px 12px; gap: 10px; }
