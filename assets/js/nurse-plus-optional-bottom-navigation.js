@@ -197,24 +197,11 @@
       subjects.forEach(subject => {
         const card = document.createElement('button');
         card.type = 'button';
-        // Match the regular subject-list row structure: code badge, title/subtitle,
-        // and average accuracy at the right. Do not use the old pastel subject palette.
+        // Keep the regular subject-list card surface, showing only the subject name and arrow.
         card.className = 'card-item np-home-subject-card w-full p-4 rounded-xl text-left flex items-center justify-between group';
         card.innerHTML =
-          '<div class="flex items-center gap-3">' +
-            '<span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">' + subject.code + '</span>' +
-            '<div>' +
-              '<div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">' + subject.name + '</div>' +
-              '<div class="text-[11px] text-slate-400 font-light mt-0.5">' + subject.subtitle + '</div>' +
-            '</div>' +
-          '</div>' +
-          '<div class="flex items-center gap-3">' +
-            '<div class="text-right">' +
-              '<div class="text-[10px] text-slate-500 font-light">平均正答率</div>' +
-              '<div class="text-xs font-mono font-semibold np-subject-accuracy-value">' + subject.accuracy + '</div>' +
-            '</div>' +
-            '<span class="text-slate-500 group-hover:text-amber-400 transition text-sm" aria-hidden="true">→</span>' +
-          '</div>';
+          '<span class="text-sm font-medium">' + subject.name + '</span>' +
+          '<span class="text-sm transition" aria-hidden="true">→</span>';
         card.addEventListener('click', () => {
           if (typeof window.selectSubject === 'function') {
             window.selectSubject(subject.id);
