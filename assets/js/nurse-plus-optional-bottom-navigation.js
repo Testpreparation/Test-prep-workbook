@@ -184,32 +184,34 @@
       grid.setAttribute('aria-label', '科目一覧');
       grid.className = 'np-home-subject-grid';
       const subjects = [
-        { id: 'anatomy', name: '解剖学', icon: '♧', tone: 'pink' },
-        { id: 'biochemistry', name: '生化学', icon: '⚗', tone: 'amber' },
-        { id: 'physiology', name: '生理学', icon: '♥', tone: 'blue' },
-        { id: 'public_health', name: '公衆衛生学', icon: '✿', tone: 'mint' },
-        { id: 'public_health_nursing', name: '公衆衛生看護学概論', icon: '♟', tone: 'lavender' },
+        { id: 'anatomy', name: '解剖学', icon: '🦴', tone: 'pink' },
+        { id: 'biochemistry', name: '生化学', icon: '⚗️', tone: 'amber' },
+        { id: 'physiology', name: '生理学', icon: '💙', tone: 'blue' },
+        { id: 'public_health', name: '公衆衛生学', icon: '🦠', tone: 'mint' },
+        { id: 'public_health_nursing', name: '公衆衛生看護学概論', icon: '👥', tone: 'lavender' },
         { id: 'nutrition', name: '栄養学', icon: '🥣', tone: 'peach' },
         { id: 'pharmacology', name: '薬理学', icon: '💊', tone: 'pink' },
-        { id: 'nursing_method_3', name: '看護学方法論Ⅲ', icon: '♧', tone: 'blue' }
+        { id: 'nursing_method_3', name: '看護学方法論Ⅲ', icon: '🩺', tone: 'blue' }
       ];
       subjects.forEach(subject => {
         const card = document.createElement('button');
         card.type = 'button';
-        card.className = 'np-home-subject-card card-item np-tone-' + subject.tone;
+        card.className = 'np-home-subject-card np-tone-' + subject.tone;
         card.innerHTML = '<span class="np-home-subject-icon" aria-hidden="true">' + subject.icon + '</span><span class="np-home-subject-name">' + subject.name + '</span><span class="np-home-subject-status" aria-hidden="true">›</span>';
         card.addEventListener('click', () => {
-          if (typeof window.selectSubject === 'function') {
-            window.selectSubject(subject.id);
-          } else if (typeof window.showSubjectScreen === 'function') {
-            window.showSubjectScreen();
-          }
+          if (typeof window.showSubjectScreen === 'function') window.showSubjectScreen();
+          window.requestAnimationFrame(() => {
+            const subjectScreen = document.getElementById('screen-subject');
+            if (!subjectScreen) return;
+            const match = Array.from(subjectScreen.querySelectorAll('button')).find(item => (item.textContent || '').includes(subject.name));
+            if (match) match.click();
+          });
         });
         grid.appendChild(card);
       });
       const flashcards = document.createElement('button');
       flashcards.type = 'button';
-      flashcards.className = 'np-home-subject-card card-item np-home-flashcard-card np-tone-mint';
+      flashcards.className = 'np-home-subject-card np-home-flashcard-card np-tone-mint';
       flashcards.innerHTML = '<span class="np-home-subject-icon" aria-hidden="true">▤</span><span class="np-home-subject-name">暗記カード</span><span class="np-home-subject-status" aria-hidden="true">›</span>';
       flashcards.addEventListener('click', () => {
         if (typeof window.showSubjectScreen === 'function') window.showSubjectScreen();
@@ -230,24 +232,18 @@
     const style = document.createElement('style');
     style.id = 'np-home-subject-card-styles';
     style.textContent = `
-      #np-home-subject-grid { display: none; }
+      #np-home-subject-grid { display: none; box-sizing: border-box; }
       html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode > :not(#np-home-subject-grid) { display: none !important; }
-      html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode .en-title,
-      html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode h2,
-      html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode .evo-card,
-      html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode > div:not(#np-home-subject-grid) { display: none !important; }
       #np-home-subject-grid[hidden] { display: none !important; }
+      html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode { display: block !important; width: 100%; min-width: 0; }
       html.np-bottom-menu-enabled #np-home-subject-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-        width: 100%;
-        padding: 4px 0 12px;
+        display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch;
+        gap: 14px; width: 100%; max-width: 100%; margin: 0; padding: 4px 0 12px; box-sizing: border-box;
       }
       .np-home-subject-card {
         min-width: 0; width: 100%; min-height: 88px; display: flex; align-items: center; gap: 18px;
         padding: 18px 22px; border-radius: 22px; text-align: left; justify-content: flex-start;
-        color: #5f5878; border: 1px solid var(--np-card-border, #f1e7f2);
+        color: #5f5878; border: 1px solid var(--np-card-border, #f1e7f2); box-sizing: border-box; appearance: none; -webkit-appearance: none;
         box-shadow: 0 5px 16px rgba(133,112,156,.07); transition: transform .18s ease, box-shadow .18s ease;
       }
       .np-home-subject-card:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(133,112,156,.12); }
