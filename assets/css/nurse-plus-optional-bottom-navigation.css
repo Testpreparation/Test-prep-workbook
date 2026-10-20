@@ -1,0 +1,59 @@
+/* Optional Nurse＋ bottom navigation — isolated from existing page layouts. */
+#np-bottom-navigation {
+  position: fixed;
+  z-index: 80;
+  left: max(12px, env(safe-area-inset-left));
+  right: max(12px, env(safe-area-inset-right));
+  bottom: max(10px, env(safe-area-inset-bottom));
+  display: none;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+  border: 1px solid rgba(230, 220, 240, .92);
+  border-radius: 28px;
+  background: rgba(255, 253, 255, .94);
+  box-shadow: 0 8px 28px rgba(84, 64, 105, .16);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+html.np-bottom-menu-enabled #np-bottom-navigation { display: grid; }
+#np-bottom-navigation .np-bottom-nav-item {
+  display: flex;
+  min-width: 0;
+  min-height: 52px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 5px 2px;
+  border: 0;
+  border-radius: 18px;
+  background: transparent;
+  color: #988ba8;
+  font: 600 10px/1.25 system-ui, -apple-system, "Noto Sans JP", sans-serif;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color .18s ease, background .18s ease, transform .18s ease;
+}
+#np-bottom-navigation .np-bottom-nav-item svg { width: 24px; height: 24px; flex: 0 0 auto; }
+#np-bottom-navigation .np-bottom-nav-item[aria-current="page"] {
+  color: #e879a7;
+  background: #fff0f6;
+}
+#np-bottom-navigation .np-bottom-nav-item:active { transform: scale(.96); }
+html.np-bottom-menu-enabled body { padding-bottom: 100px; }
+@media (min-width: 700px) {
+  #np-bottom-navigation {
+    left: 50%; right: auto; transform: translateX(-50%);
+    width: min(560px, calc(100% - 48px));
+    bottom: 0;
+    border-radius: 26px 26px 0 0;
+    padding: 8px 22px calc(8px + env(safe-area-inset-bottom));
+  }
+  #np-bottom-navigation .np-bottom-nav-item { min-height: 56px; font-size: 12px; gap: 3px; }
+  #np-bottom-navigation .np-bottom-nav-item svg { width: 26px; height: 26px; }
+  html.np-bottom-menu-enabled body { padding-bottom: 84px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #np-bottom-navigation .np-bottom-nav-item { transition: none; }
+}
