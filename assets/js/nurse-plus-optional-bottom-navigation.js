@@ -8,6 +8,7 @@
     root.classList.toggle('np-bottom-menu-enabled', enabled);
     setupHomeSubjectCardStyles();
     setupHomeSubjectCards();
+    syncBottomMenuHomePresentation();
     const dashboard = document.getElementById('screen-dashboard');
     if (dashboard) dashboard.classList.toggle('np-home-subject-mode', enabled);
     const homeGrid = document.getElementById('np-home-subject-grid');
@@ -174,6 +175,34 @@
 
 
   // Optional bottom-navigation home: show subject cards only while the setting is enabled.
+  function normalizeBottomMenuBreadcrumb() {
+    if (!root.classList.contains('np-bottom-menu-enabled')) return;
+    const subjectScreen = document.getElementById('screen-subject');
+    if (!subjectScreen) return;
+    subjectScreen.querySelectorAll('[aria-label*="breadcrumb" i], nav, .breadcrumb, .breadcrumbs, [class*="breadcrumb"], [class*="Breadcrumb"]').forEach(container => {
+      const nodes = Array.from(container.querySelectorAll('a, button, span, li'));
+      nodes.forEach(node => {
+        if ((node.textContent || '').trim() === '科目一覧') node.textContent = 'ホーム';
+      });
+    });
+  }
+
+  function styleFlashcardSubjectList() {
+    if (!root.classList.contains('np-bottom-menu-enabled')) return;
+    const screens = Array.from(document.querySelectorAll('[id*="flashcard"], [class*="flashcard"], [id*="memor"], [class*="memor"]'));
+    screens.forEach(screen => {
+      screen.querySelectorAll('button, .card, [class*="card"]').forEach(card => {
+        if (card.closest('#np-home-subject-grid')) return;
+        card.classList.add('np-flashcard-subject-match-home');
+      });
+    });
+  }
+
+  function syncBottomMenuHomePresentation() {
+    normalizeBottomMenuBreadcrumb();
+    styleFlashcardSubjectList();
+  }
+
   function setupHomeSubjectCards() {
     const dashboard = document.getElementById('screen-dashboard');
     if (!dashboard) return;
@@ -232,6 +261,11 @@
     const style = document.createElement('style');
     style.id = 'np-home-subject-card-styles';
     style.textContent = `
+      html.np-bottom-menu-enabled .np-flashcard-subject-match-home {
+        border-radius: 22px !important;
+        box-sizing: border-box;
+        box-shadow: none;
+      }
       #np-home-subject-grid { display: none; box-sizing: border-box; }
       html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode > :not(#np-home-subject-grid) { display: none !important; }
       #np-home-subject-grid[hidden] { display: none !important; }
