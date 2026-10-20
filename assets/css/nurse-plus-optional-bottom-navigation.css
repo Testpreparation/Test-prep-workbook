@@ -25,6 +25,13 @@ html.np-bottom-menu-enabled #np-bottom-navigation { display: grid; }
     background-color: #d1fae5 !important;
     color: #064e3b !important;
   }
+  /* Slightly reduce subject names and accuracy values in bottom-menu subject cards only. */
+  html.np-bottom-menu-enabled #bottom-menu-subject-list-container [class~="text-[10.5px]"] {
+    font-size: 10px !important;
+  }
+  html.np-bottom-menu-enabled #bottom-menu-subject-list-container [class~="text-[11.5px]"] {
+    font-size: 11px !important;
+  }
 }
 #np-bottom-navigation .np-bottom-nav-item {
   display: flex;
