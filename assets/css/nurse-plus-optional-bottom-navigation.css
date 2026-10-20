@@ -81,3 +81,11 @@ html.np-bottom-menu-enabled #screen-dashboard-bottom-menu {
     width: min(150%, calc(100vw - 48px));
   }
 }
+
+/* In bottom-menu mode, expand the surrounding panel to match the subject-card grid. */
+@media (min-width: 700px) {
+  html.np-bottom-menu-enabled body:has(#screen-dashboard-bottom-menu:not(.hidden)) main.glass-card {
+    width: min(1600px, calc(100% - 48px));
+    max-width: none;
+  }
+}
