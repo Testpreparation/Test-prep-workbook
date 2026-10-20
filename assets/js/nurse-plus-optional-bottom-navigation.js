@@ -9,7 +9,6 @@
     setupHomeSubjectCardStyles();
     setupHomeSubjectCards();
     syncBottomMenuHomePresentation();
-    setupBottomFlashcardHomeLayout();
     const dashboard = document.getElementById('screen-dashboard');
     if (dashboard) dashboard.classList.toggle('np-home-subject-mode', enabled);
     const homeGrid = document.getElementById('np-home-subject-grid');
@@ -150,16 +149,11 @@
 
   // The appearance/settings modal is created dynamically, so bind its toggle
   // at document level instead of relying on the control existing at page load.
-  function handleBottomMenuToggle(event) {
+  document.addEventListener('change', event => {
     const control = event.target;
-    if (!control || control.id !== 'np-bottom-menu-toggle' || control.type !== 'checkbox') return;
+    if (!control || control.id !== 'np-bottom-menu-toggle') return;
     apply(Boolean(control.checked));
-  }
-
-  // Handle both immediate input and committed change events. Capture phase keeps
-  // the setting reliable even if the dynamically mounted settings UI stops bubbling.
-  document.addEventListener('input', handleBottomMenuToggle, true);
-  document.addEventListener('change', handleBottomMenuToggle, true);
+  });
 
   // Keep the toggle state synchronized if the existing settings UI is mounted later.
   if ('MutationObserver' in window) {
@@ -209,33 +203,6 @@
     styleFlashcardSubjectList();
   }
 
-  // In bottom-menu mode, present flashcard subjects as home-style cards and
-  // provide a matching card-shaped return action at the bottom of the page.
-  function setupBottomFlashcardHomeLayout() {
-    const enabled = root.classList.contains('np-bottom-menu-enabled');
-    const page = document.getElementById('slider-page-2');
-    if (!page) return;
-    page.classList.toggle('np-bottom-flashcard-home-layout', enabled);
-    let back = document.getElementById('np-flashcard-home-return');
-    if (!back) {
-      back = document.createElement('button');
-      back.id = 'np-flashcard-home-return';
-      back.type = 'button';
-      back.className = 'np-home-subject-card np-flashcard-home-return';
-      back.innerHTML = '<span class="np-home-subject-icon" aria-hidden="true">⌂</span><span class="np-home-subject-name">ホームに戻る</span><span class="np-home-subject-status" aria-hidden="true">›</span>';
-      back.addEventListener('click', () => {
-        if (typeof window.showDashboard === 'function') window.showDashboard();
-        else {
-          const dashboard = document.getElementById('screen-dashboard');
-          if (typeof window.hideAllScreens === 'function') window.hideAllScreens();
-          if (dashboard) dashboard.classList.remove('hidden');
-        }
-      });
-      page.appendChild(back);
-    }
-    back.hidden = !enabled;
-  }
-
   function setupHomeSubjectCards() {
     const dashboard = document.getElementById('screen-dashboard');
     if (!dashboard) return;
@@ -246,28 +213,28 @@
       grid.setAttribute('aria-label', '科目一覧');
       grid.className = 'np-home-subject-grid';
       const subjects = [
-        { id: 'anatomy', code: 'ANA', name: '解剖学', subtitle: '過去問・小テスト対応' },
-        { id: 'biochemistry', code: 'BIO', name: '生化学', subtitle: '過去問・小テスト対応' },
-        { id: 'physiology', code: 'PHY', name: '生理学', subtitle: '過去問・小テスト対応' },
-        { id: 'public_health', code: 'PH', name: '公衆衛生学', subtitle: '過去問・小テスト対応' },
-        { id: 'public_health_nursing', code: 'PHN', name: '公衆衛生看護学概論', subtitle: '過去問・小テスト対応' },
-        { id: 'nutrition', code: 'NUT', name: '栄養学', subtitle: '過去問・小テスト対応' },
-        { id: 'pharmacology', code: 'PHA', name: '薬理学', subtitle: '過去問・小テスト対応' },
-        { id: 'nursing_method_3', code: 'NUR', name: '看護学方法論Ⅲ', subtitle: '過去問・小テスト対応' }
+        { id: 'anatomy', name: '解剖学', icon: '🦴', tone: 'pink' },
+        { id: 'biochemistry', name: '生化学', icon: '⚗️', tone: 'amber' },
+        { id: 'physiology', name: '生理学', icon: '💙', tone: 'blue' },
+        { id: 'public_health', name: '公衆衛生学', icon: '🦠', tone: 'mint' },
+        { id: 'public_health_nursing', name: '公衆衛生看護学概論', icon: '👥', tone: 'lavender' },
+        { id: 'nutrition', name: '栄養学', icon: '🥣', tone: 'peach' },
+        { id: 'pharmacology', name: '薬理学', icon: '💊', tone: 'pink' },
+        { id: 'nursing_method_3', name: '看護学方法論Ⅲ', icon: '🩺', tone: 'blue' }
       ];
       subjects.forEach(subject => {
         const card = document.createElement('button');
         card.type = 'button';
         card.className = 'np-home-subject-card np-home-subject-card-neutral';
-        card.innerHTML = '<span class="np-home-subject-code" aria-hidden="true">' + subject.code + '</span><span class="np-home-subject-copy"><span class="np-home-subject-name">' + subject.name + '</span><span class="np-home-subject-subtitle">' + subject.subtitle + '</span></span>';
+        card.innerHTML = '<span class="np-home-subject-icon" aria-hidden="true">' + subject.icon + '</span><span class="np-home-subject-name">' + subject.name + '</span><span class="np-home-subject-status" aria-hidden="true">›</span>';
         card.addEventListener('click', () => {
-          // Open the selected subject's normal semester/mode flow directly.
-          // Showing #screen-subjects here exposes the OFF-mode subject list
-          // underneath the bottom-menu home, so skip that intermediate screen.
-          if (typeof window.selectSubject === 'function') {
-            window.selectSubject(subject.id);
-          }
-        });
+          if (typeof window.showSubjectScreen === 'function') window.showSubjectScreen();
+          window.requestAnimationFrame(() => {
+            const subjectScreen = document.getElementById('screen-subject');
+            if (!subjectScreen) return;
+            const match = Array.from(subjectScreen.querySelectorAll('button')).find(item => (item.textContent || '').includes(subject.name));
+            if (match) match.click();
+          });
         });
         grid.appendChild(card);
       });
@@ -279,8 +246,6 @@
         if (typeof window.showSubjectScreen === 'function') window.showSubjectScreen();
         window.requestAnimationFrame(() => {
           if (typeof window.switchSubjectPage === 'function') window.switchSubjectPage(1);
-          setupBottomFlashcardHomeLayout();
-          styleFlashcardSubjectList();
         });
       });
       grid.appendChild(flashcards);
@@ -289,19 +254,6 @@
     const enabled = root.classList.contains('np-bottom-menu-enabled');
     dashboard.classList.toggle('np-home-subject-mode', enabled);
     grid.hidden = !enabled;
-
-    // Keep the legacy OFF-mode subject list hidden while the bottom-menu home is active.
-    // The home cards still open the existing semester/mode flow when selected.
-    if (enabled) {
-      const subjectList = document.getElementById('screen-subjects');
-      if (subjectList && !subjectList.classList.contains('hidden')) {
-        subjectList.classList.add('np-bottom-menu-suppressed-subject-list');
-      }
-    } else {
-      document.querySelectorAll('.np-bottom-menu-suppressed-subject-list').forEach(screen => {
-        screen.classList.remove('np-bottom-menu-suppressed-subject-list');
-      });
-    }
   }
 
   function setupHomeSubjectCardStyles() {
@@ -314,25 +266,9 @@
         box-sizing: border-box;
         box-shadow: none;
       }
-      html.np-bottom-menu-enabled #slider-page-2.np-bottom-flashcard-home-layout { gap: 12px; }
-      html.np-bottom-menu-enabled #slider-page-2.np-bottom-flashcard-home-layout #fc-step-1-subject-select { width: 100%; }
-      html.np-bottom-menu-enabled #slider-page-2.np-bottom-flashcard-home-layout #flashcard-subject-list-container {
-        display: grid !important; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; max-height: none; padding: 4px 0 12px;
-      }
-      html.np-bottom-menu-enabled #flashcard-subject-list-container > * {
-        min-width: 0; width: 100%; min-height: 88px; border-radius: 22px !important; box-sizing: border-box;
-      }
-      html.np-bottom-menu-enabled #flashcard-subject-list-container > *:not(.np-tone-mint) {
-        background: rgba(255,255,255,.96) !important; border-color: #e5e7eb !important; color: #334155 !important; box-shadow: 0 2px 8px rgba(15,23,42,.04) !important;
-      }
-      html.np-bottom-menu-enabled #flashcard-subject-list-container > *:not(.np-tone-mint) .np-home-subject-icon,
-      html.np-bottom-menu-enabled #flashcard-subject-list-container > *:not(.np-tone-mint) [class*='icon'] { color: #64748b !important; }
-      html.np-bottom-menu-enabled #np-flashcard-home-return { display: flex; grid-column: 1 / -1; width: 100%; margin-top: 4px; }
-      html.np-bottom-menu-enabled #np-flashcard-home-return[hidden] { display: none !important; }
       #np-home-subject-grid { display: none; box-sizing: border-box; }
       html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode > :not(#np-home-subject-grid) { display: none !important; }
       #np-home-subject-grid[hidden] { display: none !important; }
-      html.np-bottom-menu-enabled #screen-subjects.np-bottom-menu-suppressed-subject-list { display: none !important; }
       html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode { display: block !important; width: 100%; min-width: 0; }
       html.np-bottom-menu-enabled #np-home-subject-grid {
         display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch;
@@ -347,11 +283,6 @@
       .np-home-subject-card:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(133,112,156,.12); }
       /* Ordinary subject cards match the existing bottom-menu-OFF cards. */
       .np-home-subject-card-neutral { background: rgba(255,255,255,.96) !important; border-color: #e5e7eb !important; color: #334155 !important; --np-icon-color: currentColor; --np-text-color: #334155; box-shadow: 0 2px 8px rgba(15,23,42,.04); }
-      .np-home-subject-card-neutral { min-height: 112px; gap: 20px; padding: 20px 24px; border-color: #e4ccff !important; color: #8b6bb5 !important; border-radius: 32px; }
-      .np-home-subject-code { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 64px; min-width: 64px; height: 40px; padding: 0 10px; border: 1px solid #dfc3ff; border-radius: 13px; color: #8b6bb5; background: rgba(255,255,255,.7); font-size: 14px; font-weight: 700; box-sizing: border-box; }
-      .np-home-subject-copy { display: flex; min-width: 0; flex: 1; flex-direction: column; align-items: flex-start; gap: 5px; }
-      .np-home-subject-card-neutral .np-home-subject-name { color: #8061a9 !important; font-size: 20px; font-weight: 700; }
-      .np-home-subject-subtitle { color: #a79ab9; font-size: 14px; font-weight: 400; line-height: 1.4; }
       .np-home-subject-card-neutral .np-home-subject-icon { color: #64748b !important; filter: grayscale(1); }
       .np-home-subject-card-neutral .np-home-subject-status { color: #94a3b8 !important; }
       .np-home-subject-card-neutral:hover { background: #f8fafc !important; box-shadow: 0 4px 12px rgba(15,23,42,.07); }
@@ -366,17 +297,14 @@
       .np-home-subject-status { flex:0 0 auto; color:var(--np-icon-color); font-size:30px; line-height:1; }
       .np-home-flashcard-card { grid-column:1 / -1; width:100%; }
       @media (min-width:900px) {
-        html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns:1fr; gap:14px; }
+        html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
         .np-home-subject-card { padding:18px 22px; }
       }
       @media (max-width:899px) {
-        html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns:1fr; gap:12px; }
+        html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
       }
       @media (max-width:480px) {
         .np-home-subject-card { min-height:96px; padding:14px 12px; gap:10px; }
-        .np-home-subject-code { flex-basis:56px; min-width:56px; height:40px; font-size:12px; }
-        .np-home-subject-card-neutral .np-home-subject-name { font-size:18px; }
-        .np-home-subject-subtitle { font-size:13px; }
         .np-home-subject-icon { flex-basis:38px; width:38px; height:38px; font-size:30px; }
         .np-home-subject-name { font-size:14px; }
       }
