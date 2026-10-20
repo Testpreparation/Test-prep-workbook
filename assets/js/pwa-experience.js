@@ -60,32 +60,11 @@
         }, { once: true });
       }
 
-      const status = document.createElement('div');
-      status.id = 'np-pwa-status';
-      status.setAttribute('role', 'status');
-      status.innerHTML = '<span class="np-pwa-dot"></span><span class="np-pwa-status-text">オンライン</span>';
-      status.hidden = true;
-      status.setAttribute('aria-hidden', 'true');
-      document.body.appendChild(status);
-      const updateStatus = () => {
-        const offline = !navigator.onLine;
-        status.dataset.state = offline ? 'offline' : 'online';
-        status.querySelector('.np-pwa-status-text').textContent = offline
-          ? 'オフライン：保存済みの内容を表示中'
-          : 'オンライン';
-        status.title = offline
-          ? '一度読み込んだページ・問題データを中心に利用できます。未読込の問題や外部サービスは使えない場合があります。'
-          : '通信状態を表示しています。';
-      };
-      window.addEventListener('online', updateStatus);
-      window.addEventListener('offline', updateStatus);
       if ('serviceWorker' in navigator && location.protocol === 'https:') {
         navigator.serviceWorker.register('./service-worker.js', { scope: './' })
-          .then(() => { updateStatus(); navigator.serviceWorker.addEventListener('controllerchange', updateStatus); })
+          .then(() => {})
           .catch(error => console.warn('[Nurse＋ PWA] Service Worker registration failed:', error));
       }
-      updateStatus();
-
       let deferredInstallPrompt = null;
       const dismissedKey = 'nurse_plus_pwa_install_dismissed_v1';
       const showInstallCard = (nativePromptAvailable) => {
