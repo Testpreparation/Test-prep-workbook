@@ -1,4 +1,38 @@
 
+    // 外部演出・管理用ライブラリは必要になった時点で読み込む。
+    const npOptionalLibraryPromises = {};
+    function npLoadOptionalScript(key, src) {
+      if (npOptionalLibraryPromises[key]) return npOptionalLibraryPromises[key];
+      npOptionalLibraryPromises[key] = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = true;
+        script.onload = resolve;
+        script.onerror = () => {
+          delete npOptionalLibraryPromises[key];
+          script.remove();
+          reject(new Error('外部ライブラリを読み込めませんでした: ' + key));
+        };
+        document.head.appendChild(script);
+      });
+      return npOptionalLibraryPromises[key];
+    }
+    function npEnsureConfetti() {
+      if (typeof window.confetti === 'function') return Promise.resolve();
+      return npLoadOptionalScript('confetti', 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js');
+    }
+    function npEnsureDragula() {
+      if (typeof window.dragula === 'function') return Promise.resolve();
+      if (!document.getElementById('np-dragula-style')) {
+        const link = document.createElement('link');
+        link.id = 'np-dragula-style';
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.css';
+        document.head.appendChild(link);
+      }
+      return npLoadOptionalScript('dragula', 'https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js');
+    }
+
     // ---------------------------------------------------------
     // 看護学方法論Ⅰ (lessonData) 取得用ヘルパー関数
     // ---------------------------------------------------------
@@ -1531,15 +1565,23 @@
       }).join('');
 
       if (dragulaInstance) dragulaInstance.destroy();
-      dragulaInstance = dragula([container], {
-        moves: (el, container, handle) => handle.classList.contains('drag-handle')
-      });
-
-      dragulaInstance.on('drop', () => {
-        const newOrderIds = Array.from(container.children).map(child => child.getAttribute('data-id'));
-        subjects.sort((a, b) => newOrderIds.indexOf(a.id) - newOrderIds.indexOf(b.id));
-        saveSubjectsToStorage();
-        recordAdminOperation('科目の並び替え', '科目一覧の表示順を変更');
+      container.dataset.dragulaLoading = '1';
+      npEnsureDragula().then(() => {
+        if (!container.isConnected) return;
+        container.dataset.dragulaLoading = '0';
+        if (dragulaInstance) dragulaInstance.destroy();
+        dragulaInstance = window.dragula([container], {
+          moves: (el, container, handle) => handle.classList.contains('drag-handle')
+        });
+        dragulaInstance.on('drop', () => {
+          const newOrderIds = Array.from(container.children).map(child => child.getAttribute('data-id'));
+          subjects.sort((a, b) => newOrderIds.indexOf(a.id) - newOrderIds.indexOf(b.id));
+          saveSubjectsToStorage();
+          recordAdminOperation('科目の並び替え', '科目一覧の表示順を変更');
+        });
+      }).catch(error => {
+        container.dataset.dragulaLoading = '0';
+        console.warn('[Nurse＋] 並び替えライブラリを読み込めませんでした', error);
       });
     }
 
@@ -5000,9 +5042,11 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         if (finalAccuracy === null) return;
         if (accRate === 100) {
           evalText.textContent = "素晴らしい！満点達成です！";
-          if (typeof confetti === 'function') {
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-          }
+          npEnsureConfetti().then(() => {
+            if (typeof window.confetti === 'function') {
+              window.confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            }
+          }).catch(error => console.info('[Nurse＋] 満点演出をスキップしました', error));
           npUiSound('success');
         } else if (accRate >= 80) {
           evalText.textContent = "合格ライン達成！大変優秀です。";
