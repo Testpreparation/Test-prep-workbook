@@ -5,21 +5,29 @@
   const getToggle = () => document.getElementById('np-bottom-menu-toggle');
 
   function apply(enabled) {
-    root.classList.toggle('np-bottom-menu-enabled', enabled);
-    // Switch the dashboard's dedicated mode immediately when the setting changes,
-    // even if the user is already on the home screen.
     const dashboard = document.getElementById('screen-dashboard');
-    if (dashboard) {
-      dashboard.classList.toggle('np-bottom-menu-home', enabled);
-    }
     const bottomDashboard = document.getElementById('screen-dashboard-bottom-menu');
+    const wasOnHome = Boolean(
+      (dashboard && !dashboard.classList.contains('hidden')) ||
+      (bottomDashboard && !bottomDashboard.classList.contains('hidden'))
+    );
+
+    root.classList.toggle('np-bottom-menu-enabled', enabled);
+    if (dashboard) dashboard.classList.toggle('np-bottom-menu-home', enabled);
     if (bottomDashboard) {
       bottomDashboard.classList.toggle('hidden', !enabled);
       bottomDashboard.classList.toggle('np-bottom-menu-home', enabled);
     }
+
     const control = getToggle();
     if (control) control.checked = enabled;
     try { localStorage.setItem(KEY, String(enabled)); } catch (_) {}
+
+    // If the user is already on either home, switch to the matching version and
+    // render its subjects immediately. Startup initialization is handled below.
+    if (wasOnHome && typeof window.showDashboard === 'function') {
+      window.showDashboard();
+    }
   }
 
   function init() {
@@ -28,6 +36,12 @@
     apply(enabled);
     const control = getToggle();
     if (control) control.checked = enabled;
+
+    // A saved bottom-menu setting must select the dedicated home on first load,
+    // not leave the normal dashboard visible until the home tab is tapped.
+    if (enabled && typeof window.showDashboard === 'function') {
+      window.showDashboard();
+    }
   }
 
   // Notice-only scroll reveal and quick-return header. Defaults stay visible if JS/CSS effects fail.
