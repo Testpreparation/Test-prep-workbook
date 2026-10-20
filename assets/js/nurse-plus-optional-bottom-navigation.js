@@ -179,6 +179,12 @@
         if (typeof window.hideAllScreens === 'function') window.hideAllScreens();
         if (dashboard) dashboard.classList.remove('hidden');
       }
+      // Keep a dedicated hook for future bottom-menu-only layout refinements,
+      // without changing the normal dashboard's current markup or appearance.
+      const dashboard = document.getElementById('screen-dashboard');
+      if (dashboard) {
+        dashboard.classList.toggle('np-bottom-menu-home', root.classList.contains('np-bottom-menu-enabled'));
+      }
       return;
     }
 
