@@ -8,6 +8,15 @@
     root.classList.toggle('np-bottom-menu-enabled', enabled);
     setupHomeSubjectCardStyles();
     setupHomeSubjectCards();
+    // Re-apply after the dashboard is mounted or replaced by the existing screen renderer.
+    if (!window.__npHomeSubjectGridObserver && 'MutationObserver' in window) {
+      window.__npHomeSubjectGridObserver = new MutationObserver(() => {
+        const dashboard = document.getElementById('screen-dashboard');
+        if (dashboard && !document.getElementById('np-home-subject-grid')) setupHomeSubjectCards();
+        if (dashboard) dashboard.classList.toggle('np-home-subject-mode', root.classList.contains('np-bottom-menu-enabled'));
+      });
+      window.__npHomeSubjectGridObserver.observe(document.body || document.documentElement, { childList: true, subtree: true });
+    }
     const control = getToggle();
     if (control) control.checked = enabled;
     try { localStorage.setItem(KEY, String(enabled)); } catch (_) {}
@@ -202,6 +211,7 @@
       dashboard.insertBefore(grid, dashboard.firstChild);
     }
     dashboard.classList.toggle('np-home-subject-mode', root.classList.contains('np-bottom-menu-enabled'));
+    grid.hidden = !root.classList.contains('np-bottom-menu-enabled');
   }
 
   function setupHomeSubjectCardStyles() {
@@ -210,8 +220,9 @@
     style.id = 'np-home-subject-card-styles';
     style.textContent = `
       #np-home-subject-grid { display: none; }
+      #np-home-subject-grid[hidden] { display: none !important; }
       html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode > :not(#np-home-subject-grid) { display: none !important; }
-      html.np-bottom-menu-enabled #np-home-subject-grid {
+      html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode #np-home-subject-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 12px;
