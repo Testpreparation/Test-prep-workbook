@@ -941,6 +941,33 @@
     //  2ページ目: 暗記カード ステッピング構造・画面遷移制御
     // ---------------------------------------------------------
     
+    // 暗記カード専用データは、暗記カード一覧を開くまで読み込まない。
+    const flashcardScriptPromises = {};
+    function ensureFlashcardScript(src) {
+      if (flashcardScriptPromises[src]) return flashcardScriptPromises[src];
+      flashcardScriptPromises[src] = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = () => {
+          delete flashcardScriptPromises[src];
+          script.remove();
+          reject(new Error('暗記カードデータを読み込めませんでした: ' + src));
+        };
+        document.head.appendChild(script);
+      });
+      return flashcardScriptPromises[src];
+    }
+
+    async function ensureFlashcardDataLoaded() {
+      const sources = [
+        './科目/公衆衛生学/2026秋学期/暗記カード/flashcard_data.js',
+        './科目/生化学/暗記カード/biochemistry_flashcard_data.js',
+        './科目/栄養学/暗記カード/nutrition_flashcard_data.js'
+      ];
+      await Promise.all(sources.map(src => ensureFlashcardScript(new URL(src, document.baseURI).href)));
+    }
+
     function backToFlashcardStep(stepNum) {
       document.getElementById('fc-step-1-subject-select').classList.add('hidden');
       document.getElementById('fc-step-2-dashboard').classList.add('hidden');
@@ -956,7 +983,14 @@
         const dots = document.getElementById('subject-page-dots');
         if (dots) dots.classList.remove('hidden');
         document.getElementById('fc-step-1-subject-select').classList.remove('hidden');
-        renderFlashcardSubjectList();
+        const list = document.getElementById('flashcard-subject-list-container');
+        if (list) list.innerHTML = '<div class="text-center py-8 text-xs text-slate-500">暗記カードを読み込み中…</div>';
+        ensureFlashcardDataLoaded().then(() => {
+          renderFlashcardSubjectList();
+        }).catch(error => {
+          console.error('[Nurse＋] 暗記カードの読み込みに失敗しました', error);
+          if (list) list.innerHTML = '<div class="text-center py-8 text-xs text-rose-400">暗記カードを読み込めませんでした。通信を確認して、もう一度開いてください。</div>';
+        });
       } else if (stepNum === 2) {
         document.getElementById('fc-step-2-dashboard').classList.remove('hidden');
         updateFlashcardDashboardUI();
