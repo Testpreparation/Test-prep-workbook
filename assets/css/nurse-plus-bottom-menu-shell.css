@@ -1,0 +1,51 @@
+/* Nurse＋ bottom navigation shell only. Feature pages are added separately. */
+#np-bottom-navigation {
+  position: fixed;
+  z-index: 60;
+  left: max(12px, env(safe-area-inset-left));
+  right: max(12px, env(safe-area-inset-right));
+  bottom: max(10px, env(safe-area-inset-bottom));
+  display: none;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  padding: 9px 8px calc(9px + env(safe-area-inset-bottom));
+  border: 1px solid rgba(231, 222, 241, .9);
+  border-radius: 30px;
+  background: rgba(255, 253, 255, .92);
+  box-shadow: 0 10px 32px rgba(94, 76, 116, .14);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+html.np-bottom-menu-enabled #np-bottom-navigation { display: grid; }
+#np-bottom-navigation .np-bottom-nav-item {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 2px 5px;
+  border: 0;
+  border-radius: 18px;
+  background: transparent;
+  color: #9587a9;
+  font: 600 11px/1.25 "Noto Sans JP", sans-serif;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+#np-bottom-navigation .np-bottom-nav-item svg { width: 25px; height: 25px; }
+#np-bottom-navigation .np-bottom-nav-item[aria-current="page"] {
+  color: #ed78a7;
+}
+#np-bottom-navigation .np-bottom-nav-item:active { transform: scale(.96); }
+html.np-bottom-menu-enabled body { padding-bottom: 112px; }
+@media (min-width: 768px) {
+  #np-bottom-navigation {
+    left: 0; right: 0; bottom: 0;
+    border-radius: 28px 28px 0 0;
+    padding: 10px 7vw calc(10px + env(safe-area-inset-bottom));
+  }
+  #np-bottom-navigation .np-bottom-nav-item { font-size: 13px; gap: 4px; }
+  #np-bottom-navigation .np-bottom-nav-item svg { width: 28px; height: 28px; }
+  html.np-bottom-menu-enabled body { padding-bottom: 100px; }
+}
