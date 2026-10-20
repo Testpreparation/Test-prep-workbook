@@ -3310,7 +3310,9 @@
 
     function showDashboard(){
       hideAllScreens();
-      const el=document.getElementById('screen-dashboard'); if(el) el.classList.remove('hidden');
+      const bottomMenuEnabled = document.documentElement.classList.contains('np-bottom-menu-enabled');
+      const el = document.getElementById(bottomMenuEnabled ? 'screen-dashboard-bottom-menu' : 'screen-dashboard');
+      if(el) el.classList.remove('hidden');
       renderDashboard();
     }
     function showDataAnalysis(){
