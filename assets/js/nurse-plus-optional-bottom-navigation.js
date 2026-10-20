@@ -152,6 +152,57 @@
   }
 
 
+
+  // Bottom-menu home starts directly with the existing subject cards, while normal home stays unchanged.
+  function renderBottomMenuHome() {
+    if (!root.classList.contains('np-bottom-menu-enabled')) return;
+    const dashboard = document.getElementById('screen-dashboard');
+    const subjectList = document.getElementById('subject-list-container');
+    if (!dashboard || !subjectList) return;
+
+    // Use the app's own subject renderer so all visible subjects, status labels and handlers stay in sync.
+    if (typeof window.showSubjectScreen === 'function') {
+      window.showSubjectScreen();
+    }
+    const renderedList = document.getElementById('subject-list-container');
+    if (!renderedList) return;
+
+    let homeGrid = document.getElementById('np-bottom-home-subject-grid');
+    if (!homeGrid) {
+      homeGrid = document.createElement('div');
+      homeGrid.id = 'np-bottom-home-subject-grid';
+      homeGrid.setAttribute('aria-label', '科目一覧');
+      homeGrid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1';
+      dashboard.prepend(homeGrid);
+    }
+    homeGrid.replaceChildren(...Array.from(renderedList.children, card => card.cloneNode(true)));
+    dashboard.querySelectorAll(':scope > :not(#np-bottom-home-subject-grid)').forEach(element => {
+      element.hidden = true;
+    });
+    homeGrid.hidden = false;
+
+    // Restore the normal screen state after reusing the existing renderer.
+    const subjectsScreen = document.getElementById('screen-subjects');
+    if (subjectsScreen) subjectsScreen.classList.add('hidden');
+    dashboard.classList.remove('hidden');
+  }
+
+  function restoreBottomMenuHomeLayout() {
+    const dashboard = document.getElementById('screen-dashboard');
+    const homeGrid = document.getElementById('np-bottom-home-subject-grid');
+    if (!dashboard) return;
+    const enabled = root.classList.contains('np-bottom-menu-enabled');
+    if (homeGrid) homeGrid.hidden = !enabled;
+    dashboard.querySelectorAll(':scope > :not(#np-bottom-home-subject-grid)').forEach(element => {
+      element.hidden = enabled;
+    });
+    if (!enabled) {
+      dashboard.querySelectorAll(':scope > [hidden]').forEach(element => {
+        element.hidden = false;
+      });
+    }
+  }
+
   // Use capture phase so unrelated delegated handlers cannot swallow bottom-nav taps.
   document.addEventListener('click', event => {
     const target = event.target instanceof Element ? event.target : event.target && event.target.parentElement;
@@ -179,6 +230,12 @@
         const dashboard = document.getElementById('screen-dashboard');
         if (typeof window.hideAllScreens === 'function') window.hideAllScreens();
         if (dashboard) dashboard.classList.remove('hidden');
+      }
+      if (root.classList.contains('np-bottom-menu-enabled')) {
+        window.requestAnimationFrame(() => {
+          renderBottomMenuHome();
+          restoreBottomMenuHomeLayout();
+        });
       }
       return;
     }
