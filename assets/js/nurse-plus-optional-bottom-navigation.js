@@ -196,27 +196,10 @@
       subjects.forEach(subject => {
         const card = document.createElement('button');
         card.type = 'button';
-        card.className = 'np-home-subject-card np-tone-' + subject.tone;
-        card.innerHTML = '<span class="np-home-subject-name">' + subject.name + '</span>';
-        // Pin light-mode colors directly on generated cards to override global theme/button rules.
-        const lightPalette = {
-          pink: { background: 'linear-gradient(120deg,#fff0f6,#fcebf3)', border: '#f5dce9', text: '#8c5276' },
-          amber: { background: 'linear-gradient(120deg,#fff8ec,#fff4e6)', border: '#f4e7d3', text: '#866641' },
-          blue: { background: 'linear-gradient(120deg,#eff5ff,#edf2ff)', border: '#dce7fb', text: '#4c668f' },
-          mint: { background: 'linear-gradient(120deg,#effbf8,#eaf8f5)', border: '#d7eee8', text: '#426d70' },
-          lavender: { background: 'linear-gradient(120deg,#f8f1ff,#f4edff)', border: '#e9def7', text: '#70578e' },
-          peach: { background: 'linear-gradient(120deg,#fff2eb,#ffede5)', border: '#f7ded2', text: '#8b5a4d' }
-        };
-        const palette = lightPalette[subject.tone] || lightPalette.blue;
-        card.style.setProperty('background', palette.background, 'important');
-        card.style.setProperty('background-image', palette.background, 'important');
-        card.style.setProperty('border-color', palette.border, 'important');
-        card.style.setProperty('color', palette.text, 'important');
-        card.style.setProperty('--np-card-background', palette.background);
-        card.style.setProperty('--np-card-border', palette.border);
-        card.style.setProperty('--np-text-color', palette.text);
-        const name = card.querySelector('.np-home-subject-name');
-        if (name) name.style.setProperty('color', palette.text, 'important');
+        // Use the same base card class as the normal subject list; let the active theme
+        // (including white mode) supply its appearance instead of assigning a separate palette.
+        card.className = 'card-item w-full p-4 rounded-xl text-left flex items-center justify-between group np-home-subject-card';
+        card.innerHTML = '<span class="np-home-subject-name text-sm font-medium">' + subject.name + '</span><span class="text-slate-500 text-sm">→</span>';
         card.addEventListener('click', () => {
           if (typeof window.selectSubject === 'function') {
             window.selectSubject(subject.id);
@@ -277,76 +260,25 @@
         width: 100%;
         padding: 4px 0 12px;
       }
+      /* Subject cards deliberately inherit .card-item styles so their appearance
+         matches the regular subject list in both light and dark modes. */
       .np-home-subject-card {
         appearance: none;
         -webkit-appearance: none;
         display: flex;
         align-items: center;
-        justify-content: center;
         box-sizing: border-box;
         min-width: 0;
         width: 100%;
-        min-height: 84px;
-        padding: 1rem;
-        border: 1px solid var(--np-card-border);
-        color: var(--np-text-color) !important;
-        border-radius: 1rem;
-        box-shadow: 0 3px 10px rgba(125, 105, 145, .07);
         font: inherit;
-        text-align: center;
         cursor: pointer;
-        transition: transform .2s ease, box-shadow .2s ease;
-      }
-      .np-home-subject-card:hover:not(:disabled) {
-        background: var(--np-card-background) !important;
-        border-color: var(--np-card-border) !important;
-        color: var(--np-text-color) !important;
-        transform: translateY(-2px);
       }
       .np-home-subject-card .np-home-subject-name {
         display: block;
         min-width: 0;
-        color: var(--np-text-color) !important;
-        font-size: 1rem;
-        font-weight: 600;
-        line-height: 1.45;
         overflow-wrap: anywhere;
       }
-      .np-tone-pink { --np-card-background:linear-gradient(120deg,#fff0f6,#fcebf3); background:var(--np-card-background) !important; --np-card-border:#f5dce9; --np-text-color:#8c5276; }
-      .np-tone-amber { --np-card-background:linear-gradient(120deg,#fff8ec,#fff4e6); background:var(--np-card-background) !important; --np-card-border:#f4e7d3; --np-text-color:#866641; }
-      .np-tone-blue { --np-card-background:linear-gradient(120deg,#eff5ff,#edf2ff); background:var(--np-card-background) !important; --np-card-border:#dce7fb; --np-text-color:#4c668f; }
-      .np-tone-mint { --np-card-background:linear-gradient(120deg,#effbf8,#eaf8f5); background:var(--np-card-background) !important; --np-card-border:#d7eee8; --np-text-color:#426d70; }
-      .np-tone-lavender { --np-card-background:linear-gradient(120deg,#f8f1ff,#f4edff); background:var(--np-card-background) !important; --np-card-border:#e9def7; --np-text-color:#70578e; }
-      .np-tone-peach { --np-card-background:linear-gradient(120deg,#fff2eb,#ffede5); background:var(--np-card-background) !important; --np-card-border:#f7ded2; --np-text-color:#8b5a4d; }
-      /* Keep bottom-menu home cards in the light palette regardless of the active app theme. */
-      html.np-bottom-menu-enabled #np-home-subject-grid .np-home-subject-card.np-tone-pink {
-        background: linear-gradient(120deg,#fff0f6,#fcebf3) !important; background-image: linear-gradient(120deg,#fff0f6,#fcebf3) !important;
-        border-color: #f5dce9 !important; color: #8c5276 !important; --np-card-background: linear-gradient(120deg,#fff0f6,#fcebf3); --np-card-border:#f5dce9; --np-text-color:#8c5276;
-      }
-      html.np-bottom-menu-enabled #np-home-subject-grid .np-home-subject-card.np-tone-amber {
-        background: linear-gradient(120deg,#fff8ec,#fff4e6) !important; background-image: linear-gradient(120deg,#fff8ec,#fff4e6) !important;
-        border-color: #f4e7d3 !important; color: #866641 !important; --np-card-background: linear-gradient(120deg,#fff8ec,#fff4e6); --np-card-border:#f4e7d3; --np-text-color:#866641;
-      }
-      html.np-bottom-menu-enabled #np-home-subject-grid .np-home-subject-card.np-tone-blue {
-        background: linear-gradient(120deg,#eff5ff,#edf2ff) !important; background-image: linear-gradient(120deg,#eff5ff,#edf2ff) !important;
-        border-color: #dce7fb !important; color: #4c668f !important; --np-card-background: linear-gradient(120deg,#eff5ff,#edf2ff); --np-card-border:#dce7fb; --np-text-color:#4c668f;
-      }
-      html.np-bottom-menu-enabled #np-home-subject-grid .np-home-subject-card.np-tone-mint,
-      html.np-bottom-menu-enabled #np-home-subject-grid .np-home-flashcard-card {
-        background: linear-gradient(120deg,#effbf8,#eaf8f5) !important; background-image: linear-gradient(120deg,#effbf8,#eaf8f5) !important;
-        border-color: #d7eee8 !important; color: #426d70 !important; --np-card-background: linear-gradient(120deg,#effbf8,#eaf8f5); --np-card-border:#d7eee8; --np-text-color:#426d70;
-      }
-      html.np-bottom-menu-enabled #np-home-subject-grid .np-home-subject-card.np-tone-lavender {
-        background: linear-gradient(120deg,#f8f1ff,#f4edff) !important; background-image: linear-gradient(120deg,#f8f1ff,#f4edff) !important;
-        border-color: #e9def7 !important; color: #70578e !important; --np-card-background: linear-gradient(120deg,#f8f1ff,#f4edff); --np-card-border:#e9def7; --np-text-color:#70578e;
-      }
-      html.np-bottom-menu-enabled #np-home-subject-grid .np-home-subject-card.np-tone-peach {
-        background: linear-gradient(120deg,#fff2eb,#ffede5) !important; background-image: linear-gradient(120deg,#fff2eb,#ffede5) !important;
-        border-color: #f7ded2 !important; color: #8b5a4d !important; --np-card-background: linear-gradient(120deg,#fff2eb,#ffede5); --np-card-border:#f7ded2; --np-text-color:#8b5a4d;
-      }
-      html.np-bottom-menu-enabled #np-home-subject-grid .np-home-subject-card .np-home-subject-name {
-        color: var(--np-text-color) !important;
-      }
+      /* Do not define a separate pastel palette for subject cards. */
       .np-home-flashcard-card {
         grid-column: 1 / -1;
         width: 100%;
