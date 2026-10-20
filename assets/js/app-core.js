@@ -3695,60 +3695,154 @@
     // 問題データは科目選択後に必要なJSだけ読み込む。元のHTML記載順を維持する。
     const npSubjectSemesterDatasetManifest = {
   "psychology": {
-    "spring": [],
-    "autumn": []
+    "spring": [
+      "./科目/心理学/2026春学期/練習問題/mindbehavior2026harugakki.js",
+      "科目/心理学/2026春学期/練習問題/psychology2026harugakki.js"
+    ],
+    "autumn": [
+      "科目/心理学/2026秋学期/練習問題/mindbehavior2026akigakki.js",
+      "科目/心理学/2026秋学期/練習問題/psychology2026akigakki.js"
+    ]
   },
   "mind_behavior": {
-    "spring": [],
-    "autumn": []
+    "spring": [
+      "./科目/心理学/2026春学期/練習問題/mindbehavior2026harugakki.js",
+      "科目/心理学/2026春学期/練習問題/psychology2026harugakki.js"
+    ],
+    "autumn": [
+      "科目/心理学/2026秋学期/練習問題/mindbehavior2026akigakki.js",
+      "科目/心理学/2026秋学期/練習問題/psychology2026akigakki.js"
+    ]
   },
   "medical_intro": {
-    "spring": [],
-    "autumn": []
+    "spring": [
+      "./科目/医療概論/2026春学期/練習問題/Medicine2026harugakki.js"
+    ],
+    "autumn": [
+      "科目/医療概論/2026秋学期/練習問題/Medicine2026akigakki.js"
+    ]
   },
   "microbiology": {
-    "spring": [],
-    "autumn": []
+    "spring": [
+      "./科目/微生物学/2026春学期/練習問題/microbiology2026harugakki.js"
+    ],
+    "autumn": [
+      "科目/微生物学/2026秋学期/練習問題/microbiology2026akigakki.js"
+    ]
   },
   "physiology": {
-    "spring": [],
-    "autumn": []
+    "spring": [
+      "./科目/生理学/2026秋学期/小テスト/physiology2026akigakki_quiz.js"
+    ],
+    "autumn": [
+      "./科目/生理学/2026秋学期/小テスト/physiology2026akigakki_quiz.js"
+    ]
   },
   "anatomy": {
-    "spring": [],
-    "autumn": []
+    "spring": [
+      "./科目/解剖生理学/2026春学期/練習問題/anatomy2026harugakki.js"
+    ],
+    "autumn": [
+      "科目/解剖生理学/2026秋学期/練習問題/anatomy2026akigakki.js"
+    ]
   },
   "biochemistry": {
-    "spring": [],
-    "autumn": []
+    "spring": [
+      "科目/生化学/2026春学期/選択式/biochemistry2026harugakki.js",
+      "./科目/生化学/穴埋め式/biochemistry_fill.js"
+    ],
+    "autumn": [
+      "./科目/生化学/2026秋学期/選択式/biochemistry2026akigakki.js",
+      "./科目/生化学/穴埋め式/biochemistry_fill.js"
+    ]
   },
   "nursing_method": {
-    "spring": [],
-    "autumn": []
+    "spring": [
+      "科目/看護学方法論Ⅲ/2026春学期/練習問題/nursingmethod2026harugakki.js",
+      "科目/看護学方法論Ⅲ/2026春学期/演習問題/nursingmethod3_exercise2026harugakki.js",
+      "科目/看護学方法論Ⅲ/2026春学期/練習問題/nursingmethod3_practice2026harugakki.js",
+      "科目/看護学方法論Ⅲ/2026春学期/小テスト/nursingmethod3_quiz2026harugakki.js"
+    ],
+    "autumn": [
+      "科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod2026akigakki.js",
+      "科目/看護学方法論Ⅲ/2026秋学期/演習問題/nursingmethod3_exercise2026akigakki.js",
+      "./科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod3_practice2026akigakki.js",
+      "科目/看護学方法論Ⅲ/2026秋学期/小テスト/nursingmethod3_quiz2026akigakki.js"
+    ]
   },
   "nursing_method_3": {
-    "spring": [],
-    "autumn": []
+    "spring": [
+      "科目/看護学方法論Ⅲ/2026春学期/練習問題/nursingmethod2026harugakki.js",
+      "科目/看護学方法論Ⅲ/2026春学期/演習問題/nursingmethod3_exercise2026harugakki.js",
+      "科目/看護学方法論Ⅲ/2026春学期/練習問題/nursingmethod3_practice2026harugakki.js",
+      "科目/看護学方法論Ⅲ/2026春学期/小テスト/nursingmethod3_quiz2026harugakki.js"
+    ],
+    "autumn": [
+      "科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod2026akigakki.js",
+      "科目/看護学方法論Ⅲ/2026秋学期/演習問題/nursingmethod3_exercise2026akigakki.js",
+      "./科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod3_practice2026akigakki.js",
+      "科目/看護学方法論Ⅲ/2026秋学期/小テスト/nursingmethod3_quiz2026akigakki.js"
+    ]
   },
   "public_health_nursing": {
-    "spring": [],
-    "autumn": []
+    "spring": [
+      "科目/公衆衛生看護学概論/2026春学期/基礎問題/publichealthnursing_basic2026harugakki.js",
+      "科目/公衆衛生看護学概論/2026春学期/演習問題/publichealthnursing_exercise2026harugakki.js"
+    ],
+    "autumn": [
+      "科目/公衆衛生看護学概論/2026秋学期/基礎問題/publichealthnursing_basic2026akigakki.js",
+      "./科目/公衆衛生看護学概論/2026秋学期/演習問題/publichealthnursing_exercise2026akigakki.js"
+    ]
   },
   "public_health": {
-    "spring": [],
-    "autumn": []
+    "spring": [
+      "科目/公衆衛生学/2026春学期/演習問題/publichealth_exercise2026harugakki.js",
+      "科目/公衆衛生学/2026春学期/模擬国家試験/publichealth_national2026harugakki.js",
+      "科目/公衆衛生学/2026春学期/過去問/publichealth_past2026harugakki.js"
+    ],
+    "autumn": [
+      "./科目/公衆衛生学/2026秋学期/演習問題/publichealth_exercise2026akigakki.js",
+      "./科目/公衆衛生学/2026秋学期/模擬国家試験/publichealth_national2026akigakki.js",
+      "./科目/公衆衛生学/2026秋学期/過去問/publichealth_past2026akigakki.js"
+    ]
   },
   "nutrition": {
-    "spring": [],
-    "autumn": []
+    "spring": [
+      "科目/栄養学/2026春学期/演習問題/nutrition_exercise_2026harugakki.js",
+      "科目/栄養学/2026春学期/小テスト/nutrition_quiz_2026harugakki.js"
+    ],
+    "autumn": [
+      "./科目/栄養学/2026秋学期/演習問題/nutrition_exercise_2026akigakki.js",
+      "./科目/栄養学/2026秋学期/小テスト/nutrition_quiz_2026akigakki.js"
+    ]
   },
   "pathology": {
-    "spring": [],
-    "autumn": []
+    "spring": [
+      "./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第1回/pathology_range_2026akigakki_1.js",
+      "./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第2回/pathology_range_2026akigakki_2.js",
+      "./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第3回/pathology_range_2026akigakki_3.js",
+      "./科目/病理学/2026秋学期/演習問題/演習問題　第1回/pathology_exercise_2026akigakki_1.js",
+      "./科目/病理学/2026秋学期/演習問題/演習問題　第2回/pathology_exercise_2026akigakki_2.js",
+      "./科目/病理学/2026秋学期/演習問題/演習問題　第3回/pathology_exercise_2026akigakki_3.js"
+    ],
+    "autumn": [
+      "./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第1回/pathology_range_2026akigakki_1.js",
+      "./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第2回/pathology_range_2026akigakki_2.js",
+      "./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第3回/pathology_range_2026akigakki_3.js",
+      "./科目/病理学/2026秋学期/演習問題/演習問題　第1回/pathology_exercise_2026akigakki_1.js",
+      "./科目/病理学/2026秋学期/演習問題/演習問題　第2回/pathology_exercise_2026akigakki_2.js",
+      "./科目/病理学/2026秋学期/演習問題/演習問題　第3回/pathology_exercise_2026akigakki_3.js"
+    ]
   },
   "pharmacology": {
-    "spring": [],
-    "autumn": []
+    "spring": [
+      "科目/薬理学/2026春学期/演習問題/pharmacology_exercise2026harugakki.js",
+      "科目/薬理学/2026春学期/過去問/pharmacology_past2026harugakki.js"
+    ],
+    "autumn": [
+      "科目/薬理学/2026秋学期/演習問題/pharmacology_exercise2026akigakki.js",
+      "科目/薬理学/2026秋学期/過去問/pharmacology_past2026akigakki.js"
+    ]
   }
 };
     const npSubjectDatasetPromises = new Map();
