@@ -16,10 +16,7 @@
     try { enabled = localStorage.getItem(KEY) === '1'; } catch (_) {}
     apply(enabled);
     const control = getToggle();
-    if (control && control.dataset.bottomMenuBound !== '1') {
-      control.dataset.bottomMenuBound = '1';
-      control.addEventListener('change', () => apply(control.checked));
-    }
+    if (control) control.checked = enabled;
   }
 
   // Notice-only scroll reveal and quick-return header. Defaults stay visible if JS/CSS effects fail.
@@ -121,6 +118,26 @@
         });
       }, { passive: true });
     }
+  }
+
+  // The appearance/settings modal is created dynamically, so bind its toggle
+  // at document level instead of relying on the control existing at page load.
+  document.addEventListener('change', event => {
+    const control = event.target;
+    if (!control || control.id !== 'np-bottom-menu-toggle') return;
+    apply(Boolean(control.checked));
+  });
+
+  // Keep the toggle state synchronized if the existing settings UI is mounted later.
+  if ('MutationObserver' in window) {
+    const settingsObserver = new MutationObserver(() => {
+      const control = getToggle();
+      if (!control) return;
+      let enabled = false;
+      try { enabled = localStorage.getItem(KEY) === '1'; } catch (_) {}
+      if (control.checked !== enabled) control.checked = enabled;
+    });
+    settingsObserver.observe(document.documentElement, { childList: true, subtree: true });
   }
 
   if (document.readyState === 'loading') {
