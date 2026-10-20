@@ -3313,7 +3313,11 @@
       const bottomMenuEnabled = document.documentElement.classList.contains('np-bottom-menu-enabled');
       const el = document.getElementById(bottomMenuEnabled ? 'screen-dashboard-bottom-menu' : 'screen-dashboard');
       if(el) el.classList.remove('hidden');
-      renderDashboard();
+      if (bottomMenuEnabled) {
+        renderSubjectList();
+      } else {
+        renderDashboard();
+      }
     }
     function showDataAnalysis(){
       hideAllScreens();
@@ -3580,11 +3584,14 @@
     }
 
     function renderSubjectList() {
-      const container = document.getElementById('subject-list-container');
+      const containers = [
+        { element: document.getElementById('subject-list-container'), count: document.getElementById('subject-count-display') },
+        { element: document.getElementById('bottom-menu-subject-list-container'), count: document.getElementById('bottom-menu-subject-count') }
+      ].filter(target => target.element);
       const visibleSubjects = subjects.filter(s => s.visible !== false);
-      document.getElementById('subject-count-display').textContent = `全${visibleSubjects.length}科目`;
-
-      container.innerHTML = visibleSubjects.map(s => {
+      containers.forEach(target => {
+        if (target.count) target.count.textContent = `全${visibleSubjects.length}科目`;
+        target.element.innerHTML = visibleSubjects.map(s => {
         const isPrep = s.status === 'preparing';
         const isPhysiology = s.id === 'physiology';
         const isAnatomy = s.id === 'anatomy';
@@ -3615,7 +3622,8 @@
             </div>
           </button>
         `;
-      }).join('');
+        }).join('');
+      });
     }
 
     function selectSubject(subjectId) {
