@@ -199,13 +199,22 @@
         card.type = 'button';
         // Match the regular subject-list row structure: code badge, title/subtitle,
         // and average accuracy at the right. Do not use the old pastel subject palette.
-        card.className = 'card-item np-home-subject-card';
+        card.className = 'card-item np-home-subject-card w-full p-4 rounded-xl text-left flex items-center justify-between group';
         card.innerHTML =
-          '<span class="np-subject-code">' + subject.code + '</span>' +
-          '<span class="np-subject-copy"><span class="np-home-subject-name">' + subject.name + '</span>' +
-          '<span class="np-subject-subtitle">' + subject.subtitle + '</span></span>' +
-          '<span class="np-subject-accuracy"><span>平均正答率</span><strong>' + subject.accuracy + '</strong></span>' +
-          '<span class="np-subject-arrow" aria-hidden="true">→</span>';
+          '<div class="flex items-center gap-3">' +
+            '<span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">' + subject.code + '</span>' +
+            '<div>' +
+              '<div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">' + subject.name + '</div>' +
+              '<div class="text-[11px] text-slate-400 font-light mt-0.5">' + subject.subtitle + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="flex items-center gap-3">' +
+            '<div class="text-right">' +
+              '<div class="text-[10px] text-slate-500 font-light">平均正答率</div>' +
+              '<div class="text-xs font-mono font-semibold np-subject-accuracy-value">' + subject.accuracy + '</div>' +
+            '</div>' +
+            '<span class="text-slate-500 group-hover:text-amber-400 transition text-sm" aria-hidden="true">→</span>' +
+          '</div>';
         card.addEventListener('click', () => {
           if (typeof window.selectSubject === 'function') {
             window.selectSubject(subject.id);
@@ -266,80 +275,16 @@
         width: 100%;
         padding: 4px 0 12px;
       }
-      /* Subject cards deliberately inherit .card-item styles so their appearance
-         matches the regular subject list in both light and dark modes. */
+      /* Reuse the exact regular subject-list card styling; theme styles own its colors. */
       .np-home-subject-card {
-        appearance: none;
-        -webkit-appearance: none;
-        display: flex;
-        align-items: center;
-        gap: 12px;
         box-sizing: border-box;
-        min-width: 0;
         width: 100%;
-        min-height: 72px;
-        padding: 14px 16px;
-        border: 1px solid #eadcf8;
-        border-radius: 22px;
-        background: rgba(255,255,255,.78);
-        color: #8067a4;
-        box-shadow: 0 4px 14px rgba(116, 91, 147, .06);
+        min-width: 0;
         font: inherit;
-        text-align: left;
         cursor: pointer;
       }
-      .np-home-subject-card .np-home-subject-name {
-        display: block;
-        min-width: 0;
-        color: #8067a4;
-        font-size: 14px;
-        font-weight: 600;
-        line-height: 1.4;
-        overflow-wrap: anywhere;
-      }
-      .np-home-subject-card .np-subject-code {
-        flex: 0 0 auto;
-        min-width: 42px;
-        padding: 5px 7px;
-        border: 1px solid #dfc9fb;
-        border-radius: 9px;
-        background: #f8f2ff;
-        color: #8a70ae;
-        text-align: center;
-        font-size: 11px;
-        font-weight: 600;
-      }
-      .np-home-subject-card .np-subject-copy {
-        display: flex;
-        flex: 1 1 auto;
-        flex-direction: column;
-        min-width: 0;
-        gap: 3px;
-      }
-      .np-home-subject-card .np-subject-subtitle {
-        color: #a59ab4;
-        font-size: 11px;
-        line-height: 1.35;
-      }
-      .np-home-subject-card .np-subject-accuracy {
-        display: flex;
-        flex: 0 0 auto;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 2px;
-        color: #a59ab4;
-        font-size: 10px;
-        white-space: nowrap;
-      }
-      .np-home-subject-card .np-subject-accuracy strong {
-        color: #8067a4;
-        font-size: 11px;
-        font-weight: 700;
-      }
-      .np-home-subject-card .np-subject-arrow {
-        flex: 0 0 auto;
-        color: #8c73ad;
-        font-size: 17px;
+      .np-home-subject-card .np-subject-accuracy-value {
+        color: inherit;
       }
       /* Do not define a separate pastel palette for subject cards. */
       .np-home-flashcard-card {
@@ -349,12 +294,6 @@
         background: var(--np-card-background) !important;
         border-color: #d7eee8;
         --np-text-color: #426d70;
-      }
-      @media (max-width: 480px) {
-        html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns: minmax(0, 1fr); gap: 10px; }
-        .np-home-subject-card { padding: 12px; gap: 9px; }
-        .np-home-subject-card .np-subject-accuracy { font-size: 9px; }
-        .np-home-subject-card .np-subject-code { min-width: 38px; }
       }
       @media (prefers-reduced-motion: reduce) { .np-home-subject-card { transition: none; } }
     `;
