@@ -18,3 +18,34 @@
     #drawer-settings-accordion[open] #drawer-settings-chevron{transform:rotate(180deg)}
     @media(prefers-reduced-motion:reduce){#nav-drawer,#drawer-settings-content.drawer-settings-dropdown,#drawer-settings-chevron{transition:none!important}}
   
+
+/* Bottom settings icon: show the existing hamburger settings accordion centered. */
+#nav-drawer.np-bottom-settings-centered {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: min(440px, calc(100vw - 28px)) !important;
+  height: auto !important;
+  max-height: min(82vh, 760px) !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 101 !important;
+  border: 1px solid rgba(210, 190, 235, .65);
+  border-radius: 24px;
+  padding: 20px !important;
+  overflow-y: auto !important;
+  box-shadow: 0 24px 80px rgba(20, 12, 35, .42);
+}
+#nav-drawer.np-bottom-settings-centered #drawer-settings-accordion {
+  margin-top: 14px;
+}
+#nav-drawer.np-bottom-settings-centered #drawer-settings-content.drawer-settings-dropdown {
+  max-height: 62vh;
+  overflow-y: auto;
+  opacity: 1;
+  pointer-events: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  #nav-drawer.np-bottom-settings-centered { transition: none !important; }
+}
