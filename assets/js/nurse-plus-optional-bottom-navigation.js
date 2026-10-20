@@ -184,20 +184,20 @@
       grid.setAttribute('aria-label', '科目一覧');
       grid.className = 'np-home-subject-grid';
       const subjects = [
-        { id: 'anatomy', name: '解剖学', icon: '♧', tone: 'pink' },
-        { id: 'biochemistry', name: '生化学', icon: '⚗', tone: 'amber' },
-        { id: 'physiology', name: '生理学', icon: '♥', tone: 'blue' },
-        { id: 'public_health', name: '公衆衛生学', icon: '✿', tone: 'mint' },
-        { id: 'public_health_nursing', name: '公衆衛生看護学概論', icon: '♟', tone: 'lavender' },
-        { id: 'nutrition', name: '栄養学', icon: '🥣', tone: 'peach' },
-        { id: 'pharmacology', name: '薬理学', icon: '💊', tone: 'pink' },
-        { id: 'nursing_method_3', name: '看護学方法論Ⅲ', icon: '♧', tone: 'blue' }
+        { id: 'anatomy', code: 'ANA', name: '解剖学', icon: '♧', tone: 'pink' },
+        { id: 'biochemistry', code: 'BIO', name: '生化学', icon: '⚗', tone: 'amber' },
+        { id: 'physiology', code: 'PHY', name: '生理学', icon: '♥', tone: 'blue' },
+        { id: 'public_health', code: 'PH', name: '公衆衛生学', icon: '✿', tone: 'mint' },
+        { id: 'public_health_nursing', code: 'PHN', name: '公衆衛生看護学概論', icon: '♟', tone: 'lavender' },
+        { id: 'nutrition', code: 'NUT', name: '栄養学', icon: '🥣', tone: 'peach' },
+        { id: 'pharmacology', code: 'PHA', name: '薬理学', icon: '💊', tone: 'pink' },
+        { id: 'nursing_method_3', code: 'NUR', name: '看護学方法論Ⅲ', icon: '♧', tone: 'blue' }
       ];
       subjects.forEach(subject => {
         const card = document.createElement('button');
         card.type = 'button';
         card.className = 'np-home-subject-card card-item np-tone-' + subject.tone;
-        card.innerHTML = '<span class="np-home-subject-icon" aria-hidden="true">' + subject.icon + '</span><span class="np-home-subject-name">' + subject.name + '</span><span class="np-home-subject-status" aria-hidden="true">›</span>';
+        card.innerHTML = '<span class="np-home-subject-code" aria-hidden="true">' + subject.code + '</span><span class="np-home-subject-content"><span class="np-home-subject-name">' + subject.name + '</span><span class="np-home-subject-description">過去問・小テスト対応</span></span><span class="np-home-subject-status" aria-hidden="true">›</span>';
         card.addEventListener('click', () => {
           if (typeof window.selectSubject === 'function') {
             window.selectSubject(subject.id);
@@ -257,8 +257,11 @@
       .np-tone-mint { background: linear-gradient(120deg,#effbf8,#eaf8f5); --np-card-border:#d7eee8; --np-icon-color:#54b9ad; --np-text-color:#426d70; }
       .np-tone-lavender { background: linear-gradient(120deg,#f8f1ff,#f4edff); --np-card-border:#e9def7; --np-icon-color:#a57ad4; --np-text-color:#70578e; }
       .np-tone-peach { background: linear-gradient(120deg,#fff2eb,#ffede5); --np-card-border:#f7ded2; --np-icon-color:#e9a064; --np-text-color:#8b5a4d; }
-      .np-home-subject-icon { display:inline-flex; align-items:center; justify-content:center; flex:0 0 48px; width:48px; height:48px; color:var(--np-icon-color); font-size:38px; font-weight:700; line-height:1; }
-      .np-home-subject-name { min-width: 0; flex: 1; font-size: 16px; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; color: var(--np-text-color); }
+      .np-home-subject-icon { display:none; }
+      .np-home-subject-code { display:inline-flex; align-items:center; justify-content:center; flex:0 0 48px; width:48px; min-height:48px; color:var(--np-icon-color); font-size:16px; font-weight:700; line-height:1; }
+      .np-home-subject-content { min-width:0; flex:1; display:flex; flex-direction:column; align-items:flex-start; gap:4px; }
+      .np-home-subject-name { min-width: 0; font-size: 16px; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; color: var(--np-text-color); }
+      .np-home-subject-description { font-size:12px; line-height:1.4; color:var(--np-text-color); opacity:.78; }
       .np-home-subject-status { flex: 0 0 auto; color: var(--np-icon-color); font-size: 30px; line-height: 1; }
       .np-home-flashcard-card { grid-column: 1 / -1; width: 100%; }
       @media (min-width: 900px) {
