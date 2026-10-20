@@ -198,6 +198,26 @@
         card.type = 'button';
         card.className = 'np-home-subject-card np-tone-' + subject.tone;
         card.innerHTML = '<span class="np-home-subject-name">' + subject.name + '</span>';
+        // Apply the light-mode palette directly to these generated cards so global
+        // theme/button rules cannot replace every subject card with the same gradient.
+        const lightPalette = {
+          pink: { background: 'linear-gradient(120deg,#fff0f6,#fcebf3)', border: '#f5dce9', text: '#8c5276' },
+          amber: { background: 'linear-gradient(120deg,#fff8ec,#fff4e6)', border: '#f4e7d3', text: '#866641' },
+          blue: { background: 'linear-gradient(120deg,#eff5ff,#edf2ff)', border: '#dce7fb', text: '#4c668f' },
+          mint: { background: 'linear-gradient(120deg,#effbf8,#eaf8f5)', border: '#d7eee8', text: '#426d70' },
+          lavender: { background: 'linear-gradient(120deg,#f8f1ff,#f4edff)', border: '#e9def7', text: '#70578e' },
+          peach: { background: 'linear-gradient(120deg,#fff2eb,#ffede5)', border: '#f7ded2', text: '#8b5a4d' }
+        };
+        const palette = lightPalette[subject.tone] || lightPalette.blue;
+        card.style.setProperty('background', palette.background, 'important');
+        card.style.setProperty('background-image', palette.background, 'important');
+        card.style.setProperty('border-color', palette.border, 'important');
+        card.style.setProperty('color', palette.text, 'important');
+        card.style.setProperty('--np-card-background', palette.background);
+        card.style.setProperty('--np-card-border', palette.border);
+        card.style.setProperty('--np-text-color', palette.text);
+        const name = card.querySelector('.np-home-subject-name');
+        if (name) name.style.setProperty('color', palette.text, 'important');
         card.addEventListener('click', () => {
           if (typeof window.selectSubject === 'function') {
             window.selectSubject(subject.id);
@@ -211,6 +231,16 @@
       flashcards.type = 'button';
       flashcards.className = 'np-home-subject-card np-home-flashcard-card';
       flashcards.innerHTML = '<span class="np-home-subject-name">暗記カード</span>';
+      const mintPalette = { background: 'linear-gradient(120deg,#effbf8,#eaf8f5)', border: '#d7eee8', text: '#426d70' };
+      flashcards.style.setProperty('background', mintPalette.background, 'important');
+      flashcards.style.setProperty('background-image', mintPalette.background, 'important');
+      flashcards.style.setProperty('border-color', mintPalette.border, 'important');
+      flashcards.style.setProperty('color', mintPalette.text, 'important');
+      flashcards.style.setProperty('--np-card-background', mintPalette.background);
+      flashcards.style.setProperty('--np-card-border', mintPalette.border);
+      flashcards.style.setProperty('--np-text-color', mintPalette.text);
+      const flashcardName = flashcards.querySelector('.np-home-subject-name');
+      if (flashcardName) flashcardName.style.setProperty('color', mintPalette.text, 'important');
       flashcards.addEventListener('click', () => {
         if (typeof window.showSubjectScreen === 'function') window.showSubjectScreen();
         window.requestAnimationFrame(() => {
