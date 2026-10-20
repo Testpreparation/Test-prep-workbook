@@ -8,12 +8,12 @@
     root.classList.toggle('np-bottom-menu-enabled', enabled);
     const control = getToggle();
     if (control) control.checked = enabled;
-    try { localStorage.setItem(KEY, enabled ? '1' : '0'); } catch (_) {}
+    try { localStorage.setItem(KEY, String(enabled)); } catch (_) {}
   }
 
   function init() {
     let enabled = false;
-    try { enabled = localStorage.getItem(KEY) === '1'; } catch (_) {}
+    try { enabled = localStorage.getItem(KEY) === 'true' || localStorage.getItem(KEY) === '1'; } catch (_) {}
     apply(enabled);
     const control = getToggle();
     if (control) control.checked = enabled;
@@ -139,7 +139,7 @@
       const control = getToggle();
       if (!control) return;
       let enabled = false;
-      try { enabled = localStorage.getItem(KEY) === '1'; } catch (_) {}
+      try { enabled = localStorage.getItem(KEY) === 'true' || localStorage.getItem(KEY) === '1'; } catch (_) {}
       if (control.checked !== enabled) control.checked = enabled;
     });
     settingsObserver.observe(document.documentElement, { childList: true, subtree: true });
@@ -151,38 +151,53 @@
     init();
   }
 
+  // Use capture phase so unrelated delegated handlers cannot swallow bottom-nav taps.
   document.addEventListener('click', event => {
-    const button = event.target.closest('#np-bottom-navigation [data-np-bottom-nav]');
+    const target = event.target instanceof Element ? event.target : event.target && event.target.parentElement;
+    const button = target && target.closest('#np-bottom-navigation [data-np-bottom-nav]');
     if (!button) return;
 
-    document.querySelectorAll('#np-bottom-navigation [data-np-bottom-nav]').forEach(item => item.removeAttribute('aria-current'));
+    event.preventDefault();
+    const destination = button.dataset.npBottomNav;
+    document.querySelectorAll('#np-bottom-navigation [data-np-bottom-nav]').forEach(item => {
+      item.removeAttribute('aria-current');
+    });
     button.setAttribute('aria-current', 'page');
 
-    const destination = button.dataset.npBottomNav;
     const noticeModal = document.getElementById('modal-notice');
     if (destination !== 'notices' && noticeModal && !noticeModal.classList.contains('hidden')) {
-      if (typeof window.closeNoticeModal === 'function') {
-        window.closeNoticeModal();
-      } else {
-        noticeModal.classList.add('hidden');
-      }
+      if (typeof window.closeNoticeModal === 'function') window.closeNoticeModal();
+      else noticeModal.classList.add('hidden');
       noticeModal.classList.remove('np-bottom-notice-mode');
     }
+
     if (destination === 'home') {
       if (typeof window.showDashboard === 'function') {
         window.showDashboard();
       } else {
-        console.warn('[Nurse＋] 既存のホーム画面を開く関数が見つかりません。');
+        const dashboard = document.getElementById('screen-dashboard');
+        if (typeof window.hideAllScreens === 'function') window.hideAllScreens();
+        if (dashboard) dashboard.classList.remove('hidden');
       }
-    } else if (destination === 'analytics') {
+      return;
+    }
+
+    if (destination === 'analytics') {
       if (typeof window.showDataAnalysis === 'function') {
         window.showDataAnalysis();
+      } else if (window.NursePlusAnalyticsAddition && typeof window.NursePlusAnalyticsAddition.open === 'function') {
+        window.NursePlusAnalyticsAddition.open();
       } else {
-        console.warn('[Nurse＋] 既存のデータ分析画面を開く関数が見つかりません。');
+        const host = document.getElementById('screen-data-analysis');
+        const analyticsPanel = document.getElementById('screen-analytics-addition');
+        if (typeof window.hideAllScreens === 'function') window.hideAllScreens();
+        if (host) host.classList.remove('hidden');
+        if (analyticsPanel) analyticsPanel.classList.remove('hidden');
       }
-    } else if (destination === 'settings') {
-      // Prefer the existing settings handler, but open the existing modal directly
-      // if that handler is not exposed on window.
+      return;
+    }
+
+    if (destination === 'settings') {
       if (typeof window.openUserSettings === 'function') {
         window.openUserSettings();
       } else {
@@ -197,18 +212,24 @@
           console.warn('[Nurse＋] 設定画面の要素が見つかりません。');
         }
       }
-    } else if (destination === 'notices') {
+      return;
+    }
+
+    if (destination === 'notices') {
       if (typeof window.openNoticeModal === 'function') {
         window.openNoticeModal();
-        const noticeModal = document.getElementById('modal-notice');
-        if (noticeModal) noticeModal.classList.add('np-bottom-notice-mode');
-        window.requestAnimationFrame(initNoticeEffects);
+      } else if (noticeModal) {
+        noticeModal.classList.remove('hidden');
+        noticeModal.setAttribute('aria-hidden', 'false');
       } else {
-        console.warn('[Nurse＋] 既存のお知らせ画面を開く関数が見つかりません。');
+        console.warn('[Nurse＋] お知らせ画面の要素が見つかりません。');
+        return;
       }
+      const openedNoticeModal = document.getElementById('modal-notice');
+      if (openedNoticeModal) openedNoticeModal.classList.add('np-bottom-notice-mode');
+      window.requestAnimationFrame(initNoticeEffects);
     }
-  });
-
+  }, true);
   // Also initialize when the existing top-level notification button opens the modal.
   document.addEventListener('click', event => {
     if (event.target.closest('[onclick*="openNoticeModal"]')) {
