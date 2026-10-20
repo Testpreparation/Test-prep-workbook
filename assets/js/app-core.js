@@ -3610,7 +3610,7 @@
               <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">${s.code}</span>
               <div>
                 <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">${s.name}</div>
-                ${target.element.id === 'bottom-menu-subject-list-container' ? '' : `<div class="text-[11px] ${isPrep ? \'text-amber-500/80 font-semibold\' : \'text-slate-400 font-light\'} mt-0.5">${statusLabel}</div>`}
+                ${target.element.id === 'bottom-menu-subject-list-container' ? '' : `<div class="text-[11px] ${isPrep ?  'text-amber-500/80 font-semibold' : 'text-slate-400 font-light'} mt-0.5">${statusLabel}</div>`}
               </div>
             </div>
             <div class="flex items-center gap-3">
