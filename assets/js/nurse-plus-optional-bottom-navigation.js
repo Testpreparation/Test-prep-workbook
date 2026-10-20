@@ -6,6 +6,12 @@
 
   function apply(enabled) {
     root.classList.toggle('np-bottom-menu-enabled', enabled);
+    // Switch the dashboard's dedicated mode immediately when the setting changes,
+    // even if the user is already on the home screen.
+    const dashboard = document.getElementById('screen-dashboard');
+    if (dashboard) {
+      dashboard.classList.toggle('np-bottom-menu-home', enabled);
+    }
     const control = getToggle();
     if (control) control.checked = enabled;
     try { localStorage.setItem(KEY, String(enabled)); } catch (_) {}
