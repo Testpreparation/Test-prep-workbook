@@ -285,6 +285,35 @@
       .np-tone-mint { --np-card-background:linear-gradient(120deg,#effbf8,#eaf8f5); background:var(--np-card-background) !important; --np-card-border:#d7eee8; --np-text-color:#426d70; }
       .np-tone-lavender { --np-card-background:linear-gradient(120deg,#f8f1ff,#f4edff); background:var(--np-card-background) !important; --np-card-border:#e9def7; --np-text-color:#70578e; }
       .np-tone-peach { --np-card-background:linear-gradient(120deg,#fff2eb,#ffede5); background:var(--np-card-background) !important; --np-card-border:#f7ded2; --np-text-color:#8b5a4d; }
+      /* Keep bottom-menu home cards in the light palette regardless of the active app theme. */
+      html.np-bottom-menu-enabled #np-home-subject-grid .np-home-subject-card.np-tone-pink {
+        background: linear-gradient(120deg,#fff0f6,#fcebf3) !important; background-image: linear-gradient(120deg,#fff0f6,#fcebf3) !important;
+        border-color: #f5dce9 !important; color: #8c5276 !important; --np-card-background: linear-gradient(120deg,#fff0f6,#fcebf3); --np-card-border:#f5dce9; --np-text-color:#8c5276;
+      }
+      html.np-bottom-menu-enabled #np-home-subject-grid .np-home-subject-card.np-tone-amber {
+        background: linear-gradient(120deg,#fff8ec,#fff4e6) !important; background-image: linear-gradient(120deg,#fff8ec,#fff4e6) !important;
+        border-color: #f4e7d3 !important; color: #866641 !important; --np-card-background: linear-gradient(120deg,#fff8ec,#fff4e6); --np-card-border:#f4e7d3; --np-text-color:#866641;
+      }
+      html.np-bottom-menu-enabled #np-home-subject-grid .np-home-subject-card.np-tone-blue {
+        background: linear-gradient(120deg,#eff5ff,#edf2ff) !important; background-image: linear-gradient(120deg,#eff5ff,#edf2ff) !important;
+        border-color: #dce7fb !important; color: #4c668f !important; --np-card-background: linear-gradient(120deg,#eff5ff,#edf2ff); --np-card-border:#dce7fb; --np-text-color:#4c668f;
+      }
+      html.np-bottom-menu-enabled #np-home-subject-grid .np-home-subject-card.np-tone-mint,
+      html.np-bottom-menu-enabled #np-home-subject-grid .np-home-flashcard-card {
+        background: linear-gradient(120deg,#effbf8,#eaf8f5) !important; background-image: linear-gradient(120deg,#effbf8,#eaf8f5) !important;
+        border-color: #d7eee8 !important; color: #426d70 !important; --np-card-background: linear-gradient(120deg,#effbf8,#eaf8f5); --np-card-border:#d7eee8; --np-text-color:#426d70;
+      }
+      html.np-bottom-menu-enabled #np-home-subject-grid .np-home-subject-card.np-tone-lavender {
+        background: linear-gradient(120deg,#f8f1ff,#f4edff) !important; background-image: linear-gradient(120deg,#f8f1ff,#f4edff) !important;
+        border-color: #e9def7 !important; color: #70578e !important; --np-card-background: linear-gradient(120deg,#f8f1ff,#f4edff); --np-card-border:#e9def7; --np-text-color:#70578e;
+      }
+      html.np-bottom-menu-enabled #np-home-subject-grid .np-home-subject-card.np-tone-peach {
+        background: linear-gradient(120deg,#fff2eb,#ffede5) !important; background-image: linear-gradient(120deg,#fff2eb,#ffede5) !important;
+        border-color: #f7ded2 !important; color: #8b5a4d !important; --np-card-background: linear-gradient(120deg,#fff2eb,#ffede5); --np-card-border:#f7ded2; --np-text-color:#8b5a4d;
+      }
+      html.np-bottom-menu-enabled #np-home-subject-grid .np-home-subject-card .np-home-subject-name {
+        color: var(--np-text-color) !important;
+      }
       .np-home-flashcard-card {
         grid-column: 1 / -1;
         width: 100%;
