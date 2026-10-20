@@ -1,38 +1,4 @@
 
-    // 外部演出・管理用ライブラリは必要になった時点で読み込む。
-    const npOptionalLibraryPromises = {};
-    function npLoadOptionalScript(key, src) {
-      if (npOptionalLibraryPromises[key]) return npOptionalLibraryPromises[key];
-      npOptionalLibraryPromises[key] = new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = src;
-        script.async = true;
-        script.onload = resolve;
-        script.onerror = () => {
-          delete npOptionalLibraryPromises[key];
-          script.remove();
-          reject(new Error('外部ライブラリを読み込めませんでした: ' + key));
-        };
-        document.head.appendChild(script);
-      });
-      return npOptionalLibraryPromises[key];
-    }
-    function npEnsureConfetti() {
-      if (typeof window.confetti === 'function') return Promise.resolve();
-      return npLoadOptionalScript('confetti', 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js');
-    }
-    function npEnsureDragula() {
-      if (typeof window.dragula === 'function') return Promise.resolve();
-      if (!document.getElementById('np-dragula-style')) {
-        const link = document.createElement('link');
-        link.id = 'np-dragula-style';
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.css';
-        document.head.appendChild(link);
-      }
-      return npLoadOptionalScript('dragula', 'https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js');
-    }
-
     // ---------------------------------------------------------
     // 看護学方法論Ⅰ (lessonData) 取得用ヘルパー関数
     // ---------------------------------------------------------
@@ -975,33 +941,6 @@
     //  2ページ目: 暗記カード ステッピング構造・画面遷移制御
     // ---------------------------------------------------------
     
-    // 暗記カード専用データは、暗記カード一覧を開くまで読み込まない。
-    const flashcardScriptPromises = {};
-    function ensureFlashcardScript(src) {
-      if (flashcardScriptPromises[src]) return flashcardScriptPromises[src];
-      flashcardScriptPromises[src] = new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = src;
-        script.onload = resolve;
-        script.onerror = () => {
-          delete flashcardScriptPromises[src];
-          script.remove();
-          reject(new Error('暗記カードデータを読み込めませんでした: ' + src));
-        };
-        document.head.appendChild(script);
-      });
-      return flashcardScriptPromises[src];
-    }
-
-    async function ensureFlashcardDataLoaded() {
-      const sources = [
-        './科目/公衆衛生学/2026秋学期/暗記カード/flashcard_data.js',
-        './科目/生化学/暗記カード/biochemistry_flashcard_data.js',
-        './科目/栄養学/暗記カード/nutrition_flashcard_data.js'
-      ];
-      await Promise.all(sources.map(src => ensureFlashcardScript(new URL(src, document.baseURI).href)));
-    }
-
     function backToFlashcardStep(stepNum) {
       document.getElementById('fc-step-1-subject-select').classList.add('hidden');
       document.getElementById('fc-step-2-dashboard').classList.add('hidden');
@@ -1017,14 +956,7 @@
         const dots = document.getElementById('subject-page-dots');
         if (dots) dots.classList.remove('hidden');
         document.getElementById('fc-step-1-subject-select').classList.remove('hidden');
-        const list = document.getElementById('flashcard-subject-list-container');
-        if (list) list.innerHTML = '<div class="text-center py-8 text-xs text-slate-500">暗記カードを読み込み中…</div>';
-        ensureFlashcardDataLoaded().then(() => {
-          renderFlashcardSubjectList();
-        }).catch(error => {
-          console.error('[Nurse＋] 暗記カードの読み込みに失敗しました', error);
-          if (list) list.innerHTML = '<div class="text-center py-8 text-xs text-rose-400">暗記カードを読み込めませんでした。通信を確認して、もう一度開いてください。</div>';
-        });
+        renderFlashcardSubjectList();
       } else if (stepNum === 2) {
         document.getElementById('fc-step-2-dashboard').classList.remove('hidden');
         updateFlashcardDashboardUI();
@@ -1565,23 +1497,15 @@
       }).join('');
 
       if (dragulaInstance) dragulaInstance.destroy();
-      container.dataset.dragulaLoading = '1';
-      npEnsureDragula().then(() => {
-        if (!container.isConnected) return;
-        container.dataset.dragulaLoading = '0';
-        if (dragulaInstance) dragulaInstance.destroy();
-        dragulaInstance = window.dragula([container], {
-          moves: (el, container, handle) => handle.classList.contains('drag-handle')
-        });
-        dragulaInstance.on('drop', () => {
-          const newOrderIds = Array.from(container.children).map(child => child.getAttribute('data-id'));
-          subjects.sort((a, b) => newOrderIds.indexOf(a.id) - newOrderIds.indexOf(b.id));
-          saveSubjectsToStorage();
-          recordAdminOperation('科目の並び替え', '科目一覧の表示順を変更');
-        });
-      }).catch(error => {
-        container.dataset.dragulaLoading = '0';
-        console.warn('[Nurse＋] 並び替えライブラリを読み込めませんでした', error);
+      dragulaInstance = dragula([container], {
+        moves: (el, container, handle) => handle.classList.contains('drag-handle')
+      });
+
+      dragulaInstance.on('drop', () => {
+        const newOrderIds = Array.from(container.children).map(child => child.getAttribute('data-id'));
+        subjects.sort((a, b) => newOrderIds.indexOf(a.id) - newOrderIds.indexOf(b.id));
+        saveSubjectsToStorage();
+        recordAdminOperation('科目の並び替え', '科目一覧の表示順を変更');
       });
     }
 
@@ -3692,187 +3616,10 @@
       }).join('');
     }
 
-    // 問題データは科目選択後に必要なJSだけ読み込む。元のHTML記載順を維持する。
-    const npSubjectSemesterDatasetManifest = {
-  "psychology": {
-    "spring": [
-      "./科目/心理学/2026春学期/練習問題/mindbehavior2026harugakki.js",
-      "科目/心理学/2026春学期/練習問題/psychology2026harugakki.js"
-    ],
-    "autumn": [
-      "科目/心理学/2026秋学期/練習問題/mindbehavior2026akigakki.js",
-      "科目/心理学/2026秋学期/練習問題/psychology2026akigakki.js"
-    ]
-  },
-  "mind_behavior": {
-    "spring": [
-      "./科目/心理学/2026春学期/練習問題/mindbehavior2026harugakki.js",
-      "科目/心理学/2026春学期/練習問題/psychology2026harugakki.js"
-    ],
-    "autumn": [
-      "科目/心理学/2026秋学期/練習問題/mindbehavior2026akigakki.js",
-      "科目/心理学/2026秋学期/練習問題/psychology2026akigakki.js"
-    ]
-  },
-  "medical_intro": {
-    "spring": [
-      "./科目/医療概論/2026春学期/練習問題/Medicine2026harugakki.js"
-    ],
-    "autumn": [
-      "科目/医療概論/2026秋学期/練習問題/Medicine2026akigakki.js"
-    ]
-  },
-  "microbiology": {
-    "spring": [
-      "./科目/微生物学/2026春学期/練習問題/microbiology2026harugakki.js"
-    ],
-    "autumn": [
-      "科目/微生物学/2026秋学期/練習問題/microbiology2026akigakki.js"
-    ]
-  },
-  "physiology": {
-    "spring": [
-      "./科目/生理学/2026秋学期/小テスト/physiology2026akigakki_quiz.js"
-    ],
-    "autumn": [
-      "./科目/生理学/2026秋学期/小テスト/physiology2026akigakki_quiz.js"
-    ]
-  },
-  "anatomy": {
-    "spring": [
-      "./科目/解剖生理学/2026春学期/練習問題/anatomy2026harugakki.js"
-    ],
-    "autumn": [
-      "科目/解剖生理学/2026秋学期/練習問題/anatomy2026akigakki.js"
-    ]
-  },
-  "biochemistry": {
-    "spring": [
-      "科目/生化学/2026春学期/選択式/biochemistry2026harugakki.js",
-      "./科目/生化学/穴埋め式/biochemistry_fill.js"
-    ],
-    "autumn": [
-      "./科目/生化学/2026秋学期/選択式/biochemistry2026akigakki.js",
-      "./科目/生化学/穴埋め式/biochemistry_fill.js"
-    ]
-  },
-  "nursing_method": {
-    "spring": [
-      "科目/看護学方法論Ⅲ/2026春学期/練習問題/nursingmethod2026harugakki.js",
-      "科目/看護学方法論Ⅲ/2026春学期/演習問題/nursingmethod3_exercise2026harugakki.js",
-      "科目/看護学方法論Ⅲ/2026春学期/練習問題/nursingmethod3_practice2026harugakki.js",
-      "科目/看護学方法論Ⅲ/2026春学期/小テスト/nursingmethod3_quiz2026harugakki.js"
-    ],
-    "autumn": [
-      "科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod2026akigakki.js",
-      "科目/看護学方法論Ⅲ/2026秋学期/演習問題/nursingmethod3_exercise2026akigakki.js",
-      "./科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod3_practice2026akigakki.js",
-      "科目/看護学方法論Ⅲ/2026秋学期/小テスト/nursingmethod3_quiz2026akigakki.js"
-    ]
-  },
-  "nursing_method_3": {
-    "spring": [
-      "科目/看護学方法論Ⅲ/2026春学期/練習問題/nursingmethod2026harugakki.js",
-      "科目/看護学方法論Ⅲ/2026春学期/演習問題/nursingmethod3_exercise2026harugakki.js",
-      "科目/看護学方法論Ⅲ/2026春学期/練習問題/nursingmethod3_practice2026harugakki.js",
-      "科目/看護学方法論Ⅲ/2026春学期/小テスト/nursingmethod3_quiz2026harugakki.js"
-    ],
-    "autumn": [
-      "科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod2026akigakki.js",
-      "科目/看護学方法論Ⅲ/2026秋学期/演習問題/nursingmethod3_exercise2026akigakki.js",
-      "./科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod3_practice2026akigakki.js",
-      "科目/看護学方法論Ⅲ/2026秋学期/小テスト/nursingmethod3_quiz2026akigakki.js"
-    ]
-  },
-  "public_health_nursing": {
-    "spring": [
-      "科目/公衆衛生看護学概論/2026春学期/基礎問題/publichealthnursing_basic2026harugakki.js",
-      "科目/公衆衛生看護学概論/2026春学期/演習問題/publichealthnursing_exercise2026harugakki.js"
-    ],
-    "autumn": [
-      "科目/公衆衛生看護学概論/2026秋学期/基礎問題/publichealthnursing_basic2026akigakki.js",
-      "./科目/公衆衛生看護学概論/2026秋学期/演習問題/publichealthnursing_exercise2026akigakki.js"
-    ]
-  },
-  "public_health": {
-    "spring": [
-      "科目/公衆衛生学/2026春学期/演習問題/publichealth_exercise2026harugakki.js",
-      "科目/公衆衛生学/2026春学期/模擬国家試験/publichealth_national2026harugakki.js",
-      "科目/公衆衛生学/2026春学期/過去問/publichealth_past2026harugakki.js"
-    ],
-    "autumn": [
-      "./科目/公衆衛生学/2026秋学期/演習問題/publichealth_exercise2026akigakki.js",
-      "./科目/公衆衛生学/2026秋学期/模擬国家試験/publichealth_national2026akigakki.js",
-      "./科目/公衆衛生学/2026秋学期/過去問/publichealth_past2026akigakki.js"
-    ]
-  },
-  "nutrition": {
-    "spring": [
-      "科目/栄養学/2026春学期/演習問題/nutrition_exercise_2026harugakki.js",
-      "科目/栄養学/2026春学期/小テスト/nutrition_quiz_2026harugakki.js"
-    ],
-    "autumn": [
-      "./科目/栄養学/2026秋学期/演習問題/nutrition_exercise_2026akigakki.js",
-      "./科目/栄養学/2026秋学期/小テスト/nutrition_quiz_2026akigakki.js"
-    ]
-  },
-  "pathology": {
-    "spring": [
-      "./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第1回/pathology_range_2026akigakki_1.js",
-      "./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第2回/pathology_range_2026akigakki_2.js",
-      "./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第3回/pathology_range_2026akigakki_3.js",
-      "./科目/病理学/2026秋学期/演習問題/演習問題　第1回/pathology_exercise_2026akigakki_1.js",
-      "./科目/病理学/2026秋学期/演習問題/演習問題　第2回/pathology_exercise_2026akigakki_2.js",
-      "./科目/病理学/2026秋学期/演習問題/演習問題　第3回/pathology_exercise_2026akigakki_3.js"
-    ],
-    "autumn": [
-      "./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第1回/pathology_range_2026akigakki_1.js",
-      "./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第2回/pathology_range_2026akigakki_2.js",
-      "./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第3回/pathology_range_2026akigakki_3.js",
-      "./科目/病理学/2026秋学期/演習問題/演習問題　第1回/pathology_exercise_2026akigakki_1.js",
-      "./科目/病理学/2026秋学期/演習問題/演習問題　第2回/pathology_exercise_2026akigakki_2.js",
-      "./科目/病理学/2026秋学期/演習問題/演習問題　第3回/pathology_exercise_2026akigakki_3.js"
-    ]
-  },
-  "pharmacology": {
-    "spring": [
-      "科目/薬理学/2026春学期/演習問題/pharmacology_exercise2026harugakki.js",
-      "科目/薬理学/2026春学期/過去問/pharmacology_past2026harugakki.js"
-    ],
-    "autumn": [
-      "科目/薬理学/2026秋学期/演習問題/pharmacology_exercise2026akigakki.js",
-      "科目/薬理学/2026秋学期/過去問/pharmacology_past2026akigakki.js"
-    ]
-  }
-};
-    const npSubjectDatasetPromises = new Map();
-    function npLoadSubjectDatasetScript(src) {
-      const absoluteSrc = new URL(src, document.baseURI).href;
-      if (npSubjectDatasetPromises.has(absoluteSrc)) return npSubjectDatasetPromises.get(absoluteSrc);
-      const promise = new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = src;
-        script.async = false;
-        script.onload = () => resolve();
-        script.onerror = () => {
-          script.remove();
-          npSubjectDatasetPromises.delete(absoluteSrc);
-          reject(new Error('問題データを読み込めませんでした: ' + src));
-        };
-        document.head.appendChild(script);
-      });
-      npSubjectDatasetPromises.set(absoluteSrc, promise);
-      return promise;
-    }
-    async function npEnsureSubjectDatasetsLoaded(subjectId, semester) {
-      const subjectManifest = npSubjectSemesterDatasetManifest[subjectId] || {};
-      const paths = subjectManifest[semester] || [];
-      for (const path of paths) await npLoadSubjectDatasetScript(path);
-    }
-
     function selectSubject(subjectId) {
       currentSubject = subjects.find(s => s.id === subjectId);
       if (!currentSubject || currentSubject.status === 'preparing') return;
+
       showSemesterSelectionScreen();
     }
 
@@ -3899,18 +3646,8 @@
       }
     }
 
-    async function selectSemester(semester) {
+    function selectSemester(semester) {
       currentSemester = semester;
-      window.NursePlusStudyLoading?.show();
-      try {
-        await npEnsureSubjectDatasetsLoaded(currentSubject.id, semester);
-      } catch (error) {
-        console.error('[Nurse＋] 学期別データの読み込みに失敗:', error);
-        window.NursePlusStudyLoading?.hide();
-        alert('問題データを読み込めませんでした。通信状態を確認して、もう一度学期を選択してください。');
-        return;
-      }
-      window.NursePlusStudyLoading?.hide();
 
       if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) {
         showPhysiologyModeSelectionScreen();
@@ -4030,44 +3767,9 @@
       updateStudyBreadcrumb();
     }
 
-    // 薬理学の看護師国家試験過去6年分は、該当モードを選択した場合だけ読み込む。
-    let pharmacologyNationalDatasetPromise = null;
-    function ensurePharmacologyNationalDatasetLoaded() {
-      if (window.QUIZ_DB?.pharmacology_nurse_national_6years?.length) return Promise.resolve();
-      if (pharmacologyNationalDatasetPromise) return pharmacologyNationalDatasetPromise;
-      pharmacologyNationalDatasetPromise = new Promise((resolve, reject) => {
-        const src = './科目/薬理学/看護師国家試験過去6年/pharmacology_nurse_national_6years.js';
-        const script = document.createElement('script');
-        script.src = src;
-        script.async = true;
-        script.onload = () => {
-          if (window.QUIZ_DB?.pharmacology_nurse_national_6years?.length) resolve();
-          else reject(new Error('薬理学の過去6年分データが登録されていません'));
-        };
-        script.onerror = () => reject(new Error('薬理学の過去6年分データを読み込めませんでした'));
-        document.head.appendChild(script);
-      }).catch(error => {
-        pharmacologyNationalDatasetPromise = null;
-        throw error;
-      });
-      return pharmacologyNationalDatasetPromise;
-    }
-
-    async function selectPharmacologyMode(mode) {
+    function selectPharmacologyMode(mode) {
       currentPharmacologyMode = mode;
       currentRound = null;
-      if (mode === 'nurse_national_6years') {
-        window.NursePlusStudyLoading?.show();
-        try {
-          await ensurePharmacologyNationalDatasetLoaded();
-        } catch (error) {
-          console.error('[Nurse＋] 薬理学データの読み込みに失敗:', error);
-          window.NursePlusStudyLoading?.hide();
-          alert('薬理学の過去6年分の問題を読み込めませんでした。通信状態を確認して、もう一度お試しください。');
-          return;
-        }
-        window.NursePlusStudyLoading?.hide();
-      }
       showStartScreen();
     }
 
@@ -5264,11 +4966,9 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         if (finalAccuracy === null) return;
         if (accRate === 100) {
           evalText.textContent = "素晴らしい！満点達成です！";
-          npEnsureConfetti().then(() => {
-            if (typeof window.confetti === 'function') {
-              window.confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-            }
-          }).catch(error => console.info('[Nurse＋] 満点演出をスキップしました', error));
+          if (typeof confetti === 'function') {
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+          }
           npUiSound('success');
         } else if (accRate >= 80) {
           evalText.textContent = "合格ライン達成！大変優秀です。";

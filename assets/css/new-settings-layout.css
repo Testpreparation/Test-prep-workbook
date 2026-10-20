@@ -1,6 +1,0 @@
-/* Settings remains backed by the existing settings controls and storage. */
-body.np-new-nav-enabled #user-settings-modal{max-height:min(84dvh,780px);border-color:#ead9f0;background:rgba(255,255,255,.97);color:#66566f;box-shadow:0 24px 80px rgba(71,46,87,.22)}
-body.np-new-nav-enabled #user-settings-modal h2,body.np-new-nav-enabled #user-settings-modal .text-slate-100,body.np-new-nav-enabled #user-settings-modal .text-slate-200{color:#66566f}
-body.np-new-nav-enabled #user-settings-modal details{border-color:#eadff0;background:#fffafd}
-body.np-new-nav-enabled #user-settings-modal details summary{color:#6e5c78}
-body.np-new-nav-enabled #user-settings-modal .np-settings-entry{width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px 2px;color:#776582;border-bottom:1px solid #f0e7f3}

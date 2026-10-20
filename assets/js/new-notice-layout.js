@@ -1,1 +1,0 @@
-(function(){'use strict';function open(){const modal=document.getElementById('modal-notice');if(!modal)return false;modal.classList.remove('hidden');modal.setAttribute('aria-hidden','false');return true;}document.addEventListener('np:navigation',function(e){if(e.detail&&e.detail.screen==='notices')open();});window.NursePlusOpenNotices=open;})();

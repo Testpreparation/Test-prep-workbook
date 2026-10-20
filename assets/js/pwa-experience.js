@@ -5,8 +5,7 @@
       const startup = document.getElementById('np-pwa-startup');
       const startupStartedAt = performance.now();
       let pageLoaded = document.readyState === 'complete';
-      // Renderの起動確認はバックグラウンドで行い、アプリ表示を待たせない。
-      let backendWakeFinished = true;
+      let backendWakeFinished = !navigator.onLine;
       let startupHideScheduled = false;
       const startupCaption = startup ? startup.querySelector('p') : null;
       const hideStartup = () => {
@@ -22,14 +21,15 @@
         }, remaining);
       };
 
-      // Renderへのアクセスはバックグラウンドで行い、休止状態からの復帰を促す。
-      // サーバー応答が遅い場合でも、アプリの起動画面はページ読み込み完了後に解除できる。
+      // 起動画面の表示中にRenderへアクセスして休止状態からの復帰を促す。
+      // 学習画面の利用自体はサーバー応答を必須にせず、最大65秒で起動画面を解除する。
       const wakeRenderBackend = async () => {
         if (!navigator.onLine) {
           backendWakeFinished = true;
           hideStartup();
           return;
         }
+        if (startupCaption) startupCaption.textContent = 'サーバーを準備しています…';
         const controller = new AbortController();
         const timeoutId = window.setTimeout(() => controller.abort(), 65000);
         try {

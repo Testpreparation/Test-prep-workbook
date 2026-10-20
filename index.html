@@ -9,34 +9,86 @@
   <meta name="mobile-web-app-capable" content="yes">
   <title>Nurse+</title>
   <script src="./assets/js/theme-preload.js"></script>
-  <link rel="preconnect" href="https://cdn.tailwindcss.com">
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-  <link rel="preconnect" href="https://cdn.jsdelivr.net">
-  <script src="https://cdn.tailwindcss.com" defer></script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400&family=Dancing+Script:wght@500;600;700&family=Noto+Serif+JP:wght@400;500;600&family=Noto+Sans+JP:wght@300;400;500;600&display=swap" rel="stylesheet">
  
   <!-- Dragula (ドラッグ並べ替えライブラリ) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js"></script>
 
   <!-- Canvas Confetti (全問正解時の花火演出) -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
   <!-- Firebase SDK (リアルタイム同期用) -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
   <!-- データベース用の共通オブジェクトを先に初期化 -->
-  <script src="./assets/js/quiz-db-bootstrap.js" defer></script>
+  <script src="./assets/js/quiz-db-bootstrap.js"></script>
 
   <!-- 各科目の外部問題データベースJSの読み込み（春学期） -->
+  <script src="./科目/解剖生理学/2026春学期/練習問題/anatomy2026harugakki.js"></script>
+  <script src="科目/生化学/2026春学期/選択式/biochemistry2026harugakki.js"></script>
+  <script src="./科目/医療概論/2026春学期/練習問題/Medicine2026harugakki.js"></script>
+  <script src="./科目/微生物学/2026春学期/練習問題/microbiology2026harugakki.js"></script>
+  <script src="./科目/心理学/2026春学期/練習問題/mindbehavior2026harugakki.js"></script>
+  <script src="科目/看護学方法論Ⅲ/2026春学期/練習問題/nursingmethod2026harugakki.js"></script>
+  <script src="科目/看護学方法論Ⅲ/2026春学期/演習問題/nursingmethod3_exercise2026harugakki.js"></script>
+  <script src="科目/看護学方法論Ⅲ/2026春学期/練習問題/nursingmethod3_practice2026harugakki.js"></script>
+  <script src="科目/看護学方法論Ⅲ/2026春学期/小テスト/nursingmethod3_quiz2026harugakki.js"></script>
+  <script src="科目/薬理学/2026春学期/演習問題/pharmacology_exercise2026harugakki.js"></script>
+  <script src="科目/薬理学/2026春学期/過去問/pharmacology_past2026harugakki.js"></script>
+  <script src="科目/心理学/2026春学期/練習問題/psychology2026harugakki.js"></script>
+  <script src="科目/栄養学/2026春学期/演習問題/nutrition_exercise_2026harugakki.js"></script>
+  <script src="科目/栄養学/2026春学期/小テスト/nutrition_quiz_2026harugakki.js"></script>
+  <script src="科目/公衆衛生学/2026春学期/演習問題/publichealth_exercise2026harugakki.js"></script>
+  <script src="科目/公衆衛生学/2026春学期/模擬国家試験/publichealth_national2026harugakki.js"></script>
+  <script src="科目/公衆衛生学/2026春学期/過去問/publichealth_past2026harugakki.js"></script>
+  <script src="科目/公衆衛生看護学概論/2026春学期/基礎問題/publichealthnursing_basic2026harugakki.js"></script>
+  <script src="科目/公衆衛生看護学概論/2026春学期/演習問題/publichealthnursing_exercise2026harugakki.js"></script>
 
   <!-- 各科目の外部問題データベースJSの読み込み（秋学期） -->
+  <script src="科目/解剖生理学/2026秋学期/練習問題/anatomy2026akigakki.js"></script>
+  <script src="./科目/生化学/2026秋学期/選択式/biochemistry2026akigakki.js"></script>
+  <script src="./科目/生化学/穴埋め式/biochemistry_fill.js" onerror="console.log('biochemistry_fill.js 未検出。')"></script>
+  <script src="科目/医療概論/2026秋学期/練習問題/Medicine2026akigakki.js"></script>
+  <script src="科目/微生物学/2026秋学期/練習問題/microbiology2026akigakki.js"></script>
+  <script src="科目/心理学/2026秋学期/練習問題/mindbehavior2026akigakki.js"></script>
+  <script src="科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod2026akigakki.js"></script>
+  <script src="科目/看護学方法論Ⅲ/2026秋学期/演習問題/nursingmethod3_exercise2026akigakki.js"></script>
+  <script src="./科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod3_practice2026akigakki.js"></script>
+  <script src="科目/看護学方法論Ⅲ/2026秋学期/小テスト/nursingmethod3_quiz2026akigakki.js"></script>
+  <script src="科目/薬理学/2026秋学期/演習問題/pharmacology_exercise2026akigakki.js"></script>
+  <script src="科目/薬理学/2026秋学期/過去問/pharmacology_past2026akigakki.js"></script>
+  <script src="科目/心理学/2026秋学期/練習問題/psychology2026akigakki.js"></script>
+  <script src="./科目/栄養学/2026秋学期/演習問題/nutrition_exercise_2026akigakki.js"></script>
+  <script src="./科目/栄養学/2026秋学期/小テスト/nutrition_quiz_2026akigakki.js"></script>
+  <script src="./科目/公衆衛生学/2026秋学期/演習問題/publichealth_exercise2026akigakki.js"></script>
+  <script src="./科目/公衆衛生学/2026秋学期/模擬国家試験/publichealth_national2026akigakki.js"></script>
+  <script src="./科目/公衆衛生学/2026秋学期/過去問/publichealth_past2026akigakki.js"></script>
+  <script src="科目/公衆衛生看護学概論/2026秋学期/基礎問題/publichealthnursing_basic2026akigakki.js"></script>
+  <script src="./科目/公衆衛生看護学概論/2026秋学期/演習問題/publichealthnursing_exercise2026akigakki.js"></script>
+  <script src="./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第1回/pathology_range_2026akigakki_1.js"></script>
+<script src="./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第2回/pathology_range_2026akigakki_2.js"></script>
+<script src="./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第3回/pathology_range_2026akigakki_3.js"></script>
+<script src="./科目/病理学/2026秋学期/演習問題/演習問題　第1回/pathology_exercise_2026akigakki_1.js"></script>
+<script src="./科目/病理学/2026秋学期/演習問題/演習問題　第2回/pathology_exercise_2026akigakki_2.js"></script>
+<script src="./科目/病理学/2026秋学期/演習問題/演習問題　第3回/pathology_exercise_2026akigakki_3.js"></script>
+<script src="./科目/生理学/2026秋学期/小テスト/physiology2026akigakki_quiz.js"></script>
 
+
+  <script src="./科目/薬理学/看護師国家試験過去6年/pharmacology_nurse_national_6years.js"></script>
 
   <!-- ★ 暗記カード専用の独立外部JSファイルを読み込み -->
-<!-- 生化学の暗記カード専用JSを読み込み -->
-<!-- 栄養学の暗記カード専用JSを読み込み -->
-<link rel="stylesheet" href="./assets/css/nurse-plus-base.css">
+  <script src="./科目/公衆衛生学/2026秋学期/暗記カード/flashcard_data.js" onerror="console.log('公衆衛生学 flashcard_data.js 未検出。')"></script>
+  <!-- 生化学の暗記カード専用JSを読み込み -->
+  <script src="./科目/生化学/暗記カード/biochemistry_flashcard_data.js" onerror="console.log('biochemistry_flashcard_data.js 未検出。')"></script>
+  <!-- 栄養学の暗記カード専用JSを読み込み -->
+  <script src="./科目/栄養学/暗記カード/nutrition_flashcard_data.js" onerror="console.log('nutrition_flashcard_data.js 未検出。')"></script>
+
+  <link rel="stylesheet" href="./assets/css/nurse-plus-base.css">
 
 <link rel="stylesheet" href="./assets/css/evolution-dashboard.css" id="evolution-dashboard-css">
 
@@ -1572,10 +1624,10 @@
     </div>
   </div>
 
-  <script id="${s.id}" src="./assets/js/app-core.js" defer></script>
+  <script id="${s.id}" src="./assets/js/app-core.js"></script>
 
   <!-- LINE連携：Render側から戻された表示名を保存（識別・認証の根拠にはしない） -->
-  <script id="nurse-line-link-integration" src="./assets/js/line-link-integration.js" defer></script>
+  <script id="nurse-line-link-integration" src="./assets/js/line-link-integration.js"></script>
 
   <!-- Nurse＋ PWA体験：インストール案内・通信状態・初回起動演出 -->
   <link rel="stylesheet" href="./assets/css/pwa-experience.css" id="nurse-plus-pwa-experience-style">
@@ -1592,17 +1644,17 @@
   </div>
   <link rel="stylesheet" href="./assets/css/data-analysis-polish.css">
 
-  <script id="nurse-plus-pwa-experience" src="./assets/js/pwa-experience.js" defer></script>
+  <script id="nurse-plus-pwa-experience" src="./assets/js/pwa-experience.js"></script>
 
 
-  <script id="nurse-plus-theme-toggle" src="./assets/js/theme-toggle.js" defer></script>
+  <script id="nurse-plus-theme-toggle" src="./assets/js/theme-toggle.js"></script>
 
-  <script src="./assets/nurse-plus-analytics-addition.js?v=20261018-2" defer></script>
+  <script src="./assets/nurse-plus-analytics-addition.js?v=20261018-2"></script>
 
 
   <!-- Nurse＋ PWA navigation improvements: screen transitions, browser back, LINE external-browser guidance -->
   <link rel="stylesheet" href="./assets/css/pwa-navigation.css" id="nurse-plus-pwa-navigation-style">
-  <script id="nurse-plus-pwa-navigation" src="./assets/js/pwa-navigation.js" defer></script>
+  <script id="nurse-plus-pwa-navigation" src="./assets/js/pwa-navigation.js"></script>
 
 
   <link rel="stylesheet" href="./assets/css/recent-study-carousel-dots.css" id="nurse-plus-recent-study-carousel-light-dots">
@@ -1613,11 +1665,11 @@
 
   <link rel="stylesheet" href="./assets/css/global-dark-theme.css" id="nurse-plus-global-dark-theme-fix">
 
-  <script src="./assets/js/settings-accordion.js" defer></script>
+  <script src="./assets/js/settings-accordion.js"></script>
 
   <!-- Nurse＋ polish: navigation, analytics readability, and safe PWA update feedback -->
   <link rel="stylesheet" href="./assets/css/app-finish-polish.css" id="nurse-plus-app-finish-polish">
-  <script id="nurse-plus-pwa-update-notice" src="./assets/js/pwa-update-notice.js" defer></script>
+  <script id="nurse-plus-pwa-update-notice" src="./assets/js/pwa-update-notice.js"></script>
 
 
   <!-- Nurse＋ home-only premium polish: visual styling only; existing controls and behavior are preserved. -->
@@ -1626,22 +1678,6 @@
 
   <!-- Nurse＋ App-like Home UI: restore the original soft visual direction and refine touch interaction with CSS only. -->
   <link rel="stylesheet" href="./assets/css/app-home-refinement.css" id="nurse-plus-app-home-refinement">
-
-
-  <!-- Nurse+ rebuilt navigation suite: isolated files; existing quiz/data logic remains untouched. -->
-  <link rel="stylesheet" href="./assets/css/new-bottom-navigation.css" id="np-new-bottom-navigation-style">
-  <link rel="stylesheet" href="./assets/css/new-home-layout.css" id="np-new-home-layout-style">
-  <link rel="stylesheet" href="./assets/css/new-settings-layout.css" id="np-new-settings-layout-style">
-  <link rel="stylesheet" href="./assets/css/new-notice-layout.css" id="np-new-notice-layout-style">
-  <script src="./assets/js/new-navigation-animation.js" defer></script>
-  <script src="./assets/js/new-home-layout.js" defer></script>
-  <script src="./assets/js/new-settings-layout.js" defer></script>
-  <script src="./assets/js/new-notice-layout.js" defer></script>
-  <script src="./assets/js/new-bottom-navigation.js" defer></script>
-
-  <!-- Shared loading feedback for study navigation; does not change question data. -->
-  <link rel="stylesheet" href="./assets/css/study-loading-overlay.css" id="np-study-loading-overlay-style">
-  <script id="np-study-loading-overlay" src="./assets/js/study-loading-overlay.js" defer></script>
 
 </body>
 </html>

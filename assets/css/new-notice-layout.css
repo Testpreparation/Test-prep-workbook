@@ -1,4 +1,0 @@
-/* Existing notice data/actions are preserved; only the presentation is softened. */
-body.np-new-nav-enabled #modal-notice{z-index:72}
-body.np-new-nav-enabled #modal-notice .glass-card{border-color:#eadcf0!important;border-radius:24px!important;box-shadow:0 24px 80px rgba(71,46,87,.22)!important}
-body.np-new-nav-enabled #notice-list-container{scrollbar-width:thin;scrollbar-color:#d8c3e2 transparent}
