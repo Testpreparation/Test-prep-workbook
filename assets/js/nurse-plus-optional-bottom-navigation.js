@@ -288,6 +288,17 @@
       }
       /* Do not define a separate pastel palette for subject cards. */
       .np-home-flashcard-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-sizing: border-box;
+        min-height: 72px;
+        padding: 14px 16px;
+        border: 1px solid #d7eee8;
+        border-radius: 16px;
+        color: #426d70;
+        text-align: left;
+        cursor: pointer;
         grid-column: 1 / -1;
         width: 100%;
         --np-card-background: linear-gradient(120deg,#effbf8,#eaf8f5);
