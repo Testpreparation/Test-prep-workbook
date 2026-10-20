@@ -984,7 +984,7 @@
         return `
           <button onclick="selectFlashcardSubject('${s.id}')" class="card-item w-full p-3.5 rounded-xl text-left flex items-center justify-between group">
             <div class="flex items-center gap-3">
-              <span class="px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-[11px] font-bold">${s.code}</span>
+              <span class="px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-[10.5px] font-bold">${s.code}</span>
               <div>
                 <div class="text-xs font-medium text-slate-100 group-hover:text-amber-300 transition">${s.name}</div>
                 <div class="text-[10px] text-slate-400 font-light mt-0.5">全${totalCount}単語 (達成率: ${progressPercent}%)</div>
@@ -3610,14 +3610,14 @@
               <div class="flex items-center gap-2 min-w-0">
                 <span class="shrink-0 px-2 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-[11px] font-bold">${s.code}</span>
                 <div class="min-w-0">
-                  <div class="${target.element.id === 'bottom-menu-subject-list-container' ? 'text-xs' : 'text-sm'} font-medium text-slate-100 group-hover:text-amber-300 transition">${s.name}</div>
+                  <div class="${target.element.id === 'bottom-menu-subject-list-container' ? 'text-[11.5px]' : 'text-sm'} font-medium text-slate-100 group-hover:text-amber-300 transition">${s.name}</div>
                   ${target.element.id === 'bottom-menu-subject-list-container' ? '' : `<div class="text-[11px] ${isPrep ?  'text-amber-500/80 font-semibold' : 'text-slate-400 font-light'} mt-0.5">${statusLabel}</div>`}
                 </div>
               </div>
               <div class="flex items-center gap-2 shrink-0">
                 <div class="text-right">
-                  <div class="text-[10px] text-slate-500 font-light">${target.element.id === 'bottom-menu-subject-list-container' ? '平均' : '平均正答率'}</div>
-                  <div class="text-xs font-mono font-semibold ${avgAcc !== null ? 'text-amber-400' : 'text-slate-600'}">${avgDisplay}</div>
+                  <div class="${target.element.id === 'bottom-menu-subject-list-container' ? 'text-[9.5px]' : 'text-[10px]'} text-slate-500 font-light">${target.element.id === 'bottom-menu-subject-list-container' ? '平均' : '平均正答率'}</div>
+                  <div class="${target.element.id === 'bottom-menu-subject-list-container' ? 'text-[11.5px]' : 'text-xs'} font-mono font-semibold ${avgAcc !== null ? 'text-amber-400' : 'text-slate-600'}">${avgDisplay}</div>
                 </div>
                 <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">${isPrep ? '🔒' : '→'}</span>
               </div>
