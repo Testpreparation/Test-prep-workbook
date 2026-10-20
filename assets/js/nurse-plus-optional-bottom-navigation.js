@@ -153,13 +153,26 @@
     document.querySelectorAll('#np-bottom-navigation [data-np-bottom-nav]').forEach(item => item.removeAttribute('aria-current'));
     button.setAttribute('aria-current', 'page');
 
-    if (button.dataset.npBottomNav === 'settings') {
+    const destination = button.dataset.npBottomNav;
+    if (destination === 'home') {
+      if (typeof window.showDashboard === 'function') {
+        window.showDashboard();
+      } else {
+        console.warn('[Nurse＋] 既存のホーム画面を開く関数が見つかりません。');
+      }
+    } else if (destination === 'analytics') {
+      if (typeof window.showDataAnalysis === 'function') {
+        window.showDataAnalysis();
+      } else {
+        console.warn('[Nurse＋] 既存のデータ分析画面を開く関数が見つかりません。');
+      }
+    } else if (destination === 'settings') {
       if (typeof window.openUserSettings === 'function') {
         window.openUserSettings();
       } else {
         console.warn('[Nurse＋] 既存の設定画面を開く関数が見つかりません。');
       }
-    } else if (button.dataset.npBottomNav === 'notices') {
+    } else if (destination === 'notices') {
       if (typeof window.openNoticeModal === 'function') {
         window.openNoticeModal();
         window.requestAnimationFrame(initNoticeEffects);
