@@ -184,22 +184,28 @@
       grid.setAttribute('aria-label', '科目一覧');
       grid.className = 'np-home-subject-grid';
       const subjects = [
-        { id: 'anatomy', code: 'ANA', name: '解剖学', icon: '♧', tone: 'pink' },
-        { id: 'biochemistry', code: 'BIO', name: '生化学', icon: '⚗', tone: 'amber' },
-        { id: 'physiology', code: 'PHY', name: '生理学', icon: '♥', tone: 'blue' },
-        { id: 'public_health', code: 'PH', name: '公衆衛生学', icon: '✿', tone: 'mint' },
-        { id: 'public_health_nursing', code: 'PHN', name: '公衆衛生看護学概論', icon: '♟', tone: 'lavender' },
-        { id: 'nutrition', code: 'NUT', name: '栄養学', icon: '🥣', tone: 'peach' },
-        { id: 'pharmacology', code: 'PHA', name: '薬理学', icon: '💊', tone: 'pink' },
-        { id: 'nursing_method_3', code: 'NUR', name: '看護学方法論Ⅲ', icon: '♧', tone: 'blue' }
+        { id: 'physiology', code: 'PHY', name: '生理学', subtitle: '過去問・小テスト対応', accuracy: '20%' },
+        { id: 'biochemistry', code: 'BIO', name: '生化学', subtitle: '選択式・記述式対応', accuracy: '85%' },
+        { id: 'anatomy', code: 'ANA', name: '解剖学', subtitle: '練習問題・応用問題対応', accuracy: '40%' },
+        { id: 'public_health_nursing', code: 'PHN', name: '公衆衛生看護学概論', subtitle: '練習問題・演習問題対応', accuracy: '-- %' },
+        { id: 'public_health', code: 'PUB', name: '公衆衛生学', subtitle: '過去問・演習問題・模擬国試対応', accuracy: '20%' },
+        { id: 'nutrition', code: 'NUT', name: '栄養学', subtitle: '過去問演習・問題数選択可', accuracy: '-- %' },
+        { id: 'pathology', code: 'PAT', name: '病理学', subtitle: '過去問演習・問題数選択可', accuracy: '-- %' },
+        { id: 'pharmacology', code: 'PHA', name: '薬理学', subtitle: '過去問・演習問題対応', accuracy: '-- %' },
+        { id: 'nursing_method_3', code: 'NUR', name: '看護学方法論Ⅲ', subtitle: '練習問題・応用問題対応', accuracy: '-- %' }
       ];
       subjects.forEach(subject => {
         const card = document.createElement('button');
         card.type = 'button';
-        // Use the same base card class as the normal subject list; let the active theme
-        // (including white mode) supply its appearance instead of assigning a separate palette.
-        card.className = 'card-item w-full p-4 rounded-xl text-left flex items-center justify-between group np-home-subject-card';
-        card.innerHTML = '<span class="np-home-subject-name text-sm font-medium">' + subject.name + '</span><span class="text-slate-500 text-sm">→</span>';
+        // Match the regular subject-list row structure: code badge, title/subtitle,
+        // and average accuracy at the right. Do not use the old pastel subject palette.
+        card.className = 'card-item np-home-subject-card';
+        card.innerHTML =
+          '<span class="np-subject-code">' + subject.code + '</span>' +
+          '<span class="np-subject-copy"><span class="np-home-subject-name">' + subject.name + '</span>' +
+          '<span class="np-subject-subtitle">' + subject.subtitle + '</span></span>' +
+          '<span class="np-subject-accuracy"><span>平均正答率</span><strong>' + subject.accuracy + '</strong></span>' +
+          '<span class="np-subject-arrow" aria-hidden="true">→</span>';
         card.addEventListener('click', () => {
           if (typeof window.selectSubject === 'function') {
             window.selectSubject(subject.id);
@@ -267,16 +273,73 @@
         -webkit-appearance: none;
         display: flex;
         align-items: center;
+        gap: 12px;
         box-sizing: border-box;
         min-width: 0;
         width: 100%;
+        min-height: 72px;
+        padding: 14px 16px;
+        border: 1px solid #eadcf8;
+        border-radius: 22px;
+        background: rgba(255,255,255,.78);
+        color: #8067a4;
+        box-shadow: 0 4px 14px rgba(116, 91, 147, .06);
         font: inherit;
+        text-align: left;
         cursor: pointer;
       }
       .np-home-subject-card .np-home-subject-name {
         display: block;
         min-width: 0;
+        color: #8067a4;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.4;
         overflow-wrap: anywhere;
+      }
+      .np-home-subject-card .np-subject-code {
+        flex: 0 0 auto;
+        min-width: 42px;
+        padding: 5px 7px;
+        border: 1px solid #dfc9fb;
+        border-radius: 9px;
+        background: #f8f2ff;
+        color: #8a70ae;
+        text-align: center;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .np-home-subject-card .np-subject-copy {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-width: 0;
+        gap: 3px;
+      }
+      .np-home-subject-card .np-subject-subtitle {
+        color: #a59ab4;
+        font-size: 11px;
+        line-height: 1.35;
+      }
+      .np-home-subject-card .np-subject-accuracy {
+        display: flex;
+        flex: 0 0 auto;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 2px;
+        color: #a59ab4;
+        font-size: 10px;
+        white-space: nowrap;
+      }
+      .np-home-subject-card .np-subject-accuracy strong {
+        color: #8067a4;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .np-home-subject-card .np-subject-arrow {
+        flex: 0 0 auto;
+        color: #8c73ad;
+        font-size: 17px;
       }
       /* Do not define a separate pastel palette for subject cards. */
       .np-home-flashcard-card {
@@ -288,9 +351,10 @@
         --np-text-color: #426d70;
       }
       @media (max-width: 480px) {
-        html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-        .np-home-subject-card { padding: 1rem; }
-        .np-home-subject-icon { display: none; }
+        html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+        .np-home-subject-card { padding: 12px; gap: 9px; }
+        .np-home-subject-card .np-subject-accuracy { font-size: 9px; }
+        .np-home-subject-card .np-subject-code { min-width: 38px; }
       }
       @media (prefers-reduced-motion: reduce) { .np-home-subject-card { transition: none; } }
     `;
