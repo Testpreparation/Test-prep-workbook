@@ -258,10 +258,25 @@
         card.addEventListener('click', () => {
           if (typeof window.showSubjectScreen === 'function') window.showSubjectScreen();
           window.requestAnimationFrame(() => {
-            const subjectScreen = document.getElementById('screen-subject');
+            // The real subject picker is #screen-subjects (plural). Match the
+            // canonical subject label used by app-core.js, then invoke its
+            // existing selectSubject handler through the rendered button.
+            const subjectScreen = document.getElementById('screen-subjects');
+            const aliases = {
+              anatomy: '解剖生理学',
+              nursing_method_3: '看護学方法論Ⅲ'
+            };
+            const subjectName = aliases[subject.id] || subject.name;
             if (!subjectScreen) return;
-            const match = Array.from(subjectScreen.querySelectorAll('button')).find(item => (item.textContent || '').includes(subject.name));
-            if (match) match.click();
+            const match = Array.from(subjectScreen.querySelectorAll('#subject-list-container button, button[onclick*="selectSubject"]'))
+              .find(item => (item.textContent || '').includes(subjectName));
+            if (match && !match.disabled) {
+              match.click();
+              return;
+            }
+            // Fallback to the existing app function if the button list is not
+            // mounted yet; never fabricate a new semester/mode transition.
+            if (typeof window.selectSubject === 'function') window.selectSubject(subject.id);
           });
         });
         grid.appendChild(card);
