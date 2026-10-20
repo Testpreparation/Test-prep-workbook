@@ -100,6 +100,33 @@
 
   <!-- Nurse＋: subtle native-app tap feedback; no launch-screen changes. -->
   <link rel="stylesheet" href="./assets/css/nurse-plus-tap-feedback.css" id="nurse-plus-tap-feedback">
+
+<style id="nurse-plus-reference-home-navigation">
+:root{--np-nav-purple:#a99bc4;--np-pink:#ee7ba8}
+.np-top-actions{position:fixed;top:1.5rem;right:1.5rem;z-index:45;display:flex;gap:.75rem}
+.np-icon-button{width:3.25rem;height:3.25rem;border-radius:999px;background:rgba(255,255,255,.88);border:1px solid rgba(255,255,255,.9);box-shadow:0 5px 20px #9b8bb51a;color:#8f83aa;display:grid;place-items:center;backdrop-filter:blur(12px)}
+.np-icon-button svg{width:1.45rem;height:1.45rem}
+.np-bottom-nav{position:fixed;z-index:60;left:1rem;right:1rem;bottom:calc(.75rem + env(safe-area-inset-bottom));min-height:5.4rem;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:center;padding:.45rem .3rem;border-radius:2.5rem;background:rgba(255,255,255,.88);border:1px solid rgba(255,255,255,.96);box-shadow:0 10px 35px rgba(150,130,175,.13);backdrop-filter:blur(18px)}
+.np-bottom-nav button{height:4.5rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;color:#a69ab9;font-size:.78rem;font-weight:600}
+.np-bottom-nav button svg{width:1.7rem;height:1.7rem;stroke:currentColor}
+.np-bottom-nav button[aria-current=page]{color:var(--np-pink)}
+body{padding-bottom:8rem!important}
+#screen-dashboard .np-home-subject-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.np-home-subject{min-height:6.8rem;border:1px solid var(--card-border);border-radius:1.4rem;padding:1rem;display:flex;align-items:center;gap:.9rem;text-align:left;box-shadow:0 5px 16px rgba(130,110,160,.05);transition:transform .18s ease,box-shadow .18s ease}
+.np-home-subject:active{transform:scale(.98)}
+.np-home-subject .np-subject-icon{font-size:2.15rem;line-height:1}
+.np-home-subject .np-subject-label{font-size:1rem;font-weight:650;line-height:1.45;flex:1}
+.np-home-subject .np-subject-arrow{font-size:1.6rem;opacity:.65}
+.np-home-subject.pink{--card-border:#f7d8e5;background:linear-gradient(135deg,#fff0f6,#fff8fb);color:#a54f79}
+.np-home-subject.gold{--card-border:#f5e6cd;background:linear-gradient(135deg,#fff7e8,#fffaf3);color:#927044}
+.np-home-subject.blue{--card-border:#dbe8fc;background:linear-gradient(135deg,#edf5ff,#f7faff);color:#4e77aa}
+.np-home-subject.mint{--card-border:#d4f0e9;background:linear-gradient(135deg,#e9faf6,#f5fffc);color:#397f78}
+.np-home-subject.purple{--card-border:#eadcf8;background:linear-gradient(135deg,#f6efff,#fcf8ff);color:#8065a1}
+.np-home-subject.orange{--card-border:#f8dfd2;background:linear-gradient(135deg,#fff0e8,#fff8f4);color:#9b604c}
+#screen-dashboard .np-home-heading{display:none}
+@media(min-width:768px){.np-bottom-nav{left:0;right:0;bottom:0;border-radius:2.5rem 2.5rem 0 0;min-height:6rem;padding:.5rem max(1rem,calc((100vw - 1200px)/2));}.np-bottom-nav button{height:4.8rem;font-size:.95rem}body{padding-bottom:8rem!important}#screen-dashboard .np-home-subject-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:1.1rem}.np-home-subject{min-height:7.8rem;padding:1.2rem 1.4rem}.np-home-subject .np-subject-icon{font-size:2.4rem}.np-home-subject .np-subject-label{font-size:1.05rem}}
+@media(max-width:480px){.np-top-actions{top:1rem;right:1rem;gap:.5rem}.np-icon-button{width:2.9rem;height:2.9rem} .np-bottom-nav{left:.6rem;right:.6rem;min-height:5.1rem}.np-bottom-nav button{font-size:.7rem}}
+</style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative selection:bg-amber-500/30 selection:text-amber-200">
 
@@ -109,6 +136,16 @@
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
     </button>
   </div>
+
+<div class="np-top-actions" aria-label="アカウントとお知らせ">
+ <button class="np-icon-button relative" onclick="openNoticeModal()" aria-label="お知らせ">
+  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span id="np-top-notice-dot" class="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-400"></span>
+ </button>
+ <button class="np-icon-button" onclick="openUserSettings()" aria-label="アカウント・設定">
+  <svg fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="7.5" r="4"/><path d="M4 21v-2.2a8 8 0 0 1 16 0V21z"/></svg>
+ </button>
+</div>
+
   <!-- 設定モーダル：アカウント・一般・プライバシー -->
   <div id="user-settings-overlay" onclick="closeUserSettings()" class="hidden fixed inset-0 bg-slate-950/65 backdrop-blur-sm z-[70]"></div>
   <section id="user-settings-modal" role="dialog" aria-modal="true" aria-labelledby="user-settings-title" class="hidden fixed z-[71] inset-x-4 top-1/2 -translate-y-1/2 max-w-md mx-auto rounded-2xl border border-slate-700 bg-slate-900/95 backdrop-blur-xl shadow-2xl p-5 text-slate-200 max-h-[85vh] overflow-y-auto">
@@ -237,59 +274,23 @@
     <main class="glass-card rounded-2xl p-5 sm:p-8 shadow-2xl relative overflow-hidden">
      
 
-      <!-- EVOLUTION: 学習ホーム（科目別コンディション＋学習ログのみ） -->
-      <div id="screen-dashboard" class="space-y-4">
-        <div>
+      <!-- Nurse＋ホーム：参照画像に合わせたレスポンシブ科目カード -->
+      <div id="screen-dashboard" class="space-y-5">
+        <div class="np-home-heading">
           <div class="en-title text-[10px] text-amber-500 tracking-[.22em] font-semibold">STUDY HOME</div>
           <h2 class="serif-title text-xl text-slate-100 mt-1">学習ホーム</h2>
-          <p class="text-[11px] text-slate-400 mt-1">現在の学習状況を確認できます。</p>
-          <button onclick="showSubjectScreen()" class="w-full mt-3 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition">
-            科目一覧
-          </button>
         </div>
-
-        <div class="evo-card">
-          <div class="flex justify-between items-center mb-3">
-            <span class="text-xs font-semibold text-slate-200">科目別コンディション</span>
-            <div class="flex items-center gap-1.5">
-              <button onclick="evoConditionPrevDate()" id="evo-condition-prev" class="px-2 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[10px] transition">‹</button>
-              <span id="evo-condition-date" class="text-[10px] text-slate-500 min-w-[76px] text-center">--</span>
-              <button onclick="evoConditionNextDate()" id="evo-condition-next" class="px-2 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[10px] transition">›</button>
-            </div>
-          </div>
-          <div id="evo-subjects" class="space-y-3"></div>
+        <div class="np-home-subject-grid">
+          <button class="np-home-subject pink" onclick="showSubjectScreen()"><span class="np-subject-icon">🦴</span><span class="np-subject-label">解剖学</span><span class="np-subject-arrow">›</span></button>
+          <button class="np-home-subject gold" onclick="showSubjectScreen()"><span class="np-subject-icon">⚗️</span><span class="np-subject-label">生化学</span><span class="np-subject-arrow">›</span></button>
+          <button class="np-home-subject blue" onclick="showSubjectScreen()"><span class="np-subject-icon">💙</span><span class="np-subject-label">生理学</span><span class="np-subject-arrow">›</span></button>
+          <button class="np-home-subject mint" onclick="showSubjectScreen()"><span class="np-subject-icon">🦠</span><span class="np-subject-label">公衆衛生学</span><span class="np-subject-arrow">›</span></button>
+          <button class="np-home-subject purple" onclick="showSubjectScreen()"><span class="np-subject-icon">👥</span><span class="np-subject-label">公衆衛生看護学概論</span><span class="np-subject-arrow">›</span></button>
+          <button class="np-home-subject orange" onclick="showSubjectScreen()"><span class="np-subject-icon">🥣</span><span class="np-subject-label">栄養学</span><span class="np-subject-arrow">›</span></button>
+          <button class="np-home-subject pink" onclick="showSubjectScreen()"><span class="np-subject-icon">💊</span><span class="np-subject-label">薬理学</span><span class="np-subject-arrow">›</span></button>
+          <button class="np-home-subject blue" onclick="showSubjectScreen()"><span class="np-subject-icon">🩺</span><span class="np-subject-label">看護学方法論Ⅲ</span><span class="np-subject-arrow">›</span></button>
+          <button class="np-home-subject mint" onclick="showFlashcardSubjectScreen()"><span class="np-subject-icon">▤</span><span class="np-subject-label">暗記カード</span><span class="np-subject-arrow">›</span></button>
         </div>
-
-        <div class="evo-card">
-          <div class="flex items-center justify-between gap-3 mb-4">
-            <div>
-              <div class="text-xs font-semibold text-slate-200">学習ログ</div>
-              <div class="text-[10px] text-slate-500 mt-1">これまでの学習実績</div>
-            </div>
-            <span class="evo-chip">LOCAL DATA</span>
-          </div>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-y-4">
-            <div class="text-center px-2">
-              <div class="text-[10px] text-slate-500 mb-1.5">演習回数</div>
-              <div id="evo-total-attempts" class="text-xl font-mono font-bold text-slate-100 leading-none">0</div>
-            </div>
-            <div class="text-center px-2 sm:border-l sm:border-slate-700/60">
-              <div class="text-[10px] text-slate-500 mb-1.5">平均正答率</div>
-              <div id="evo-avg" class="text-xl font-mono font-bold text-amber-400 leading-none">--</div>
-            </div>
-            <div class="text-center px-2 border-t border-slate-700/50 pt-4 sm:border-t-0 sm:border-l sm:pt-0">
-              <div class="text-[10px] text-slate-500 mb-1.5">最高記録</div>
-              <div id="evo-best" class="text-xl font-mono font-bold text-slate-100 leading-none">--</div>
-            </div>
-            <div class="text-center px-2 border-t border-slate-700/50 pt-4 sm:border-t-0 sm:border-l sm:pt-0">
-              <div class="text-[10px] text-slate-500 mb-1.5">連続学習</div>
-              <div class="text-xl font-mono font-bold text-emerald-400 leading-none"><span id="evo-streak">0</span><span class="text-xs ml-1">日</span></div>
-            </div>
-          </div>
-        </div>
-
-
-
       </div>
 
       <!-- データ分析画面の内容は STUDY ANALYTICS セクションで表示 -->
@@ -1678,6 +1679,14 @@
 
   <!-- Nurse＋ App-like Home UI: restore the original soft visual direction and refine touch interaction with CSS only. -->
   <link rel="stylesheet" href="./assets/css/app-home-refinement.css" id="nurse-plus-app-home-refinement">
+
+
+<nav class="np-bottom-nav" aria-label="メインメニュー">
+ <button onclick="showDashboard()" aria-current="page"><svg viewBox="0 0 24 24" fill="currentColor" stroke-width="1.5"><path d="M3 10.8 12 3l9 7.8v9a1.2 1.2 0 0 1-1.2 1.2h-5.1v-6.2H9.3V21H4.2A1.2 1.2 0 0 1 3 19.8z"/></svg><span>ホーム</span></button>
+ <button onclick="showDataAnalysis()"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="3" y="12" width="4.5" height="9" rx="1.5"/><rect x="9.8" y="7" width="4.5" height="14" rx="1.5"/><rect x="16.6" y="3" width="4.5" height="18" rx="1.5"/></svg><span>データ分析</span></button>
+ <button onclick="openNoticeModal()"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="4" y="2.5" width="16" height="19" rx="2"/><path stroke-linecap="round" d="M8 7h8M8 11h8M8 15h5"/></svg><span>お知らせ</span></button>
+ <button onclick="openUserSettings()"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M19.4 13a7.7 7.7 0 0 0 0-2l2-1.6-2-3.5-2.4 1a7.7 7.7 0 0 0-1.7-1L15 3h-4l-.4 2.9a7.7 7.7 0 0 0-1.7 1l-2.4-1-2 3.5 2 1.6a7.7 7.7 0 0 0 0 2l-2 1.6 2 3.5 2.4-1a7.7 7.7 0 0 0 1.7 1L11 21h4l.4-2.9a7.7 7.7 0 0 0 1.7-1l2.4 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7"/></svg><span>設定</span></button>
+</nav>
 
 </body>
 </html>
