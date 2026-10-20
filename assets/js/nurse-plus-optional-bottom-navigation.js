@@ -184,15 +184,15 @@
       grid.setAttribute('aria-label', '科目一覧');
       grid.className = 'np-home-subject-grid';
       const subjects = [
-        { id: 'physiology', code: 'PHY', name: '生理学', subtitle: '過去問・小テスト対応', accuracy: '20%' },
-        { id: 'biochemistry', code: 'BIO', name: '生化学', subtitle: '選択式・記述式対応', accuracy: '85%' },
-        { id: 'anatomy', code: 'ANA', name: '解剖学', subtitle: '練習問題・応用問題対応', accuracy: '40%' },
-        { id: 'public_health_nursing', code: 'PHN', name: '公衆衛生看護学概論', subtitle: '練習問題・演習問題対応', accuracy: '-- %' },
-        { id: 'public_health', code: 'PUB', name: '公衆衛生学', subtitle: '過去問・演習問題・模擬国試対応', accuracy: '20%' },
-        { id: 'nutrition', code: 'NUT', name: '栄養学', subtitle: '過去問演習・問題数選択可', accuracy: '-- %' },
-        { id: 'pathology', code: 'PAT', name: '病理学', subtitle: '過去問演習・問題数選択可', accuracy: '-- %' },
-        { id: 'pharmacology', code: 'PHA', name: '薬理学', subtitle: '過去問・演習問題対応', accuracy: '-- %' },
-        { id: 'nursing_method_3', code: 'NUR', name: '看護学方法論Ⅲ', subtitle: '練習問題・応用問題対応', accuracy: '-- %' }
+        { id: 'physiology', name: '生理学' },
+        { id: 'biochemistry', name: '生化学' },
+        { id: 'anatomy', name: '解剖学' },
+        { id: 'public_health_nursing', name: '公衆衛生看護学概論' },
+        { id: 'public_health', name: '公衆衛生学' },
+        { id: 'nutrition', name: '栄養学' },
+        { id: 'pathology', name: '病理学' },
+        { id: 'pharmacology', name: '薬理学' },
+        { id: 'nursing_method_3', name: '看護学方法論Ⅲ' }
       ];
       subjects.forEach(subject => {
         const card = document.createElement('button');
