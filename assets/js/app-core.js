@@ -3698,7 +3698,8 @@
     "./科目/解剖生理学/2026春学期/練習問題/anatomy2026harugakki.js"
   ],
   "biochemistry:2026_spring": [
-    "科目/生化学/2026春学期/選択式/biochemistry2026harugakki.js"
+    "科目/生化学/2026春学期/選択式/biochemistry2026harugakki.js",
+    "./科目/生化学/穴埋め式/biochemistry_fill.js"
   ],
   "medical_intro:2026_spring": [
     "./科目/医療概論/2026春学期/練習問題/Medicine2026harugakki.js"
@@ -3737,7 +3738,8 @@
     "科目/解剖生理学/2026秋学期/練習問題/anatomy2026akigakki.js"
   ],
   "biochemistry:2026_autumn": [
-    "./科目/生化学/2026秋学期/選択式/biochemistry2026akigakki.js"
+    "./科目/生化学/2026秋学期/選択式/biochemistry2026akigakki.js",
+    "./科目/生化学/穴埋め式/biochemistry_fill.js"
   ],
   "medical_intro:2026_autumn": [
     "科目/医療概論/2026秋学期/練習問題/Medicine2026akigakki.js"
@@ -3798,7 +3800,7 @@
         const existing = Array.from(document.scripts).find(script => script.src && script.src === absoluteSrc);
         if (existing && existing.dataset.npLoaded === 'true') { resolve(); return; }
         const script = existing || document.createElement('script');
-        if (!existing) { script.src = src; script.async = true; }
+        if (!existing) { script.src = src; script.async = false; }
         script.onload = () => { script.dataset.npLoaded = 'true'; resolve(); };
         script.onerror = () => { script.remove(); reject(new Error('問題データを読み込めませんでした: ' + src)); };
         if (!existing) document.head.appendChild(script);
