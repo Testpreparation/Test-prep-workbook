@@ -3606,7 +3606,7 @@
 
         return `
           <div class="w-full h-full min-w-0">
-            <button onclick="selectSubject('${s.id}')" ${isPrep ? 'disabled' : ''} class="card-item w-full h-[88px] p-4 rounded-xl text-left flex items-center justify-between group">
+            <button onclick="selectSubject('${s.id}')" ${isPrep ? 'disabled' : ''} class="card-item w-full h-[76px] p-3 rounded-xl text-left flex items-center justify-between group">
               <div class="flex items-center gap-3 min-w-0">
                 <span class="shrink-0 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">${s.code}</span>
                 <div class="min-w-0">
