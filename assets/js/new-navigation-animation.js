@@ -1,2 +1,0 @@
-/* Motion helpers shared by the rebuilt navigation. */
-(function(){'use strict';window.NursePlusNavMotion={reduced:function(){return window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;},pulse:function(el){if(!el||this.reduced())return;el.animate([{transform:'scale(1)'},{transform:'scale(.94)'},{transform:'scale(1)'}],{duration:260,easing:'cubic-bezier(.2,.8,.2,1)'});}};})();
