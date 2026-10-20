@@ -626,8 +626,8 @@
     const noHistory = stats.attempts === 0 && stats.dailyEntries.length === 0;
     screen.innerHTML = `
       <div class="space-y-4">
-        <div class="flex items-center justify-between gap-3">
-          <div><div class="text-[10px] text-amber-500 tracking-[.22em] font-semibold">STUDY ANALYTICS</div><h2 class="serif-title text-xl text-slate-100 mt-1">データ分析</h2><p class="text-[11px] text-slate-400 mt-1">科目・モード別の学習履歴と苦手傾向を分析します。</p></div>
+        <div class="np-analytics-header flex items-center justify-between gap-3">
+          <div class="np-analytics-heading"><div class="text-[10px] text-amber-500 tracking-[.22em] font-semibold">STUDY ANALYTICS</div><h2 class="serif-title text-xl text-slate-100 mt-1">データ分析</h2><p class="text-[11px] text-slate-400 mt-1">科目・モード別の学習履歴と苦手傾向を分析します。</p></div>
           <button type="button" class="np-analytics-back" id="np-analytics-back">← ホーム</button>
         </div>
         ${noHistory ? '<div class="np-analytics-card np-analytics-empty">まだ学習履歴がありません。問題を解くと、ここに記録が表示されます。</div>' : ''}
@@ -713,6 +713,17 @@
     const style = document.createElement('style');
     style.id = 'nurse-plus-ui-effects-style';
     style.textContent = `
+      /* 下部メニューが有効なときだけ、分析画面の戻るボタンを隠して見出しを中央配置。 */
+      html.np-bottom-menu-enabled #screen-analytics-addition .np-analytics-header {
+        justify-content: center;
+      }
+      html.np-bottom-menu-enabled #screen-analytics-addition .np-analytics-heading {
+        width: 100%;
+        text-align: center;
+      }
+      html.np-bottom-menu-enabled #screen-analytics-addition .np-analytics-back {
+        display: none !important;
+      }
       /* 追加演出は既存デザインに重ねるだけ。既存の採点・画面関数は変更しない。 */
       .glass-card button:not(:disabled), .glass-card [role="button"]:not([aria-disabled="true"]) {
         transition: transform .36s cubic-bezier(.22,1,.36,1), filter .32s ease, box-shadow .36s ease;
