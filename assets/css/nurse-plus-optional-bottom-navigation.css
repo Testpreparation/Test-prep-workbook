@@ -17,6 +17,8 @@
   -webkit-backdrop-filter: blur(18px);
 }
 html.np-bottom-menu-enabled #np-bottom-navigation { display: grid; }
+/* Keep the dedicated home hidden during the existing subject -> semester transition. */
+#screen-dashboard-bottom-menu.hidden { display: none !important; }
 #np-bottom-navigation .np-bottom-nav-item {
   display: flex;
   min-width: 0;
