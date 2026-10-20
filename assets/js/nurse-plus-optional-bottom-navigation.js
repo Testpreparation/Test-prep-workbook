@@ -150,11 +150,16 @@
 
   // The appearance/settings modal is created dynamically, so bind its toggle
   // at document level instead of relying on the control existing at page load.
-  document.addEventListener('change', event => {
+  function handleBottomMenuToggle(event) {
     const control = event.target;
-    if (!control || control.id !== 'np-bottom-menu-toggle') return;
+    if (!control || control.id !== 'np-bottom-menu-toggle' || control.type !== 'checkbox') return;
     apply(Boolean(control.checked));
-  });
+  }
+
+  // Handle both immediate input and committed change events. Capture phase keeps
+  // the setting reliable even if the dynamically mounted settings UI stops bubbling.
+  document.addEventListener('input', handleBottomMenuToggle, true);
+  document.addEventListener('change', handleBottomMenuToggle, true);
 
   // Keep the toggle state synchronized if the existing settings UI is mounted later.
   if ('MutationObserver' in window) {
