@@ -3692,28 +3692,75 @@
       }).join('');
     }
 
-    // 病理学の秋学期データは、病理学を選んだ時点で初めて読み込む。
-    const pathologyDatasetScripts = [
-  "./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第1回/pathology_range_2026akigakki_1.js",
-  "./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第2回/pathology_range_2026akigakki_2.js",
-  "./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第3回/pathology_range_2026akigakki_3.js",
-  "./科目/病理学/2026秋学期/演習問題/演習問題　第1回/pathology_exercise_2026akigakki_1.js",
-  "./科目/病理学/2026秋学期/演習問題/演習問題　第2回/pathology_exercise_2026akigakki_2.js",
-  "./科目/病理学/2026秋学期/演習問題/演習問題　第3回/pathology_exercise_2026akigakki_3.js"
-];
-    let pathologyDatasetPromise = null;
-    function ensurePathologyDatasetsLoaded() {
-      if (pathologyDatasetPromise) return pathologyDatasetPromise;
-      pathologyDatasetPromise = Promise.all(pathologyDatasetScripts.map(src => new Promise((resolve, reject) => {
-        const existing = Array.from(document.scripts).find(script => script.src && new URL(script.src, document.baseURI).href === new URL(src, document.baseURI).href);
+    // 問題データは科目・学期が選ばれた後に必要な分だけ読み込む。
+    const subjectSemesterDatasetScripts = {
+  "anatomy:2026_spring": [
+    "./科目/解剖生理学/2026春学期/練習問題/anatomy2026harugakki.js"
+  ],
+  "medical_intro:2026_spring": [
+    "./科目/医療概論/2026春学期/練習問題/Medicine2026harugakki.js"
+  ],
+  "microbiology:2026_spring": [
+    "./科目/微生物学/2026春学期/練習問題/microbiology2026harugakki.js"
+  ],
+  "mind_behavior:2026_spring": [
+    "./科目/心理学/2026春学期/練習問題/mindbehavior2026harugakki.js"
+  ],
+  "biochemistry:2026_autumn": [
+    "./科目/生化学/2026秋学期/選択式/biochemistry2026akigakki.js",
+    "./科目/生化学/穴埋め式/biochemistry_fill.js"
+  ],
+  "nursing_method_3:2026_autumn": [
+    "./科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod3_practice2026akigakki.js"
+  ],
+  "nutrition:2026_autumn": [
+    "./科目/栄養学/2026秋学期/演習問題/nutrition_exercise_2026akigakki.js",
+    "./科目/栄養学/2026秋学期/小テスト/nutrition_quiz_2026akigakki.js"
+  ],
+  "public_health:2026_autumn": [
+    "./科目/公衆衛生学/2026秋学期/演習問題/publichealth_exercise2026akigakki.js",
+    "./科目/公衆衛生学/2026秋学期/模擬国家試験/publichealth_national2026akigakki.js",
+    "./科目/公衆衛生学/2026秋学期/過去問/publichealth_past2026akigakki.js"
+  ],
+  "public_health_nursing:2026_autumn": [
+    "./科目/公衆衛生看護学概論/2026秋学期/演習問題/publichealthnursing_exercise2026akigakki.js"
+  ],
+  "pathology:2026_autumn": [
+    "./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第1回/pathology_range_2026akigakki_1.js",
+    "./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第2回/pathology_range_2026akigakki_2.js",
+    "./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第3回/pathology_range_2026akigakki_3.js",
+    "./科目/病理学/2026秋学期/演習問題/演習問題　第1回/pathology_exercise_2026akigakki_1.js",
+    "./科目/病理学/2026秋学期/演習問題/演習問題　第2回/pathology_exercise_2026akigakki_2.js",
+    "./科目/病理学/2026秋学期/演習問題/演習問題　第3回/pathology_exercise_2026akigakki_3.js"
+  ],
+  "physiology:2026_autumn": [
+    "./科目/生理学/2026秋学期/小テスト/physiology2026akigakki_quiz.js"
+  ],
+  "pharmacology:2026_spring": [
+    "./科目/薬理学/看護師国家試験過去6年/pharmacology_nurse_national_6years.js"
+  ],
+  "pharmacology:2026_autumn": [
+    "./科目/薬理学/看護師国家試験過去6年/pharmacology_nurse_national_6years.js"
+  ]
+};
+    const subjectDatasetPromises = new Map();
+    function ensureSubjectDatasetsLoaded(subjectId, semester) {
+      const key = subjectId + ':' + semester;
+      const sources = subjectSemesterDatasetScripts[key] || [];
+      if (!sources.length) return Promise.resolve();
+      if (subjectDatasetPromises.has(key)) return subjectDatasetPromises.get(key);
+      const promise = Promise.all(sources.map(src => new Promise((resolve, reject) => {
+        const absoluteSrc = new URL(src, document.baseURI).href;
+        const existing = Array.from(document.scripts).find(script => script.src && script.src === absoluteSrc);
         if (existing && existing.dataset.npLoaded === 'true') { resolve(); return; }
         const script = existing || document.createElement('script');
         if (!existing) { script.src = src; script.async = true; }
         script.onload = () => { script.dataset.npLoaded = 'true'; resolve(); };
-        script.onerror = () => { script.remove(); reject(new Error('病理学データを読み込めませんでした: ' + src)); };
+        script.onerror = () => { script.remove(); reject(new Error('問題データを読み込めませんでした: ' + src)); };
         if (!existing) document.head.appendChild(script);
-      }))).catch(error => { pathologyDatasetPromise = null; throw error; });
-      return pathologyDatasetPromise;
+      }))).catch(error => { subjectDatasetPromises.delete(key); throw error; });
+      subjectDatasetPromises.set(key, promise);
+      return promise;
     }
 
     function selectSubject(subjectId) {
@@ -3748,19 +3795,17 @@
     async function selectSemester(semester) {
       currentSemester = semester;
 
-      // 学期が確定してから対象データを読み込む。前に選んだ科目の学期状態を参照しない。
-      if (currentSubject?.id === 'pathology' && semester === '2026_autumn') {
-        window.NursePlusStudyLoading?.show();
-        try {
-          await ensurePathologyDatasetsLoaded();
-        } catch (error) {
-          console.error('[Nurse＋] 病理学データの読み込みに失敗:', error);
-          window.NursePlusStudyLoading?.hide();
-          alert('病理学の問題データを読み込めませんでした。通信状態を確認して、もう一度お試しください。');
-          return;
-        }
+      // 選択された科目・学期に対応する問題データだけを読み込む。
+      window.NursePlusStudyLoading?.show();
+      try {
+        await ensureSubjectDatasetsLoaded(currentSubject.id, semester);
+      } catch (error) {
+        console.error('[Nurse＋] 問題データの読み込みに失敗:', error);
         window.NursePlusStudyLoading?.hide();
+        alert('問題データを読み込めませんでした。通信状態を確認して、もう一度お試しください。');
+        return;
       }
+      window.NursePlusStudyLoading?.hide();
 
       if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) {
         showPhysiologyModeSelectionScreen();
