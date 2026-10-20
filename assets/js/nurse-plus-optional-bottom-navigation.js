@@ -71,6 +71,34 @@
         transform: translateY(-115%);
         opacity: .96;
       }
+      /* In bottom-menu mode, keep the notice dialog fixed while only its list scrolls. */
+      #modal-notice.np-bottom-notice-mode {
+        overflow: hidden !important;
+        align-items: center;
+        overscroll-behavior: contain;
+      }
+      #modal-notice.np-bottom-notice-mode > .glass-card {
+        display: flex;
+        flex-direction: column;
+        max-height: calc(100dvh - 2rem);
+        min-height: 0;
+        overflow: hidden;
+      }
+      #modal-notice.np-bottom-notice-mode #notice-list-container {
+        flex: 1 1 auto;
+        min-height: 0;
+        max-height: none !important;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+      }
+      #modal-notice.np-bottom-notice-mode .np-notice-retracting-header,
+      #modal-notice.np-bottom-notice-mode .np-notice-retracting-header.np-notice-header-hidden {
+        transform: none !important;
+        opacity: 1 !important;
+      }
+      html.np-bottom-menu-enabled #np-bottom-navigation {
+        z-index: 110;
+      }
       @media (prefers-reduced-motion: reduce) {
         #modal-notice #notice-list-container > *,
         #modal-notice .np-notice-retracting-header {
@@ -128,7 +156,7 @@
       let lastTop = list.scrollTop;
       let ticking = false;
       list.addEventListener('scroll', () => {
-        if (!header || ticking) return;
+        if (!header || ticking || modal.classList.contains('np-bottom-notice-mode')) return;
         ticking = true;
         window.requestAnimationFrame(() => {
           const nextTop = list.scrollTop;
@@ -178,6 +206,7 @@
     if (!button) return;
 
     event.preventDefault();
+    event.stopPropagation();
     const destination = button.dataset.npBottomNav;
     document.querySelectorAll('#np-bottom-navigation [data-np-bottom-nav]').forEach(item => {
       item.removeAttribute('aria-current');
