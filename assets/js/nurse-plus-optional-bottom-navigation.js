@@ -181,10 +181,21 @@
         console.warn('[Nurse＋] 既存のデータ分析画面を開く関数が見つかりません。');
       }
     } else if (destination === 'settings') {
+      // Prefer the existing settings handler, but open the existing modal directly
+      // if that handler is not exposed on window.
       if (typeof window.openUserSettings === 'function') {
         window.openUserSettings();
       } else {
-        console.warn('[Nurse＋] 既存の設定画面を開く関数が見つかりません。');
+        const overlay = document.getElementById('user-settings-overlay');
+        const modal = document.getElementById('user-settings-modal');
+        if (overlay && modal) {
+          overlay.classList.remove('hidden');
+          modal.classList.remove('hidden');
+          modal.setAttribute('aria-hidden', 'false');
+          document.body.classList.add('overflow-hidden');
+        } else {
+          console.warn('[Nurse＋] 設定画面の要素が見つかりません。');
+        }
       }
     } else if (destination === 'notices') {
       if (typeof window.openNoticeModal === 'function') {
