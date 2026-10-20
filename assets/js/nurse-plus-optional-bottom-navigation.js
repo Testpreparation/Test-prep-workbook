@@ -174,11 +174,16 @@
       homeGrid.setAttribute('aria-label', '科目一覧');
       homeGrid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1';
       dashboard.prepend(homeGrid);
+      let style = document.getElementById('np-bottom-home-layout-style');
+      if (!style) {
+        style = document.createElement('style');
+        style.id = 'np-bottom-home-layout-style';
+        style.textContent = 'html.np-bottom-menu-enabled #screen-dashboard.np-bottom-home-active > :not(#np-bottom-home-subject-grid) { display: none !important; } #np-bottom-home-subject-grid[hidden] { display: none !important; }';
+        (document.head || document.documentElement).appendChild(style);
+      }
     }
     homeGrid.replaceChildren(...Array.from(renderedList.children, card => card.cloneNode(true)));
-    dashboard.querySelectorAll(':scope > :not(#np-bottom-home-subject-grid)').forEach(element => {
-      element.hidden = true;
-    });
+    dashboard.classList.add('np-bottom-home-active');
     homeGrid.hidden = false;
 
     // Restore the normal screen state after reusing the existing renderer.
@@ -192,15 +197,8 @@
     const homeGrid = document.getElementById('np-bottom-home-subject-grid');
     if (!dashboard) return;
     const enabled = root.classList.contains('np-bottom-menu-enabled');
+    dashboard.classList.toggle('np-bottom-home-active', enabled);
     if (homeGrid) homeGrid.hidden = !enabled;
-    dashboard.querySelectorAll(':scope > :not(#np-bottom-home-subject-grid)').forEach(element => {
-      element.hidden = enabled;
-    });
-    if (!enabled) {
-      dashboard.querySelectorAll(':scope > [hidden]').forEach(element => {
-        element.hidden = false;
-      });
-    }
   }
 
   // Use capture phase so unrelated delegated handlers cannot swallow bottom-nav taps.
