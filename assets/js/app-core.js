@@ -3843,9 +3843,44 @@
       updateStudyBreadcrumb();
     }
 
-    function selectPharmacologyMode(mode) {
+    // 薬理学の看護師国家試験過去6年分は、該当モードを選択した場合だけ読み込む。
+    let pharmacologyNationalDatasetPromise = null;
+    function ensurePharmacologyNationalDatasetLoaded() {
+      if (window.QUIZ_DB?.pharmacology_nurse_national_6years?.length) return Promise.resolve();
+      if (pharmacologyNationalDatasetPromise) return pharmacologyNationalDatasetPromise;
+      pharmacologyNationalDatasetPromise = new Promise((resolve, reject) => {
+        const src = './科目/薬理学/看護師国家試験過去6年/pharmacology_nurse_national_6years.js';
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = true;
+        script.onload = () => {
+          if (window.QUIZ_DB?.pharmacology_nurse_national_6years?.length) resolve();
+          else reject(new Error('薬理学の過去6年分データが登録されていません'));
+        };
+        script.onerror = () => reject(new Error('薬理学の過去6年分データを読み込めませんでした'));
+        document.head.appendChild(script);
+      }).catch(error => {
+        pharmacologyNationalDatasetPromise = null;
+        throw error;
+      });
+      return pharmacologyNationalDatasetPromise;
+    }
+
+    async function selectPharmacologyMode(mode) {
       currentPharmacologyMode = mode;
       currentRound = null;
+      if (mode === 'nurse_national_6years') {
+        window.NursePlusStudyLoading?.show();
+        try {
+          await ensurePharmacologyNationalDatasetLoaded();
+        } catch (error) {
+          console.error('[Nurse＋] 薬理学データの読み込みに失敗:', error);
+          window.NursePlusStudyLoading?.hide();
+          alert('薬理学の過去6年分の問題を読み込めませんでした。通信状態を確認して、もう一度お試しください。');
+          return;
+        }
+        window.NursePlusStudyLoading?.hide();
+      }
       showStartScreen();
     }
 
