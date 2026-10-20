@@ -198,58 +198,49 @@
     }
 
     if (destination === 'settings') {
-      // 下部の設定アイコンでは、ハンバーガーメニュー内の設定アコーディオンを
-      // 画面中央のダイアログとして開く（既存の設定項目・処理はそのまま利用）。
+      // 下部メニューから既存の設定モーダルを直接開く。ドロワーの表示状態には依存させない。
       const drawer = document.getElementById('nav-drawer');
       const drawerOverlay = document.getElementById('nav-overlay');
-      const accordion = document.getElementById('drawer-settings-accordion');
-      const content = document.getElementById('drawer-settings-content');
-      if (drawer && drawerOverlay && accordion && content) {
-        drawer.classList.add('np-bottom-settings-centered');
-        drawer.classList.remove('-translate-x-full');
-        drawerOverlay.classList.remove('hidden');
-        accordion.open = true;
-        const summary = document.getElementById('drawer-settings-toggle');
-        if (summary) summary.setAttribute('aria-expanded', 'true');
-        content.setAttribute('aria-hidden', 'false');
+      const settingsOverlay = document.getElementById('user-settings-overlay');
+      const settingsModal = document.getElementById('user-settings-modal');
+
+      if (drawer) {
+        drawer.classList.remove('np-bottom-settings-centered');
+        drawer.classList.add('-translate-x-full');
+      }
+      if (drawerOverlay) drawerOverlay.classList.add('hidden');
+
+      if (settingsOverlay && settingsModal) {
+        settingsOverlay.classList.remove('hidden');
+        settingsModal.classList.remove('hidden');
+        settingsOverlay.setAttribute('aria-hidden', 'false');
+        settingsModal.setAttribute('aria-hidden', 'false');
         document.body.classList.add('overflow-hidden');
-        const closeCenteredSettings = () => {
-          drawer.classList.remove('np-bottom-settings-centered');
-          accordion.open = false;
-          if (summary) summary.setAttribute('aria-expanded', 'false');
-          content.setAttribute('aria-hidden', 'true');
-          document.body.classList.remove('overflow-hidden');
-          document.removeEventListener('keydown', onSettingsEscape);
-        };
-        const onSettingsEscape = event => {
-          if (event.key !== 'Escape') return;
-          if (typeof window.closeNavDrawer === 'function') window.closeNavDrawer();
-          closeCenteredSettings();
-        };
-        drawerOverlay.addEventListener('click', closeCenteredSettings, { once: true });
-        drawer.querySelectorAll('button[onclick*="closeNavDrawer"]').forEach(button => {
-          button.addEventListener('click', closeCenteredSettings, { once: true });
-        });
-        document.addEventListener('keydown', onSettingsEscape);
+        const firstSummary = settingsModal.querySelector('#settings-accordion > details > summary');
+        if (firstSummary) firstSummary.focus({ preventScroll: true });
       } else {
-        console.warn('[Nurse＋] ハンバーガーメニューの設定アコーディオンが見つかりません。');
+        console.warn('[Nurse＋] 設定モーダルが見つかりません。');
       }
       return;
     }
 
     if (destination === 'notices') {
-      if (typeof window.openNoticeModal === 'function') {
-        window.openNoticeModal();
-      } else if (noticeModal) {
-        noticeModal.classList.remove('hidden');
-        noticeModal.setAttribute('aria-hidden', 'false');
-      } else {
+      const openedNoticeModal = document.getElementById('modal-notice');
+      if (!openedNoticeModal) {
         console.warn('[Nurse＋] お知らせ画面の要素が見つかりません。');
         return;
       }
-      const openedNoticeModal = document.getElementById('modal-notice');
-      if (openedNoticeModal) openedNoticeModal.classList.add('np-bottom-notice-mode');
+
+      // 既存の通知描画処理を利用し、表示・重なり順を明示する。
+      if (typeof window.openNoticeModal === 'function') window.openNoticeModal();
+      openedNoticeModal.classList.remove('hidden');
+      openedNoticeModal.style.display = 'flex';
+      openedNoticeModal.style.zIndex = '100';
+      openedNoticeModal.setAttribute('aria-hidden', 'false');
+      openedNoticeModal.classList.add('np-bottom-notice-mode');
+      document.body.classList.add('overflow-hidden');
       window.requestAnimationFrame(initNoticeEffects);
+      return;
     }
   }, true);
   // Also initialize when the existing top-level notification button opens the modal.
