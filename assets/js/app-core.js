@@ -3608,7 +3608,7 @@
           <div class="w-full h-full min-w-0">
             <button onclick="selectSubject('${s.id}')" ${isPrep ? 'disabled' : ''} class="card-item w-full ${target.element.id === 'bottom-menu-subject-list-container' ? 'h-[72px] p-3' : 'h-full min-h-[88px] p-4'} rounded-xl text-left flex items-center justify-between group">
               <div class="flex items-center gap-2 min-w-0">
-                <span class="shrink-0 px-2 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-[11px] font-bold">${s.code}</span>
+                <span class="shrink-0 px-2 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono ${target.element.id === 'bottom-menu-subject-list-container' ? 'text-[11.5px]' : 'text-[11px]'} font-bold">${s.code}</span>
                 <div class="min-w-0">
                   <div class="${target.element.id === 'bottom-menu-subject-list-container' ? 'text-[11.5px]' : 'text-sm'} font-medium text-slate-100 group-hover:text-amber-300 transition">${s.name}</div>
                   ${target.element.id === 'bottom-menu-subject-list-container' ? '' : `<div class="text-[11px] ${isPrep ?  'text-amber-500/80 font-semibold' : 'text-slate-400 font-light'} mt-0.5">${statusLabel}</div>`}
