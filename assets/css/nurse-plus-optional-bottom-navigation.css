@@ -75,3 +75,13 @@ html.np-bottom-menu-enabled #screen-dashboard-bottom-menu {
     max-width: none;
   }
 }
+
+/* Fit the bottom-menu background panel to the expanded four-column subject grid. */
+@media (min-width: 700px) {
+  html.np-bottom-menu-enabled body:has(#screen-dashboard-bottom-menu:not(.hidden)) .glass-card:has(#screen-dashboard-bottom-menu:not(.hidden)) {
+    width: min(1600px, calc(100vw - 48px));
+    max-width: none;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
