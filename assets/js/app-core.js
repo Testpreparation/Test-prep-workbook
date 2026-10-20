@@ -3697,6 +3697,9 @@
   "anatomy:2026_spring": [
     "./科目/解剖生理学/2026春学期/練習問題/anatomy2026harugakki.js"
   ],
+  "biochemistry:2026_spring": [
+    "科目/生化学/2026春学期/選択式/biochemistry2026harugakki.js"
+  ],
   "medical_intro:2026_spring": [
     "./科目/医療概論/2026春学期/練習問題/Medicine2026harugakki.js"
   ],
@@ -3706,12 +3709,55 @@
   "mind_behavior:2026_spring": [
     "./科目/心理学/2026春学期/練習問題/mindbehavior2026harugakki.js"
   ],
+  "nursing_method:2026_spring": [
+    "科目/看護学方法論Ⅲ/2026春学期/練習問題/nursingmethod2026harugakki.js"
+  ],
+  "nursing_method_3:2026_spring": [
+    "科目/看護学方法論Ⅲ/2026春学期/演習問題/nursingmethod3_exercise2026harugakki.js",
+    "科目/看護学方法論Ⅲ/2026春学期/練習問題/nursingmethod3_practice2026harugakki.js",
+    "科目/看護学方法論Ⅲ/2026春学期/小テスト/nursingmethod3_quiz2026harugakki.js"
+  ],
+  "psychology:2026_spring": [
+    "科目/心理学/2026春学期/練習問題/psychology2026harugakki.js"
+  ],
+  "nutrition:2026_spring": [
+    "科目/栄養学/2026春学期/演習問題/nutrition_exercise_2026harugakki.js",
+    "科目/栄養学/2026春学期/小テスト/nutrition_quiz_2026harugakki.js"
+  ],
+  "public_health:2026_spring": [
+    "科目/公衆衛生学/2026春学期/演習問題/publichealth_exercise2026harugakki.js",
+    "科目/公衆衛生学/2026春学期/模擬国家試験/publichealth_national2026harugakki.js",
+    "科目/公衆衛生学/2026春学期/過去問/publichealth_past2026harugakki.js"
+  ],
+  "public_health_nursing:2026_spring": [
+    "科目/公衆衛生看護学概論/2026春学期/基礎問題/publichealthnursing_basic2026harugakki.js",
+    "科目/公衆衛生看護学概論/2026春学期/演習問題/publichealthnursing_exercise2026harugakki.js"
+  ],
+  "anatomy:2026_autumn": [
+    "科目/解剖生理学/2026秋学期/練習問題/anatomy2026akigakki.js"
+  ],
   "biochemistry:2026_autumn": [
-    "./科目/生化学/2026秋学期/選択式/biochemistry2026akigakki.js",
-    "./科目/生化学/穴埋め式/biochemistry_fill.js"
+    "./科目/生化学/2026秋学期/選択式/biochemistry2026akigakki.js"
+  ],
+  "medical_intro:2026_autumn": [
+    "科目/医療概論/2026秋学期/練習問題/Medicine2026akigakki.js"
+  ],
+  "microbiology:2026_autumn": [
+    "科目/微生物学/2026秋学期/練習問題/microbiology2026akigakki.js"
+  ],
+  "mind_behavior:2026_autumn": [
+    "科目/心理学/2026秋学期/練習問題/mindbehavior2026akigakki.js"
+  ],
+  "nursing_method:2026_autumn": [
+    "科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod2026akigakki.js"
   ],
   "nursing_method_3:2026_autumn": [
-    "./科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod3_practice2026akigakki.js"
+    "科目/看護学方法論Ⅲ/2026秋学期/演習問題/nursingmethod3_exercise2026akigakki.js",
+    "./科目/看護学方法論Ⅲ/2026秋学期/練習問題/nursingmethod3_practice2026akigakki.js",
+    "科目/看護学方法論Ⅲ/2026秋学期/小テスト/nursingmethod3_quiz2026akigakki.js"
+  ],
+  "psychology:2026_autumn": [
+    "科目/心理学/2026秋学期/練習問題/psychology2026akigakki.js"
   ],
   "nutrition:2026_autumn": [
     "./科目/栄養学/2026秋学期/演習問題/nutrition_exercise_2026akigakki.js",
@@ -3723,6 +3769,7 @@
     "./科目/公衆衛生学/2026秋学期/過去問/publichealth_past2026akigakki.js"
   ],
   "public_health_nursing:2026_autumn": [
+    "科目/公衆衛生看護学概論/2026秋学期/基礎問題/publichealthnursing_basic2026akigakki.js",
     "./科目/公衆衛生看護学概論/2026秋学期/演習問題/publichealthnursing_exercise2026akigakki.js"
   ],
   "pathology:2026_autumn": [
@@ -3732,9 +3779,6 @@
     "./科目/病理学/2026秋学期/演習問題/演習問題　第1回/pathology_exercise_2026akigakki_1.js",
     "./科目/病理学/2026秋学期/演習問題/演習問題　第2回/pathology_exercise_2026akigakki_2.js",
     "./科目/病理学/2026秋学期/演習問題/演習問題　第3回/pathology_exercise_2026akigakki_3.js"
-  ],
-  "physiology:2026_autumn": [
-    "./科目/生理学/2026秋学期/小テスト/physiology2026akigakki_quiz.js"
   ],
   "pharmacology:2026_spring": [
     "./科目/薬理学/看護師国家試験過去6年/pharmacology_nurse_national_6years.js"
