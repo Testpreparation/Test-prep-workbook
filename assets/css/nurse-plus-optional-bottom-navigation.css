@@ -19,6 +19,13 @@
 html.np-bottom-menu-enabled #np-bottom-navigation { display: grid; }
 /* Keep the dedicated home hidden during the existing subject -> semester transition. */
 #screen-dashboard-bottom-menu.hidden { display: none !important; }
+/* Keep the flashcard button mint on mobile in bottom-menu mode, regardless of theme overrides. */
+@media (max-width: 699px) {
+  html.np-bottom-menu-enabled #bottom-menu-subject-list-container > button {
+    background-color: #d1fae5 !important;
+    color: #064e3b !important;
+  }
+}
 #np-bottom-navigation .np-bottom-nav-item {
   display: flex;
   min-width: 0;
