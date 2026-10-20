@@ -3605,7 +3605,9 @@
         const avgDisplay = (avgAcc !== null) ? `${avgAcc}%` : '-- %';
 
         return `
+          <div class="w-full overflow-hidden rounded-xl">
           <button onclick="selectSubject('${s.id}')" ${isPrep ? 'disabled' : ''} class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+
             <div class="flex items-center gap-3">
               <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">${s.code}</span>
               <div>
@@ -3621,6 +3623,8 @@
               <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">${isPrep ? '🔒' : '→'}</span>
             </div>
           </button>
+          ${target.element.id === 'bottom-menu-subject-list-container' ? '<button type="button" class="w-full px-4 py-2.5 flex items-center justify-center gap-2 rounded-b-xl bg-emerald-100 text-emerald-900 text-sm font-semibold"><span>暗記カード</span><span aria-hidden="true">→</span></button>' : ''}
+        </div>
         `;
         }).join('');
       });
