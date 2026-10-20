@@ -3716,22 +3716,9 @@
       return pathologyDatasetPromise;
     }
 
-    async function selectSubject(subjectId) {
+    function selectSubject(subjectId) {
       currentSubject = subjects.find(s => s.id === subjectId);
       if (!currentSubject || currentSubject.status === 'preparing') return;
-
-      if (currentSubject.id === 'pathology' && currentSemester === '2026_autumn') {
-        window.NursePlusStudyLoading?.show();
-        try {
-          await ensurePathologyDatasetsLoaded();
-        } catch (error) {
-          console.error('[Nurse＋] 病理学データの読み込みに失敗:', error);
-          window.NursePlusStudyLoading?.hide();
-          alert('病理学の問題データを読み込めませんでした。通信状態を確認して、もう一度お試しください。');
-          return;
-        }
-        window.NursePlusStudyLoading?.hide();
-      }
       showSemesterSelectionScreen();
     }
 
@@ -3758,8 +3745,22 @@
       }
     }
 
-    function selectSemester(semester) {
+    async function selectSemester(semester) {
       currentSemester = semester;
+
+      // 学期が確定してから対象データを読み込む。前に選んだ科目の学期状態を参照しない。
+      if (currentSubject?.id === 'pathology' && semester === '2026_autumn') {
+        window.NursePlusStudyLoading?.show();
+        try {
+          await ensurePathologyDatasetsLoaded();
+        } catch (error) {
+          console.error('[Nurse＋] 病理学データの読み込みに失敗:', error);
+          window.NursePlusStudyLoading?.hide();
+          alert('病理学の問題データを読み込めませんでした。通信状態を確認して、もう一度お試しください。');
+          return;
+        }
+        window.NursePlusStudyLoading?.hide();
+      }
 
       if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) {
         showPhysiologyModeSelectionScreen();
