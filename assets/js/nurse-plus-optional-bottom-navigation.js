@@ -28,6 +28,10 @@
     apply(enabled);
     const control = getToggle();
     if (control) control.checked = enabled;
+    // 保存済みの下部メニューモードなら、起動直後から専用ホームを表示する。
+    if (enabled && typeof window.showDashboard === 'function') {
+      window.showDashboard();
+    }
   }
 
   // Notice-only scroll reveal and quick-return header. Defaults stay visible if JS/CSS effects fail.
