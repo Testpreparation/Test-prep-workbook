@@ -225,7 +225,7 @@
       subjects.forEach(subject => {
         const card = document.createElement('button');
         card.type = 'button';
-        card.className = 'np-home-subject-card np-tone-' + subject.tone;
+        card.className = 'np-home-subject-card np-home-subject-card-neutral';
         card.innerHTML = '<span class="np-home-subject-icon" aria-hidden="true">' + subject.icon + '</span><span class="np-home-subject-name">' + subject.name + '</span><span class="np-home-subject-status" aria-hidden="true">›</span>';
         card.addEventListener('click', () => {
           if (typeof window.showSubjectScreen === 'function') window.showSubjectScreen();
@@ -281,6 +281,11 @@
         box-shadow: 0 5px 16px rgba(133,112,156,.07); transition: transform .18s ease, box-shadow .18s ease;
       }
       .np-home-subject-card:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(133,112,156,.12); }
+      /* Ordinary subject cards match the existing bottom-menu-OFF cards. */
+      .np-home-subject-card-neutral { background: rgba(255,255,255,.96) !important; border-color: #e5e7eb !important; color: #334155 !important; --np-icon-color: currentColor; --np-text-color: #334155; box-shadow: 0 2px 8px rgba(15,23,42,.04); }
+      .np-home-subject-card-neutral .np-home-subject-icon { color: #64748b !important; filter: grayscale(1); }
+      .np-home-subject-card-neutral .np-home-subject-status { color: #94a3b8 !important; }
+      .np-home-subject-card-neutral:hover { background: #f8fafc !important; box-shadow: 0 4px 12px rgba(15,23,42,.07); }
       .np-tone-pink { background: linear-gradient(120deg,#fff0f6,#fcebf3); --np-card-border:#f5dce9; --np-icon-color:#e979ad; --np-text-color:#8c5276; }
       .np-tone-amber { background: linear-gradient(120deg,#fff8ec,#fff4e6); --np-card-border:#f4e7d3; --np-icon-color:#e8b65c; --np-text-color:#866641; }
       .np-tone-blue { background: linear-gradient(120deg,#eff5ff,#edf2ff); --np-card-border:#dce7fb; --np-icon-color:#6b9fe8; --np-text-color:#4c668f; }
