@@ -12,15 +12,45 @@
     if (dashboard) {
       dashboard.classList.toggle('np-bottom-menu-home', enabled);
     }
+    const bottomDashboard = document.getElementById('screen-dashboard-bottom-menu');
+    if (bottomDashboard) {
+      bottomDashboard.classList.toggle('hidden', !enabled);
+      bottomDashboard.classList.toggle('np-bottom-menu-home', enabled);
+    }
     const control = getToggle();
     if (control) control.checked = enabled;
     try { localStorage.setItem(KEY, String(enabled)); } catch (_) {}
+  }
+
+  // Keep the dedicated bottom-menu home in sync with the canonical dashboard.
+  // The normal dashboard remains the source of truth for existing render logic.
+  function syncBottomMenuDashboard() {
+    const source = document.getElementById('screen-dashboard');
+    const target = document.getElementById('screen-dashboard-bottom-menu');
+    if (!source || !target || target.dataset.npSyncing === '1') return;
+    target.dataset.npSyncing = '1';
+    target.innerHTML = source.innerHTML;
+    delete target.dataset.npSyncing;
+  }
+
+  function initDashboardClone() {
+    const source = document.getElementById('screen-dashboard');
+    const target = document.getElementById('screen-dashboard-bottom-menu');
+    if (!source || !target) return;
+    syncBottomMenuDashboard();
+    if ('MutationObserver' in window && source.dataset.npBottomDashboardObserver !== '1') {
+      source.dataset.npBottomDashboardObserver = '1';
+      new MutationObserver(() => syncBottomMenuDashboard()).observe(source, {
+        childList: true, subtree: true, characterData: true, attributes: true
+      });
+    }
   }
 
   function init() {
     let enabled = false;
     try { enabled = localStorage.getItem(KEY) === 'true' || localStorage.getItem(KEY) === '1'; } catch (_) {}
     apply(enabled);
+    initDashboardClone();
     const control = getToggle();
     if (control) control.checked = enabled;
   }
