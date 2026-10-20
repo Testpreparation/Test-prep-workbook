@@ -5,6 +5,8 @@
   const getToggle = () => document.getElementById('np-bottom-menu-toggle');
 
   function apply(enabled) {
+    const bottomDashboard = document.getElementById('screen-dashboard-bottom-menu');
+    const wasOnBottomMenuHome = !enabled && bottomDashboard && !bottomDashboard.classList.contains('hidden');
     root.classList.toggle('np-bottom-menu-enabled', enabled);
     // Switch the dashboard's dedicated mode immediately when the setting changes,
     // even if the user is already on the home screen.
@@ -12,10 +14,13 @@
     if (dashboard) {
       dashboard.classList.toggle('np-bottom-menu-home', enabled);
     }
-    const bottomDashboard = document.getElementById('screen-dashboard-bottom-menu');
     if (bottomDashboard) {
       bottomDashboard.classList.toggle('hidden', !enabled);
       bottomDashboard.classList.toggle('np-bottom-menu-home', enabled);
+    }
+    // Turning the optional bottom menu off from its home restores the original dashboard.
+    if (wasOnBottomMenuHome && typeof window.showDashboard === 'function') {
+      window.showDashboard();
     }
     const control = getToggle();
     if (control) control.checked = enabled;
