@@ -8,6 +8,10 @@
     root.classList.toggle('np-bottom-menu-enabled', enabled);
     setupHomeSubjectCardStyles();
     setupHomeSubjectCards();
+    const dashboard = document.getElementById('screen-dashboard');
+    if (dashboard) dashboard.classList.toggle('np-home-subject-mode', enabled);
+    const homeGrid = document.getElementById('np-home-subject-grid');
+    if (homeGrid) homeGrid.hidden = !enabled;
     // The legacy dashboard can be replaced dynamically; restore the card grid after rerenders.
     if (!window.__npHomeSubjectGridObserver && 'MutationObserver' in window) {
       window.__npHomeSubjectGridObserver = new MutationObserver(() => {
@@ -16,10 +20,10 @@
         if (root.classList.contains('np-bottom-menu-enabled') && !document.getElementById('np-home-subject-grid')) {
           setupHomeSubjectCards();
         }
-        dashboard.classList.toggle('np-home-subject-mode', root.classList.contains('np-bottom-menu-enabled'));
-    grid.hidden = !root.classList.contains('np-bottom-menu-enabled');
+        const enabled = root.classList.contains('np-bottom-menu-enabled');
+        dashboard.classList.toggle('np-home-subject-mode', enabled);
         const grid = document.getElementById('np-home-subject-grid');
-        if (grid) grid.hidden = !root.classList.contains('np-bottom-menu-enabled');
+        if (grid) grid.hidden = !enabled;
       });
       window.__npHomeSubjectGridObserver.observe(document.body || document.documentElement, { childList: true, subtree: true });
     }
@@ -216,7 +220,9 @@
       grid.appendChild(flashcards);
       dashboard.insertBefore(grid, dashboard.firstChild);
     }
-    dashboard.classList.toggle('np-home-subject-mode', root.classList.contains('np-bottom-menu-enabled'));
+    const enabled = root.classList.contains('np-bottom-menu-enabled');
+    dashboard.classList.toggle('np-home-subject-mode', enabled);
+    grid.hidden = !enabled;
   }
 
   function setupHomeSubjectCardStyles() {
