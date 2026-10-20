@@ -1,9 +1,0 @@
-/* Isolated soft pastel home presentation; existing question content is untouched. */
-body.np-new-nav-enabled #screen-dashboard{padding-bottom:20px}
-body.np-new-nav-enabled #screen-dashboard .np-new-home-card{border-radius:22px!important;border:1px solid rgba(203,171,220,.36)!important;background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(250,242,252,.9))!important;color:#66566f!important;box-shadow:0 8px 24px rgba(94,67,109,.07)!important;transition:transform .25s ease,box-shadow .25s ease}
-body.np-new-nav-enabled #screen-dashboard .np-new-home-card:active{transform:scale(.985)}
-body.np-new-nav-enabled #screen-dashboard .np-new-home-card h2,body.np-new-nav-enabled #screen-dashboard .np-new-home-card h3{color:#66566f!important}
-#np-new-flashcard-shortcut{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;margin:18px 0 4px;padding:18px 20px;border:1px solid rgba(201,160,218,.45);border-radius:22px;background:linear-gradient(120deg,#fff1f7,#f1eaff);color:#66536f;text-align:left;box-shadow:0 8px 22px rgba(112,78,131,.08);transition:transform .25s ease,box-shadow .25s ease}
-#np-new-flashcard-shortcut:active{transform:scale(.985)}#np-new-flashcard-shortcut .np-fc-symbol{width:43px;height:43px;display:grid;place-items:center;border-radius:15px;background:#fff8fd;font-size:21px;box-shadow:0 3px 10px #d9c2e844}
-#np-new-flashcard-shortcut .np-fc-copy{flex:1}#np-new-flashcard-shortcut strong{display:block;font-size:14px}#np-new-flashcard-shortcut small{display:block;margin-top:4px;font-size:11px;color:#9887a2}
-@media(min-width:768px){body.np-new-nav-enabled #screen-dashboard .np-new-home-card{min-height:118px}#np-new-flashcard-shortcut{max-width:100%}}
