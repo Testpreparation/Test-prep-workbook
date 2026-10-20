@@ -184,20 +184,20 @@
       grid.setAttribute('aria-label', '科目一覧');
       grid.className = 'np-home-subject-grid';
       const subjects = [
-        { id: 'anatomy', name: '解剖学' , code: 'ANA' },
-        { id: 'biochemistry', name: '生化学' , code: 'BIO' },
-        { id: 'physiology', name: '生理学' , code: 'PHY' },
-        { id: 'public_health', name: '公衆衛生学' , code: 'PH' },
-        { id: 'public_health_nursing', name: '公衆衛生看護学概論' , code: 'PHN' },
-        { id: 'nutrition', name: '栄養学' , code: 'NUT' },
-        { id: 'pharmacology', name: '薬理学' , code: 'PHA' },
-        { id: 'nursing_method_3', name: '看護学方法論Ⅲ' , code: 'NMT3' }
+        { id: 'anatomy', name: '解剖学', icon: '🦴' },
+        { id: 'biochemistry', name: '生化学', icon: '🧪' },
+        { id: 'physiology', name: '生理学', icon: '❤️' },
+        { id: 'public_health', name: '公衆衛生学', icon: '🌿' },
+        { id: 'public_health_nursing', name: '公衆衛生看護学概論', icon: '🏥' },
+        { id: 'nutrition', name: '栄養学', icon: '🥗' },
+        { id: 'pharmacology', name: '薬理学', icon: '💊' },
+        { id: 'nursing_method_3', name: '看護学方法論Ⅲ', icon: '🩺' }
       ];
       subjects.forEach(subject => {
         const card = document.createElement('button');
         card.type = 'button';
         card.className = 'np-home-subject-card card-item';
-        card.innerHTML = '<span class="np-home-subject-code">' + subject.code + '</span><span class="np-home-subject-name">' + subject.name + '</span><span class="np-home-subject-status">科目を選択 <span aria-hidden="true">→</span></span>';
+        card.innerHTML = '<span class="np-home-subject-icon" aria-hidden="true">' + subject.icon + '</span><span class="np-home-subject-name">' + subject.name + '</span><span class="np-home-subject-status">科目を選択 <span aria-hidden="true">→</span></span>';
         card.addEventListener('click', () => {
           if (typeof window.selectSubject === 'function') {
             window.selectSubject(subject.id);
@@ -210,7 +210,7 @@
       const flashcards = document.createElement('button');
       flashcards.type = 'button';
       flashcards.className = 'np-home-subject-card card-item np-home-flashcard-card';
-      flashcards.innerHTML = '<span class="np-home-subject-code">FC</span><span class="np-home-subject-name">暗記カード</span><span class="np-home-subject-status">科目を選択 <span aria-hidden="true">→</span></span>';
+      flashcards.innerHTML = '<span class="np-home-subject-icon" aria-hidden="true">🗂️</span><span class="np-home-subject-name">暗記カード</span><span class="np-home-subject-status">科目を選択 <span aria-hidden="true">→</span></span>';
       flashcards.addEventListener('click', () => {
         if (typeof window.showSubjectScreen === 'function') window.showSubjectScreen();
         window.requestAnimationFrame(() => {
@@ -247,16 +247,17 @@
       .np-home-subject-card {
         min-width: 0; width: 100%; min-height: 0; display: flex; align-items: center; gap: 12px;
         padding: 16px; border-radius: 12px; text-align: left; justify-content: flex-start;
-        background: var(--card-bg, rgba(255,255,255,.03)); color: var(--text-primary, #e5e7eb);
-        border: 1px solid var(--border-color, rgba(148,163,184,.18));
-        box-shadow: none; transition: border-color .18s ease, background .18s ease;
+        color: var(--text-primary, #e5e7eb);
+        transition: transform .18s ease;
       }
-      .np-home-subject-card:hover { border-color: rgba(245,158,11,.45); }
-      .np-home-subject-code {
-        flex: 0 0 auto; padding: 4px 10px; border-radius: 8px;
-        background: rgba(245,158,11,.10); border: 1px solid rgba(245,158,11,.30);
-        color: #fbbf24; font: 700 11px/1.4 ui-monospace, monospace;
+      .np-home-subject-card:hover { transform: translateY(-1px); }
+      .np-home-subject-icon {
+        display: inline-flex; align-items: center; justify-content: center;
+        flex: 0 0 42px; width: 42px; height: 42px; border-radius: 12px;
+        background: var(--subject-icon-bg, rgba(148,163,184,.12));
+        font-size: 22px; line-height: 1;
       }
+      .np-home-flashcard-card { grid-column: 1 / -1; width: 100%; }
       .np-home-subject-name { min-width: 0; flex: 1; font-size: 14px; font-weight: 500; line-height: 1.45; overflow-wrap: anywhere; color: var(--text-primary, #e5e7eb); }
       .np-home-subject-status { flex: 0 0 auto; color: #94a3b8; font-size: 11px; white-space: nowrap; }
       .np-home-subject-status span { margin-left: 5px; }
@@ -267,7 +268,9 @@
       @media (max-width: 480px) {
         html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns: minmax(0, 1fr); gap: 8px; }
         .np-home-subject-card { padding: 14px 12px; }
+        .np-home-subject-icon { flex-basis: 38px; width: 38px; height: 38px; font-size: 20px; }
         .np-home-subject-name { font-size: 13px; }
+        .np-home-flashcard-card { grid-column: 1 / -1; }
       }
       @media (prefers-reduced-motion: reduce) { .np-home-subject-card { transition: none; } }
     `;
