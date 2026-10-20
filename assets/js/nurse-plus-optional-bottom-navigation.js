@@ -261,7 +261,7 @@
       #np-home-subject-grid[hidden] { display: none !important; }
       html.np-bottom-menu-enabled #np-home-subject-grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: minmax(0, 1fr);
         gap: 12px;
         width: 100%;
         padding: 4px 0 12px;
