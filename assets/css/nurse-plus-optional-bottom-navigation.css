@@ -2,10 +2,8 @@
 #np-bottom-navigation {
   position: fixed;
   z-index: 80;
-  left: 50%;
-  right: auto;
-  width: min(100vw, calc(150%));
-  transform: translateX(-50%);
+  left: max(12px, env(safe-area-inset-left));
+  right: max(12px, env(safe-area-inset-right));
   bottom: max(10px, env(safe-area-inset-bottom));
   display: none;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -47,7 +45,7 @@ html.np-bottom-menu-enabled body { padding-bottom: 100px; }
 @media (min-width: 700px) {
   #np-bottom-navigation {
     left: 50%; right: auto; transform: translateX(-50%);
-    width: min(1140px, calc(100% - 24px));
+    width: min(760px, calc(100% - 48px));
     bottom: 0;
     border-radius: 26px 26px 0 0;
     padding: 8px 22px calc(8px + env(safe-area-inset-bottom));
@@ -58,12 +56,4 @@ html.np-bottom-menu-enabled body { padding-bottom: 100px; }
 }
 @media (prefers-reduced-motion: reduce) {
   #np-bottom-navigation .np-bottom-nav-item { transition: none; }
-}
-/* Expand only the dedicated bottom-menu home layout; keep it within the viewport. */
-html.np-bottom-menu-enabled #screen-dashboard-bottom-menu {
-  position: relative;
-  left: 50%;
-  width: min(150%, calc(100vw - 24px));
-  margin-left: 0;
-  transform: translateX(-50%);
 }
