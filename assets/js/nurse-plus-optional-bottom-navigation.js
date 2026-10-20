@@ -284,6 +284,19 @@
     const enabled = root.classList.contains('np-bottom-menu-enabled');
     dashboard.classList.toggle('np-home-subject-mode', enabled);
     grid.hidden = !enabled;
+
+    // Keep the legacy OFF-mode subject list hidden while the bottom-menu home is active.
+    // The home cards still open the existing semester/mode flow when selected.
+    if (enabled) {
+      const subjectList = document.getElementById('screen-subjects');
+      if (subjectList && !subjectList.classList.contains('hidden')) {
+        subjectList.classList.add('np-bottom-menu-suppressed-subject-list');
+      }
+    } else {
+      document.querySelectorAll('.np-bottom-menu-suppressed-subject-list').forEach(screen => {
+        screen.classList.remove('np-bottom-menu-suppressed-subject-list');
+      });
+    }
   }
 
   function setupHomeSubjectCardStyles() {
@@ -314,6 +327,7 @@
       #np-home-subject-grid { display: none; box-sizing: border-box; }
       html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode > :not(#np-home-subject-grid) { display: none !important; }
       #np-home-subject-grid[hidden] { display: none !important; }
+      html.np-bottom-menu-enabled #screen-subjects.np-bottom-menu-suppressed-subject-list { display: none !important; }
       html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode { display: block !important; width: 100%; min-width: 0; }
       html.np-bottom-menu-enabled #np-home-subject-grid {
         display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch;
