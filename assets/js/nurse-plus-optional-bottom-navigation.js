@@ -22,10 +22,19 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
   else init();
   document.addEventListener('click', event => {
-    if (event.target.closest('#np-bottom-navigation [data-np-bottom-nav]')) {
-      const button = event.target.closest('[data-np-bottom-nav]');
-      document.querySelectorAll('#np-bottom-navigation [data-np-bottom-nav]').forEach(item => item.removeAttribute('aria-current'));
-      button.setAttribute('aria-current', 'page');
+    const button = event.target.closest('#np-bottom-navigation [data-np-bottom-nav]');
+    if (!button) return;
+
+    document.querySelectorAll('#np-bottom-navigation [data-np-bottom-nav]').forEach(item => item.removeAttribute('aria-current'));
+    button.setAttribute('aria-current', 'page');
+
+    // 設定は新しい設定画面を重複作成せず、既存の設定モーダルを開く。
+    if (button.dataset.npBottomNav === 'settings') {
+      if (typeof window.openUserSettings === 'function') {
+        window.openUserSettings();
+      } else {
+        console.warn('[Nurse＋] 既存の設定画面を開く関数が見つかりません。');
+      }
     }
   });
 })();
