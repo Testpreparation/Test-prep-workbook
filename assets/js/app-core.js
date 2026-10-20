@@ -3606,11 +3606,11 @@
 
         return `
           <div class="w-full h-full min-w-0">
-            <button onclick="selectSubject('${s.id}')" ${isPrep ? 'disabled' : ''} class="card-item w-full h-[88px] p-4 rounded-xl text-left flex items-center justify-between group">
+            <button onclick="selectSubject('${s.id}')" ${isPrep ? 'disabled' : ''} class="card-item w-full h-full min-h-[88px] p-4 rounded-xl text-left flex items-center justify-between group">
               <div class="flex items-center gap-3 min-w-0">
                 <span class="shrink-0 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">${s.code}</span>
                 <div class="min-w-0">
-                  <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition line-clamp-2">${s.name}</div>
+                  <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">${s.name}</div>
                   ${target.element.id === 'bottom-menu-subject-list-container' ? '' : `<div class="text-[11px] ${isPrep ?  'text-amber-500/80 font-semibold' : 'text-slate-400 font-light'} mt-0.5">${statusLabel}</div>`}
                 </div>
               </div>
@@ -3624,7 +3624,7 @@
             </button>
           </div>
         `;
-        }).join('') + (target.element.id === 'bottom-menu-subject-list-container' ? '<button type="button" class="col-span-2 md:col-span-4 w-full px-3 py-2 flex items-center justify-center gap-2 rounded-xl bg-emerald-100 text-emerald-900 text-xs font-semibold"><span>暗記カード</span><span aria-hidden="true">→</span></button>' : '');
+        }).join('') + (target.element.id === 'bottom-menu-subject-list-container' ? '<button type="button" class="col-span-2 md:col-span-3 w-full px-4 py-3 flex items-center justify-center gap-2 rounded-xl bg-emerald-100 text-emerald-900 text-sm font-semibold"><span>暗記カード</span><span aria-hidden="true">→</span></button>' : '');
       });
     }
 
