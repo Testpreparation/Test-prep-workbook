@@ -9,6 +9,7 @@
     setupHomeSubjectCardStyles();
     setupHomeSubjectCards();
     syncBottomMenuHomePresentation();
+    setupBottomFlashcardHomeLayout();
     const dashboard = document.getElementById('screen-dashboard');
     if (dashboard) dashboard.classList.toggle('np-home-subject-mode', enabled);
     const homeGrid = document.getElementById('np-home-subject-grid');
@@ -203,6 +204,33 @@
     styleFlashcardSubjectList();
   }
 
+  // In bottom-menu mode, present flashcard subjects as home-style cards and
+  // provide a matching card-shaped return action at the bottom of the page.
+  function setupBottomFlashcardHomeLayout() {
+    const enabled = root.classList.contains('np-bottom-menu-enabled');
+    const page = document.getElementById('slider-page-2');
+    if (!page) return;
+    page.classList.toggle('np-bottom-flashcard-home-layout', enabled);
+    let back = document.getElementById('np-flashcard-home-return');
+    if (!back) {
+      back = document.createElement('button');
+      back.id = 'np-flashcard-home-return';
+      back.type = 'button';
+      back.className = 'np-home-subject-card np-flashcard-home-return';
+      back.innerHTML = '<span class="np-home-subject-icon" aria-hidden="true">⌂</span><span class="np-home-subject-name">ホームに戻る</span><span class="np-home-subject-status" aria-hidden="true">›</span>';
+      back.addEventListener('click', () => {
+        if (typeof window.showDashboard === 'function') window.showDashboard();
+        else {
+          const dashboard = document.getElementById('screen-dashboard');
+          if (typeof window.hideAllScreens === 'function') window.hideAllScreens();
+          if (dashboard) dashboard.classList.remove('hidden');
+        }
+      });
+      page.appendChild(back);
+    }
+    back.hidden = !enabled;
+  }
+
   function setupHomeSubjectCards() {
     const dashboard = document.getElementById('screen-dashboard');
     if (!dashboard) return;
@@ -246,6 +274,8 @@
         if (typeof window.showSubjectScreen === 'function') window.showSubjectScreen();
         window.requestAnimationFrame(() => {
           if (typeof window.switchSubjectPage === 'function') window.switchSubjectPage(1);
+          setupBottomFlashcardHomeLayout();
+          styleFlashcardSubjectList();
         });
       });
       grid.appendChild(flashcards);
@@ -266,6 +296,21 @@
         box-sizing: border-box;
         box-shadow: none;
       }
+      html.np-bottom-menu-enabled #slider-page-2.np-bottom-flashcard-home-layout { gap: 12px; }
+      html.np-bottom-menu-enabled #slider-page-2.np-bottom-flashcard-home-layout #fc-step-1-subject-select { width: 100%; }
+      html.np-bottom-menu-enabled #slider-page-2.np-bottom-flashcard-home-layout #flashcard-subject-list-container {
+        display: grid !important; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; max-height: none; padding: 4px 0 12px;
+      }
+      html.np-bottom-menu-enabled #flashcard-subject-list-container > * {
+        min-width: 0; width: 100%; min-height: 88px; border-radius: 22px !important; box-sizing: border-box;
+      }
+      html.np-bottom-menu-enabled #flashcard-subject-list-container > *:not(.np-tone-mint) {
+        background: rgba(255,255,255,.96) !important; border-color: #e5e7eb !important; color: #334155 !important; box-shadow: 0 2px 8px rgba(15,23,42,.04) !important;
+      }
+      html.np-bottom-menu-enabled #flashcard-subject-list-container > *:not(.np-tone-mint) .np-home-subject-icon,
+      html.np-bottom-menu-enabled #flashcard-subject-list-container > *:not(.np-tone-mint) [class*='icon'] { color: #64748b !important; }
+      html.np-bottom-menu-enabled #np-flashcard-home-return { display: flex; grid-column: 1 / -1; width: 100%; margin-top: 4px; }
+      html.np-bottom-menu-enabled #np-flashcard-home-return[hidden] { display: none !important; }
       #np-home-subject-grid { display: none; box-sizing: border-box; }
       html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode > :not(#np-home-subject-grid) { display: none !important; }
       #np-home-subject-grid[hidden] { display: none !important; }
