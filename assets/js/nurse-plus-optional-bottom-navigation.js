@@ -221,7 +221,10 @@
     style.textContent = `
       #np-home-subject-grid { display: none; }
       #np-home-subject-grid[hidden] { display: none !important; }
-      html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode > :not(#np-home-subject-grid) { display: none !important; }
+      /* In bottom-menu mode, the card grid replaces the legacy 学習ホーム dashboard entirely. */
+      html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode > :not(#np-home-subject-grid),
+      html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode .en-title,
+      html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode .evo-card { display: none !important; }
       html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode #np-home-subject-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
