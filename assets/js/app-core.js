@@ -3692,10 +3692,46 @@
       }).join('');
     }
 
-    function selectSubject(subjectId) {
+    // 病理学の秋学期データは、病理学を選んだ時点で初めて読み込む。
+    const pathologyDatasetScripts = [
+  "./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第1回/pathology_range_2026akigakki_1.js",
+  "./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第2回/pathology_range_2026akigakki_2.js",
+  "./科目/病理学/2026秋学期/小テスト練習/小テスト練習　第3回/pathology_range_2026akigakki_3.js",
+  "./科目/病理学/2026秋学期/演習問題/演習問題　第1回/pathology_exercise_2026akigakki_1.js",
+  "./科目/病理学/2026秋学期/演習問題/演習問題　第2回/pathology_exercise_2026akigakki_2.js",
+  "./科目/病理学/2026秋学期/演習問題/演習問題　第3回/pathology_exercise_2026akigakki_3.js"
+];
+    let pathologyDatasetPromise = null;
+    function ensurePathologyDatasetsLoaded() {
+      if (pathologyDatasetPromise) return pathologyDatasetPromise;
+      pathologyDatasetPromise = Promise.all(pathologyDatasetScripts.map(src => new Promise((resolve, reject) => {
+        const existing = Array.from(document.scripts).find(script => script.src && new URL(script.src, document.baseURI).href === new URL(src, document.baseURI).href);
+        if (existing && existing.dataset.npLoaded === 'true') { resolve(); return; }
+        const script = existing || document.createElement('script');
+        if (!existing) { script.src = src; script.async = true; }
+        script.onload = () => { script.dataset.npLoaded = 'true'; resolve(); };
+        script.onerror = () => { script.remove(); reject(new Error('病理学データを読み込めませんでした: ' + src)); };
+        if (!existing) document.head.appendChild(script);
+      }))).catch(error => { pathologyDatasetPromise = null; throw error; });
+      return pathologyDatasetPromise;
+    }
+
+    async function selectSubject(subjectId) {
       currentSubject = subjects.find(s => s.id === subjectId);
       if (!currentSubject || currentSubject.status === 'preparing') return;
 
+      if (currentSubject.id === 'pathology' && currentSemester === '2026_autumn') {
+        window.NursePlusStudyLoading?.show();
+        try {
+          await ensurePathologyDatasetsLoaded();
+        } catch (error) {
+          console.error('[Nurse＋] 病理学データの読み込みに失敗:', error);
+          window.NursePlusStudyLoading?.hide();
+          alert('病理学の問題データを読み込めませんでした。通信状態を確認して、もう一度お試しください。');
+          return;
+        }
+        window.NursePlusStudyLoading?.hide();
+      }
       showSemesterSelectionScreen();
     }
 
