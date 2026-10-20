@@ -253,29 +253,29 @@
     }
 
     if (destination === 'settings') {
-      // 下部メニューから既存の設定モーダルを直接開く。ドロワーの表示状態には依存させない。
+      // バーガーメニュー内の既存設定を開き、下部メニューからも同じ設定一覧を表示する。
       const drawer = document.getElementById('nav-drawer');
       const drawerOverlay = document.getElementById('nav-overlay');
-      const settingsOverlay = document.getElementById('user-settings-overlay');
-      const settingsModal = document.getElementById('user-settings-modal');
+      const settingsAccordion = document.getElementById('drawer-settings-accordion');
+      const settingsToggle = document.getElementById('drawer-settings-toggle');
+      const settingsContent = document.getElementById('drawer-settings-content');
+      const settingsChevron = document.getElementById('drawer-settings-chevron');
 
+      if (typeof window.closeUserSettings === 'function') window.closeUserSettings();
       if (drawer) {
-        drawer.classList.remove('np-bottom-settings-centered');
-        drawer.classList.add('-translate-x-full');
+        drawer.classList.remove('-translate-x-full');
+        drawer.classList.add('np-bottom-settings-centered');
       }
-      if (drawerOverlay) drawerOverlay.classList.add('hidden');
+      if (drawerOverlay) drawerOverlay.classList.remove('hidden');
 
-      if (settingsOverlay && settingsModal) {
-        settingsOverlay.classList.remove('hidden');
-        settingsModal.classList.remove('hidden');
-        settingsOverlay.setAttribute('aria-hidden', 'false');
-        settingsModal.setAttribute('aria-hidden', 'false');
-        document.body.classList.add('overflow-hidden');
-        const firstSummary = settingsModal.querySelector('#settings-accordion > details > summary');
-        if (firstSummary) firstSummary.focus({ preventScroll: true });
-      } else {
-        console.warn('[Nurse＋] 設定モーダルが見つかりません。');
+      if (typeof window.prepareDrawerSettingsDropdown === 'function') {
+        window.prepareDrawerSettingsDropdown();
       }
+      if (settingsAccordion) settingsAccordion.open = true;
+      if (settingsToggle) settingsToggle.setAttribute('aria-expanded', 'true');
+      if (settingsContent) settingsContent.setAttribute('aria-hidden', 'false');
+      if (settingsChevron) settingsChevron.style.transform = 'rotate(180deg)';
+      document.body.classList.add('overflow-hidden');
       return;
     }
 
