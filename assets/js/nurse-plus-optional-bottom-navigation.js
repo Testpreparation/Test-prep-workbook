@@ -184,20 +184,20 @@
       grid.setAttribute('aria-label', '科目一覧');
       grid.className = 'np-home-subject-grid';
       const subjects = [
-        { id: 'anatomy', name: '解剖学' , code: 'ANA' },
-        { id: 'biochemistry', name: '生化学' , code: 'BIO' },
-        { id: 'physiology', name: '生理学' , code: 'PHY' },
-        { id: 'public_health', name: '公衆衛生学' , code: 'PH' },
-        { id: 'public_health_nursing', name: '公衆衛生看護学概論' , code: 'PHN' },
-        { id: 'nutrition', name: '栄養学' , code: 'NUT' },
-        { id: 'pharmacology', name: '薬理学' , code: 'PHA' },
-        { id: 'nursing_method_3', name: '看護学方法論Ⅲ' , code: 'NMT3' }
+        { id: 'anatomy', name: '解剖学', icon: '♧', tone: 'pink' },
+        { id: 'biochemistry', name: '生化学', icon: '⚗', tone: 'amber' },
+        { id: 'physiology', name: '生理学', icon: '♥', tone: 'blue' },
+        { id: 'public_health', name: '公衆衛生学', icon: '✿', tone: 'mint' },
+        { id: 'public_health_nursing', name: '公衆衛生看護学概論', icon: '♟', tone: 'lavender' },
+        { id: 'nutrition', name: '栄養学', icon: '🥣', tone: 'peach' },
+        { id: 'pharmacology', name: '薬理学', icon: '💊', tone: 'pink' },
+        { id: 'nursing_method_3', name: '看護学方法論Ⅲ', icon: '♧', tone: 'blue' }
       ];
       subjects.forEach(subject => {
         const card = document.createElement('button');
         card.type = 'button';
-        card.className = 'np-home-subject-card card-item';
-        card.innerHTML = '<span class="np-home-subject-code">' + subject.code + '</span><span class="np-home-subject-name">' + subject.name + '</span><span class="np-home-subject-status">科目を選択 <span aria-hidden="true">→</span></span>';
+        card.className = 'np-home-subject-card card-item np-tone-' + subject.tone;
+        card.innerHTML = '<span class="np-home-subject-icon" aria-hidden="true">' + subject.icon + '</span><span class="np-home-subject-name">' + subject.name + '</span><span class="np-home-subject-status" aria-hidden="true">›</span>';
         card.addEventListener('click', () => {
           if (typeof window.selectSubject === 'function') {
             window.selectSubject(subject.id);
@@ -209,8 +209,8 @@
       });
       const flashcards = document.createElement('button');
       flashcards.type = 'button';
-      flashcards.className = 'np-home-subject-card card-item np-home-flashcard-card';
-      flashcards.innerHTML = '<span class="np-home-subject-code">FC</span><span class="np-home-subject-name">暗記カード</span><span class="np-home-subject-status">科目を選択 <span aria-hidden="true">→</span></span>';
+      flashcards.className = 'np-home-subject-card card-item np-home-flashcard-card np-tone-mint';
+      flashcards.innerHTML = '<span class="np-home-subject-icon" aria-hidden="true">▤</span><span class="np-home-subject-name">暗記カード</span><span class="np-home-subject-status" aria-hidden="true">›</span>';
       flashcards.addEventListener('click', () => {
         if (typeof window.showSubjectScreen === 'function') window.showSubjectScreen();
         window.requestAnimationFrame(() => {
@@ -245,29 +245,33 @@
         padding: 4px 0 12px;
       }
       .np-home-subject-card {
-        min-width: 0; width: 100%; min-height: 0; display: flex; align-items: center; gap: 12px;
-        padding: 16px; border-radius: 12px; text-align: left; justify-content: flex-start;
-        background: var(--card-bg, rgba(255,255,255,.03)); color: var(--text-primary, #e5e7eb);
-        border: 1px solid var(--border-color, rgba(148,163,184,.18));
-        box-shadow: none; transition: border-color .18s ease, background .18s ease;
+        min-width: 0; width: 100%; min-height: 88px; display: flex; align-items: center; gap: 18px;
+        padding: 18px 22px; border-radius: 22px; text-align: left; justify-content: flex-start;
+        color: #5f5878; border: 1px solid var(--np-card-border, #f1e7f2);
+        box-shadow: 0 5px 16px rgba(133, 112, 156, .07); transition: transform .18s ease, box-shadow .18s ease;
       }
-      .np-home-subject-card:hover { border-color: rgba(245,158,11,.45); }
-      .np-home-subject-code {
-        flex: 0 0 auto; padding: 4px 10px; border-radius: 8px;
-        background: rgba(245,158,11,.10); border: 1px solid rgba(245,158,11,.30);
-        color: #fbbf24; font: 700 11px/1.4 ui-monospace, monospace;
-      }
-      .np-home-subject-name { min-width: 0; flex: 1; font-size: 14px; font-weight: 500; line-height: 1.45; overflow-wrap: anywhere; color: var(--text-primary, #e5e7eb); }
-      .np-home-subject-status { flex: 0 0 auto; color: #94a3b8; font-size: 11px; white-space: nowrap; }
-      .np-home-subject-status span { margin-left: 5px; }
+      .np-home-subject-card:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(133, 112, 156, .12); }
+      .np-tone-pink { background: linear-gradient(120deg,#fff0f6,#fcebf3); --np-card-border:#f5dce9; --np-icon-color:#e979ad; --np-text-color:#8c5276; }
+      .np-tone-amber { background: linear-gradient(120deg,#fff8ec,#fff4e6); --np-card-border:#f4e7d3; --np-icon-color:#e8b65c; --np-text-color:#866641; }
+      .np-tone-blue { background: linear-gradient(120deg,#eff5ff,#edf2ff); --np-card-border:#dce7fb; --np-icon-color:#6b9fe8; --np-text-color:#4c668f; }
+      .np-tone-mint { background: linear-gradient(120deg,#effbf8,#eaf8f5); --np-card-border:#d7eee8; --np-icon-color:#54b9ad; --np-text-color:#426d70; }
+      .np-tone-lavender { background: linear-gradient(120deg,#f8f1ff,#f4edff); --np-card-border:#e9def7; --np-icon-color:#a57ad4; --np-text-color:#70578e; }
+      .np-tone-peach { background: linear-gradient(120deg,#fff2eb,#ffede5); --np-card-border:#f7ded2; --np-icon-color:#e9a064; --np-text-color:#8b5a4d; }
+      .np-home-subject-icon { display:inline-flex; align-items:center; justify-content:center; flex:0 0 48px; width:48px; height:48px; color:var(--np-icon-color); font-size:38px; font-weight:700; line-height:1; }
+      .np-home-subject-name { min-width: 0; flex: 1; font-size: 16px; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; color: var(--np-text-color); }
+      .np-home-subject-status { flex: 0 0 auto; color: var(--np-icon-color); font-size: 30px; line-height: 1; }
+      .np-home-flashcard-card { grid-column: 1 / -1; width: 100%; }
       @media (min-width: 900px) {
+        html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+        .np-home-subject-card { padding: 18px 22px; }
+      }
+      @media (max-width: 899px) {
         html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-        .np-home-subject-card { padding: 16px; }
       }
       @media (max-width: 480px) {
-        html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns: minmax(0, 1fr); gap: 8px; }
-        .np-home-subject-card { padding: 14px 12px; }
-        .np-home-subject-name { font-size: 13px; }
+        .np-home-subject-card { min-height: 96px; padding: 14px 12px; gap: 10px; }
+        .np-home-subject-icon { flex-basis: 38px; width: 38px; height: 38px; font-size: 30px; }
+        .np-home-subject-name { font-size: 14px; }
       }
       @media (prefers-reduced-motion: reduce) { .np-home-subject-card { transition: none; } }
     `;
