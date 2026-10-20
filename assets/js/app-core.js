@@ -2328,13 +2328,7 @@
 
         } else {
           if (container) {
-            container.innerHTML = `
-              <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <div class="text-[10px] text-amber-400 font-mono">新機能アップデート</div>
-                <div class="font-semibold text-slate-100">演習機能が新しくなりました</div>
-                <p class="text-slate-400 text-[11px] font-light">画像の表示、複数選択問題、早押し対戦（2Pマルチ）に対応しました。</p>
-              </div>
-            `;
+            container.innerHTML = '<div class="text-slate-500 text-[11px] text-center py-3">現在、投稿されたお知らせはありません。</div>';
           }
           if (adminManageContainer) {
             adminManageContainer.innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">現在、投稿されたお知らせはありません。</div>`;
