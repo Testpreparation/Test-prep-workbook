@@ -8,7 +8,6 @@
     root.classList.toggle('np-bottom-menu-enabled', enabled);
     setupHomeSubjectCardStyles();
     setupHomeSubjectCards();
-    syncBottomMenuHomePresentation();
     const dashboard = document.getElementById('screen-dashboard');
     if (dashboard) dashboard.classList.toggle('np-home-subject-mode', enabled);
     const homeGrid = document.getElementById('np-home-subject-grid');
@@ -175,34 +174,6 @@
 
 
   // Optional bottom-navigation home: show subject cards only while the setting is enabled.
-  function normalizeBottomMenuBreadcrumb() {
-    if (!root.classList.contains('np-bottom-menu-enabled')) return;
-    const subjectScreen = document.getElementById('screen-subject');
-    if (!subjectScreen) return;
-    subjectScreen.querySelectorAll('[aria-label*="breadcrumb" i], nav, .breadcrumb, .breadcrumbs, [class*="breadcrumb"], [class*="Breadcrumb"]').forEach(container => {
-      const nodes = Array.from(container.querySelectorAll('a, button, span, li'));
-      nodes.forEach(node => {
-        if ((node.textContent || '').trim() === '科目一覧') node.textContent = 'ホーム';
-      });
-    });
-  }
-
-  function styleFlashcardSubjectList() {
-    if (!root.classList.contains('np-bottom-menu-enabled')) return;
-    const screens = Array.from(document.querySelectorAll('[id*="flashcard"], [class*="flashcard"], [id*="memor"], [class*="memor"]'));
-    screens.forEach(screen => {
-      screen.querySelectorAll('button, .card, [class*="card"]').forEach(card => {
-        if (card.closest('#np-home-subject-grid')) return;
-        card.classList.add('np-flashcard-subject-match-home');
-      });
-    });
-  }
-
-  function syncBottomMenuHomePresentation() {
-    normalizeBottomMenuBreadcrumb();
-    styleFlashcardSubjectList();
-  }
-
   function setupHomeSubjectCards() {
     const dashboard = document.getElementById('screen-dashboard');
     if (!dashboard) return;
@@ -213,34 +184,32 @@
       grid.setAttribute('aria-label', '科目一覧');
       grid.className = 'np-home-subject-grid';
       const subjects = [
-        { id: 'anatomy', name: '解剖学', icon: '🦴', tone: 'pink' },
-        { id: 'biochemistry', name: '生化学', icon: '⚗️', tone: 'amber' },
-        { id: 'physiology', name: '生理学', icon: '💙', tone: 'blue' },
-        { id: 'public_health', name: '公衆衛生学', icon: '🦠', tone: 'mint' },
-        { id: 'public_health_nursing', name: '公衆衛生看護学概論', icon: '👥', tone: 'lavender' },
+        { id: 'anatomy', name: '解剖学', icon: '♧', tone: 'pink' },
+        { id: 'biochemistry', name: '生化学', icon: '⚗', tone: 'amber' },
+        { id: 'physiology', name: '生理学', icon: '♥', tone: 'blue' },
+        { id: 'public_health', name: '公衆衛生学', icon: '✿', tone: 'mint' },
+        { id: 'public_health_nursing', name: '公衆衛生看護学概論', icon: '♟', tone: 'lavender' },
         { id: 'nutrition', name: '栄養学', icon: '🥣', tone: 'peach' },
         { id: 'pharmacology', name: '薬理学', icon: '💊', tone: 'pink' },
-        { id: 'nursing_method_3', name: '看護学方法論Ⅲ', icon: '🩺', tone: 'blue' }
+        { id: 'nursing_method_3', name: '看護学方法論Ⅲ', icon: '♧', tone: 'blue' }
       ];
       subjects.forEach(subject => {
         const card = document.createElement('button');
         card.type = 'button';
-        card.className = 'np-home-subject-card np-home-subject-card-neutral';
+        card.className = 'np-home-subject-card card-item np-tone-' + subject.tone;
         card.innerHTML = '<span class="np-home-subject-icon" aria-hidden="true">' + subject.icon + '</span><span class="np-home-subject-name">' + subject.name + '</span><span class="np-home-subject-status" aria-hidden="true">›</span>';
         card.addEventListener('click', () => {
-          if (typeof window.showSubjectScreen === 'function') window.showSubjectScreen();
-          window.requestAnimationFrame(() => {
-            const subjectScreen = document.getElementById('screen-subject');
-            if (!subjectScreen) return;
-            const match = Array.from(subjectScreen.querySelectorAll('button')).find(item => (item.textContent || '').includes(subject.name));
-            if (match) match.click();
-          });
+          if (typeof window.selectSubject === 'function') {
+            window.selectSubject(subject.id);
+          } else if (typeof window.showSubjectScreen === 'function') {
+            window.showSubjectScreen();
+          }
         });
         grid.appendChild(card);
       });
       const flashcards = document.createElement('button');
       flashcards.type = 'button';
-      flashcards.className = 'np-home-subject-card np-home-flashcard-card np-tone-mint';
+      flashcards.className = 'np-home-subject-card card-item np-home-flashcard-card np-tone-mint';
       flashcards.innerHTML = '<span class="np-home-subject-icon" aria-hidden="true">▤</span><span class="np-home-subject-name">暗記カード</span><span class="np-home-subject-status" aria-hidden="true">›</span>';
       flashcards.addEventListener('click', () => {
         if (typeof window.showSubjectScreen === 'function') window.showSubjectScreen();
@@ -261,31 +230,27 @@
     const style = document.createElement('style');
     style.id = 'np-home-subject-card-styles';
     style.textContent = `
-      html.np-bottom-menu-enabled .np-flashcard-subject-match-home {
-        border-radius: 22px !important;
-        box-sizing: border-box;
-        box-shadow: none;
-      }
-      #np-home-subject-grid { display: none; box-sizing: border-box; }
+      #np-home-subject-grid { display: none; }
       html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode > :not(#np-home-subject-grid) { display: none !important; }
+      html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode .en-title,
+      html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode h2,
+      html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode .evo-card,
+      html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode > div:not(#np-home-subject-grid) { display: none !important; }
       #np-home-subject-grid[hidden] { display: none !important; }
-      html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode { display: block !important; width: 100%; min-width: 0; }
       html.np-bottom-menu-enabled #np-home-subject-grid {
-        display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch;
-        gap: 14px; width: 100%; max-width: 100%; margin: 0; padding: 4px 0 12px; box-sizing: border-box;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        width: 100%;
+        padding: 4px 0 12px;
       }
       .np-home-subject-card {
         min-width: 0; width: 100%; min-height: 88px; display: flex; align-items: center; gap: 18px;
         padding: 18px 22px; border-radius: 22px; text-align: left; justify-content: flex-start;
-        color: #5f5878; border: 1px solid var(--np-card-border, #f1e7f2); box-sizing: border-box; appearance: none; -webkit-appearance: none;
-        box-shadow: 0 5px 16px rgba(133,112,156,.07); transition: transform .18s ease, box-shadow .18s ease;
+        color: #5f5878; border: 1px solid var(--np-card-border, #f1e7f2);
+        box-shadow: 0 5px 16px rgba(133, 112, 156, .07); transition: transform .18s ease, box-shadow .18s ease;
       }
-      .np-home-subject-card:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(133,112,156,.12); }
-      /* Ordinary subject cards match the existing bottom-menu-OFF cards. */
-      .np-home-subject-card-neutral { background: rgba(255,255,255,.96) !important; border-color: #e5e7eb !important; color: #334155 !important; --np-icon-color: currentColor; --np-text-color: #334155; box-shadow: 0 2px 8px rgba(15,23,42,.04); }
-      .np-home-subject-card-neutral .np-home-subject-icon { color: #64748b !important; filter: grayscale(1); }
-      .np-home-subject-card-neutral .np-home-subject-status { color: #94a3b8 !important; }
-      .np-home-subject-card-neutral:hover { background: #f8fafc !important; box-shadow: 0 4px 12px rgba(15,23,42,.07); }
+      .np-home-subject-card:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(133, 112, 156, .12); }
       .np-tone-pink { background: linear-gradient(120deg,#fff0f6,#fcebf3); --np-card-border:#f5dce9; --np-icon-color:#e979ad; --np-text-color:#8c5276; }
       .np-tone-amber { background: linear-gradient(120deg,#fff8ec,#fff4e6); --np-card-border:#f4e7d3; --np-icon-color:#e8b65c; --np-text-color:#866641; }
       .np-tone-blue { background: linear-gradient(120deg,#eff5ff,#edf2ff); --np-card-border:#dce7fb; --np-icon-color:#6b9fe8; --np-text-color:#4c668f; }
@@ -293,20 +258,20 @@
       .np-tone-lavender { background: linear-gradient(120deg,#f8f1ff,#f4edff); --np-card-border:#e9def7; --np-icon-color:#a57ad4; --np-text-color:#70578e; }
       .np-tone-peach { background: linear-gradient(120deg,#fff2eb,#ffede5); --np-card-border:#f7ded2; --np-icon-color:#e9a064; --np-text-color:#8b5a4d; }
       .np-home-subject-icon { display:inline-flex; align-items:center; justify-content:center; flex:0 0 48px; width:48px; height:48px; color:var(--np-icon-color); font-size:38px; font-weight:700; line-height:1; }
-      .np-home-subject-name { min-width:0; flex:1; font-size:16px; font-weight:600; line-height:1.45; overflow-wrap:anywhere; color:var(--np-text-color); }
-      .np-home-subject-status { flex:0 0 auto; color:var(--np-icon-color); font-size:30px; line-height:1; }
-      .np-home-flashcard-card { grid-column:1 / -1; width:100%; }
-      @media (min-width:900px) {
-        html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
-        .np-home-subject-card { padding:18px 22px; }
+      .np-home-subject-name { min-width: 0; flex: 1; font-size: 16px; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; color: var(--np-text-color); }
+      .np-home-subject-status { flex: 0 0 auto; color: var(--np-icon-color); font-size: 30px; line-height: 1; }
+      .np-home-flashcard-card { grid-column: 1 / -1; width: 100%; }
+      @media (min-width: 900px) {
+        html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+        .np-home-subject-card { padding: 18px 22px; }
       }
-      @media (max-width:899px) {
-        html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+      @media (max-width: 899px) {
+        html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
       }
-      @media (max-width:480px) {
-        .np-home-subject-card { min-height:96px; padding:14px 12px; gap:10px; }
-        .np-home-subject-icon { flex-basis:38px; width:38px; height:38px; font-size:30px; }
-        .np-home-subject-name { font-size:14px; }
+      @media (max-width: 480px) {
+        .np-home-subject-card { min-height: 96px; padding: 14px 12px; gap: 10px; }
+        .np-home-subject-icon { flex-basis: 38px; width: 38px; height: 38px; font-size: 30px; }
+        .np-home-subject-name { font-size: 14px; }
       }
       @media (prefers-reduced-motion: reduce) { .np-home-subject-card { transition: none; } }
     `;
