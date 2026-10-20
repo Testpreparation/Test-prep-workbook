@@ -38,6 +38,12 @@
         transform: translateY(0);
         transition: opacity 480ms ease, transform 480ms cubic-bezier(.2,.75,.25,1);
       }
+      /* When notices are opened from bottom navigation, dismiss controls are omitted:
+         switching to another bottom item closes the notice automatically. */
+      #modal-notice.np-bottom-notice-mode .np-notice-retracting-header > button,
+      #modal-notice.np-bottom-notice-mode > .glass-card > button[onclick*="closeNoticeModal"] {
+        display: none !important;
+      }
       #modal-notice .np-notice-retracting-header {
         transition: transform 220ms ease, opacity 220ms ease;
         will-change: transform;
@@ -154,6 +160,17 @@
     button.setAttribute('aria-current', 'page');
 
     const destination = button.dataset.npBottomNav;
+    const noticeModal = document.getElementById('modal-notice');
+    // The bottom bar stays above the notice modal; selecting another destination
+    // dismisses a notice opened from the bottom bar before performing navigation.
+    if (destination !== 'notices' && noticeModal && !noticeModal.classList.contains('hidden')) {
+      if (typeof window.closeNoticeModal === 'function') {
+        window.closeNoticeModal();
+      } else {
+        noticeModal.classList.add('hidden');
+      }
+      noticeModal.classList.remove('np-bottom-notice-mode');
+    }
     if (destination === 'home') {
       if (typeof window.showDashboard === 'function') {
         window.showDashboard();
@@ -175,6 +192,8 @@
     } else if (destination === 'notices') {
       if (typeof window.openNoticeModal === 'function') {
         window.openNoticeModal();
+        const noticeModal = document.getElementById('modal-notice');
+        if (noticeModal) noticeModal.classList.add('np-bottom-notice-mode');
         window.requestAnimationFrame(initNoticeEffects);
       } else {
         console.warn('[Nurse＋] 既存のお知らせ画面を開く関数が見つかりません。');
