@@ -3539,6 +3539,8 @@
       stopQuizTimer();
       const dashboard = document.getElementById('screen-dashboard');
       if (dashboard) dashboard.classList.add('hidden');
+      const bottomMenuDashboard = document.getElementById('screen-dashboard-bottom-menu');
+      if (bottomMenuDashboard) bottomMenuDashboard.classList.add('hidden');
       const dataAnalysis = document.getElementById('screen-data-analysis');
       if (dataAnalysis) dataAnalysis.classList.add('hidden');
       document.getElementById('screen-subjects').classList.add('hidden');
