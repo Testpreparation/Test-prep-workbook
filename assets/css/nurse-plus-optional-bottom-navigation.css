@@ -67,3 +67,17 @@ html.np-bottom-menu-enabled #screen-dashboard-bottom-menu {
   margin-left: 0;
   transform: translateX(-50%);
 }
+
+/* Bottom-menu subject selection modal/list: align width with the expanded home subject grid. */
+html.np-bottom-menu-enabled #bottom-menu-subject-list-container {
+  width: 100%;
+  min-width: 0;
+}
+html.np-bottom-menu-enabled #screen-dashboard-bottom-menu {
+  width: min(150%, calc(100vw - 24px));
+}
+@media (min-width: 700px) {
+  html.np-bottom-menu-enabled #screen-dashboard-bottom-menu {
+    width: min(150%, calc(100vw - 48px));
+  }
+}
