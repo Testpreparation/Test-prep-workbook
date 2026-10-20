@@ -226,9 +226,13 @@
   }
 
   function setupHomeSubjectCardStyles() {
-    if (document.getElementById('np-home-subject-card-styles')) return;
-    const style = document.createElement('style');
-    style.id = 'np-home-subject-card-styles';
+    // Reuse and refresh an existing style element instead of leaving stale/duplicate theme rules active.
+    let style = document.getElementById('np-home-subject-card-styles');
+    const shouldAppendStyle = !style;
+    if (!style) {
+      style = document.createElement('style');
+      style.id = 'np-home-subject-card-styles';
+    }
     style.textContent = `
       #np-home-subject-grid { display: none; }
       html.np-bottom-menu-enabled #screen-dashboard.np-home-subject-mode > :not(#np-home-subject-grid) { display: none !important; }
@@ -329,7 +333,7 @@
       }
       @media (prefers-reduced-motion: reduce) { .np-home-subject-card { transition: none; } }
     `;
-    (document.head || document.documentElement).appendChild(style);
+    if (shouldAppendStyle) (document.head || document.documentElement).appendChild(style);
   }
 
   // Use capture phase so unrelated delegated handlers cannot swallow bottom-nav taps.
