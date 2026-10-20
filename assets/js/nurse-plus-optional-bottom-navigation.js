@@ -172,7 +172,7 @@
         { id: 'public_health_nursing', name: '公衆衛生看護学概論', icon: '👥', tone: 'violet' },
         { id: 'nutrition', name: '栄養学', icon: '🥣', tone: 'orange' },
         { id: 'pharmacology', name: '薬理学', icon: '💊', tone: 'pink' },
-        { id: 'nursing_method', name: '看護学方法論Ⅲ', icon: '🩺', tone: 'blue' }
+        { id: 'nursing_method_3', name: '看護学方法論Ⅲ', icon: '🩺', tone: 'blue' }
       ];
       subjects.forEach(subject => {
         const card = document.createElement('button');
