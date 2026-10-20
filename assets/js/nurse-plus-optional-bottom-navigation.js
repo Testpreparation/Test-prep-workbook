@@ -9,21 +9,20 @@
     setupHomeSubjectCardStyles();
     setupHomeSubjectCards();
     const dashboard = document.getElementById('screen-dashboard');
-    if (dashboard) dashboard.classList.toggle('np-home-subject-mode', enabled);
+    // Bottom-menu home uses the same layout as the regular home. Keep the
+    // optional subject grid inactive so it cannot replace the regular layout.
+    if (dashboard) dashboard.classList.remove('np-home-subject-mode');
     const homeGrid = document.getElementById('np-home-subject-grid');
-    if (homeGrid) homeGrid.hidden = !enabled;
+    if (homeGrid) homeGrid.hidden = true;
     // The legacy dashboard can be replaced dynamically; restore the card grid after rerenders.
     if (!window.__npHomeSubjectGridObserver && 'MutationObserver' in window) {
       window.__npHomeSubjectGridObserver = new MutationObserver(() => {
         const dashboard = document.getElementById('screen-dashboard');
         if (!dashboard) return;
-        if (root.classList.contains('np-bottom-menu-enabled') && !document.getElementById('np-home-subject-grid')) {
-          setupHomeSubjectCards();
-        }
-        const enabled = root.classList.contains('np-bottom-menu-enabled');
-        dashboard.classList.toggle('np-home-subject-mode', enabled);
+        // Do not replace the regular dashboard when bottom navigation is enabled.
+        dashboard.classList.remove('np-home-subject-mode');
         const grid = document.getElementById('np-home-subject-grid');
-        if (grid) grid.hidden = !enabled;
+        if (grid) grid.hidden = true;
       });
       window.__npHomeSubjectGridObserver.observe(document.body || document.documentElement, { childList: true, subtree: true });
     }
