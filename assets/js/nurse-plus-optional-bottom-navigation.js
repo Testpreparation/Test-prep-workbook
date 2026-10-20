@@ -256,28 +256,13 @@
         card.className = 'np-home-subject-card np-home-subject-card-neutral';
         card.innerHTML = '<span class="np-home-subject-icon" aria-hidden="true">' + subject.icon + '</span><span class="np-home-subject-name">' + subject.name + '</span><span class="np-home-subject-status" aria-hidden="true">›</span>';
         card.addEventListener('click', () => {
-          if (typeof window.showSubjectScreen === 'function') window.showSubjectScreen();
-          window.requestAnimationFrame(() => {
-            // The real subject picker is #screen-subjects (plural). Match the
-            // canonical subject label used by app-core.js, then invoke its
-            // existing selectSubject handler through the rendered button.
-            const subjectScreen = document.getElementById('screen-subjects');
-            const aliases = {
-              anatomy: '解剖生理学',
-              nursing_method_3: '看護学方法論Ⅲ'
-            };
-            const subjectName = aliases[subject.id] || subject.name;
-            if (!subjectScreen) return;
-            const match = Array.from(subjectScreen.querySelectorAll('#subject-list-container button, button[onclick*="selectSubject"]'))
-              .find(item => (item.textContent || '').includes(subjectName));
-            if (match && !match.disabled) {
-              match.click();
-              return;
-            }
-            // Fallback to the existing app function if the button list is not
-            // mounted yet; never fabricate a new semester/mode transition.
-            if (typeof window.selectSubject === 'function') window.selectSubject(subject.id);
-          });
+          // Open the selected subject's normal semester/mode flow directly.
+          // Showing #screen-subjects here exposes the OFF-mode subject list
+          // underneath the bottom-menu home, so skip that intermediate screen.
+          if (typeof window.selectSubject === 'function') {
+            window.selectSubject(subject.id);
+          }
+        });
         });
         grid.appendChild(card);
       });
