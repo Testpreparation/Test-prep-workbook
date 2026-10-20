@@ -239,8 +239,8 @@
       #np-home-subject-grid[hidden] { display: none !important; }
       html.np-bottom-menu-enabled #np-home-subject-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1fr);
-        gap: 8px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
         width: 100%;
         padding: 4px 0 12px;
       }
@@ -273,15 +273,15 @@
       .np-home-subject-description { font-size: inherit; line-height: inherit; }
       .np-home-subject-status { flex: 0 0 auto; line-height: 1; }
       .np-home-flashcard-card {
+        grid-column: 1 / -1;
         width: 100%;
-      }
-      @media (min-width: 900px) {
-        html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns: minmax(0, 1fr); gap: 8px; }
-      }
-      @media (max-width: 899px) {
-        html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+        background: linear-gradient(120deg,#effbf8,#eaf8f5);
+        border-color: #d7eee8;
+        --np-icon-color: #54b9ad;
+        --np-text-color: #426d70;
       }
       @media (max-width: 480px) {
+        html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
         .np-home-subject-card { padding: 1rem; }
         .np-home-subject-icon { display: none; }
       }
