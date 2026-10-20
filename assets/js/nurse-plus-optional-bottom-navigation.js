@@ -196,8 +196,8 @@
       subjects.forEach(subject => {
         const card = document.createElement('button');
         card.type = 'button';
-        card.className = 'card-item w-full p-4 rounded-xl text-left flex items-center justify-between group np-home-subject-card';
-        card.innerHTML = '<div class="flex items-center gap-3"><span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">' + subject.code + '</span><div><div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition np-home-subject-name">' + subject.name + '</div><div class="text-[11px] text-slate-400 font-light mt-0.5 np-home-subject-description">過去問・小テスト対応</div></div></div><div class="flex items-center gap-3"><div class="text-right"><div class="text-[10px] text-slate-500 font-light">平均正答率</div><div class="text-xs font-mono font-semibold text-slate-600">-- %</div></div><span class="text-slate-500 group-hover:text-amber-400 transition text-sm np-home-subject-status" aria-hidden="true">→</span></div>';
+        card.className = 'np-home-subject-card np-tone-' + subject.tone;
+        card.innerHTML = '<span class="np-home-subject-name">' + subject.name + '</span>';
         card.addEventListener('click', () => {
           if (typeof window.selectSubject === 'function') {
             window.selectSubject(subject.id);
@@ -209,8 +209,8 @@
       });
       const flashcards = document.createElement('button');
       flashcards.type = 'button';
-      flashcards.className = 'card-item w-full p-4 rounded-xl text-left flex items-center justify-between group np-home-subject-card np-home-flashcard-card';
-      flashcards.innerHTML = '<div class="flex items-center gap-3"><span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 font-mono text-xs font-bold" aria-hidden="true">FC</span><div><div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition np-home-subject-name">暗記カード</div><div class="text-[11px] text-slate-400 font-light mt-0.5">暗記カード</div></div></div><span class="text-slate-500 group-hover:text-amber-400 transition text-sm np-home-subject-status" aria-hidden="true">→</span>';
+      flashcards.className = 'np-home-subject-card np-home-flashcard-card';
+      flashcards.innerHTML = '<span class="np-home-subject-name">暗記カード</span>';
       flashcards.addEventListener('click', () => {
         if (typeof window.showSubjectScreen === 'function') window.showSubjectScreen();
         window.requestAnimationFrame(() => {
@@ -245,39 +245,52 @@
         padding: 4px 0 12px;
       }
       .np-home-subject-card {
+        appearance: none;
+        -webkit-appearance: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
         min-width: 0;
         width: 100%;
-        min-height: 0;
-        color: inherit;
-        border-radius: .75rem;
-        box-shadow: none;
-        transition: all .2s ease-in-out;
+        min-height: 84px;
+        padding: 1rem;
+        border: 1px solid var(--np-card-border);
+        color: var(--np-text-color) !important;
+        border-radius: 1rem;
+        box-shadow: 0 3px 10px rgba(125, 105, 145, .07);
+        font: inherit;
+        text-align: center;
+        cursor: pointer;
+        transition: transform .2s ease, box-shadow .2s ease;
       }
       .np-home-subject-card:hover:not(:disabled) {
-        background: rgba(30, 41, 59, .9);
-        border-color: rgba(217, 119, 6, .4);
+        background: var(--np-card-background) !important;
+        border-color: var(--np-card-border) !important;
+        color: var(--np-text-color) !important;
         transform: translateY(-2px);
       }
-      .np-home-subject-card .np-home-subject-name { color: #f1f5f9; }
-      .np-home-subject-card .np-home-subject-status { font-size: 14px; }
-      .np-tone-pink { background: linear-gradient(120deg,#fff0f6,#fcebf3); --np-card-border:#f5dce9; --np-icon-color:#e979ad; --np-text-color:#8c5276; }
-      .np-tone-amber { background: linear-gradient(120deg,#fff8ec,#fff4e6); --np-card-border:#f4e7d3; --np-icon-color:#e8b65c; --np-text-color:#866641; }
-      .np-tone-blue { background: linear-gradient(120deg,#eff5ff,#edf2ff); --np-card-border:#dce7fb; --np-icon-color:#6b9fe8; --np-text-color:#4c668f; }
-      .np-tone-mint { background: linear-gradient(120deg,#effbf8,#eaf8f5); --np-card-border:#d7eee8; --np-icon-color:#54b9ad; --np-text-color:#426d70; }
-      .np-tone-lavender { background: linear-gradient(120deg,#f8f1ff,#f4edff); --np-card-border:#e9def7; --np-icon-color:#a57ad4; --np-text-color:#70578e; }
-      .np-tone-peach { background: linear-gradient(120deg,#fff2eb,#ffede5); --np-card-border:#f7ded2; --np-icon-color:#e9a064; --np-text-color:#8b5a4d; }
-      .np-home-subject-icon { display:none; }
-      .np-home-subject-code { display:none; }
-      .np-home-subject-content { min-width:0; flex:1; display:flex; flex-direction:column; align-items:flex-start; gap:4px; }
-      .np-home-subject-name { min-width: 0; font-size: inherit; font-weight: inherit; line-height: inherit; overflow-wrap: anywhere; }
-      .np-home-subject-description { font-size: inherit; line-height: inherit; }
-      .np-home-subject-status { flex: 0 0 auto; line-height: 1; }
+      .np-home-subject-card .np-home-subject-name {
+        display: block;
+        min-width: 0;
+        color: var(--np-text-color) !important;
+        font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.45;
+        overflow-wrap: anywhere;
+      }
+      .np-tone-pink { --np-card-background:linear-gradient(120deg,#fff0f6,#fcebf3); background:var(--np-card-background) !important; --np-card-border:#f5dce9; --np-text-color:#8c5276; }
+      .np-tone-amber { --np-card-background:linear-gradient(120deg,#fff8ec,#fff4e6); background:var(--np-card-background) !important; --np-card-border:#f4e7d3; --np-text-color:#866641; }
+      .np-tone-blue { --np-card-background:linear-gradient(120deg,#eff5ff,#edf2ff); background:var(--np-card-background) !important; --np-card-border:#dce7fb; --np-text-color:#4c668f; }
+      .np-tone-mint { --np-card-background:linear-gradient(120deg,#effbf8,#eaf8f5); background:var(--np-card-background) !important; --np-card-border:#d7eee8; --np-text-color:#426d70; }
+      .np-tone-lavender { --np-card-background:linear-gradient(120deg,#f8f1ff,#f4edff); background:var(--np-card-background) !important; --np-card-border:#e9def7; --np-text-color:#70578e; }
+      .np-tone-peach { --np-card-background:linear-gradient(120deg,#fff2eb,#ffede5); background:var(--np-card-background) !important; --np-card-border:#f7ded2; --np-text-color:#8b5a4d; }
       .np-home-flashcard-card {
         grid-column: 1 / -1;
         width: 100%;
-        background: linear-gradient(120deg,#effbf8,#eaf8f5);
+        --np-card-background: linear-gradient(120deg,#effbf8,#eaf8f5);
+        background: var(--np-card-background) !important;
         border-color: #d7eee8;
-        --np-icon-color: #54b9ad;
         --np-text-color: #426d70;
       }
       @media (max-width: 480px) {
