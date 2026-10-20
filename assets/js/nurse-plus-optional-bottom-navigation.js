@@ -197,14 +197,10 @@
       subjects.forEach(subject => {
         const card = document.createElement('button');
         card.type = 'button';
-        // Match the regular subject-list row structure: code badge, title/subtitle,
-        // and average accuracy at the right. Do not use the old pastel subject palette.
+        // Reuse the regular subject-list card surface, displaying only the subject name and arrow.
         card.className = 'card-item np-home-subject-card';
         card.innerHTML =
-          '<span class="np-subject-code">' + subject.code + '</span>' +
-          '<span class="np-subject-copy"><span class="np-home-subject-name">' + subject.name + '</span>' +
-          '<span class="np-subject-subtitle">' + subject.subtitle + '</span></span>' +
-          '<span class="np-subject-accuracy"><span>平均正答率</span><strong>' + subject.accuracy + '</strong></span>' +
+          '<span class="np-home-subject-name">' + subject.name + '</span>' +
           '<span class="np-subject-arrow" aria-hidden="true">→</span>';
         card.addEventListener('click', () => {
           if (typeof window.selectSubject === 'function') {
@@ -266,80 +262,24 @@
         width: 100%;
         padding: 4px 0 12px;
       }
-      /* Subject cards deliberately inherit .card-item styles so their appearance
-         matches the regular subject list in both light and dark modes. */
-      .np-home-subject-card {
-        appearance: none;
-        -webkit-appearance: none;
+      /* Subject rows use the existing .card-item theme styles without a separate palette. */
+      .np-home-subject-card:not(.np-home-flashcard-card) {
         display: flex;
         align-items: center;
-        gap: 12px;
-        box-sizing: border-box;
+        justify-content: space-between;
         min-width: 0;
         width: 100%;
-        min-height: 72px;
-        padding: 14px 16px;
-        border: 1px solid #eadcf8;
-        border-radius: 22px;
-        background: rgba(255,255,255,.78);
-        color: #8067a4;
-        box-shadow: 0 4px 14px rgba(116, 91, 147, .06);
         font: inherit;
         text-align: left;
         cursor: pointer;
       }
-      .np-home-subject-card .np-home-subject-name {
-        display: block;
+      .np-home-subject-card:not(.np-home-flashcard-card) .np-home-subject-name {
         min-width: 0;
-        color: #8067a4;
-        font-size: 14px;
-        font-weight: 600;
-        line-height: 1.4;
         overflow-wrap: anywhere;
       }
-      .np-home-subject-card .np-subject-code {
+      .np-home-subject-card:not(.np-home-flashcard-card) .np-subject-arrow {
         flex: 0 0 auto;
-        min-width: 42px;
-        padding: 5px 7px;
-        border: 1px solid #dfc9fb;
-        border-radius: 9px;
-        background: #f8f2ff;
-        color: #8a70ae;
-        text-align: center;
-        font-size: 11px;
-        font-weight: 600;
-      }
-      .np-home-subject-card .np-subject-copy {
-        display: flex;
-        flex: 1 1 auto;
-        flex-direction: column;
-        min-width: 0;
-        gap: 3px;
-      }
-      .np-home-subject-card .np-subject-subtitle {
-        color: #a59ab4;
-        font-size: 11px;
-        line-height: 1.35;
-      }
-      .np-home-subject-card .np-subject-accuracy {
-        display: flex;
-        flex: 0 0 auto;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 2px;
-        color: #a59ab4;
-        font-size: 10px;
-        white-space: nowrap;
-      }
-      .np-home-subject-card .np-subject-accuracy strong {
-        color: #8067a4;
-        font-size: 11px;
-        font-weight: 700;
-      }
-      .np-home-subject-card .np-subject-arrow {
-        flex: 0 0 auto;
-        color: #8c73ad;
-        font-size: 17px;
+        margin-left: 12px;
       }
       /* Do not define a separate pastel palette for subject cards. */
       .np-home-flashcard-card {
@@ -352,9 +292,7 @@
       }
       @media (max-width: 480px) {
         html.np-bottom-menu-enabled #np-home-subject-grid { grid-template-columns: minmax(0, 1fr); gap: 10px; }
-        .np-home-subject-card { padding: 12px; gap: 9px; }
-        .np-home-subject-card .np-subject-accuracy { font-size: 9px; }
-        .np-home-subject-card .np-subject-code { min-width: 38px; }
+        .np-home-subject-card:not(.np-home-flashcard-card) { padding: 12px; }
       }
       @media (prefers-reduced-motion: reduce) { .np-home-subject-card { transition: none; } }
     `;
