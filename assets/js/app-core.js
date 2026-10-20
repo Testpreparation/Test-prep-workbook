@@ -3525,7 +3525,8 @@
         list.appendChild(item);
       };
 
-      addCrumb('科目一覧', showSubjectScreen);
+      const bottomMenuEnabled = document.documentElement.classList.contains('np-bottom-menu-enabled');
+      addCrumb(bottomMenuEnabled ? 'ホーム' : '科目一覧', bottomMenuEnabled ? showDashboard : showSubjectScreen);
       addCrumb(currentSubject.name, showSemesterSelectionScreen);
       if (activeStage[0] !== 'screen-semester-select' && currentSemester) {
         const semesterLabel = currentSemester === '2026_spring' ? '2026春学期' : '2026秋学期';
