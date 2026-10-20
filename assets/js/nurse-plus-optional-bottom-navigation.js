@@ -198,19 +198,41 @@
     }
 
     if (destination === 'settings') {
-      if (typeof window.openUserSettings === 'function') {
-        window.openUserSettings();
+      // 下部の設定アイコンでは、ハンバーガーメニュー内の設定アコーディオンを
+      // 画面中央のダイアログとして開く（既存の設定項目・処理はそのまま利用）。
+      const drawer = document.getElementById('nav-drawer');
+      const drawerOverlay = document.getElementById('nav-overlay');
+      const accordion = document.getElementById('drawer-settings-accordion');
+      const content = document.getElementById('drawer-settings-content');
+      if (drawer && drawerOverlay && accordion && content) {
+        drawer.classList.add('np-bottom-settings-centered');
+        drawer.classList.remove('-translate-x-full');
+        drawerOverlay.classList.remove('hidden');
+        accordion.open = true;
+        const summary = document.getElementById('drawer-settings-toggle');
+        if (summary) summary.setAttribute('aria-expanded', 'true');
+        content.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('overflow-hidden');
+        const closeCenteredSettings = () => {
+          drawer.classList.remove('np-bottom-settings-centered');
+          accordion.open = false;
+          if (summary) summary.setAttribute('aria-expanded', 'false');
+          content.setAttribute('aria-hidden', 'true');
+          document.body.classList.remove('overflow-hidden');
+          document.removeEventListener('keydown', onSettingsEscape);
+        };
+        const onSettingsEscape = event => {
+          if (event.key !== 'Escape') return;
+          if (typeof window.closeNavDrawer === 'function') window.closeNavDrawer();
+          closeCenteredSettings();
+        };
+        drawerOverlay.addEventListener('click', closeCenteredSettings, { once: true });
+        drawer.querySelectorAll('button[onclick*="closeNavDrawer"]').forEach(button => {
+          button.addEventListener('click', closeCenteredSettings, { once: true });
+        });
+        document.addEventListener('keydown', onSettingsEscape);
       } else {
-        const overlay = document.getElementById('user-settings-overlay');
-        const modal = document.getElementById('user-settings-modal');
-        if (overlay && modal) {
-          overlay.classList.remove('hidden');
-          modal.classList.remove('hidden');
-          modal.setAttribute('aria-hidden', 'false');
-          document.body.classList.add('overflow-hidden');
-        } else {
-          console.warn('[Nurse＋] 設定画面の要素が見つかりません。');
-        }
+        console.warn('[Nurse＋] ハンバーガーメニューの設定アコーディオンが見つかりません。');
       }
       return;
     }
