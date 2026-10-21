@@ -3727,7 +3727,7 @@
       if(click.includes('selectPharmacologyMode(')){const m=modeFrom('selectPharmacologyMode');return m==='nurse_national_6years'?['pharmacology_nurse_national_6years']:[`pharmacology_${m}_${semester}`, 'pharmacology'];}
       if(click.includes('selectNutritionMode(')){const m=modeFrom('selectNutritionMode');return [`nutrition_${m}_${semester}`,'nutrition'];}
       if(click.includes('selectNursingMethod3Mode(')){const m=modeFrom('selectNursingMethod3Mode');return [`nursing_method_3_${m}_${semester}`];}
-      if(click.includes('selectNursingRound(')){const round=modeFrom('selectNursingRound');return (typeof window.getNursingQuestions==='function'?[window.getNursingQuestions(round)]:[]).filter(Array.isArray).length?['nursing_method']:[];}
+      if(click.includes('selectNursingRound(')){const round=modeFrom('selectNursingRound');const questions=typeof window.getNursingQuestions==='function'?window.getNursingQuestions(round):[];return Array.isArray(questions)&&questions.length>0?['nursing_method']:[];}
       if(click.includes('selectSubject(')){const m=click.match(/selectSubject\('([^']+)'\)/);return npQuizKeysForSubject(m?m[1]:'');}
       return null;
     }
