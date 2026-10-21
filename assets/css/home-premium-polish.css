@@ -174,7 +174,7 @@ html.np-light-theme .w-full.max-w-xl.mx-auto:has(#screen-dashboard:not(.hidden))
   padding: 0 .16em .32em !important;
   margin: 0 auto !important;
   font-family: "Dancing Script", "Cormorant Garamond", cursive !important;
-  font-size: clamp(2.35rem, 8vw, 2.85rem) !important;
+  font-size: clamp(3.4rem, 11vw, 3.8rem) !important;
   font-weight: 600 !important;
   line-height: 1.12 !important;
   letter-spacing: .01em !important;
