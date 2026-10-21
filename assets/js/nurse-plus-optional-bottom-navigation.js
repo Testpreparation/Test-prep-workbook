@@ -277,7 +277,11 @@
         drawer.classList.remove('-translate-x-full');
         drawer.classList.add('np-bottom-settings-centered');
       }
-      if (drawerOverlay) drawerOverlay.classList.remove('hidden');
+      if (drawerOverlay) {
+        drawerOverlay.classList.remove('hidden');
+        drawerOverlay.style.zIndex = '100';
+      }
+      if (drawer) drawer.style.zIndex = '101';
 
       if (typeof window.prepareDrawerSettingsDropdown === 'function') {
         window.prepareDrawerSettingsDropdown();
