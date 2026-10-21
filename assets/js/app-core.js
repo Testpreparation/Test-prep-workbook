@@ -2483,7 +2483,7 @@
 
       const excluded = 'script,style,link,meta,svg,path,input,textarea,select,option';
       const applyTo = (element) => {
-        if (!(element instanceof HTMLElement) || element.matches(excluded) || element.hasAttribute('data-np-text-scale-exclude')) return;
+        if (!(element instanceof HTMLElement) || element.matches(excluded) || element.closest('[data-np-text-scale-exclude]')) return;
         if (!element.dataset.npBaseFontSize) {
           const current = parseFloat(getComputedStyle(element).fontSize) || 16;
           element.dataset.npBaseFontSize = String(current / (window.__nurseTextScale || 1));
