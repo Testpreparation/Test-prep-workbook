@@ -3705,12 +3705,12 @@
                   ${target.element.id === 'bottom-menu-subject-list-container' ? '' : `<div class="text-[11px] ${isPrep ?  'text-amber-500/80 font-semibold' : 'text-slate-400 font-light'} mt-0.5">${statusLabel}</div>`}
                 </div>
               </div>
-              <div class="${target.element.id === 'bottom-menu-subject-list-container' ? 'grid grid-cols-[44px_12px] items-center gap-2 shrink-0' : 'flex items-center gap-2 shrink-0'}">
-                <div class="${target.element.id === 'bottom-menu-subject-list-container' ? 'w-[44px] text-right' : 'text-right'}">
+              <div class="${target.element.id === 'bottom-menu-subject-list-container' ? 'grid grid-cols-[44px_12px] items-center gap-2 shrink-0' : 'flex items-center gap-2 shrink-0'}" ${target.element.id === 'bottom-menu-subject-list-container' ? 'style="display: grid; grid-template-columns: 44px 12px; align-items: center; column-gap: 8px; flex-shrink: 0;"' : ''}>
+                <div class="${target.element.id === 'bottom-menu-subject-list-container' ? 'w-[44px] text-right' : 'text-right'}" ${target.element.id === 'bottom-menu-subject-list-container' ? 'style="width: 44px; text-align: right;"' : ''}>
                   <div class="${target.element.id === 'bottom-menu-subject-list-container' ? 'text-[10.5px]' : 'text-[10px]'} text-slate-500 font-light">${target.element.id === 'bottom-menu-subject-list-container' ? '平均' : '平均正答率'}</div>
                   <div class="${target.element.id === 'bottom-menu-subject-list-container' ? 'text-[11.5px]' : 'text-xs'} font-mono font-semibold ${avgAcc !== null ? 'text-amber-400' : 'text-slate-600'}">${avgDisplay}</div>
                 </div>
-                <span class="${target.element.id === 'bottom-menu-subject-list-container' ? 'w-3 text-center' : ''} text-slate-500 group-hover:text-amber-400 transition text-sm">${isPrep ? '🔒' : '→'}</span>
+                <span class="${target.element.id === 'bottom-menu-subject-list-container' ? 'w-3 text-center' : ''} text-slate-500 group-hover:text-amber-400 transition text-sm" ${target.element.id === 'bottom-menu-subject-list-container' ? 'style="width: 12px; text-align: center; justify-self: center;"' : ''}>${isPrep ? '🔒' : '→'}</span>
               </div>
             </button>
           </div>
