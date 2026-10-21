@@ -199,6 +199,79 @@
     init();
   }
 
+
+
+  function closeBottomMenuSettings() {
+    const overlay = document.getElementById('np-bottom-settings-overlay');
+    const modal = document.getElementById('np-bottom-settings-modal');
+    if (overlay) overlay.classList.add('hidden');
+    if (modal) modal.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+  }
+
+  function openBottomMenuSettings() {
+    const source = document.getElementById('settings-accordion');
+    if (!source) return;
+    let overlay = document.getElementById('np-bottom-settings-overlay');
+    let modal = document.getElementById('np-bottom-settings-modal');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'np-bottom-settings-overlay';
+      overlay.className = 'fixed inset-0 z-[100] bg-slate-950/65 backdrop-blur-sm';
+      overlay.addEventListener('click', closeBottomMenuSettings);
+      document.body.appendChild(overlay);
+    }
+    if (!modal) {
+      modal = document.createElement('section');
+      modal.id = 'np-bottom-settings-modal';
+      modal.className = 'fixed z-[101] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-md rounded-2xl border border-slate-700 bg-slate-900/95 backdrop-blur-xl shadow-2xl p-5 text-slate-200 max-h-[85vh] overflow-y-auto';
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+      modal.setAttribute('aria-label', '設定');
+      const header = document.createElement('div');
+      header.className = 'flex items-center justify-between gap-3 pb-4 border-b border-slate-700';
+      header.innerHTML = '<div><div class="text-[10px] tracking-[.2em] text-amber-400">SETTINGS</div><h2 class="text-xl mt-1">設定</h2><p class="text-xs text-slate-400 mt-1">下部メニュー専用の設定</p></div>';
+      const close = document.createElement('button');
+      close.type = 'button';
+      close.className = 'rounded-lg p-2 text-slate-400 hover:text-white hover:bg-slate-800';
+      close.setAttribute('aria-label', '設定を閉じる');
+      close.textContent = '✕';
+      close.addEventListener('click', closeBottomMenuSettings);
+      header.appendChild(close);
+      const content = document.createElement('div');
+      content.id = 'np-bottom-settings-content';
+      content.className = 'space-y-3 pt-4';
+      const clonedSettings = source.cloneNode(true);
+      clonedSettings.id = 'np-bottom-settings-accordion';
+      clonedSettings.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+      clonedSettings.querySelectorAll('details').forEach(el => { el.open = false; });
+      clonedSettings.querySelectorAll('button[onclick*="openThemeSettingsPage"]').forEach(el => el.id = 'np-bottom-theme-settings-card');
+      content.appendChild(clonedSettings);
+      const closeBottom = document.createElement('button');
+      closeBottom.type = 'button';
+      closeBottom.className = 'mt-5 w-full rounded-xl border border-slate-700 bg-slate-800/70 py-3 text-sm hover:bg-slate-700 transition';
+      closeBottom.textContent = '閉じる';
+      closeBottom.addEventListener('click', closeBottomMenuSettings);
+      modal.append(header, content, closeBottom);
+      document.body.appendChild(modal);
+    } else {
+      const content = document.getElementById('np-bottom-settings-content');
+      if (content && !content.firstElementChild) {
+        const clonedSettings = source.cloneNode(true);
+        clonedSettings.id = 'np-bottom-settings-accordion';
+        clonedSettings.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+        content.appendChild(clonedSettings);
+      }
+    }
+    if (typeof window.closeUserSettings === 'function') window.closeUserSettings();
+    overlay.classList.remove('hidden');
+    modal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  }
+
+  window.openBottomMenuSettings = openBottomMenuSettings;
+  window.closeBottomMenuSettings = closeBottomMenuSettings;
+
   // Use capture phase so unrelated delegated handlers cannot swallow bottom-nav taps.
   document.addEventListener('click', event => {
     const target = event.target instanceof Element ? event.target : event.target && event.target.parentElement;
@@ -209,8 +282,9 @@
     event.stopPropagation();
     const destination = button.dataset.npBottomNav;
     // 設定ドロワーを開いたまま別の下部メニューへ移動しないように閉じる。
-    if (destination !== 'settings' && typeof window.closeNavDrawer === 'function') {
-      window.closeNavDrawer();
+    if (destination !== 'settings') {
+      if (typeof window.closeBottomMenuSettings === 'function') window.closeBottomMenuSettings();
+      if (typeof window.closeNavDrawer === 'function') window.closeNavDrawer();
       const drawer = document.getElementById('nav-drawer');
       if (drawer) drawer.classList.remove('np-bottom-settings-centered');
     }
@@ -264,33 +338,10 @@
     }
 
     if (destination === 'settings') {
-      // バーガーメニュー内の既存設定を開き、下部メニューからも同じ設定一覧を表示する。
-      const drawer = document.getElementById('nav-drawer');
-      const drawerOverlay = document.getElementById('nav-overlay');
-      const settingsAccordion = document.getElementById('drawer-settings-accordion');
-      const settingsToggle = document.getElementById('drawer-settings-toggle');
-      const settingsContent = document.getElementById('drawer-settings-content');
-      const settingsChevron = document.getElementById('drawer-settings-chevron');
-
-      if (typeof window.closeUserSettings === 'function') window.closeUserSettings();
-      if (drawer) {
-        drawer.classList.remove('-translate-x-full');
-        drawer.classList.add('np-bottom-settings-centered');
+      // 下部メニュー専用の設定パネルを開き、バーガーメニューの表示状態には触れない。
+      if (typeof window.openBottomMenuSettings === 'function') {
+        window.openBottomMenuSettings();
       }
-      if (drawerOverlay) {
-        drawerOverlay.classList.remove('hidden');
-        drawerOverlay.style.zIndex = '100';
-      }
-      if (drawer) drawer.style.zIndex = '101';
-
-      if (typeof window.prepareDrawerSettingsDropdown === 'function') {
-        window.prepareDrawerSettingsDropdown();
-      }
-      if (settingsAccordion) settingsAccordion.open = true;
-      if (settingsToggle) settingsToggle.setAttribute('aria-expanded', 'true');
-      if (settingsContent) settingsContent.setAttribute('aria-hidden', 'false');
-      if (settingsChevron) settingsChevron.style.transform = 'rotate(180deg)';
-      document.body.classList.add('overflow-hidden');
       return;
     }
 

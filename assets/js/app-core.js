@@ -1315,10 +1315,11 @@
         console.error('管理者認証画面の表示に必要な要素が見つかりません。');
         return;
       }
+      if (typeof window.closeBottomMenuSettings === 'function') window.closeBottomMenuSettings();
       closeUserSettings();
       closeNavDrawer();
       closeAdminModal();
-      modal.style.zIndex = '100';
+      modal.style.zIndex = '130';
       openAuthModal();
     }
 
@@ -2382,6 +2383,9 @@
       const overlay = document.getElementById('np-theme-settings-overlay');
       const modal = document.getElementById('np-theme-settings-modal');
       if (!overlay || !modal) return;
+      // Theme settings must appear above both the hamburger drawer and bottom-menu settings.
+      overlay.style.zIndex = '120';
+      modal.style.zIndex = '121';
       overlay.classList.remove('hidden');
       modal.classList.remove('hidden');
     }
