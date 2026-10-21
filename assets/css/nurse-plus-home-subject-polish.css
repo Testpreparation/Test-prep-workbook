@@ -1,0 +1,96 @@
+/* Nurse＋ home and subject-card visual refinements only. No behavior changes. */
+
+/* Keep regular subject cards aligned and comfortably readable. */
+#screen-subjects #subject-list-container {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+}
+
+#screen-subjects #subject-list-container > div,
+#screen-dashboard-bottom-menu #bottom-menu-subject-list-container > div {
+  min-width: 0;
+}
+
+#screen-subjects #subject-list-container .card-item {
+  min-height: 96px;
+  height: auto;
+  gap: 12px;
+}
+
+#screen-subjects #subject-list-container .card-item > div:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+#screen-subjects #subject-list-container .card-item > div:first-child > div {
+  min-width: 0;
+}
+
+#screen-subjects #subject-list-container .card-item > div:first-child > div > div:first-child {
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+#screen-subjects #subject-list-container .card-item > div:last-child {
+  flex-shrink: 0;
+}
+
+/* Bottom-menu home cards: avoid cramped labels and preserve clear spacing. */
+#screen-dashboard-bottom-menu #bottom-menu-subject-list-container .card-item {
+  min-width: 0;
+  min-height: 78px;
+  height: auto;
+  gap: 8px;
+  padding: 10px;
+}
+
+#screen-dashboard-bottom-menu #bottom-menu-subject-list-container .card-item > div:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 6px;
+}
+
+#screen-dashboard-bottom-menu #bottom-menu-subject-list-container .card-item > div:first-child > div {
+  min-width: 0;
+}
+
+#screen-dashboard-bottom-menu #bottom-menu-subject-list-container .card-item > div:first-child > div > div:first-child {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+}
+
+#screen-dashboard-bottom-menu #bottom-menu-subject-list-container .card-item > div:last-child {
+  flex-shrink: 0;
+  gap: 6px;
+}
+
+#screen-dashboard-bottom-menu #bottom-menu-subject-list-container .card-item > div:last-child > div {
+  width: auto;
+  min-width: 42px;
+}
+
+@media (min-width: 640px) {
+  #screen-subjects #subject-list-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #screen-subjects #subject-list-container .card-item {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  #screen-subjects #subject-list-container .card-item > div:first-child {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 359px) {
+  #screen-dashboard-bottom-menu #bottom-menu-subject-list-container {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #screen-dashboard-bottom-menu #bottom-menu-subject-list-container .card-item {
+    min-height: 72px;
+  }
+}
