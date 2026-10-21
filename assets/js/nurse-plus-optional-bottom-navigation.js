@@ -224,7 +224,7 @@
     if (!modal) {
       modal = document.createElement('section');
       modal.id = 'np-bottom-settings-modal';
-      modal.className = 'fixed z-[101] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-md rounded-2xl border border-slate-700 bg-slate-900/95 backdrop-blur-xl shadow-2xl p-5 text-slate-200 max-h-[85vh] overflow-y-auto';
+      modal.className = 'fixed inset-0 z-[101] w-full h-[100dvh] max-w-none rounded-none border-0 bg-slate-900/95 backdrop-blur-xl shadow-2xl p-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-[max(1.25rem,env(safe-area-inset-bottom))] text-slate-200 overflow-y-auto';
       modal.setAttribute('role', 'dialog');
       modal.setAttribute('aria-modal', 'true');
       modal.setAttribute('aria-label', '設定');
