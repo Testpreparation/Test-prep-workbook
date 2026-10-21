@@ -845,6 +845,7 @@
     let currentFlashcardSubject = null;
     let flashcardMode = 0;             // 0: [表:単語 / 裏:意味], 1: [表:意味 / 裏:単語]
     let flashcardSubjectLocked = false;
+    let flashcardOpenedFromBottomMenu = false;
 
     function getAverageAccuracy(subjectId) {
       const historyKey = `history_accuracy_${subjectId}`;
@@ -942,6 +943,12 @@
     // ---------------------------------------------------------
     
     function backToFlashcardStep(stepNum) {
+      if (stepNum === 1 && flashcardOpenedFromBottomMenu) {
+        hideAllScreens();
+        document.getElementById('screen-bottom-menu-flashcard-subjects')?.classList.remove('hidden');
+        renderBottomMenuFlashcardSubjectList();
+        return;
+      }
       document.getElementById('fc-step-1-subject-select').classList.add('hidden');
       document.getElementById('fc-step-2-dashboard').classList.add('hidden');
       document.getElementById('fc-step-3-time').classList.add('hidden');
@@ -961,6 +968,61 @@
         document.getElementById('fc-step-2-dashboard').classList.remove('hidden');
         updateFlashcardDashboardUI();
       }
+    }
+
+    function showBottomMenuFlashcardSubjects() {
+      flashcardOpenedFromBottomMenu = true;
+      hideAllScreens();
+      document.getElementById('screen-bottom-menu-flashcard-subjects')?.classList.remove('hidden');
+      renderBottomMenuFlashcardSubjectList();
+    }
+
+    function returnToBottomMenuHome() {
+      flashcardOpenedFromBottomMenu = false;
+      showDashboard();
+    }
+
+    function renderBottomMenuFlashcardSubjectList() {
+      const container = document.getElementById('bottom-menu-flashcard-subject-list-container');
+      if (!container) return;
+
+      const visibleSubjects = subjects.filter(s => s.status !== 'preparing' && s.visible !== false && s.flashcardVisible !== false);
+      if (!visibleSubjects.length) {
+        container.innerHTML = '<div class="col-span-2 md:col-span-3 text-center py-8 text-xs text-slate-500">利用可能な暗記カード科目がありません。</div>';
+        return;
+      }
+
+      container.innerHTML = visibleSubjects.map(s => {
+        const cards = fetchFlashcardDataForSubject(s.id).filter(item => item.visible !== false);
+        const learnedSet = getLearnedWordsSet(s.id);
+        const total = cards.length;
+        const learned = Math.min(learnedSet.size, total);
+        return `
+          <button type="button" onclick="openBottomMenuFlashcardSubject('${s.id}')" class="card-item w-full h-[72px] min-w-0 p-3 rounded-xl text-left flex items-center justify-between gap-2 group">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="shrink-0 px-1.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-[10px] font-bold">${s.code}</span>
+              <div class="min-w-0">
+                <div class="text-[10.5px] leading-tight font-medium text-slate-100 group-hover:text-amber-300 transition">${s.name}</div>
+                <div class="text-[9px] text-slate-500 mt-1">暗記カード ${total}枚</div>
+              </div>
+            </div>
+            <div class="shrink-0 text-right">
+              <div class="text-[9px] text-slate-500">習得</div>
+              <div class="text-[11px] font-mono font-semibold text-amber-400">${learned}/${total}</div>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function openBottomMenuFlashcardSubject(subjectId) {
+      const subject = subjects.find(s => s.id === subjectId);
+      if (!subject || subject.status === 'preparing') return;
+      flashcardOpenedFromBottomMenu = true;
+      hideAllScreens();
+      document.getElementById('screen-subjects').classList.remove('hidden');
+      switchSubjectPage(1);
+      selectFlashcardSubject(subjectId);
     }
 
     function renderFlashcardSubjectList() {
@@ -3551,6 +3613,8 @@
       if (dashboard) dashboard.classList.add('hidden');
       const bottomMenuDashboard = document.getElementById('screen-dashboard-bottom-menu');
       if (bottomMenuDashboard) bottomMenuDashboard.classList.add('hidden');
+      const bottomMenuFlashcards = document.getElementById('screen-bottom-menu-flashcard-subjects');
+      if (bottomMenuFlashcards) bottomMenuFlashcards.classList.add('hidden');
       const dataAnalysis = document.getElementById('screen-data-analysis');
       if (dataAnalysis) dataAnalysis.classList.add('hidden');
       document.getElementById('screen-subjects').classList.add('hidden');
@@ -3636,7 +3700,7 @@
             </button>
           </div>
         `;
-        }).join('') + (target.element.id === 'bottom-menu-subject-list-container' ? '<button type="button" class="col-span-2 md:col-span-3 w-full px-4 py-3 flex items-center justify-center gap-2 rounded-xl bg-emerald-100 text-emerald-900 text-sm font-semibold"><span>暗記カード</span><span aria-hidden="true">→</span></button>' : '');
+        }).join('') + (target.element.id === 'bottom-menu-subject-list-container' ? '<button type="button" onclick="showBottomMenuFlashcardSubjects()" class="col-span-2 md:col-span-3 w-full px-4 py-3 flex items-center justify-center gap-2 rounded-xl bg-emerald-100 text-emerald-900 text-sm font-semibold"><span>暗記カード</span><span aria-hidden="true">→</span></button>' : '');
       });
     }
 
