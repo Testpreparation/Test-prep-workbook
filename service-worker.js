@@ -1,7 +1,7 @@
 /* Nurse＋ PWA: installability and best-effort offline cache.
  * Only same-origin GET requests are cached. HTML navigations are network-first so updates remain visible.
  */
-const CACHE_NAME = 'nurse-plus-pwa-v3';
+const CACHE_NAME = 'nurse-plus-pwa-v4';
 const APP_ROOT = '/Test-prep-workbook/';
 const CORE_ASSETS = [
   APP_ROOT,
@@ -49,9 +49,25 @@ self.addEventListener('fetch', event => {
   }
 
   // 分析画面の修正を既存PWA利用者にも確実に反映するため、
-  // このJSだけはキャッシュを先に返さず、ネットワークから最新版を取得する。
+  // このJSと画面本体のJSはキャッシュを先に返さず、ネットワークから最新版を取得する。
   // オフライン時は保存済みファイルへフォールバックする。
   if (url.pathname.endsWith('/assets/nurse-plus-analytics-addition.js')) {
+    event.respondWith(
+      fetch(request, { cache: 'no-cache' }).then(response => {
+        if (response && response.ok && response.type === 'basic') {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(request, copy)).catch(() => {});
+        }
+        return response;
+      }).catch(async () => {
+        const cached = await caches.match(request);
+        return cached || Response.error();
+      })
+    );
+    return;
+  }
+
+  if (url.pathname.endsWith('/assets/js/app-core.js')) {
     event.respondWith(
       fetch(request, { cache: 'no-cache' }).then(response => {
         if (response && response.ok && response.type === 'basic') {
