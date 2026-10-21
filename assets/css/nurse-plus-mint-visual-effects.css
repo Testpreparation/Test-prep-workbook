@@ -1,0 +1,94 @@
+/* Nurse＋ mint visual-effects experiment.
+ * CSS-only and reversible: remove this stylesheet link to disable every effect.
+ * Existing content, data, navigation, and event handlers are untouched.
+ */
+
+:root {
+  --np-mint-glow: rgba(111, 224, 194, 0.20);
+  --np-mint-edge: rgba(102, 205, 177, 0.22);
+}
+
+/* Soft ambient color, limited to the home and subject-list surfaces. */
+#screen-dashboard-bottom-menu,
+#screen-subjects {
+  background-image:
+    radial-gradient(ellipse at 8% 0%, rgba(180, 244, 226, 0.22), transparent 42%),
+    radial-gradient(ellipse at 100% 85%, rgba(202, 241, 235, 0.18), transparent 38%);
+}
+
+/* Gentle depth and a quiet glass-like highlight on subject cards. */
+#screen-subjects #subject-list-container .card-item,
+#screen-dashboard-bottom-menu #bottom-menu-subject-list-container .card-item {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--np-mint-edge);
+  box-shadow:
+    0 3px 12px rgba(42, 117, 99, 0.055),
+    inset 0 1px 0 rgba(255, 255, 255, 0.78);
+  transition:
+    transform 150ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* A soft sweep is only visible on pointer hover, not constantly moving. */
+@media (hover: hover) and (pointer: fine) {
+  #screen-subjects #subject-list-container .card-item::after,
+  #screen-dashboard-bottom-menu #bottom-menu-subject-list-container .card-item::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      112deg,
+      transparent 25%,
+      rgba(255, 255, 255, 0.42) 48%,
+      transparent 68%
+    );
+    opacity: 0;
+    transform: translateX(-18%);
+    transition: opacity 180ms ease, transform 300ms ease;
+  }
+
+  #screen-subjects #subject-list-container .card-item:hover,
+  #screen-dashboard-bottom-menu #bottom-menu-subject-list-container .card-item:hover {
+    border-color: rgba(75, 190, 158, 0.38);
+    box-shadow:
+      0 7px 18px rgba(42, 117, 99, 0.10),
+      0 0 0 3px var(--np-mint-glow),
+      inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    transform: translateY(-2px);
+  }
+
+  #screen-subjects #subject-list-container .card-item:hover::after,
+  #screen-dashboard-bottom-menu #bottom-menu-subject-list-container .card-item:hover::after {
+    opacity: 1;
+    transform: translateX(18%);
+  }
+}
+
+/* Brief tactile feedback when a card is pressed. */
+#screen-subjects #subject-list-container .card-item:active,
+#screen-dashboard-bottom-menu #bottom-menu-subject-list-container .card-item:active {
+  transform: scale(0.985);
+  box-shadow: 0 1px 5px rgba(42, 117, 99, 0.08);
+}
+
+/* Keep keyboard focus visible and consistent with the mint palette. */
+#screen-subjects #subject-list-container .card-item:focus-visible,
+#screen-dashboard-bottom-menu #bottom-menu-subject-list-container .card-item:focus-visible {
+  outline: 3px solid rgba(57, 178, 145, 0.55);
+  outline-offset: 3px;
+}
+
+/* Respect operating-system reduced-motion preferences. */
+@media (prefers-reduced-motion: reduce) {
+  #screen-subjects #subject-list-container .card-item,
+  #screen-dashboard-bottom-menu #bottom-menu-subject-list-container .card-item,
+  #screen-subjects #subject-list-container .card-item::after,
+  #screen-dashboard-bottom-menu #bottom-menu-subject-list-container .card-item::after {
+    transition: none !important;
+    transform: none !important;
+  }
+}
