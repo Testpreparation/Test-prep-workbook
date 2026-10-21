@@ -3745,7 +3745,7 @@
         star.className='np-quiz-star';
         star.setAttribute('aria-label','問題あり');
         star.textContent='★';
-        star.style.cssText='position:absolute;left:8px;bottom:6px;font-size:13px;line-height:1;color:#e5a000;pointer-events:none;z-index:2;';
+        star.style.cssText='position:absolute;left:8px;bottom:6px;font-size:9px;line-height:1;color:#e5a000;pointer-events:none;z-index:2;';
         button.appendChild(star);
       };
       document.querySelectorAll('#screen-semester-select button[id^="semester-"]').forEach(button=>{
@@ -3805,7 +3805,7 @@
         return `
           <div class="w-full h-full min-w-0">
             <button onclick="selectSubject('${s.id}')" ${isPrep ? 'disabled' : ''} class="card-item w-full ${target.element.id === 'bottom-menu-subject-list-container' ? 'h-[54px] p-3' : 'h-full min-h-[88px] p-4'} rounded-xl text-left flex items-center justify-between group relative" ${target.element.id === 'bottom-menu-subject-list-container' ? 'style="height: 54px !important; min-height: 54px !important; max-height: 54px !important; box-sizing: border-box;"' : ''}>
-              ${subjectHasQuiz ? '<span class="np-quiz-star absolute left-2 bottom-1.5 text-amber-400 text-[13px] leading-none pointer-events-none" aria-label="問題あり">★</span>' : ''}
+              ${subjectHasQuiz ? '<span class="np-quiz-star absolute left-1 bottom-1 text-amber-400 text-[9px] leading-none pointer-events-none" aria-label="問題あり">★</span>' : ''}
               <div class="flex items-center gap-2 min-w-0">
                 <span class="shrink-0 px-1.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono ${target.element.id === 'bottom-menu-subject-list-container' ? 'text-[9px]' : 'text-[11px]'} font-bold" ${target.element.id === 'bottom-menu-subject-list-container' ? 'style="font-size: 9px !important;"' : ''}>${s.code}</span>
                 <div class="min-w-0">
