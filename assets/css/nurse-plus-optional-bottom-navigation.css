@@ -78,3 +78,14 @@ html.np-bottom-menu-enabled body { padding-bottom: 100px; }
 @media (prefers-reduced-motion: reduce) {
   #np-bottom-navigation .np-bottom-nav-item { transition: none; }
 }
+/* Match the average label to the subject-name size in bottom-menu cards. */
+@media (max-width: 699px) {
+  html.np-bottom-menu-enabled #bottom-menu-subject-list-container [class~="text-[11.5px]"] {
+    font-size: 10px !important;
+  }
+}
+@media (min-width: 700px) {
+  html.np-bottom-menu-enabled #bottom-menu-subject-list-container [class~="text-[11.5px]"] {
+    font-size: 10.5px !important;
+  }
+}
