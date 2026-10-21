@@ -9,6 +9,21 @@
   <meta name="mobile-web-app-capable" content="yes">
   <title>Nurse+</title>
   <script src="./assets/js/theme-preload.js"></script>
+  <script>
+    // Apply the saved home mode before the browser paints the page to prevent a mode flash.
+    (() => {
+      try {
+        const enabled = localStorage.getItem('nurse_plus_bottom_menu_enabled') === 'true'
+          || localStorage.getItem('nurse_plus_bottom_menu_enabled') === '1';
+        if (!enabled) return;
+        document.documentElement.classList.add('np-bottom-menu-enabled', 'np-bottom-menu-startup');
+        const style = document.createElement('style');
+        style.id = 'np-bottom-menu-startup-style';
+        style.textContent = 'html.np-bottom-menu-startup #screen-dashboard{display:none!important}html.np-bottom-menu-startup #screen-dashboard-bottom-menu{display:block!important}';
+        document.head.appendChild(style);
+      } catch (_) {}
+    })();
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
