@@ -27,7 +27,7 @@ function isProtectedRequest(request) {
 
 async function responseSize(response) {
   const contentLength = response.headers.get('content-length');
-  if (contentLength && /^\\d+$/.test(contentLength)) return Number(contentLength);
+  if (contentLength && /^\d+$/.test(contentLength)) return Number(contentLength);
   try {
     return (await response.clone().blob()).size;
   } catch (_) {
