@@ -1,4 +1,4 @@
-/* Nurse＋チュートリアル：実際の画面要素をプレビューし、初回LINEログイン時のみ自動表示。 */
+/* Nurse＋チュートリアル：実画面を画像化したプレビューを表示。 */
 (function () {
   'use strict';
   const SEEN_KEY = 'nurse_plus_tutorial_seen_v2';
@@ -20,12 +20,36 @@
     const visibleScreen = Array.from(document.querySelectorAll('[id^="screen-"]')).find(el => !el.closest('#np-first-tutorial') && !el.classList.contains('hidden') && el.getClientRects().length);
     return visibleScreen || document.querySelector('#nav-drawer') || document.body;
   }
-  function renderPreview(step) {
+  let html2canvasPromise;
+  function loadScreenshotLibrary() {
+    if (window.html2canvas) return Promise.resolve(window.html2canvas);
+    if (!html2canvasPromise) {
+      html2canvasPromise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+        script.onload = () => window.html2canvas ? resolve(window.html2canvas) : reject(new Error('html2canvas unavailable'));
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+    return html2canvasPromise;
+  }
+  async function renderPreview(step) {
     const host = overlay.querySelector('[data-tutorial-preview]');
     host.replaceChildren();
+    const frame = document.createElement('div');
+    frame.className = 'np-tutorial-screen-frame';
+    const label = document.createElement('div');
+    label.className = 'np-tutorial-screen-label';
+    label.textContent = 'Nurse＋ 実際の画面プレビュー';
+    frame.appendChild(label);
+    const screen = document.createElement('div');
+    screen.className = 'np-tutorial-screen-capture';
+    frame.appendChild(screen);
+    host.appendChild(frame);
     const source = findPreview(step);
     if (!source || source === document.body) {
-      host.textContent = '実際のアプリ画面で操作場所をご確認ください。';
+      screen.textContent = '画面を表示できません。実際のアプリで操作場所をご確認ください。';
       return;
     }
     const clone = source.cloneNode(true);
@@ -39,11 +63,36 @@
     clone.querySelectorAll('button, a').forEach(el => { el.removeAttribute('onclick'); el.setAttribute('tabindex', '-1'); });
     clone.style.display = 'block';
     clone.style.visibility = 'visible';
-    clone.style.maxHeight = '260px';
-    clone.style.overflow = 'hidden';
+    clone.style.maxHeight = 'none';
+    clone.style.height = 'auto';
+    clone.style.overflow = 'visible';
     clone.style.pointerEvents = 'none';
+    clone.style.position = 'relative';
+    clone.style.inset = 'auto';
+    clone.style.transform = 'none';
     clone.setAttribute('aria-hidden', 'true');
-    host.appendChild(clone);
+    screen.appendChild(clone);
+    try {
+      const capture = await loadScreenshotLibrary();
+      if (!overlay || overlay.classList.contains('hidden') || !screen.isConnected) return;
+      const canvas = await capture(clone, {
+        backgroundColor: getComputedStyle(clone).backgroundColor || '#ffffff',
+        scale: Math.min(2, window.devicePixelRatio || 1),
+        useCORS: true,
+        logging: false,
+        windowWidth: Math.max(clone.scrollWidth, 320),
+        windowHeight: Math.max(clone.scrollHeight, 240)
+      });
+      if (!screen.isConnected) return;
+      const image = document.createElement('img');
+      image.className = 'np-tutorial-screen-image';
+      image.alt = step.title + 'のNurse＋実画面プレビュー';
+      image.src = canvas.toDataURL('image/png');
+      screen.replaceChildren(image);
+    } catch (_) {
+      // 外部ライブラリが利用できない場合も、実際の画面要素のプレビューは表示する。
+      screen.classList.add('np-tutorial-screen-fallback');
+    }
   }
   function render() {
     if (!overlay) return;
