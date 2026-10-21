@@ -3684,6 +3684,8 @@
     }
 
     function getSubjectProblemDataKeys(subjectId) {
+      // 科目カードの星は、通常の問題キーだけでなく、各学期・各モードが
+      // 実際に使用している QUIZ_DB のキーも確認する。
       const keysBySubject = {
         anatomy: ['anatomy', 'anatomy_applied'],
         biochemistry: ['biochemistry', 'biochemistry_fill', 'biochemistry_keyboard'],
@@ -3691,13 +3693,33 @@
         microbiology: ['microbiology'],
         mind_behavior: ['mind_behavior', 'psychology'],
         nursing_method: ['nursing_method'],
-        nursing_method_3: ['nursing_method_3'],
-        pharmacology: ['pharmacology', 'pharmacology_past', 'pharmacology_exercise', 'pharmacology_nurse_national_6years'],
-        nutrition: ['nutrition', 'nutrition_exercise', 'nutrition_quiz'],
+        nursing_method_3: [
+          'nursing_method_3',
+          'nursing_method_3_practice_2026_spring', 'nursing_method_3_quiz_2026_spring', 'nursing_method_3_exercise_2026_spring',
+          'nursing_method_3_practice_2026_autumn', 'nursing_method_3_quiz_2026_autumn', 'nursing_method_3_exercise_2026_autumn'
+        ],
+        pharmacology: [
+          'pharmacology', 'pharmacology_past', 'pharmacology_exercise', 'pharmacology_nurse_national_6years',
+          'pharmacology_past_2026_spring', 'pharmacology_exercise_2026_spring',
+          'pharmacology_past_2026_autumn', 'pharmacology_exercise_2026_autumn'
+        ],
+        nutrition: [
+          'nutrition', 'nutrition_exercise', 'nutrition_quiz',
+          'nutrition_exercise_2026_spring', 'nutrition_quiz_2026_spring',
+          'nutrition_exercise_2026_autumn', 'nutrition_quiz_2026_autumn'
+        ],
         public_health: ['public_health_past', 'public_health_exercise', 'public_health_national', 'public_health'],
         public_health_nursing: ['public_health_nursing_basic', 'public_health_nursing_exercise', 'public_health_nursing'],
         physiology: ['physiology', 'physiology_quiz'],
-        pathology: ['pathology_quiz', 'pathology_practice', 'pathology_exercise'],
+        pathology: [
+          'pathology', 'pathology_quiz', 'pathology_practice', 'pathology_exercise',
+          'pathology_quiz_2026_spring', 'pathology_exercise_2026_spring',
+          'pathology_quiz_2026_autumn', 'pathology_exercise_2026_autumn',
+          'pathology_range_2026_autumn', 'pathology_range_2026_autumn_1',
+          'pathology_range_2026_autumn_2', 'pathology_range_2026_autumn_3',
+          'pathology_exercise_2026_autumn_1', 'pathology_exercise_2026_autumn_2',
+          'pathology_exercise_2026_autumn_3'
+        ],
         psychology: ['psychology', 'mind_behavior']
       };
       return keysBySubject[subjectId] || [subjectId];
