@@ -2283,7 +2283,11 @@
       }
 
       window.QUIZ_DB[saveDbKey] = rawData;
+      npRefreshQuizStars();
+      renderSubjectList();
       db.ref(`quiz_db/${saveDbKey}`).set(rawData).then(() => {
+        npRefreshQuizStars();
+        renderSubjectList();
         alert("演習テスト問題をFirebaseに保存しました。");
         closeQuestionsEditorModal();
       }).catch(err => {
@@ -2370,6 +2374,8 @@
             if (subId === 'biochemistry_fill') return;
             window.QUIZ_DB[subId] = val[subId];
           });
+          npRefreshQuizStars();
+          renderSubjectList();
         }
       });
 
@@ -3684,6 +3690,96 @@
       renderFlashcardSubjectList();
     }
 
+    // 問題データの有無を、暗記カードとは分離して判定する。
+    function npHasQuizData(keys) {
+      const db = window.QUIZ_DB || {};
+      return keys.some(key => Array.isArray(db[key]) && db[key].some(q =>
+        q && typeof q === 'object' &&
+        (typeof q.q === 'string' || typeof q.question === 'string' || typeof q.text === 'string')
+      ));
+    }
+    function npQuizKeysForSubject(subjectId) {
+      const db = window.QUIZ_DB || {};
+      const exact = {
+        psychology:['psychology'], mind_behavior:['mind_behavior'], medical_intro:['medical_intro'],
+        microbiology:['microbiology'], anatomy:['anatomy','anatomy_applied'], physiology:['physiology'],
+        biochemistry:['biochemistry','biochemistry_keyboard','biochemistry_fill'], nursing_method:['nursing_method'],
+        public_health_nursing:['public_health_nursing','public_health_nursing_basic','public_health_nursing_exercise'],
+        public_health:['public_health','public_health_past','public_health_exercise','public_health_national'],
+        nutrition:['nutrition','nutrition_exercise_2026_spring','nutrition_quiz_2026_spring','nutrition_exercise_2026_autumn','nutrition_quiz_2026_autumn'],
+        pathology:['pathology',...Object.keys(db).filter(k=>/^pathology_(range|exercise|quiz|practice)_/.test(k))],
+        pharmacology:['pharmacology','pharmacology_past_2026_spring','pharmacology_exercise_2026_spring','pharmacology_past_2026_autumn','pharmacology_exercise_2026_autumn','pharmacology_nurse_national_6years'],
+        nursing_method_3:['nursing_method_3',...Object.keys(db).filter(k=>/^nursing_method_3_(practice|quiz|exercise)_2026_(spring|autumn)$/.test(k))],
+        nursing_method_4:['nursing_method_4'], medical_welfare:['medical_welfare'], constitution:['constitution'], statistics:['statistics']
+      };
+      return exact[subjectId] || [subjectId];
+    }
+    function npHasSubjectQuiz(subjectId) { return npHasQuizData(npQuizKeysForSubject(subjectId)); }
+    function npQuizKeysForSelection(button) {
+      const click=button.getAttribute('onclick')||'';
+      const semester=currentSemester==='2026_autumn'?'2026_autumn':'2026_spring';
+      const modeFrom=(fn)=>{const m=click.match(new RegExp(fn+"\\('([^']+)'\\)"));return m?m[1]:'';};
+      if(click.includes("selectBiochemistryFormat('choice')")) return ['biochemistry'];
+      if(click.includes("selectBiochemistryFormat('keyboard')")) return ['biochemistry_keyboard'];
+      if(click.includes("selectBiochemistryFormat('fill')")) return ['biochemistry_fill'];
+      if(click.includes('selectPathologyRound(')){const n=(click.match(/selectPathologyRound\((\d+)\)/)||[])[1];const mode=currentPathologyMode==='practice'?'practice':currentPathologyMode==='exercise'?'exercise':'quiz';return [`pathology_${mode}_${semester}_round${n}`];}
+      if(click.includes('selectPhysiologyMode(')) return ['physiology'];
+      if(click.includes("selectAnatomyMode('applied')")) return ['anatomy_applied'];
+      if(click.includes('selectAnatomyMode(')) return ['anatomy'];
+      if(click.includes('selectPublicHealthMode(')){const m=modeFrom('selectPublicHealthMode');return m==='past'?['public_health','public_health_past']:[`public_health_${m}`];}
+      if(click.includes('selectPHNMode(')){const m=modeFrom('selectPHNMode');return m==='basic'?['public_health_nursing','public_health_nursing_basic']:[`public_health_nursing_${m}`];}
+      if(click.includes('selectPharmacologyMode(')){const m=modeFrom('selectPharmacologyMode');return m==='nurse_national_6years'?['pharmacology_nurse_national_6years']:[`pharmacology_${m}_${semester}`, 'pharmacology'];}
+      if(click.includes('selectNutritionMode(')){const m=modeFrom('selectNutritionMode');const modeKey=m==='exercise'?'exercise':'quiz';return [`nutrition_${modeKey}_${semester}`];}
+      if(click.includes('selectNursingMethod3Mode(')){const m=modeFrom('selectNursingMethod3Mode');const modeKey=m==='practice'?'practice':m==='exercise'?'exercise':'quiz';return [`nursing_method_3_${modeKey}_${semester}`];}
+      if(click.includes('selectNursingRound(')){const round=modeFrom('selectNursingRound');const questions=typeof window.getNursingQuestions==='function'?window.getNursingQuestions(round):[];return Array.isArray(questions)&&questions.length>0?['nursing_method']:[];}
+      if(click.includes('selectSubject(')){const m=click.match(/selectSubject\('([^']+)'\)/);return npQuizKeysForSubject(m?m[1]:'');}
+      return null;
+    }
+    function npRefreshQuizStars() {
+      const addStar=(button,yes)=>{
+        if(!button)return;
+        button.querySelectorAll(':scope > .np-quiz-star').forEach(el=>el.remove());
+        if(!yes)return;
+        if(!button.style.position && !button.classList.contains('relative'))button.classList.add('relative');
+        const star=document.createElement('span');
+        star.className='np-quiz-star';
+        star.setAttribute('aria-label','問題あり');
+        star.textContent='★';
+        star.style.cssText='position:absolute;left:8px;bottom:6px;font-size:13px;line-height:1;color:#e5a000;pointer-events:none;z-index:2;';
+        button.appendChild(star);
+      };
+      document.querySelectorAll('#screen-semester-select button[id^="semester-"]').forEach(button=>{
+        const semester=button.id.includes('autumn')?'2026_autumn':'2026_spring';
+        const subject=currentSubject&&currentSubject.id;
+        const keys=npQuizKeysForSubject(subject).filter(k=>k.includes(semester)||!/^.*2026_(spring|autumn)/.test(k));
+        addStar(button,npHasQuizData(keys));
+      });
+      ['screen-physiology-mode-select','screen-anatomy-mode-select','screen-publichealth-mode-select','screen-phn-mode-select','screen-pathology-mode-select','screen-pathology-round-select','screen-pharmacology-mode-select','screen-nursing-method-3-mode-select','screen-nutrition-mode-select','screen-nursing-mode-select','screen-biochemistry-format-select'].forEach(id=>{
+        const screen=document.getElementById(id);
+        if(!screen)return;
+        screen.querySelectorAll('button[onclick]').forEach(button=>{
+          const keys=npQuizKeysForSelection(button);
+          if(keys)addStar(button,npHasQuizData(keys));
+        });
+      });
+      const roundScreen=document.getElementById('screen-round-select');
+      if(roundScreen&&!roundScreen.classList.contains('hidden')){
+        const select=roundScreen.querySelector('#roundSelect');
+        const old=roundScreen.querySelector('.np-quiz-star-round');
+        if(old)old.remove();
+        if(select){
+          const wrapper=select.parentElement;
+          const current=select.value||'1';
+          const keys=currentSubject&&currentSubject.id==='nursing_method'?['nursing_method']:npQuizKeysForSubject(currentSubject&&currentSubject.id);
+          if(npHasQuizData(keys)){
+            const star=document.createElement('span');star.className='np-quiz-star-round';star.textContent='★';
+            star.setAttribute('aria-label','問題あり');star.style.cssText='color:#e5a000;font-size:13px;line-height:1;flex-shrink:0;';
+            wrapper.insertBefore(star,select);
+          }
+        }
+      }
+    }
+
     function renderSubjectList() {
       const containers = [
         { element: document.getElementById('subject-list-container'), count: document.getElementById('subject-count-display') },
@@ -3705,9 +3801,11 @@
         const avgAcc = isPrep ? null : getAverageAccuracy(s.id);
         const avgDisplay = (avgAcc !== null) ? `${avgAcc}%` : '-- %';
 
+        const subjectHasQuiz = !isPrep && npHasSubjectQuiz(s.id);
         return `
           <div class="w-full h-full min-w-0">
-            <button onclick="selectSubject('${s.id}')" ${isPrep ? 'disabled' : ''} class="card-item w-full ${target.element.id === 'bottom-menu-subject-list-container' ? 'h-[54px] p-3' : 'h-full min-h-[88px] p-4'} rounded-xl text-left flex items-center justify-between group" ${target.element.id === 'bottom-menu-subject-list-container' ? 'style="height: 54px !important; min-height: 54px !important; max-height: 54px !important; box-sizing: border-box;"' : ''}>
+            <button onclick="selectSubject('${s.id}')" ${isPrep ? 'disabled' : ''} class="card-item w-full ${target.element.id === 'bottom-menu-subject-list-container' ? 'h-[54px] p-3' : 'h-full min-h-[88px] p-4'} rounded-xl text-left flex items-center justify-between group relative" ${target.element.id === 'bottom-menu-subject-list-container' ? 'style="height: 54px !important; min-height: 54px !important; max-height: 54px !important; box-sizing: border-box;"' : ''}>
+              ${subjectHasQuiz ? '<span class="np-quiz-star absolute left-2 bottom-1.5 text-amber-400 text-[13px] leading-none pointer-events-none" aria-label="問題あり">★</span>' : ''}
               <div class="flex items-center gap-2 min-w-0">
                 <span class="shrink-0 px-1.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono ${target.element.id === 'bottom-menu-subject-list-container' ? 'text-[9px]' : 'text-[11px]'} font-bold" ${target.element.id === 'bottom-menu-subject-list-container' ? 'style="font-size: 9px !important;"' : ''}>${s.code}</span>
                 <div class="min-w-0">
@@ -3740,6 +3838,7 @@
       hideAllScreens();
       document.getElementById('screen-semester-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
       document.getElementById('semester-subject-title').textContent = `${currentSubject.name} - 学期選択`;
 
       const springBtn = document.getElementById('semester-spring-btn');
@@ -3794,12 +3893,14 @@
       hideAllScreens();
       document.getElementById('screen-biochemistry-format-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
     }
 
     function showPhysiologyModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-physiology-mode-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
     }
 
     function selectPhysiologyMode(mode) {
@@ -3811,6 +3912,7 @@
       hideAllScreens();
       document.getElementById('screen-anatomy-mode-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
     }
 
     function selectAnatomyMode(mode) {
@@ -3822,6 +3924,7 @@
       hideAllScreens();
       document.getElementById('screen-publichealth-mode-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
     }
 
     function selectPublicHealthMode(mode) {
@@ -3833,6 +3936,7 @@
       hideAllScreens();
       document.getElementById('screen-phn-mode-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
     }
 
     function selectPHNMode(mode) {
@@ -3844,6 +3948,7 @@
       hideAllScreens();
       document.getElementById('screen-pathology-mode-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
     }
 
     function showPathologyRoundSelectionScreen() {
@@ -3861,6 +3966,7 @@
 
   document.getElementById('screen-pathology-round-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
 }
 
     function selectPathologyMode(mode) {
@@ -3878,6 +3984,7 @@
       hideAllScreens();
       document.getElementById('screen-pharmacology-mode-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
     }
 
     function selectPharmacologyMode(mode) {
@@ -3890,6 +3997,7 @@
       hideAllScreens();
       document.getElementById('screen-nursing-method-3-mode-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
     }
 
     function selectNursingMethod3Mode(mode) {
@@ -3902,6 +4010,7 @@
       hideAllScreens();
       document.getElementById('screen-nutrition-mode-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
     }
 
     function selectNutritionMode(mode) {
@@ -3914,6 +4023,7 @@
       hideAllScreens();
       document.getElementById('screen-nursing-mode-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
     }
 
     function selectNursingMode(mode) {
@@ -3925,6 +4035,7 @@
       hideAllScreens();
       document.getElementById('screen-round-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
       document.getElementById('round-subject-title').textContent = `${currentSubject.name} モード選択`;
 
       const roundBackBtn = document.getElementById('round-back-btn');
