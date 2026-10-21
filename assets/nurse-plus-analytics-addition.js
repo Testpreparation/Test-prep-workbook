@@ -135,8 +135,8 @@
     const keys = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && (key.startsWith('history_accuracy_') ||
-          ['study_streak', 'study_last_date', 'study_days', 'evo_today_done'].includes(key))) keys.push(key);
+      if (key && (key.startsWith('history_accuracy_') || key.startsWith('flashcard_learned_') ||
+          ['study_streak', 'study_last_date', 'study_days', 'evo_today_done', 'nurse_plus_study_sessions'].includes(key))) keys.push(key);
     }
     return keys;
   }
@@ -197,7 +197,7 @@
     const records = {};
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (!key || !key.startsWith('history_accuracy_')) continue;
+      if (!key || !(key.startsWith('history_accuracy_') || key.startsWith('flashcard_learned_') || key === 'nurse_plus_study_sessions')) continue;
       try {
         const value = JSON.parse(localStorage.getItem(key) || 'null');
         if (Array.isArray(value)) records[key] = value;
@@ -300,7 +300,7 @@
       localStorage.setItem(cloudKey, JSON.stringify(cloudRecords));
 
       Object.entries(cloudRecords).forEach(([key, value]) => {
-        if (key.startsWith('history_accuracy_') && Array.isArray(value)) {
+        if ((key.startsWith('history_accuracy_') || key.startsWith('flashcard_learned_') || key === 'nurse_plus_study_sessions') && Array.isArray(value)) {
           localStorage.setItem(key, JSON.stringify(value));
         } else if (key === 'study_days' && Array.isArray(value)) {
           localStorage.setItem(key, JSON.stringify(value));
@@ -1098,7 +1098,10 @@
     // クリック位置に応じてパネル単体を非表示にする処理は行わない。
   }
   function startAutomaticStudySync() {
-    if (!localStorage.getItem('nurse_line_user_session') || !localStorage.getItem('nurse_line_user_id')) return;
+    const userId = localStorage.getItem('nurse_line_user_id');
+    if (!localStorage.getItem('nurse_line_user_session') || !userId) return;
+    // アカウント切替時は同期開始を待たず、ローカル学習データをアカウント別に切り替える。
+    restoreStudyAccount(userId);
     window.setTimeout(() => {
       syncStudyData(document.getElementById('np-account-sync-status'), null);
     }, 900);
