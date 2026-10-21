@@ -1021,7 +1021,16 @@
       flashcardOpenedFromBottomMenu = true;
       hideAllScreens();
       document.getElementById('screen-subjects').classList.remove('hidden');
-      switchSubjectPage(1);
+
+      // 既存の暗記カード設定・プレイ画面を再利用し、科目選択ページだけを表示する。
+      currentSubjectPageIndex = 1;
+      const track = document.getElementById('subjects-slider-track');
+      if (track) track.style.transform = 'translateX(-50%)';
+      const dot1 = document.getElementById('dot-page-1');
+      const dot2 = document.getElementById('dot-page-2');
+      if (dot1) dot1.className = 'w-2.5 h-2.5 rounded-full bg-slate-700 hover:bg-slate-600 transition-all duration-300';
+      if (dot2) dot2.className = 'w-2.5 h-2.5 rounded-full bg-amber-500 transition-all duration-300';
+
       selectFlashcardSubject(subjectId);
     }
 
