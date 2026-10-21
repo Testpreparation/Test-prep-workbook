@@ -17,10 +17,26 @@
         notice.append(message, button); document.body.appendChild(notice);
       };
       let hadController = Boolean(navigator.serviceWorker.controller);
+      let updateCheckRunning = false;
+      let currentRegistration = null;
+      const checkForUpdates = async () => {
+        if (updateCheckRunning || document.visibilityState === 'hidden' || !navigator.onLine) return;
+        updateCheckRunning = true;
+        try {
+          currentRegistration = currentRegistration || await navigator.serviceWorker.getRegistration('./');
+          if (currentRegistration) await currentRegistration.update();
+        } catch (error) {
+          console.info('[Nurse＋ PWA] 更新確認をスキップ:', error && error.name || error);
+        } finally {
+          updateCheckRunning = false;
+        }
+      };
       navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) showUpdatedNotice(); hadController = true; });
-      window.addEventListener('load', async () => {
-        try { const registration = await navigator.serviceWorker.getRegistration('./'); if (registration) await registration.update(); }
-        catch (error) { console.info('[Nurse＋ PWA] 更新確認をスキップ:', error && error.name || error); }
-      }, { once: true });
+      window.addEventListener('load', () => { checkForUpdates(); }, { once: true });
+      // アプリを開いたままでも公開された更新を検知できるよう、表示中は30秒ごとに確認する。
+      window.setInterval(checkForUpdates, 30000);
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkForUpdates(); });
+      window.addEventListener('focus', checkForUpdates);
+      window.addEventListener('online', checkForUpdates);
     })();
   
