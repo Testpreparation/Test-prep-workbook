@@ -3704,7 +3704,7 @@
         psychology:['psychology'], mind_behavior:['mind_behavior'], medical_intro:['medical_intro'],
         microbiology:['microbiology'], anatomy:['anatomy','anatomy_applied'], physiology:['physiology'],
         biochemistry:['biochemistry','biochemistry_keyboard','biochemistry_fill'], nursing_method:['nursing_method'],
-        public_health_nursing:['public_health_nursing','public_health_nursing_basic','public_health_nursing_exercise'],
+        public_health_nursing:['public_health_nursing','public_health_nursing_basic','public_health_nursing_exercise',...Object.keys(db).filter(k=>/^public_health_nursing_/.test(k))],
         public_health:['public_health','public_health_past','public_health_exercise','public_health_national'],
         nutrition:['nutrition','nutrition_exercise_2026_spring','nutrition_quiz_2026_spring','nutrition_exercise_2026_autumn','nutrition_quiz_2026_autumn'],
         pathology:['pathology',...Object.keys(db).filter(k=>/^pathology_(range|exercise|quiz|practice)_/.test(k))],
@@ -3748,7 +3748,7 @@
         star.className='np-quiz-star';
         star.setAttribute('aria-label','問題あり');
         star.textContent='★';
-        star.style.cssText='position:absolute;left:8px;bottom:6px;font-size:9px;line-height:1;color:#e5a000;pointer-events:none;z-index:2;';
+        star.style.cssText='position:absolute;left:8px;bottom:6px;font-size:9px;line-height:1;color:#8b72a8;pointer-events:none;z-index:2;';
         button.appendChild(star);
       };
       document.querySelectorAll('#screen-semester-select button[id^="semester-"]').forEach(button=>{
@@ -3776,7 +3776,7 @@
           const keys=currentSubject&&currentSubject.id==='nursing_method'?['nursing_method']:npQuizKeysForSubject(currentSubject&&currentSubject.id);
           if(npHasQuizData(keys)){
             const star=document.createElement('span');star.className='np-quiz-star-round';star.textContent='★';
-            star.setAttribute('aria-label','問題あり');star.style.cssText='color:#e5a000;font-size:13px;line-height:1;flex-shrink:0;';
+            star.setAttribute('aria-label','問題あり');star.style.cssText='color:#8b72a8;font-size:13px;line-height:1;flex-shrink:0;';
             wrapper.insertBefore(star,select);
           }
         }
@@ -3808,7 +3808,7 @@
         return `
           <div class="w-full h-full min-w-0">
             <button onclick="selectSubject('${s.id}')" ${isPrep ? 'disabled' : ''} class="card-item w-full ${target.element.id === 'bottom-menu-subject-list-container' ? 'h-[54px] p-3' : 'h-full min-h-[88px] p-4'} rounded-xl text-left flex items-center justify-between group relative" ${target.element.id === 'bottom-menu-subject-list-container' ? 'style="height: 54px !important; min-height: 54px !important; max-height: 54px !important; box-sizing: border-box;"' : ''}>
-              ${subjectHasQuiz ? '<span class="np-quiz-star absolute left-4 bottom-1 text-[9px] leading-none pointer-events-none" style="color:#e5a000" aria-label="問題あり">★</span>' : ''}
+              ${subjectHasQuiz ? '<span class="np-quiz-star absolute left-4 text-[9px] leading-none pointer-events-none" style="top:62px;color:#8b72a8" aria-label="問題あり">★</span>' : ''}
               <div class="flex items-center gap-2 min-w-0">
                 <span class="shrink-0 px-1.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono ${target.element.id === 'bottom-menu-subject-list-container' ? 'text-[9px]' : 'text-[11px]'} font-bold" ${target.element.id === 'bottom-menu-subject-list-container' ? 'style="font-size: 9px !important;"' : ''}>${s.code}</span>
                 <div class="min-w-0">
