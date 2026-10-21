@@ -160,7 +160,7 @@
     if (saved && typeof saved === 'object' && !Array.isArray(saved)) {
       studyRecordKeys().forEach(key => localStorage.removeItem(key));
       Object.entries(saved).forEach(([key, raw]) => {
-        if ((key.startsWith('history_accuracy_') || ['study_streak', 'study_last_date', 'study_days', 'evo_today_done'].includes(key)) && typeof raw === 'string') {
+        if ((key.startsWith('history_accuracy_') || key.startsWith('flashcard_learned_') || ['study_streak', 'study_last_date', 'study_days', 'evo_today_done', 'nurse_plus_study_sessions'].includes(key)) && typeof raw === 'string') {
           localStorage.setItem(key, raw);
         }
       });
