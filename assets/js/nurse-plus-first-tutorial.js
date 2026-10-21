@@ -14,8 +14,10 @@
   function findPreview(step) {
     for (const selector of step.selectors || []) {
       const candidates = Array.from(document.querySelectorAll(selector));
-      const found = candidates.find(el => el && !el.closest('#np-first-tutorial'));
+      const found = candidates.find(el => el && !el.closest('#np-first-tutorial') && !el.classList.contains('hidden') && el.getClientRects().length);
       if (found) return found;
+      const fallback = candidates.find(el => el && !el.closest('#np-first-tutorial'));
+      if (fallback) return fallback;
     }
     const visibleScreen = Array.from(document.querySelectorAll('[id^="screen-"]')).find(el => !el.closest('#np-first-tutorial') && !el.classList.contains('hidden') && el.getClientRects().length);
     return visibleScreen || document.querySelector('#nav-drawer') || document.body;
