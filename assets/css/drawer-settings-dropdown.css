@@ -62,3 +62,11 @@
 #nav-drawer.np-bottom-settings-centered #drawer-settings-accordion {
   margin-top: 0 !important;
 }
+
+/* Detail dialogs opened from bottom-menu settings must sit above the settings drawer. */
+html.np-bottom-menu-enabled #np-settings-detail-overlay {
+  z-index: 120 !important;
+}
+html.np-bottom-menu-enabled #np-settings-detail-modal {
+  z-index: 121 !important;
+}
