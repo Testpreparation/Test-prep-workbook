@@ -3702,10 +3702,10 @@
         biochemistry:['biochemistry','biochemistry_keyboard','biochemistry_fill'], nursing_method:['nursing_method'],
         public_health_nursing:['public_health_nursing','public_health_nursing_basic','public_health_nursing_exercise'],
         public_health:['public_health','public_health_past','public_health_exercise','public_health_national'],
-        nutrition:['nutrition',...Object.keys(db).filter(k=>/^nutrition_(exercise|quiz)_2026_(spring|autumn)$/.test(k))],
-        pathology:Object.keys(db).filter(k=>/^pathology_(quiz|practice|exercise)_/.test(k)),
+        nutrition:['nutrition','nutrition_exercise_2026_spring','nutrition_quiz_2026_spring','nutrition_exercise_2026_autumn','nutrition_quiz_2026_autumn'],
+        pathology:['pathology',...Object.keys(db).filter(k=>/^pathology_(range|exercise|quiz|practice)_/.test(k))],
         pharmacology:['pharmacology','pharmacology_past_2026_spring','pharmacology_exercise_2026_spring','pharmacology_past_2026_autumn','pharmacology_exercise_2026_autumn','pharmacology_nurse_national_6years'],
-        nursing_method_3:Object.keys(db).filter(k=>/^nursing_method_3_(practice|quiz|exercise)_2026_(spring|autumn)$/.test(k)),
+        nursing_method_3:['nursing_method_3',...Object.keys(db).filter(k=>/^nursing_method_3_(practice|quiz|exercise)_2026_(spring|autumn)$/.test(k))],
         nursing_method_4:['nursing_method_4'], medical_welfare:['medical_welfare'], constitution:['constitution'], statistics:['statistics']
       };
       return exact[subjectId] || [subjectId];
@@ -3718,15 +3718,15 @@
       if(click.includes("selectBiochemistryFormat('choice')")) return ['biochemistry'];
       if(click.includes("selectBiochemistryFormat('keyboard')")) return ['biochemistry_keyboard'];
       if(click.includes("selectBiochemistryFormat('fill')")) return ['biochemistry_fill'];
-      if(click.includes('selectPathologyRound(')){const n=(click.match(/selectPathologyRound\((\d+)\)/)||[])[1];const mode=currentPathologyMode==='practice'?'practice':currentPathologyMode==='exercise'?'exercise':'quiz';return [`pathology_${mode}_${semester}_round${n}`,`pathology_${mode}_${semester}_${n}`];}
+      if(click.includes('selectPathologyRound(')){const n=(click.match(/selectPathologyRound\((\d+)\)/)||[])[1];const mode=currentPathologyMode==='practice'?'range':currentPathologyMode==='exercise'?'exercise':'range';return [`pathology_${mode}_${semester}_${n}`,`pathology_${mode}_${semester}_${n}.js`,'pathology'];}
       if(click.includes('selectPhysiologyMode(')) return ['physiology'];
       if(click.includes("selectAnatomyMode('applied')")) return ['anatomy_applied'];
       if(click.includes('selectAnatomyMode(')) return ['anatomy'];
       if(click.includes('selectPublicHealthMode(')){const m=modeFrom('selectPublicHealthMode');return m==='past'?['public_health','public_health_past']:[`public_health_${m}`];}
       if(click.includes('selectPHNMode(')){const m=modeFrom('selectPHNMode');return m==='basic'?['public_health_nursing','public_health_nursing_basic']:[`public_health_nursing_${m}`];}
       if(click.includes('selectPharmacologyMode(')){const m=modeFrom('selectPharmacologyMode');return m==='nurse_national_6years'?['pharmacology_nurse_national_6years']:[`pharmacology_${m}_${semester}`, 'pharmacology'];}
-      if(click.includes('selectNutritionMode(')){const m=modeFrom('selectNutritionMode');return [`nutrition_${m}_${semester}`,'nutrition'];}
-      if(click.includes('selectNursingMethod3Mode(')){const m=modeFrom('selectNursingMethod3Mode');return [`nursing_method_3_${m}_${semester}`];}
+      if(click.includes('selectNutritionMode(')){const m=modeFrom('selectNutritionMode');const modeKey=m==='exercise'?'exercise':'quiz';return [`nutrition_${modeKey}_${semester}`];}
+      if(click.includes('selectNursingMethod3Mode(')){const m=modeFrom('selectNursingMethod3Mode');const modeKey=m==='practice'?'practice':m==='exercise'?'exercise':'quiz';return [`nursing_method_3_${modeKey}_${semester}`];}
       if(click.includes('selectNursingRound(')){const round=modeFrom('selectNursingRound');const questions=typeof window.getNursingQuestions==='function'?window.getNursingQuestions(round):[];return Array.isArray(questions)&&questions.length>0?['nursing_method']:[];}
       if(click.includes('selectSubject(')){const m=click.match(/selectSubject\('([^']+)'\)/);return npQuizKeysForSubject(m?m[1]:'');}
       return null;
