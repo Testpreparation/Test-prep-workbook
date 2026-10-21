@@ -3668,6 +3668,63 @@
       renderFlashcardSubjectList();
     }
 
+    // 問題データが登録されている科目・モードにだけ、控えめな星マークを表示する。
+    function hasRegisteredProblemData(keys) {
+      const db = window.QUIZ_DB || {};
+      return keys.some(key => {
+        const value = db[key];
+        return Array.isArray(value) && value.length > 0;
+      });
+    }
+
+    function getSubjectProblemDataKeys(subjectId) {
+      const keysBySubject = {
+        anatomy: ['anatomy', 'anatomy_applied'],
+        biochemistry: ['biochemistry', 'biochemistry_fill', 'biochemistry_keyboard'],
+        medical_intro: ['medical_intro'],
+        microbiology: ['microbiology'],
+        mind_behavior: ['mind_behavior', 'psychology'],
+        nursing_method: ['nursing_method'],
+        nursing_method_3: ['nursing_method_3'],
+        pharmacology: ['pharmacology', 'pharmacology_past', 'pharmacology_exercise', 'pharmacology_nurse_national_6years'],
+        nutrition: ['nutrition', 'nutrition_exercise', 'nutrition_quiz'],
+        public_health: ['public_health_past', 'public_health_exercise', 'public_health_national', 'public_health'],
+        public_health_nursing: ['public_health_nursing_basic', 'public_health_nursing_exercise', 'public_health_nursing'],
+        physiology: ['physiology', 'physiology_quiz'],
+        pathology: ['pathology_quiz', 'pathology_practice', 'pathology_exercise'],
+        psychology: ['psychology', 'mind_behavior']
+      };
+      return keysBySubject[subjectId] || [subjectId];
+    }
+
+    function addProblemDataStars(container) {
+      if (!container) return;
+      const modeKeys = {
+        selectPhysiologyMode: { past: ['physiology'], quiz: ['physiology_quiz'] },
+        selectAnatomyMode: { basic: ['anatomy'], applied: ['anatomy_applied'] },
+        selectPublicHealthMode: { past: ['public_health_past'], exercise: ['public_health_exercise'], national: ['public_health_national'] },
+        selectPHNMode: { basic: ['public_health_nursing_basic'], exercise: ['public_health_nursing_exercise'] },
+        selectPharmacologyMode: { exercise: ['pharmacology_exercise'], past: ['pharmacology_past'], nurse_national_6years: ['pharmacology_nurse_national_6years'] },
+        selectNutritionMode: { exercise: ['nutrition_exercise'], quiz: ['nutrition_quiz'] },
+        selectPathologyMode: { quiz: ['pathology_quiz'], practice: ['pathology_practice'], exercise: ['pathology_exercise'] }
+      };
+      container.querySelectorAll('button[onclick]').forEach(button => {
+        const call = button.getAttribute('onclick') || '';
+        const match = call.match(/^\\s*(select[A-Za-z0-9]+)\\(['"]([^'"]+)['"]\\)/);
+        if (!match || !modeKeys[match[1]] || !modeKeys[match[1]][match[2]]) return;
+        const keys = modeKeys[match[1]][match[2]];
+        const star = button.querySelector('.np-problem-data-star');
+        if (hasRegisteredProblemData(keys)) {
+          if (!star) {
+            button.classList.add('relative');
+            button.insertAdjacentHTML('beforeend', '<span class="np-problem-data-star" aria-label="問題データあり" title="問題データあり">★</span>');
+          }
+        } else if (star) {
+          star.remove();
+        }
+      });
+    }
+
     function renderSubjectList() {
       const containers = [
         { element: document.getElementById('subject-list-container'), count: document.getElementById('subject-count-display') },
@@ -3678,6 +3735,7 @@
         if (target.count) target.count.textContent = `全${visibleSubjects.length}科目`;
         target.element.innerHTML = visibleSubjects.map(s => {
         const isPrep = s.status === 'preparing';
+        const hasProblemData = !isPrep && hasRegisteredProblemData(getSubjectProblemDataKeys(s.id));
         const isPhysiology = s.id === 'physiology';
         const isAnatomy = s.id === 'anatomy';
         const isPublicHealth = s.id === 'public_health';
@@ -3691,7 +3749,7 @@
 
         return `
           <div class="w-full h-full min-w-0">
-            <button onclick="selectSubject('${s.id}')" ${isPrep ? 'disabled' : ''} class="card-item w-full ${target.element.id === 'bottom-menu-subject-list-container' ? 'h-[72px] p-3' : 'h-full min-h-[88px] p-4'} rounded-xl text-left flex items-center justify-between group">
+            <button onclick="selectSubject('${s.id}')" ${isPrep ? 'disabled' : ''} class="card-item w-full ${target.element.id === 'bottom-menu-subject-list-container' ? 'h-[72px] p-3' : 'h-full min-h-[88px] p-4'} rounded-xl text-left flex items-center justify-between group ${hasProblemData ? 'relative np-has-problem-data' : ''}">
               <div class="flex items-center gap-2 min-w-0">
                 <span class="shrink-0 px-1.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono ${target.element.id === 'bottom-menu-subject-list-container' ? 'text-[10px]' : 'text-[11px]'} font-bold">${s.code}</span>
                 <div class="min-w-0">
@@ -3706,6 +3764,7 @@
                 </div>
                 <span class="${target.element.id === 'bottom-menu-subject-list-container' ? 'w-3 text-center' : ''} text-slate-500 group-hover:text-amber-400 transition text-sm">${isPrep ? '🔒' : '→'}</span>
               </div>
+              ${hasProblemData ? '<span class="np-problem-data-star" aria-label="問題データあり" title="問題データあり">★</span>' : ''}
             </button>
           </div>
         `;
@@ -3783,6 +3842,7 @@
     function showPhysiologyModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-physiology-mode-select').classList.remove('hidden');
+      addProblemDataStars(document.getElementById('screen-physiology-mode-select'));
       updateStudyBreadcrumb();
     }
 
@@ -3794,6 +3854,7 @@
     function showAnatomyModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-anatomy-mode-select').classList.remove('hidden');
+      addProblemDataStars(document.getElementById('screen-anatomy-mode-select'));
       updateStudyBreadcrumb();
     }
 
@@ -3805,6 +3866,7 @@
     function showPublicHealthModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-publichealth-mode-select').classList.remove('hidden');
+      addProblemDataStars(document.getElementById('screen-publichealth-mode-select'));
       updateStudyBreadcrumb();
     }
 
@@ -3816,6 +3878,7 @@
     function showPHNModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-phn-mode-select').classList.remove('hidden');
+      addProblemDataStars(document.getElementById('screen-phn-mode-select'));
       updateStudyBreadcrumb();
     }
 
@@ -3827,6 +3890,7 @@
     function showPathologyModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-pathology-mode-select').classList.remove('hidden');
+      addProblemDataStars(document.getElementById('screen-pathology-mode-select'));
       updateStudyBreadcrumb();
     }
 
@@ -3861,6 +3925,7 @@
     function showPharmacologyModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-pharmacology-mode-select').classList.remove('hidden');
+      addProblemDataStars(document.getElementById('screen-pharmacology-mode-select'));
       updateStudyBreadcrumb();
     }
 
@@ -3885,6 +3950,7 @@
     function showNutritionModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-nutrition-mode-select').classList.remove('hidden');
+      addProblemDataStars(document.getElementById('screen-nutrition-mode-select'));
       updateStudyBreadcrumb();
     }
 
