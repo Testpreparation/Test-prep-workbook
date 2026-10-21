@@ -37,6 +37,9 @@
     if (enabled && typeof window.showDashboard === 'function') {
       window.showDashboard();
     }
+    // Remove the temporary first-paint override only after the saved mode is applied.
+    document.documentElement.classList.remove('np-bottom-menu-startup');
+    document.getElementById('np-bottom-menu-startup-style')?.remove();
   }
 
   // Notice-only scroll reveal and quick-return header. Defaults stay visible if JS/CSS effects fail.
