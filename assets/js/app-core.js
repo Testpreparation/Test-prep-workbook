@@ -1308,7 +1308,6 @@
     //  管理者モーダル制御機能
     // =========================================================
     function openAdminAuthFromSettings() {
-      // 設定アコーディオンがドロワー内へ移動した場合も、認証画面を確実に前面表示する。
       const modal = document.getElementById('modal-auth');
       const input = document.getElementById('admin-password-input');
       const errorMessage = document.getElementById('auth-error-msg');
@@ -1318,6 +1317,7 @@
       }
       closeUserSettings();
       closeNavDrawer();
+      closeAdminModal();
       modal.style.zIndex = '100';
       openAuthModal();
     }
@@ -3312,6 +3312,8 @@
     }
 
     function showDashboard(){
+      closeAuthModal();
+      closeAdminModal();
       hideAllScreens();
       const bottomMenuEnabled = document.documentElement.classList.contains('np-bottom-menu-enabled');
       const el = document.getElementById(bottomMenuEnabled ? 'screen-dashboard-bottom-menu' : 'screen-dashboard');
