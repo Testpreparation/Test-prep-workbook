@@ -2474,6 +2474,13 @@
       const root = document.documentElement;
       root.style.fontSize = '100%';
       root.dataset.npTextScale = String(scale);
+      window.__nurseTextScale = scale;
+
+      // 100% はCSS本来の文字サイズをそのまま使う。
+      // 初期表示時に計算済みサイズをインライン指定すると、
+      // CSSの読み込み順によって科目名などのサイズが固定されるため。
+      if (scale === 1) return;
+
       const excluded = 'script,style,link,meta,svg,path,input,textarea,select,option';
       const applyTo = (element) => {
         if (!(element instanceof HTMLElement) || element.matches(excluded)) return;
@@ -2484,7 +2491,6 @@
         element.style.fontSize = (Number(element.dataset.npBaseFontSize) * scale) + 'px';
       };
       document.querySelectorAll('body *').forEach(applyTo);
-      window.__nurseTextScale = scale;
     }
     if (!window.__nurseTextScaleObserver) {
       window.__nurseTextScaleObserver = new MutationObserver(records => {
