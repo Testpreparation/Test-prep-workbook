@@ -973,8 +973,16 @@
     function showBottomMenuFlashcardSubjects() {
       flashcardOpenedFromBottomMenu = true;
       hideAllScreens();
-      document.getElementById('screen-bottom-menu-flashcard-subjects')?.classList.remove('hidden');
+
+      // 下部メニューモードのホームを確実に隠し、暗記カード一覧へ画面遷移する。
+      document.getElementById('screen-dashboard-bottom-menu')?.classList.add('hidden');
+      document.getElementById('screen-dashboard')?.classList.add('hidden');
+      const flashcardScreen = document.getElementById('screen-bottom-menu-flashcard-subjects');
+      if (flashcardScreen) flashcardScreen.classList.remove('hidden');
+
       renderBottomMenuFlashcardSubjectList();
+      // ホーム側のスクロール位置を引き継がず、一覧の先頭を表示する。
+      window.scrollTo({ top: 0, behavior: 'auto' });
     }
 
     function returnToBottomMenuHome() {
