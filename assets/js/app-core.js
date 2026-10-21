@@ -3726,7 +3726,7 @@
     function nursePlusUpdateModeStars(container) {
       if (!container) return;
       container.querySelectorAll('button[onclick]').forEach(button => {
-        const match = (button.getAttribute('onclick') || '').match(/^\s*(select[A-Za-z0-9]+)\\(['"]([^'"]+)['"]\)/);
+        const match = (button.getAttribute('onclick') || '').match(/^\s*(select[A-Za-z0-9]+)\(['"]([^'"]+)['"]\)/);
         if (!match) return;
         const keys = nursePlusModeProblemKeys(match[1], match[2]);
         if (!keys.length) return;
