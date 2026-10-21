@@ -14,7 +14,7 @@
   function findPreview(step) {
     for (const selector of step.selectors || []) {
       const candidates = Array.from(document.querySelectorAll(selector));
-      const found = candidates.find(el => el && !el.closest('#np-first-tutorial') && !el.classList.contains('hidden') && el.getClientRects().length);
+      const found = candidates.find(el => el && !el.closest('#np-first-tutorial'));
       if (found) return found;
     }
     const visibleScreen = Array.from(document.querySelectorAll('[id^="screen-"]')).find(el => !el.closest('#np-first-tutorial') && !el.classList.contains('hidden') && el.getClientRects().length);
@@ -30,6 +30,7 @@
     }
     const clone = source.cloneNode(true);
     clone.removeAttribute('id');
+    clone.classList.remove('hidden');
     clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
     clone.querySelectorAll('script, input, textarea, select, iframe').forEach(el => {
       if (el.tagName === 'SCRIPT' || el.tagName === 'IFRAME') el.remove();
