@@ -998,15 +998,15 @@
         const total = cards.length;
         const learned = Math.min(learnedSet.size, total);
         return `
-          <button type="button" onclick="openBottomMenuFlashcardSubject('${s.id}')" class="card-item w-full h-[72px] min-w-0 p-3 rounded-xl text-left flex items-center justify-between gap-2 group">
-            <div class="flex items-center gap-2 min-w-0">
-              <span class="shrink-0 px-1.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-[10px] font-bold">${s.code}</span>
-              <div class="min-w-0">
-                <div class="text-[10.5px] leading-tight font-medium text-slate-100 group-hover:text-amber-300 transition">${s.name}</div>
-                <div class="text-[9px] text-slate-500 mt-1">暗記カード ${total}枚</div>
+          <button type="button" onclick="openBottomMenuFlashcardSubject('${s.id}')" class="card-item w-full min-w-0 p-3 rounded-xl text-left flex items-center justify-between gap-2 group" style="height:54px!important;min-height:54px!important;max-height:54px!important;box-sizing:border-box">
+            <div class="flex items-center gap-2 min-w-0" style="flex:1 1 auto;min-width:0;gap:6px">
+              <span class="shrink-0 px-1.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-[9px] font-bold" style="font-size:9px!important">${s.code}</span>
+              <div class="min-w-0" style="min-width:0">
+                <div class="text-[8px] leading-tight font-medium text-slate-100 group-hover:text-amber-300 transition" style="font-size:8px!important;white-space:nowrap!important" data-np-text-scale-exclude="true">${s.name}</div>
+                <div class="text-[9px] text-slate-500 mt-0.5">暗記カード ${total}枚</div>
               </div>
             </div>
-            <div class="shrink-0 text-right">
+            <div class="shrink-0 text-right" style="flex-shrink:0;min-width:42px">
               <div class="text-[9px] text-slate-500">習得</div>
               <div class="text-[11px] font-mono font-semibold text-amber-400">${learned}/${total}</div>
             </div>
