@@ -3718,7 +3718,7 @@
       if(click.includes("selectBiochemistryFormat('choice')")) return ['biochemistry'];
       if(click.includes("selectBiochemistryFormat('keyboard')")) return ['biochemistry_keyboard'];
       if(click.includes("selectBiochemistryFormat('fill')")) return ['biochemistry_fill'];
-      if(click.includes('selectPathologyRound(')){const n=(click.match(/selectPathologyRound\((\d+)\)/)||[])[1];const mode=currentPathologyMode==='practice'?'range':currentPathologyMode==='exercise'?'exercise':'range';return [`pathology_${mode}_${semester}_${n}`,`pathology_${mode}_${semester}_${n}.js`,'pathology'];}
+      if(click.includes('selectPathologyRound(')){const n=(click.match(/selectPathologyRound\((\d+)\)/)||[])[1];const mode=currentPathologyMode==='practice'?'practice':currentPathologyMode==='exercise'?'exercise':'quiz';return [`pathology_${mode}_${semester}_round${n}`,'pathology'];}
       if(click.includes('selectPhysiologyMode(')) return ['physiology'];
       if(click.includes("selectAnatomyMode('applied')")) return ['anatomy_applied'];
       if(click.includes('selectAnatomyMode(')) return ['anatomy'];
