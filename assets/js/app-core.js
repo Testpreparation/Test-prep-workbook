@@ -4974,6 +4974,19 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       return `attempt_history_${currentSubject.id}${modeSuffix}`;
     }
 
+    function returnFromQuizResult() {
+      let bottomMenuEnabled = false;
+      try {
+        bottomMenuEnabled = localStorage.getItem('nurse_plus_bottom_menu_enabled') === 'true'
+          || localStorage.getItem('nurse_plus_bottom_menu_enabled') === '1';
+      } catch (_) {}
+      if (bottomMenuEnabled && typeof window.showDashboard === 'function') {
+        window.showDashboard();
+        return;
+      }
+      showSubjectScreen();
+    }
+
     function showResultScreen() {
       stopQuizTimer();
       hideAllScreens();
