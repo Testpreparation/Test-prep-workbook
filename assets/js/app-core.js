@@ -3701,7 +3701,7 @@
               <div class="flex items-center gap-2 min-w-0">
                 <span class="shrink-0 px-1.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono ${target.element.id === 'bottom-menu-subject-list-container' ? 'text-[10.5px]' : 'text-[11px]'} font-bold">${s.code}</span>
                 <div class="min-w-0">
-                  <div class="${target.element.id === 'bottom-menu-subject-list-container' ? 'text-[8px] leading-tight whitespace-nowrap' : 'text-sm'} font-medium text-slate-100 group-hover:text-amber-300 transition" ${target.element.id === 'bottom-menu-subject-list-container' ? 'data-np-text-scale-exclude="true"' : ''}>${s.name}</div>
+                  <div class="${target.element.id === 'bottom-menu-subject-list-container' ? 'text-[8px] leading-tight whitespace-nowrap' : 'text-sm'} font-medium text-slate-100 group-hover:text-amber-300 transition" ${target.element.id === 'bottom-menu-subject-list-container' ? 'style="font-size: 8px !important;" data-np-text-scale-exclude="true"' : ''}>${s.name}</div>
                   ${target.element.id === 'bottom-menu-subject-list-container' ? '' : `<div class="text-[11px] ${isPrep ?  'text-amber-500/80 font-semibold' : 'text-slate-400 font-light'} mt-0.5">${statusLabel}</div>`}
                 </div>
               </div>
