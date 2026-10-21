@@ -282,8 +282,9 @@
     event.stopPropagation();
     const destination = button.dataset.npBottomNav;
     // 設定ドロワーを開いたまま別の下部メニューへ移動しないように閉じる。
-    if (destination !== 'settings' && typeof window.closeNavDrawer === 'function') {
-      window.closeNavDrawer();
+    if (destination !== 'settings') {
+      if (typeof window.closeBottomMenuSettings === 'function') window.closeBottomMenuSettings();
+      if (typeof window.closeNavDrawer === 'function') window.closeNavDrawer();
       const drawer = document.getElementById('nav-drawer');
       if (drawer) drawer.classList.remove('np-bottom-settings-centered');
     }
