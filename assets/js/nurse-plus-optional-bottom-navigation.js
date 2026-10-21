@@ -223,7 +223,12 @@
     if (destination !== 'notices' && noticeModal && !noticeModal.classList.contains('hidden')) {
       if (typeof window.closeNoticeModal === 'function') window.closeNoticeModal();
       else noticeModal.classList.add('hidden');
+      // The bottom-menu notice opener sets inline display:flex; clear it as well as
+      // the hidden class so the legacy close-button version cannot remain over other screens.
+      noticeModal.style.display = 'none';
+      noticeModal.setAttribute('aria-hidden', 'true');
       noticeModal.classList.remove('np-bottom-notice-mode');
+      document.body.classList.remove('overflow-hidden');
     }
 
     if (destination === 'home') {
@@ -304,10 +309,27 @@
       return;
     }
   }, true);
-  // Also initialize when the existing top-level notification button opens the modal.
+  // In bottom-menu mode, route any legacy notice trigger through the same
+  // close-button-free notice presentation used by the bottom navigation.
   document.addEventListener('click', event => {
-    if (event.target.closest('[onclick*="openNoticeModal"]')) {
+    const target = event.target instanceof Element ? event.target : event.target && event.target.parentElement;
+    const trigger = target && target.closest('[onclick*="openNoticeModal"]');
+    if (!trigger) return;
+    if (root.classList.contains('np-bottom-menu-enabled') && !trigger.closest('#np-bottom-navigation')) {
+      event.preventDefault();
+      event.stopPropagation();
+      const modal = document.getElementById('modal-notice');
+      if (!modal) return;
+      if (typeof window.openNoticeModal === 'function') window.openNoticeModal();
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+      modal.style.zIndex = '100';
+      modal.setAttribute('aria-hidden', 'false');
+      modal.classList.add('np-bottom-notice-mode');
+      document.body.classList.add('overflow-hidden');
       window.requestAnimationFrame(initNoticeEffects);
+      return;
     }
-  });
+    window.requestAnimationFrame(initNoticeEffects);
+  }, true);
 })();
