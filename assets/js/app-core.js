@@ -977,6 +977,8 @@
       // 下部メニューモードのホームを確実に隠し、暗記カード一覧へ画面遷移する。
       document.getElementById('screen-dashboard-bottom-menu')?.classList.add('hidden');
       document.getElementById('screen-dashboard')?.classList.add('hidden');
+      // データ分析の追加パネルは hideAllScreens() の対象外なので、暗記カードへ移る際に隠す。
+      document.getElementById('screen-analytics-addition')?.classList.add('hidden');
       const flashcardScreen = document.getElementById('screen-bottom-menu-flashcard-subjects');
       if (flashcardScreen) flashcardScreen.classList.remove('hidden');
 
