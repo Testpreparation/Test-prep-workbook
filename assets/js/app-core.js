@@ -3386,6 +3386,12 @@
       evoRenderGrowth();
     }
 
+    function returnFromQuizResult() {
+      const bottomMenuEnabled = document.documentElement.classList.contains('np-bottom-menu-enabled');
+      if (bottomMenuEnabled) showDashboard();
+      else showSubjectScreen();
+    }
+
     function showDashboard(){
       closeAuthModal();
       closeAdminModal();
@@ -3749,7 +3755,7 @@
 
         return `
           <div class="w-full h-full min-w-0">
-            <button onclick="selectSubject('${s.id}')" ${isPrep ? 'disabled' : ''} class="card-item w-full ${target.element.id === 'bottom-menu-subject-list-container' ? 'h-[72px] p-3' : 'h-full min-h-[88px] p-4'} rounded-xl text-left flex items-center justify-between group ${hasProblemData ? 'relative np-has-problem-data' : ''}">
+            <button onclick="selectSubject('${s.id}')" ${isPrep ? 'disabled' : ''} class="card-item w-full ${target.element.id === 'bottom-menu-subject-list-container' ? 'h-[72px] p-3' : 'h-full min-h-[88px] p-4'} rounded-xl text-left flex items-center justify-between group ${hasProblemData ? 'relative' : ''}">
               <div class="flex items-center gap-2 min-w-0">
                 <span class="shrink-0 px-1.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono ${target.element.id === 'bottom-menu-subject-list-container' ? 'text-[10px]' : 'text-[11px]'} font-bold">${s.code}</span>
                 <div class="min-w-0">
