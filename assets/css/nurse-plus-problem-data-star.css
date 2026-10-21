@@ -1,0 +1,21 @@
+/* Nurse+ problem-data star marker: restrained pastel gold with a soft outline. */
+.np-problem-data-star {
+  position: absolute;
+  left: 7px;
+  bottom: 5px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  color: #e8b96c;
+  font-size: 12px;
+  line-height: 1;
+  text-shadow: 0 1px 1px rgba(120, 84, 35, .12);
+  -webkit-text-stroke: .35px rgba(255, 248, 229, .95);
+  pointer-events: none;
+}
+.np-has-problem-data {
+  padding-bottom: 1.5rem !important;
+}
