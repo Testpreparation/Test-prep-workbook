@@ -4,11 +4,11 @@
   const SEEN_KEY = 'nurse_plus_tutorial_seen_v2';
   const PENDING_KEY = 'nurse_plus_tutorial_pending_first_login';
   const steps = [
-    { title: 'Nurse＋へようこそ', body: 'このガイドでは、科目の選び方から問題演習、学習記録の確認までをご案内します。下のプレビューには、現在のアプリ画面の要素をそのまま使用します。', selectors: ['#screen-subject-select', '#screen-home', 'main'] },
-    { title: '科目を選ぶ', body: 'ホーム／科目一覧から学習したい科目を選びます。科目カードの表示や色、文字はアプリ本来のデザインのままです。', selectors: ['#screen-subject-select', '[id*="subject"]', 'main'] },
-    { title: '問題の種類を確認する', body: '科目を選択すると学期や問題モードを選べます。登録されている問題の種類は、実際に表示されるモード名と問題データを確認してください。星印があるカードは、問題データが登録されている目印です。', selectors: ['[id*="mode-select"]', '[id*="semester"]', 'main'] },
-    { title: '問題を解いて解説を確認する', body: '問題画面で選択肢を選び、回答後に正解と解説を確認します。終了後は画面に表示される結果を確認してください。', selectors: ['[id*="quiz"]', '[id*="question"]', 'main'] },
-    { title: '学習記録・暗記カードを使う', body: 'データ分析で学習状況を振り返り、必要に応じて科目カードの暗記カード機能を利用できます。ハンバーガーメニューの「チュートリアル」から、いつでも見直せます。', selectors: ['[id*="analytics"]', '[id*="analysis"]', '[id*="flashcard"]', 'main'] }
+    { title: 'Nurse＋へようこそ', body: 'このガイドでは、科目の選び方から問題演習、学習記録の確認までをご案内します。下のプレビューには、現在のアプリ画面の要素をそのまま使用します。', selectors: ['#screen-dashboard', '#screen-dashboard-bottom-menu'] },
+    { title: '科目を選ぶ', body: 'ホーム／科目一覧から学習したい科目を選びます。科目カードの表示や色、文字はアプリ本来のデザインのままです。', selectors: ['#screen-subjects', '#screen-dashboard', '#screen-dashboard-bottom-menu'] },
+    { title: '問題の種類を確認する', body: '科目を選択すると学期や問題モードを選べます。登録されている問題の種類は、実際に表示されるモード名と問題データを確認してください。星印があるカードは、問題データが登録されている目印です。', selectors: ['#screen-semester-select', '[id*="mode-select"]', '#screen-subjects'] },
+    { title: '問題を解いて解説を確認する', body: '問題画面で選択肢を選び、回答後に正解と解説を確認します。終了後は画面に表示される結果を確認してください。', selectors: ['#screen-quiz-play', '#screen-quiz-start', '#screen-quiz-result'] },
+    { title: '学習記録・暗記カードを使う', body: 'データ分析で学習状況を振り返り、必要に応じて科目カードの暗記カード機能を利用できます。ハンバーガーメニューの「チュートリアル」から、いつでも見直せます。', selectors: ['#screen-data-analysis', '#screen-bottom-menu-flashcard-subjects', '#screen-dashboard'] }
   ];
   let current = 0, overlay;
   function findPreview(step) {
@@ -17,7 +17,8 @@
       const found = candidates.find(el => el && !el.closest('#np-first-tutorial') && !el.classList.contains('hidden') && el.getClientRects().length);
       if (found) return found;
     }
-    return document.querySelector('main') || document.querySelector('#app') || document.body;
+    const visibleScreen = Array.from(document.querySelectorAll('[id^="screen-"]')).find(el => !el.closest('#np-first-tutorial') && !el.classList.contains('hidden') && el.getClientRects().length);
+    return visibleScreen || document.querySelector('#nav-drawer') || document.body;
   }
   function renderPreview(step) {
     const host = overlay.querySelector('[data-tutorial-preview]');
