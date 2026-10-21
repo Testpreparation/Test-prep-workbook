@@ -3613,7 +3613,7 @@
               </div>
               <div class="flex items-center gap-2 shrink-0">
                 <div class="text-right">
-                  <div class="${target.element.id === 'bottom-menu-subject-list-container' ? 'text-[9.5px]' : 'text-[10px]'} text-slate-500 font-light">${target.element.id === 'bottom-menu-subject-list-container' ? '平均' : '平均正答率'}</div>
+                  <div class="${target.element.id === 'bottom-menu-subject-list-container' ? 'text-[10.5px]' : 'text-[10px]'} text-slate-500 font-light">${target.element.id === 'bottom-menu-subject-list-container' ? '平均' : '平均正答率'}</div>
                   <div class="${target.element.id === 'bottom-menu-subject-list-container' ? 'text-[11.5px]' : 'text-xs'} font-mono font-semibold ${avgAcc !== null ? 'text-amber-400' : 'text-slate-600'}">${avgDisplay}</div>
                 </div>
                 <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">${isPrep ? '🔒' : '→'}</span>
