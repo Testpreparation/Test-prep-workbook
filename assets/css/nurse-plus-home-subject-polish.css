@@ -35,6 +35,17 @@
   flex-shrink: 0;
 }
 
+/* Bottom-menu home cards: two columns on phones, three on tablets and desktop. */
+#screen-dashboard-bottom-menu #bottom-menu-subject-list-container {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 640px) {
+  #screen-dashboard-bottom-menu #bottom-menu-subject-list-container {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 /* Bottom-menu home cards: avoid cramped labels and preserve clear spacing. */
 #screen-dashboard-bottom-menu #bottom-menu-subject-list-container .card-item {
   min-width: 0;
@@ -86,11 +97,8 @@
 }
 
 @media (max-width: 359px) {
-  #screen-dashboard-bottom-menu #bottom-menu-subject-list-container {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   #screen-dashboard-bottom-menu #bottom-menu-subject-list-container .card-item {
     min-height: 72px;
+    padding: 8px;
   }
 }
