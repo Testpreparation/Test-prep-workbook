@@ -3674,71 +3674,6 @@
       renderFlashcardSubjectList();
     }
 
-    // 出題可能な問題データを新規ロジックで判定する。
-    function nursePlusHasAnswerableProblems(keys) {
-      const db = window.QUIZ_DB || {};
-      return (Array.isArray(keys) ? keys : [keys]).some(key =>
-        Array.isArray(db[key]) && db[key].some(q => q && typeof q === 'object' && !Array.isArray(q))
-      );
-    }
-
-    function nursePlusSubjectProblemKeys(id) {
-      const map = {
-        anatomy: ['anatomy','anatomy_applied'],
-        biochemistry: ['biochemistry','biochemistry_fill','biochemistry_keyboard'],
-        medical_intro: ['medical_intro'], microbiology: ['microbiology'],
-        mind_behavior: ['mind_behavior','psychology'], nursing_method: ['nursing_method'],
-        nursing_method_3: ['nursing_method_3','nursing_method_3_practice_2026_spring','nursing_method_3_quiz_2026_spring','nursing_method_3_exercise_2026_spring','nursing_method_3_practice_2026_autumn','nursing_method_3_quiz_2026_autumn','nursing_method_3_exercise_2026_autumn'],
-        pharmacology: ['pharmacology','pharmacology_past','pharmacology_exercise','pharmacology_nurse_national_6years','pharmacology_past_2026_spring','pharmacology_exercise_2026_spring','pharmacology_past_2026_autumn','pharmacology_exercise_2026_autumn'],
-        nutrition: ['nutrition','nutrition_exercise','nutrition_quiz','nutrition_exercise_2026_spring','nutrition_quiz_2026_spring','nutrition_exercise_2026_autumn','nutrition_quiz_2026_autumn'],
-        public_health: ['public_health_past','public_health_exercise','public_health_national','public_health'],
-        public_health_nursing: ['public_health_nursing_basic','public_health_nursing_exercise','public_health_nursing'],
-        physiology: ['physiology','physiology_quiz'],
-        pathology: ['pathology','pathology_quiz','pathology_practice','pathology_exercise','pathology_quiz_2026_spring','pathology_exercise_2026_spring','pathology_quiz_2026_autumn','pathology_exercise_2026_autumn','pathology_range_2026_autumn','pathology_range_2026_autumn_1','pathology_range_2026_autumn_2','pathology_range_2026_autumn_3','pathology_exercise_2026_autumn_1','pathology_exercise_2026_autumn_2','pathology_exercise_2026_autumn_3'],
-        psychology: ['psychology','mind_behavior']
-      };
-      return map[id] || [id];
-    }
-
-    function nursePlusModeProblemKeys(selector, mode) {
-      const map = {
-        selectPhysiologyMode: { past:['physiology','physiology_past'], quiz:['physiology_quiz','physiology_quiz_2026_spring','physiology_quiz_2026_autumn'] },
-        selectAnatomyMode: { basic:['anatomy','anatomy_2026_spring','anatomy_2026_autumn'], applied:['anatomy_applied','anatomy_applied_2026_spring','anatomy_applied_2026_autumn'] },
-        selectPublicHealthMode: { past:['public_health_past','public_health_past_2026_spring','public_health_past_2026_autumn'], exercise:['public_health_exercise','public_health_exercise_2026_spring','public_health_exercise_2026_autumn'], national:['public_health_national','public_health_national_2026_spring','public_health_national_2026_autumn'] },
-        selectPHNMode: { basic:['public_health_nursing_basic','public_health_nursing_basic_2026_spring','public_health_nursing_basic_2026_autumn'], exercise:['public_health_nursing_exercise','public_health_nursing_exercise_2026_spring','public_health_nursing_exercise_2026_autumn'] },
-        selectPharmacologyMode: { exercise:['pharmacology_exercise','pharmacology_exercise_2026_spring','pharmacology_exercise_2026_autumn'], past:['pharmacology_past','pharmacology_past_2026_spring','pharmacology_past_2026_autumn'], nurse_national_6years:['pharmacology_nurse_national_6years'] },
-        selectNutritionMode: { exercise:['nutrition_exercise','nutrition_exercise_2026_spring','nutrition_exercise_2026_autumn'], quiz:['nutrition_quiz','nutrition_quiz_2026_spring','nutrition_quiz_2026_autumn'] },
-        selectPathologyMode: { quiz:['pathology_quiz','pathology_quiz_2026_spring','pathology_quiz_2026_autumn'], practice:['pathology_practice','pathology_range_2026_autumn','pathology_range_2026_autumn_1','pathology_range_2026_autumn_2','pathology_range_2026_autumn_3'], exercise:['pathology_exercise','pathology_exercise_2026_spring','pathology_exercise_2026_autumn','pathology_exercise_2026_autumn_1','pathology_exercise_2026_autumn_2','pathology_exercise_2026_autumn_3'] }
-      };
-      return map[selector]?.[mode] || [];
-    }
-
-    function nursePlusRenderStar(container, label) {
-      if (!container || container.querySelector('.np-answerable-problem-star')) return;
-      const star = document.createElement('span');
-      star.className = 'np-answerable-problem-star';
-      star.textContent = '★';
-      star.setAttribute('aria-label', label);
-      star.title = label;
-      container.appendChild(star);
-    }
-
-    function nursePlusUpdateModeStars(container) {
-      if (!container) return;
-      container.querySelectorAll('button[onclick]').forEach(button => {
-        const match = (button.getAttribute('onclick') || '').match(/^\s*(select[A-Za-z0-9]+)\(['"]([^'"]+)['"]\)/);
-        if (!match) return;
-        const keys = nursePlusModeProblemKeys(match[1], match[2]);
-        if (!keys.length) return;
-        if (nursePlusHasAnswerableProblems(keys)) {
-          button.classList.add('relative');
-          nursePlusRenderStar(button, '出題可能');
-        } else {
-          button.querySelector('.np-answerable-problem-star')?.remove();
-        }
-      });
-    }
-
     function renderSubjectList() {
       const containers = [
         { element: document.getElementById('subject-list-container'), count: document.getElementById('subject-count-display') },
@@ -3762,7 +3697,7 @@
 
         return `
           <div class="w-full h-full min-w-0">
-            <button onclick="selectSubject('${s.id}')" ${isPrep ? 'disabled' : ''} class="card-item relative w-full ${target.element.id === 'bottom-menu-subject-list-container' ? 'h-[72px] p-3' : 'h-full min-h-[88px] p-4'} rounded-xl text-left flex items-center justify-between group">
+            <button onclick="selectSubject('${s.id}')" ${isPrep ? 'disabled' : ''} class="card-item w-full ${target.element.id === 'bottom-menu-subject-list-container' ? 'h-[72px] p-3' : 'h-full min-h-[88px] p-4'} rounded-xl text-left flex items-center justify-between group">
               <div class="flex items-center gap-2 min-w-0">
                 <span class="shrink-0 px-1.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono ${target.element.id === 'bottom-menu-subject-list-container' ? 'text-[10px]' : 'text-[11px]'} font-bold">${s.code}</span>
                 <div class="min-w-0">
@@ -3776,7 +3711,6 @@
                   <div class="${target.element.id === 'bottom-menu-subject-list-container' ? 'text-[11.5px]' : 'text-xs'} font-mono font-semibold ${avgAcc !== null ? 'text-amber-400' : 'text-slate-600'}">${avgDisplay}</div>
                 </div>
                 <span class="${target.element.id === 'bottom-menu-subject-list-container' ? 'w-3 text-center' : ''} text-slate-500 group-hover:text-amber-400 transition text-sm">${isPrep ? '🔒' : '→'}</span>
-              ${!isPrep && nursePlusHasAnswerableProblems(nursePlusSubjectProblemKeys(s.id)) ? '<span class="np-answerable-problem-star" aria-label="出題可能" title="出題可能">★</span>' : ''}
               </div>
             </button>
           </div>
@@ -3855,7 +3789,6 @@
     function showPhysiologyModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-physiology-mode-select').classList.remove('hidden');
-      nursePlusUpdateModeStars(document.getElementById('screen-physiology-mode-select'));
       updateStudyBreadcrumb();
     }
 
@@ -3867,7 +3800,6 @@
     function showAnatomyModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-anatomy-mode-select').classList.remove('hidden');
-      nursePlusUpdateModeStars(document.getElementById('screen-anatomy-mode-select'));
       updateStudyBreadcrumb();
     }
 
@@ -3879,7 +3811,6 @@
     function showPublicHealthModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-publichealth-mode-select').classList.remove('hidden');
-      nursePlusUpdateModeStars(document.getElementById('screen-publichealth-mode-select'));
       updateStudyBreadcrumb();
     }
 
@@ -3891,7 +3822,6 @@
     function showPHNModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-phn-mode-select').classList.remove('hidden');
-      nursePlusUpdateModeStars(document.getElementById('screen-phn-mode-select'));
       updateStudyBreadcrumb();
     }
 
@@ -3903,7 +3833,6 @@
     function showPathologyModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-pathology-mode-select').classList.remove('hidden');
-      nursePlusUpdateModeStars(document.getElementById('screen-pathology-mode-select'));
       updateStudyBreadcrumb();
     }
 
@@ -3938,7 +3867,6 @@
     function showPharmacologyModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-pharmacology-mode-select').classList.remove('hidden');
-      nursePlusUpdateModeStars(document.getElementById('screen-pharmacology-mode-select'));
       updateStudyBreadcrumb();
     }
 
@@ -3963,7 +3891,6 @@
     function showNutritionModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-nutrition-mode-select').classList.remove('hidden');
-      nursePlusUpdateModeStars(document.getElementById('screen-nutrition-mode-select'));
       updateStudyBreadcrumb();
     }
 
