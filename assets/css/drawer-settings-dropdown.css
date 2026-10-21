@@ -49,3 +49,16 @@
 @media (prefers-reduced-motion: reduce) {
   #nav-drawer.np-bottom-settings-centered { transition: none !important; }
 }
+
+/* Bottom-menu settings destination shows only the settings section, not the full hamburger menu. */
+#nav-drawer.np-bottom-settings-centered > div:first-child > .flex.items-center.justify-between,
+#nav-drawer.np-bottom-settings-centered > div:first-child > .mt-6 > button,
+#nav-drawer.np-bottom-settings-centered > div:last-child {
+  display: none !important;
+}
+#nav-drawer.np-bottom-settings-centered > div:first-child > .mt-6 {
+  margin-top: 0 !important;
+}
+#nav-drawer.np-bottom-settings-centered #drawer-settings-accordion {
+  margin-top: 0 !important;
+}
