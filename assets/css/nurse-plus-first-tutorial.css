@@ -1,17 +1,32 @@
-/* Nurse＋ tutorial: reuse the app's existing slate/amber palette. */
-.np-tutorial-overlay{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(2,6,23,.72);backdrop-filter:blur(7px)}
+/* Nurse＋ tutorial overlay: uses the existing app palette and follows light/dark appearance. */
+.np-tutorial-overlay{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(2,6,23,.72);backdrop-filter:blur(7px);overflow-y:auto}
 .np-tutorial-overlay.hidden{display:none}
-.np-tutorial-dialog{width:min(100%,28rem);padding:1.35rem;border:1px solid rgba(148,163,184,.25);border-radius:1.25rem;background:rgba(15,23,42,.98);color:#e2e8f0;box-shadow:0 24px 70px rgba(0,0,0,.38)}
+.np-tutorial-dialog{width:min(100%,31rem);max-height:min(92dvh,48rem);overflow-y:auto;padding:1.2rem;border:1px solid rgba(148,163,184,.25);border-radius:1.25rem;background:rgba(15,23,42,.98);color:#e2e8f0;box-shadow:0 24px 70px rgba(0,0,0,.38)}
 .np-tutorial-eyebrow{font-family:'Cormorant Garamond',serif;font-size:.7rem;letter-spacing:.22em;font-weight:600;color:rgba(245,158,11,.85)}
 .np-tutorial-progress-track{height:3px;margin-top:.85rem;overflow:hidden;border-radius:999px;background:rgba(148,163,184,.2)}
 .np-tutorial-progress{height:100%;width:20%;background:#d6a34b;transition:width .22s ease}
 .np-tutorial-meta{display:flex;justify-content:space-between;gap:1rem;margin-top:1.15rem;color:#94a3b8;font-size:.72rem}
 .np-tutorial-dialog h2{margin:.65rem 0 .6rem;font-family:'Noto Serif JP',serif;font-size:1.15rem;font-weight:600;line-height:1.6;color:#f1f5f9}
-.np-tutorial-dialog p{min-height:5.5rem;margin:0;color:#cbd5e1;font-size:.875rem;line-height:1.9;white-space:normal}
-.np-tutorial-actions{display:flex;align-items:center;gap:.5rem;margin-top:1.35rem}
+.np-tutorial-preview{max-height:12rem;overflow:hidden;margin:.75rem 0 1rem;padding:.7rem;border:1px solid rgba(148,163,184,.22);border-radius:.85rem;background:rgba(30,41,59,.62);font-size:.7rem;line-height:1.5}
+.np-tutorial-preview>*{max-width:100%;transform-origin:top left}
+.np-tutorial-preview img{max-width:100%;height:auto}
+.np-tutorial-dialog p{margin:0;color:#cbd5e1;font-size:.875rem;line-height:1.9;white-space:normal}
+.np-tutorial-actions{display:flex;align-items:center;gap:.5rem;margin-top:1.1rem}
 .np-tutorial-actions button{min-height:2.65rem;padding:.65rem .85rem;border:1px solid rgba(148,163,184,.25);border-radius:.75rem;background:rgba(30,41,59,.75);color:#cbd5e1;font-size:.8rem;transition:background .18s ease,border-color .18s ease}
 .np-tutorial-actions button:hover:not(:disabled){background:rgba(51,65,85,.85);border-color:rgba(148,163,184,.45)}
 .np-tutorial-actions button:disabled{opacity:.35;cursor:not-allowed}
 .np-tutorial-actions [data-tutorial-next]{margin-left:auto;border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.13);color:#fcd34d;font-weight:600}
 .np-tutorial-actions [data-tutorial-next]:hover{background:rgba(245,158,11,.22)}
+html.np-light-theme .np-tutorial-overlay{background:rgba(51,41,64,.38)}
+html.np-light-theme .np-tutorial-dialog{background:rgba(255,255,255,.98);border-color:rgba(184,162,211,.5);color:#4b4358;box-shadow:0 24px 70px rgba(61,45,81,.22)}
+html.np-light-theme .np-tutorial-eyebrow{color:#9b7cbd}
+html.np-light-theme .np-tutorial-progress-track{background:#eee8f5}
+html.np-light-theme .np-tutorial-progress{background:#b9a2dd}
+html.np-light-theme .np-tutorial-meta{color:#9385a4}
+html.np-light-theme .np-tutorial-dialog h2{color:#514563}
+html.np-light-theme .np-tutorial-preview{background:rgba(248,245,252,.94);border-color:#e7def1}
+html.np-light-theme .np-tutorial-dialog p{color:#6f647c}
+html.np-light-theme .np-tutorial-actions button{background:#f7f3fb;border-color:#e4dced;color:#665a75}
+html.np-light-theme .np-tutorial-actions [data-tutorial-next]{background:#eee5f7;border-color:#cbb8e3;color:#75599b}
+@media(max-width:420px){.np-tutorial-overlay{padding:.6rem}.np-tutorial-dialog{padding:1rem;max-height:94dvh}.np-tutorial-preview{max-height:9rem}}
 @media(prefers-reduced-motion:reduce){.np-tutorial-progress,.np-tutorial-actions button{transition:none}}

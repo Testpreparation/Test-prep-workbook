@@ -8,6 +8,8 @@
         const lineUserId = fragment.get('line_user_id') || queryParams.get('line_user_id');
         const lineSession = fragment.get('line_session') || queryParams.get('line_session');
         const hasLineCallback = Boolean(lineName || lineUserId || lineSession);
+        const isFirstLineLoginOnThisDevice = Boolean(lineUserId && !localStorage.getItem('nurse_line_user_id'));
+        if (isFirstLineLoginOnThisDevice) localStorage.setItem('nurse_plus_tutorial_pending_first_login', '1');
         if (lineName) localStorage.setItem('nurse_line_user_name', lineName);
         if (lineUserId) localStorage.setItem('nurse_line_user_id', lineUserId);
         if (lineSession) {
