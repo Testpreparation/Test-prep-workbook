@@ -3851,6 +3851,7 @@
       hideAllScreens();
       document.getElementById('screen-semester-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
       document.getElementById('semester-subject-title').textContent = `${currentSubject.name} - 学期選択`;
 
       const springBtn = document.getElementById('semester-spring-btn');
@@ -3905,12 +3906,14 @@
       hideAllScreens();
       document.getElementById('screen-biochemistry-format-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
     }
 
     function showPhysiologyModeSelectionScreen() {
       hideAllScreens();
       document.getElementById('screen-physiology-mode-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
     }
 
     function selectPhysiologyMode(mode) {
@@ -3922,6 +3925,7 @@
       hideAllScreens();
       document.getElementById('screen-anatomy-mode-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
     }
 
     function selectAnatomyMode(mode) {
@@ -3933,6 +3937,7 @@
       hideAllScreens();
       document.getElementById('screen-publichealth-mode-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
     }
 
     function selectPublicHealthMode(mode) {
@@ -3944,6 +3949,7 @@
       hideAllScreens();
       document.getElementById('screen-phn-mode-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
     }
 
     function selectPHNMode(mode) {
@@ -3955,6 +3961,7 @@
       hideAllScreens();
       document.getElementById('screen-pathology-mode-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
     }
 
     function showPathologyRoundSelectionScreen() {
@@ -3972,6 +3979,7 @@
 
   document.getElementById('screen-pathology-round-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
 }
 
     function selectPathologyMode(mode) {
@@ -3989,6 +3997,7 @@
       hideAllScreens();
       document.getElementById('screen-pharmacology-mode-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
     }
 
     function selectPharmacologyMode(mode) {
@@ -4001,6 +4010,7 @@
       hideAllScreens();
       document.getElementById('screen-nursing-method-3-mode-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
     }
 
     function selectNursingMethod3Mode(mode) {
@@ -4013,6 +4023,7 @@
       hideAllScreens();
       document.getElementById('screen-nutrition-mode-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
     }
 
     function selectNutritionMode(mode) {
@@ -4025,6 +4036,7 @@
       hideAllScreens();
       document.getElementById('screen-nursing-mode-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
     }
 
     function selectNursingMode(mode) {
@@ -4036,6 +4048,7 @@
       hideAllScreens();
       document.getElementById('screen-round-select').classList.remove('hidden');
       updateStudyBreadcrumb();
+      npRefreshQuizStars();
       document.getElementById('round-subject-title').textContent = `${currentSubject.name} モード選択`;
 
       const roundBackBtn = document.getElementById('round-back-btn');
