@@ -2283,7 +2283,11 @@
       }
 
       window.QUIZ_DB[saveDbKey] = rawData;
+      npRefreshQuizStars();
+      renderSubjectList();
       db.ref(`quiz_db/${saveDbKey}`).set(rawData).then(() => {
+        npRefreshQuizStars();
+        renderSubjectList();
         alert("演習テスト問題をFirebaseに保存しました。");
         closeQuestionsEditorModal();
       }).catch(err => {
