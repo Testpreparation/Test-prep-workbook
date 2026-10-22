@@ -11,3 +11,12 @@ body.npt-tutorial-open{overflow:hidden}
 .npt-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 22px 20px;border-top:1px solid #f0ebf5}.npt-actions{display:flex;gap:8px}.npt-footer button{min-height:42px;padding:0 17px;border-radius:12px;font-size:13px;font-weight:650}.npt-skip{border:0;background:transparent;color:#82778f}.npt-prev{border:1px solid #e5ddec;background:#fff;color:#62576f}.npt-prev:disabled{opacity:.35}.npt-next{border:1px solid #8f77b5;background:#8e75b5;color:white;box-shadow:0 4px 10px #8e75b533}
 @media(prefers-color-scheme:dark){.npt-dialog{--npt-panel:#1d1b27;--npt-text:#f0edf6;border-color:#4b3d5f}.npt-lead,.npt-points li{color:#d0c9dc}.npt-footer{border-color:#383142}.npt-prev{background:#292533;border-color:#44394f;color:#e4dced}.npt-screen{background:linear-gradient(145deg,#2c2638,#24202f);border-color:#4a3d5b;color:#eee6f8}.npt-screen-head{border-color:#4a3d5b}.npt-subject,.npt-mode,.npt-setting-row,.npt-option,.npt-question,.npt-stat,.npt-nav{background:#332c40;border-color:#4a3d5b;color:#f0eaf8}.npt-subject small,.npt-nav small{color:#c4b8d6}.npt-setting-row.indent{background:#2a2435}.npt-highlight{background:#44345d;border-color:#9178b7}.npt-close{background:#30293c;border-color:#4a3d5b;color:#f0eaf8}}
 @media(max-width:480px){.npt-dialog{width:calc(100vw - 20px);max-height:94dvh;border-radius:20px}.npt-header{padding:14px 16px 10px}.npt-content{padding:14px 16px 10px}.npt-footer{padding:11px 16px 14px}.npt-footer button{padding:0 13px}.npt-subject{min-height:52px;padding:10px 8px}}
+
+
+/* Live app previews: keep cloned Nurse+ UI contained inside the tutorial card. */
+#npt-tutorial-modal .npt-live-frame{display:block;max-height:34vh;overflow:auto;padding:8px;background:var(--npt-panel,#fff);border-radius:14px}
+#npt-tutorial-modal .npt-live-label{font-size:10px;letter-spacing:.08em;color:var(--npt-muted,#64748b);margin:0 0 8px;text-align:right}
+#npt-tutorial-modal .npt-live-screen{pointer-events:none;user-select:none;overflow:hidden;max-width:100%;font-size:10px}
+#npt-tutorial-modal .npt-live-screen>div{max-width:100%;min-width:0}
+#npt-tutorial-modal .npt-live-screen button{cursor:default}
+#npt-tutorial-modal .npt-live-screen *{animation:none!important;transition:none!important}

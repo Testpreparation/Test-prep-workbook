@@ -5,27 +5,68 @@
   const slides = [
     { title:'Nurse＋へようこそ', lead:'科目を選び、問題を解き、解説で復習する学習アプリです。', screen:'home', points:['まずはホームの科目カードを見てみましょう。','利用できる問題やモードは科目ごとに異なります。'] },
     { title:'ホーム画面の見方', lead:'科目カードを選ぶと、その科目の学習へ進めます。', screen:'subjects', points:['カードに表示されている科目名を確認します。','カードや表示内容は科目によって異なります。'] },
-    { title:'星マークの意味', lead:'星は、アプリがその科目に問題データを確認できた目印です。', screen:'star', points:['星が付いていても、すべてのモードに問題があるとは限りません。','星が見当たらない場合も、次の画面でモード別に確認してください。'] },
-    { title:'モードごとに問題を確認', lead:'科目を開き、利用したいモードに問題があるか確認します。', screen:'modes', points:['「練習問題」「演習問題」など、画面に実際に表示されたモードを選びます。','星の有無だけで決めず、各モードを確認しましょう。'] },
+    { title:'星マークの意味', lead:'星は、その科目・モードに問題データがあることを示す目印です。', screen:'star', points:['科目カードの星は、その科目に問題があることを示します。','科目を開いたら、各モードに付いている星を確認してください。星の付いたモードを選ぶと、そのモードの問題を確認できます。'] },
+    { title:'科目・モード別に問題を確認', lead:'科目カードの星を確認したあと、科目を開いてモードごとの星を確認します。', screen:'modes', points:['科目カードの星は科目単位、モード画面の星はそのモード単位の目印です。','問題を解きたいモードを選び、問題一覧や開始画面で実際の問題を確認してください。'] },
+    { title:'暗記カードの使い方', lead:'暗記カードは、表面で問いや用語を確認し、裏面で答えを確認して覚える機能です。', screen:'flashcards', points:['暗記カードを使う科目を選び、カードを表示します。','まず表面の問いを見て答えを思い出し、カードをめくって裏面の答えを確認します。','実際の表示・めくり方は、開いた暗記カード画面の案内に従ってください。'] },
     { title:'問題を解いてみよう', lead:'問題文と選択肢を読み、回答後は表示される解説を確認しましょう。', screen:'question', points:['選択肢を選んで回答します。','解説を読み、次の問題へ進みます。※表示や操作はモードにより異なります。'] },
     { title:'学習状況を振り返る', lead:'下部メニューやナビゲーションメニューから「データ分析」を開けます。', screen:'analytics', points:['保存された演習履歴や正答率などを確認できます。','表示される記録は、利用状況や端末の保存状態によって異なります。'] },
     { title:'下部メニューの使い方', lead:'下部メニューは「テーマ・外観」でオンにすると表示されます。', screen:'bottom', points:['ホーム：学習ホームへ','データ分析：学習状況を確認','お知らせ：アプリ内のお知らせ','設定：設定項目を開く'] },
     { title:'下部メニューを表示する設定', lead:'設定 → 一般 → テーマ・外観 →「下部メニュー」をオンにします。', screen:'toggle', points:['「下部メニュー」をオンにすると、画面下部に4つのメニューが表示されます。','ホワイト／ダークのテーマ切り替えも、この画面で行えます。'] },
-    { title:'設定項目の役割', lead:'ハンバーガーメニューの「設定」から各カテゴリーを開けます。', screen:'settings', points:['アカウント：LINE連携情報・ログイン状態','オーディオ：効果音のオン／オフ、音量','通知設定：この端末でアプリ内のお知らせを表示するか','アクセシビリティ：文字サイズ、アニメーションを減らす設定','プライバシー／データ管理：情報の扱い、端末内の学習記録やキャッシュの管理'] },
+    { title:'設定項目の役割', lead:'設定画面では、カテゴリーを開いて実際の項目を確認できます。', screen:'settings', points:['アカウント：アカウント関連の設定','一般：テーマ・外観、オーディオ、通知設定、アクセシビリティ','プライバシー：プライバシー関連の設定','データ管理：データ管理に関する項目','ヘルプ・サポート／アプリ情報：ヘルプとアプリ情報を確認'] },
     { title:'いつでも見返せます', lead:'操作に迷ったら、ハンバーガーメニューの「チュートリアル」を開いてください。', screen:'menu', points:['設定はいつでも変更できます。','問題がある科目やモードは、実際の画面に表示される内容を確認してください。'] }
   ];
   const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  function visual(type) {
+  function mockVisual(type) {
     const frame = (content, label='Nurse＋') => '<div class="npt-screen"><div class="npt-screen-head"><span class="npt-logo">＋</span><b>'+label+'</b><span class="npt-dots">•••</span></div>'+content+'</div>';
     if(type==='home'||type==='subjects') return frame('<div class="npt-mini-title">学習ホーム</div><div class="npt-card-grid"><div class="npt-subject">基礎看護学<span>科目</span></div><div class="npt-subject">人体の構造と機能<span>科目</span></div><div class="npt-subject">公衆衛生看護学概論<span>科目</span></div><div class="npt-subject">ほかの科目<span>科目</span></div></div><div class="npt-hint">科目カードを選択</div>');
     if(type==='star') return frame('<div class="npt-mini-title">科目カードの例</div><div class="npt-subject npt-wide">問題データがある科目 <span class="npt-star">★</span><small>星は問題データの目印</small></div><div class="npt-subject npt-wide">別の科目 <span class="npt-star npt-muted">★</span><small>星がない場合はモード画面も確認</small></div>');
     if(type==='modes') return frame('<div class="npt-mini-title">科目のモード（例）</div><div class="npt-mode">練習問題 <span>›</span></div><div class="npt-mode">演習問題 <span>›</span></div><div class="npt-mode">利用できる項目は科目により異なります</div>');
+    if(type==='flashcards') return frame('<div class="npt-mini-title">暗記カード（説明用イメージ）</div><div class="npt-flashcard"><span>QUESTION / 表面</span><b>用語・問いを確認</b><small>まずは答えを思い出す</small></div><div class="npt-flashcard npt-flashcard-back"><span>ANSWER / 裏面</span><b>答え・説明を確認</b><small>覚えているか振り返る</small></div>');
     if(type==='question') return frame('<div class="npt-mini-title">問題画面（イメージ）</div><div class="npt-question">問題文を読んで、正しい選択肢を選びましょう。</div><div class="npt-option">○　選択肢 A</div><div class="npt-option">○　選択肢 B</div><div class="npt-option">○　選択肢 C</div><div class="npt-hint">回答後は解説を確認</div>');
     if(type==='analytics') return frame('<div class="npt-mini-title">データ分析</div><div class="npt-stat-row"><div class="npt-stat">学習履歴</div><div class="npt-stat">正答率</div></div><div class="npt-hint">利用状況に応じた記録を確認</div>');
     if(type==='bottom') return '<div class="npt-screen npt-bottom-example"><div class="npt-mini-title">画面下部のメニュー</div><div class="npt-nav"><span>⌂<small>ホーム</small></span><span>▥<small>データ分析</small></span><span>▤<small>お知らせ</small></span><span>⚙<small>設定</small></span></div></div>';
     if(type==='toggle') return frame('<div class="npt-mini-title">テーマ・外観</div><div class="npt-setting-row">ホワイト／ダーク <span>切り替え</span></div><div class="npt-setting-row npt-highlight">下部メニュー <span>オン／オフ</span></div><div class="npt-hint">設定 → 一般 → テーマ・外観</div>');
     if(type==='settings') return frame('<div class="npt-mini-title">設定</div><div class="npt-setting-row">アカウント <span>›</span></div><div class="npt-setting-row">一般 <span>›</span></div><div class="npt-setting-row indent">テーマ・外観</div><div class="npt-setting-row indent">オーディオ</div><div class="npt-setting-row indent">通知設定</div><div class="npt-setting-row indent">アクセシビリティ</div><div class="npt-setting-row">プライバシー <span>›</span></div><div class="npt-setting-row">データ管理 <span>›</span></div>');
     return frame('<div class="npt-mini-title">ナビゲーションメニュー</div><div class="npt-setting-row">学習ホーム</div><div class="npt-setting-row">データ分析</div><div class="npt-setting-row">個人演習（科目一覧）</div><div class="npt-setting-row npt-highlight">チュートリアル</div>');
+  }
+
+  // Prefer the app's existing DOM for previews instead of drawing a second UI.
+  // Clones are inert so tutorial previews cannot trigger app actions.
+  function visual(type) {
+    const sourceByType = {
+      home: '#screen-dashboard',
+      subjects: '#screen-subjects',
+      star: '#screen-subjects',
+      modes: '#screen-phn-mode-select',
+      flashcards: '#flashcard-card',
+      bottom: '#screen-dashboard-bottom-menu'
+    };
+    const selector = sourceByType[type];
+    if (!selector) return mockVisual(type);
+    const source = document.querySelector(selector);
+    if (!source || !source.children.length) return mockVisual(type);
+    const clone = source.cloneNode(true);
+    clone.removeAttribute('id');
+    clone.querySelectorAll('[id]').forEach(node => node.removeAttribute('id'));
+    clone.querySelectorAll('script, style, iframe, video, audio').forEach(node => node.remove());
+    clone.querySelectorAll('*').forEach(node => {
+      [...node.attributes].forEach(attr => {
+        if (/^on/i.test(attr.name)) node.removeAttribute(attr.name);
+      });
+      if (node.matches('button, input, select, textarea, a')) {
+        node.setAttribute('tabindex', '-1');
+        if ('disabled' in node) node.disabled = true;
+      }
+    });
+    clone.classList.remove('hidden');
+    clone.style.display = 'block';
+    clone.style.maxHeight = 'none';
+    clone.style.overflow = 'visible';
+    const wrap = document.createElement('div');
+    wrap.className = 'npt-live-screen';
+    wrap.setAttribute('aria-label', 'Nurse＋実画面のプレビュー');
+    wrap.appendChild(clone);
+    return '<div class="npt-screen npt-live-frame"><div class="npt-live-label">Nurse＋の画面を使用</div>' + wrap.outerHTML + '</div>';
   }
   function addMenuEntry() {
     const target = document.getElementById('nav-drawer');
@@ -34,8 +75,9 @@
     entry.id='npt-open-from-menu'; entry.type='button'; entry.className='w-full text-left px-4 py-3 rounded-xl bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/30 text-violet-200 text-xs transition flex items-center gap-3';
     entry.innerHTML='<span class="px-2 py-0.5 rounded bg-violet-500/20 border border-violet-500/40 font-mono text-violet-300 text-[10px] font-bold">GUIDE</span><span class="font-medium">チュートリアル</span>';
     entry.addEventListener('click', function(){ if(typeof closeNavDrawer==='function') closeNavDrawer(); openTutorial(0); });
-    const settings = document.getElementById('drawer-settings-accordion');
-    (settings || target.querySelector('.mt-6.space-y-2\.5') || target.firstElementChild)?.appendChild(entry);
+    const menuList = target.querySelector('.mt-6.space-y-2\\.5');
+    if (menuList) menuList.appendChild(entry);
+    else target.firstElementChild?.appendChild(entry);
   }
   let current=0, returnFocus=null;
   function render() {
