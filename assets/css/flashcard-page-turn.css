@@ -1,0 +1,46 @@
+/* Nurse＋暗記カード：ページをめくるような3Dアニメーション */
+#fc-step-4-play .perspective-1000 {
+  perspective: 1500px;
+  perspective-origin: 18% 50%;
+  -webkit-perspective: 1500px;
+}
+
+#fc-step-4-play #flashcard-card {
+  position: relative;
+  transform-origin: 28px 50%;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  transition:
+    transform 820ms cubic-bezier(.22,.68,.18,1),
+    box-shadow 820ms cubic-bezier(.22,.68,.18,1);
+  will-change: transform;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.08),
+    0 12px 22px -9px rgba(0,0,0,.48),
+    3px 0 5px rgba(0,0,0,.12);
+}
+
+#fc-step-4-play #flashcard-card.rotate-y-180 {
+  transform: rotateY(180deg) rotateZ(-.6deg);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.06),
+    -8px 14px 28px -10px rgba(0,0,0,.52),
+    -3px 0 7px rgba(0,0,0,.2);
+}
+
+#fc-step-4-play #flashcard-front,
+#fc-step-4-play #flashcard-back {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+#fc-step-4-play .perspective-1000:active #flashcard-card {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 8px 16px -8px rgba(0,0,0,.42);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #fc-step-4-play #flashcard-card {
+    transition-duration: 1ms;
+    will-change: auto;
+  }
+}
