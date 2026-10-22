@@ -2374,6 +2374,15 @@
             if (subId === 'biochemistry_fill') return;
             window.QUIZ_DB[subId] = val[subId];
           });
+          // Firebaseの問題データが届いた後、ホーム科目カードの星も必ず再判定する。
+          npRefreshQuizStars();
+          renderSubjectList();
+          requestAnimationFrame(() => {
+            npRefreshQuizStars();
+            renderSubjectList();
+          });
+        } else {
+          // 初回の空レスポンスでも、後続の読み込み完了時に再描画できるようにする。
           npRefreshQuizStars();
           renderSubjectList();
         }
