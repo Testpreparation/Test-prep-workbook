@@ -3796,6 +3796,27 @@
       }
     }
 
+    // 公衆衛生看護学概論はモード選択後に初めて問題配列へ登録される場合があるため、
+    // ホーム表示前に各学期のデータを登録し、初回から科目カードの星を判定できるようにする。
+    function npPrimePublicHealthNursingQuizData() {
+      const loaders = [
+        ['getPublicHealthNursingBasicQuestions', 'public_health_nursing_basic'],
+        ['getPublicHealthNursingExerciseQuestions', 'public_health_nursing_exercise'],
+        ['getPublicHealthNursingBasicQuestionsAutumn', 'public_health_nursing_basic_2026_autumn'],
+        ['getPublicHealthNursingExerciseQuestionsAutumn', 'public_health_nursing_exercise_2026_autumn']
+      ];
+      window.QUIZ_DB = window.QUIZ_DB || {};
+      loaders.forEach(([fnName, key]) => {
+        if (typeof window[fnName] !== 'function') return;
+        try {
+          const questions = window[fnName]();
+          if (Array.isArray(questions) && questions.length > 0) window.QUIZ_DB[key] = questions;
+        } catch (error) {
+          console.warn('[Nurse＋] 公衆衛生看護学概論の初期問題データ読み込みに失敗:', fnName, error);
+        }
+      });
+    }
+
     // Re-check stars after asynchronously loaded quiz data arrives, including on the initial home screen.
     let npStarRefreshScheduled = false;
     function npScheduleQuizStarRefresh() {
