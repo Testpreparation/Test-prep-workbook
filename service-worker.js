@@ -2,7 +2,7 @@
  * Only same-origin GET responses are cached. Learning data (Firebase/local app storage) is never
  * cleared here; this manager only removes expendable entries from this service-worker cache.
  */
-const CACHE_NAME = 'nurse-plus-pwa-v12';
+const CACHE_NAME = 'nurse-plus-pwa-v13';
 const APP_ROOT = '/Test-prep-workbook/';
 const CACHE_LIMIT_BYTES = 100 * 1024 * 1024; // 100 MiB (approximately 100 MB)
 const CORE_ASSETS = [
