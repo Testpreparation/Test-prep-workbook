@@ -58,7 +58,6 @@
         if ('disabled' in node) node.disabled = true;
       }
     });
-    clone.querySelectorAll('.hidden').forEach(node => node.classList.remove('hidden'));
     clone.classList.remove('hidden');
     clone.style.display = 'block';
     clone.style.maxHeight = 'none';
