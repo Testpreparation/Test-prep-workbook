@@ -7,3 +7,27 @@
     line-height: 1 !important;
   }
 }
+
+/* Keep the compact subject-card arrow anchored inside the card on phones. */
+@media (max-width: 699px) {
+  #bottom-menu-subject-list-container > div > .card-item {
+    position: relative !important;
+    padding-right: 30px !important;
+  }
+
+  #bottom-menu-subject-list-container > div > .card-item > div:last-child {
+    grid-template-columns: 44px !important;
+    column-gap: 0 !important;
+    flex-shrink: 0 !important;
+  }
+
+  #bottom-menu-subject-list-container > div > .card-item > div:last-child > span {
+    position: absolute !important;
+    right: 10px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 12px !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+  }
+}
