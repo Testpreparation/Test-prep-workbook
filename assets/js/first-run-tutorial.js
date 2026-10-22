@@ -34,8 +34,9 @@
     entry.id='npt-open-from-menu'; entry.type='button'; entry.className='w-full text-left px-4 py-3 rounded-xl bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/30 text-violet-200 text-xs transition flex items-center gap-3';
     entry.innerHTML='<span class="px-2 py-0.5 rounded bg-violet-500/20 border border-violet-500/40 font-mono text-violet-300 text-[10px] font-bold">GUIDE</span><span class="font-medium">チュートリアル</span>';
     entry.addEventListener('click', function(){ if(typeof closeNavDrawer==='function') closeNavDrawer(); openTutorial(0); });
-    const settings = document.getElementById('drawer-settings-accordion');
-    (settings || target.querySelector('.mt-6.space-y-2\.5') || target.firstElementChild)?.appendChild(entry);
+    const menuList = target.querySelector('.mt-6.space-y-2\\.5');
+    if (menuList) menuList.appendChild(entry);
+    else target.firstElementChild?.appendChild(entry);
   }
   let current=0, returnFocus=null;
   function render() {
