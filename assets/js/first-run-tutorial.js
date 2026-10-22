@@ -16,7 +16,7 @@
     { title:'いつでも見返せます', lead:'操作に迷ったら、ハンバーガーメニューの「チュートリアル」を開いてください。', screen:'menu', points:['設定はいつでも変更できます。','問題がある科目やモードは、実際の画面に表示される内容を確認してください。'] }
   ];
   const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  function visual(type) {
+  function mockVisual(type) {
     const frame = (content, label='Nurse＋') => '<div class="npt-screen"><div class="npt-screen-head"><span class="npt-logo">＋</span><b>'+label+'</b><span class="npt-dots">•••</span></div>'+content+'</div>';
     if(type==='home'||type==='subjects') return frame('<div class="npt-mini-title">学習ホーム</div><div class="npt-card-grid"><div class="npt-subject">基礎看護学<span>科目</span></div><div class="npt-subject">人体の構造と機能<span>科目</span></div><div class="npt-subject">公衆衛生看護学概論<span>科目</span></div><div class="npt-subject">ほかの科目<span>科目</span></div></div><div class="npt-hint">科目カードを選択</div>');
     if(type==='star') return frame('<div class="npt-mini-title">科目カードの例</div><div class="npt-subject npt-wide">問題データがある科目 <span class="npt-star">★</span><small>星は問題データの目印</small></div><div class="npt-subject npt-wide">別の科目 <span class="npt-star npt-muted">★</span><small>星がない場合はモード画面も確認</small></div>');
@@ -28,6 +28,46 @@
     if(type==='toggle') return frame('<div class="npt-mini-title">テーマ・外観</div><div class="npt-setting-row">ホワイト／ダーク <span>切り替え</span></div><div class="npt-setting-row npt-highlight">下部メニュー <span>オン／オフ</span></div><div class="npt-hint">設定 → 一般 → テーマ・外観</div>');
     if(type==='settings') return frame('<div class="npt-mini-title">設定</div><div class="npt-setting-row">アカウント <span>›</span></div><div class="npt-setting-row">一般 <span>›</span></div><div class="npt-setting-row indent">テーマ・外観</div><div class="npt-setting-row indent">オーディオ</div><div class="npt-setting-row indent">通知設定</div><div class="npt-setting-row indent">アクセシビリティ</div><div class="npt-setting-row">プライバシー <span>›</span></div><div class="npt-setting-row">データ管理 <span>›</span></div>');
     return frame('<div class="npt-mini-title">ナビゲーションメニュー</div><div class="npt-setting-row">学習ホーム</div><div class="npt-setting-row">データ分析</div><div class="npt-setting-row">個人演習（科目一覧）</div><div class="npt-setting-row npt-highlight">チュートリアル</div>');
+  }
+
+  // Prefer the app's existing DOM for previews instead of drawing a second UI.
+  // Clones are inert so tutorial previews cannot trigger app actions.
+  function visual(type) {
+    const sourceByType = {
+      home: '#screen-dashboard',
+      subjects: '#screen-subjects',
+      star: '#screen-subjects',
+      modes: '#screen-phn-mode-select',
+      flashcards: '#flashcard-card',
+      bottom: '#screen-dashboard-bottom-menu'
+    };
+    const selector = sourceByType[type];
+    if (!selector) return mockVisual(type);
+    const source = document.querySelector(selector);
+    if (!source || !source.children.length) return mockVisual(type);
+    const clone = source.cloneNode(true);
+    clone.removeAttribute('id');
+    clone.querySelectorAll('[id]').forEach(node => node.removeAttribute('id'));
+    clone.querySelectorAll('script, style, iframe, video, audio').forEach(node => node.remove());
+    clone.querySelectorAll('*').forEach(node => {
+      [...node.attributes].forEach(attr => {
+        if (/^on/i.test(attr.name)) node.removeAttribute(attr.name);
+      });
+      if (node.matches('button, input, select, textarea, a')) {
+        node.setAttribute('tabindex', '-1');
+        if ('disabled' in node) node.disabled = true;
+      }
+    });
+    clone.querySelectorAll('.hidden').forEach(node => node.classList.remove('hidden'));
+    clone.classList.remove('hidden');
+    clone.style.display = 'block';
+    clone.style.maxHeight = 'none';
+    clone.style.overflow = 'visible';
+    const wrap = document.createElement('div');
+    wrap.className = 'npt-live-screen';
+    wrap.setAttribute('aria-label', 'Nurse＋実画面のプレビュー');
+    wrap.appendChild(clone);
+    return '<div class="npt-screen npt-live-frame"><div class="npt-live-label">Nurse＋の画面を使用</div>' + wrap.outerHTML + '</div>';
   }
   function addMenuEntry() {
     const target = document.getElementById('nav-drawer');
