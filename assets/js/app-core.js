@@ -3735,9 +3735,14 @@
       if(click.includes("selectBiochemistryFormat('choice')")) return ['biochemistry'];
       if(click.includes("selectBiochemistryFormat('keyboard')")) return ['biochemistry_keyboard'];
       if(click.includes("selectBiochemistryFormat('fill')")) return ['biochemistry_fill'];
-      if(click.includes("selectPathologyMode('quiz')")) return [`pathology_quiz_${semester}`, 'pathology_quiz'];
-      if(click.includes("selectPathologyMode('practice')")) return [`pathology_practice_${semester}`, 'pathology_practice'];
-      if(click.includes("selectPathologyMode('exercise')")) return [`pathology_exercise_${semester}`, 'pathology_exercise'];
+      if(click.includes('selectPathologyMode(')){
+        const mode=modeFrom('selectPathologyMode');
+        const prefix=`pathology_${mode}_${semester}`;
+        // 病理学の小テスト練習・演習問題は回数ごとのキーで登録されているため、
+        // モード選択では該当学期・モードの各回に問題データがあるかをまとめて判定する。
+        const roundKeys=Object.keys(window.QUIZ_DB||{}).filter(key=>key.startsWith(prefix+'_round'));
+        return [prefix, `pathology_${mode}`, ...roundKeys];
+      }
       if(click.includes('selectPathologyRound(')){const n=(click.match(/selectPathologyRound\((\d+)\)/)||[])[1];const mode=currentPathologyMode==='practice'?'practice':currentPathologyMode==='exercise'?'exercise':'quiz';return [`pathology_${mode}_${semester}_round${n}`];}
       if(click.includes('selectPhysiologyMode(')) return ['physiology'];
       if(click.includes("selectAnatomyMode('applied')")) return ['anatomy_applied'];
