@@ -3727,7 +3727,12 @@
       };
       return exact[subjectId] || [subjectId];
     }
-    function npHasSubjectQuiz(subjectId) { return npHasQuizData(npQuizKeysForSubject(subjectId)); }
+    function npHasSubjectQuiz(subjectId) {
+      // ホームの科目カードでも、公衆衛生看護学概論の遅延登録データを
+      // 星判定の前に準備する。モード画面だけで星が出る状態を防ぐ。
+      if (subjectId === 'public_health_nursing') npPrimePublicHealthNursingQuizData();
+      return npHasQuizData(npQuizKeysForSubject(subjectId));
+    }
     function npQuizKeysForSelection(button) {
       const click=button.getAttribute('onclick')||'';
       const semester=currentSemester==='2026_autumn'?'2026_autumn':'2026_spring';
