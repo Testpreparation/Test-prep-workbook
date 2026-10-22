@@ -3752,6 +3752,7 @@
       return null;
     }
     function npRefreshQuizStars() {
+      npPrimePublicHealthNursingQuizData();
       const addStar=(button,yes)=>{
         if(!button)return;
         button.querySelectorAll(':scope > .np-quiz-star').forEach(el=>el.remove());
@@ -3794,6 +3795,28 @@
           }
         }
       }
+    }
+
+    // 公衆衛生看護学概論はモード選択後に初めて問題配列へ登録される場合があるため、
+    // ホーム表示前に各学期のデータを登録し、初回から科目カードの星を判定できるようにする。
+    function npPrimePublicHealthNursingQuizData() {
+      // 秋学期の既存データファイルが公開している取得関数を使う。
+      // 同じデータを問題画面で登録する既存処理は変更しない。
+      window.QUIZ_DB = window.QUIZ_DB || {};
+      const loaders = [
+        ['getPublicHealthNursingExerciseQuestionsAutumn', 'public_health_nursing_exercise_2026_autumn'],
+        ['getPublicHealthNursingBasicQuestionsAutumn', 'public_health_nursing_basic_2026_autumn']
+      ];
+      loaders.forEach(([fnName, key]) => {
+        if (Array.isArray(window.QUIZ_DB[key]) && window.QUIZ_DB[key].length > 0) return;
+        if (typeof window[fnName] !== 'function') return;
+        try {
+          const questions = window[fnName]();
+          if (Array.isArray(questions) && questions.length > 0) window.QUIZ_DB[key] = questions;
+        } catch (error) {
+          console.warn('[Nurse＋] 公衆衛生看護学概論の星判定用データを読み込めませんでした:', fnName, error);
+        }
+      });
     }
 
     // Re-check stars after asynchronously loaded quiz data arrives, including on the initial home screen.
