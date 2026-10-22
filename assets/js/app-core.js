@@ -3693,10 +3693,17 @@
     // 問題データの有無を、暗記カードとは分離して判定する。
     function npHasQuizData(keys) {
       const db = window.QUIZ_DB || {};
-      return keys.some(key => Array.isArray(db[key]) && db[key].some(q =>
-        q && typeof q === 'object' &&
-        (typeof q.q === 'string' || typeof q.question === 'string' || typeof q.text === 'string')
-      ));
+      return keys.some(key => {
+        const questions = db[key];
+        if (!Array.isArray(questions) || questions.length === 0) return false;
+        // 公衆衛生看護学概論など、データ形式が q/question/text 以外の問題も
+        // 問題配列が読み込まれていれば「問題あり」と判定する。
+        if (key === 'public_health_nursing' || key === 'public_health_nursing_basic' || key === 'public_health_nursing_exercise' || key.startsWith('public_health_nursing_')) return true;
+        return questions.some(q =>
+          q && typeof q === 'object' &&
+          (typeof q.q === 'string' || typeof q.question === 'string' || typeof q.text === 'string')
+        );
+      });
     }
     function npQuizKeysForSubject(subjectId) {
       const db = window.QUIZ_DB || {};
