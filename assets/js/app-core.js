@@ -3748,7 +3748,16 @@
       if(click.includes("selectAnatomyMode('applied')")) return ['anatomy_applied'];
       if(click.includes('selectAnatomyMode(')) return ['anatomy'];
       if(click.includes('selectPublicHealthMode(')){const m=modeFrom('selectPublicHealthMode');return m==='past'?['public_health','public_health_past']:[`public_health_${m}`];}
-      if(click.includes('selectPHNMode(')){const m=modeFrom('selectPHNMode');return m==='basic'?['public_health_nursing','public_health_nursing_basic']:[`public_health_nursing_${m}`];}
+      if(click.includes('selectPHNMode(')){
+        const m=modeFrom('selectPHNMode');
+        const semesterKey=currentSemester==='2026_autumn'?'2026_autumn':'2026_spring';
+        const modeKey=m==='basic'?'basic':m;
+        return [
+          `public_health_nursing_${modeKey}_${semesterKey}`,
+          `public_health_nursing_${modeKey}`,
+          ...(m==='basic'?['public_health_nursing']:[])
+        ];
+      }
       if(click.includes('selectPharmacologyMode(')){const m=modeFrom('selectPharmacologyMode');return m==='nurse_national_6years'?['pharmacology_nurse_national_6years']:[`pharmacology_${m}_${semester}`, 'pharmacology'];}
       if(click.includes('selectNutritionMode(')){const m=modeFrom('selectNutritionMode');const modeKey=m==='exercise'?'exercise':'quiz';return [`nutrition_${modeKey}_${semester}`];}
       if(click.includes('selectNursingMethod3Mode(')){const m=modeFrom('selectNursingMethod3Mode');const modeKey=m==='practice'?'practice':m==='exercise'?'exercise':'quiz';return [`nursing_method_3_${modeKey}_${semester}`];}
