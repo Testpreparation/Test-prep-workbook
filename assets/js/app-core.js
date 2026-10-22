@@ -3808,7 +3808,7 @@
         return `
           <div class="w-full h-full min-w-0">
             <button onclick="selectSubject('${s.id}')" ${isPrep ? 'disabled' : ''} class="card-item w-full ${target.element.id === 'bottom-menu-subject-list-container' ? 'h-[54px] p-3' : 'h-full min-h-[88px] p-4'} rounded-xl text-left flex items-center justify-between group relative" ${target.element.id === 'bottom-menu-subject-list-container' ? 'style="height: 54px !important; min-height: 54px !important; max-height: 54px !important; box-sizing: border-box;"' : ''}>
-              ${subjectHasQuiz ? '<span class="np-quiz-star absolute left-4 -bottom-3 text-[9px] leading-none pointer-events-none" style="color:#8b72a8" aria-label="問題あり">★</span>' : ''}
+              ${subjectHasQuiz ? '<span class="np-quiz-star absolute left-4 top-[29px] text-[9px] leading-none pointer-events-none" style="color:#8b72a8" aria-label="問題あり">★</span>' : ''}
               <div class="flex items-center gap-2 min-w-0">
                 <span class="shrink-0 px-1.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono ${target.element.id === 'bottom-menu-subject-list-container' ? 'text-[9px]' : 'text-[11px]'} font-bold" ${target.element.id === 'bottom-menu-subject-list-container' ? 'style="font-size: 9px !important;"' : ''}>${s.code}</span>
                 <div class="min-w-0">
