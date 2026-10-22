@@ -2283,6 +2283,7 @@
       }
 
       window.QUIZ_DB[saveDbKey] = rawData;
+      npScheduleQuizStarRefresh();
       npRefreshQuizStars();
       renderSubjectList();
       db.ref(`quiz_db/${saveDbKey}`).set(rawData).then(() => {
@@ -2375,7 +2376,7 @@
             window.QUIZ_DB[subId] = val[subId];
           });
           // Firebaseの問題データが届いた後、ホーム科目カードの星も必ず再判定する。
-          npRefreshQuizStars();
+          npScheduleQuizStarRefresh();
           renderSubjectList();
           requestAnimationFrame(() => {
             npRefreshQuizStars();
@@ -3797,6 +3798,18 @@
           }
         }
       }
+    }
+
+    // Re-check stars after asynchronously loaded quiz data arrives, including on the initial home screen.
+    let npStarRefreshScheduled = false;
+    function npScheduleQuizStarRefresh() {
+      if (npStarRefreshScheduled) return;
+      npStarRefreshScheduled = true;
+      Promise.resolve().then(() => {
+        npStarRefreshScheduled = false;
+        npRefreshQuizStars();
+        if (typeof renderSubjectList === 'function') renderSubjectList();
+      });
     }
 
     function renderSubjectList() {
