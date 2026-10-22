@@ -1,0 +1,9 @@
+/* Mobile-only fix: keep the quiz indicator clear of the subject code in compact bottom-menu cards. */
+@media (max-width: 699px) {
+  #bottom-menu-subject-list-container > div > .card-item > .np-quiz-star {
+    left: 4px !important;
+    bottom: 2px !important;
+    font-size: 7px !important;
+    line-height: 1 !important;
+  }
+}
