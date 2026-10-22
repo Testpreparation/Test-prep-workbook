@@ -796,7 +796,15 @@
       { id: "nursing_method_4", name: "看護学方法論Ⅳ", code: "NUR Ⅳ", visible: true, flashcardVisible: true, semesterSetting: "all", status: "available", isFixed: false, hasRounds: false, fixedCount: null }
     ];
 
-    let subjects = [...defaultSubjects];
+    const SUBJECTS_CACHE_KEY = 'nurse_plus_subjects_cache_v1';
+    let subjects = (() => {
+      try {
+        const cached = JSON.parse(localStorage.getItem(SUBJECTS_CACHE_KEY) || 'null');
+        return Array.isArray(cached) ? cached : [...defaultSubjects];
+      } catch (_) {
+        return [...defaultSubjects];
+      }
+    })();
     let currentSubject = null;
     let currentSemester = null;
     let currentRound = null;
@@ -1540,6 +1548,7 @@
     }
 
     function saveSubjectsToStorage() {
+      try { localStorage.setItem(SUBJECTS_CACHE_KEY, JSON.stringify(subjects)); } catch (_) {}
       db.ref('subjects').set(subjects);
     }
 
@@ -2354,6 +2363,7 @@
         const val = snapshot.val();
         if (val && Array.isArray(val)) {
           subjects = val;
+          try { localStorage.setItem(SUBJECTS_CACHE_KEY, JSON.stringify(subjects)); } catch (_) {}
         } else {
           saveSubjectsToStorage();
         }
