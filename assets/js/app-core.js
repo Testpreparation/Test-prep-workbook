@@ -683,12 +683,15 @@
 
       try {
         if (scheduledAt) {
-          await callNurseLineApi('/api/notices/schedule', {
+          const lineResult = await callNurseLineApi('/api/notices/schedule', {
             title,
             content,
             scheduledAt,
             appUrl: 'https://testpreparation.github.io/Test-prep-workbook/?openExternalBrowser=1'
           });
+          const lineNoticeId = lineResult.id || null;
+          if (!lineNoticeId) throw new Error('LINE配信予約IDを取得できなかったため、アプリ内への保存を中止しました。');
+          noticeData.lineNoticeId = lineNoticeId;
         } else {
           await callNurseLineApi('/api/generate-notice', { content: fullContent });
         }
@@ -704,6 +707,58 @@
       } catch (err) {
         console.error("お知らせの送信に失敗しました:", err);
         alert(err.message || "お知らせの送信に失敗しました。");
+      }
+    }
+
+    async function editAdminNotice(noticeId) {
+      try {
+        const snapshot = await db.ref(`notices/${noticeId}`).once('value');
+        const item = snapshot.val();
+        if (!item || !item.lineNoticeId || !item.scheduledAt) {
+          alert('LINE配信予約IDがないため、このお知らせは安全に編集できません。');
+          return;
+        }
+        if (new Date(item.scheduledAt).getTime() <= Date.now()) {
+          alert('配信予定時刻を過ぎたお知らせは編集できません。');
+          return;
+        }
+
+        const title = prompt('お知らせのタイトルを編集', item.title || '');
+        if (title === null) return;
+        const content = prompt('お知らせの本文を編集', item.content || '');
+        if (content === null) return;
+        const scheduledDate = new Date(item.scheduledAt);
+        const pad = value => String(value).padStart(2, '0');
+        const localValue = `${scheduledDate.getFullYear()}-${pad(scheduledDate.getMonth() + 1)}-${pad(scheduledDate.getDate())}T${pad(scheduledDate.getHours())}:${pad(scheduledDate.getMinutes())}`;
+        const scheduleInput = prompt('LINE配信日時を入力（YYYY-MM-DDTHH:mm、例：2026-10-25T18:30）', localValue);
+        if (scheduleInput === null) return;
+        const newScheduledAt = new Date(scheduleInput);
+        if (!Number.isFinite(newScheduledAt.getTime()) || newScheduledAt.getTime() <= Date.now()) {
+          alert('現在より後の正しい配信日時を入力してください。');
+          return;
+        }
+        if (!title.trim() || !content.trim() || title.trim().length > 100 || content.trim().length > 2000) {
+          alert('タイトル・本文を入力してください（タイトル100文字以内、本文2000文字以内）。');
+          return;
+        }
+        if (!confirm('Nurse＋内のお知らせとLINE配信予約の両方を更新します。よろしいですか？')) return;
+
+        const result = await callNurseLineApi(`/api/notices/${encodeURIComponent(item.lineNoticeId)}`, {
+          title: title.trim(),
+          content: content.trim(),
+          scheduledAt: newScheduledAt.toISOString()
+        }, 'PATCH');
+        await db.ref(`notices/${noticeId}`).update({
+          title: title.trim(),
+          content: content.trim(),
+          scheduledAt: newScheduledAt.toISOString(),
+          updatedAt: Date.now()
+        });
+        recordAdminOperation('お知らせ編集', 'LINE配信予約を更新：' + new Date(newScheduledAt).toLocaleString('ja-JP'));
+        alert(result.message || 'お知らせとLINE配信予約を更新しました。');
+      } catch (err) {
+        console.error('お知らせの編集に失敗しました:', err);
+        alert(err.message || 'お知らせの編集に失敗しました。');
       }
     }
 
@@ -2436,9 +2491,12 @@
                   <div class="text-[10px] text-amber-400/80 font-mono">${item.timestamp ? new Date(item.timestamp).toLocaleDateString() : ''}</div>
                   <div class="text-xs font-medium text-slate-200 truncate">${item.title}</div>
                 </div>
-                <button onclick="deleteAdminNotice('${item.id}')" class="px-2 py-1 bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/60 rounded text-[10px] font-medium shrink-0 transition">
-                  削除
-                </button>
+                <div class="flex items-center gap-1 shrink-0">
+                  ${item.lineNoticeId && item.scheduledAt && new Date(item.scheduledAt).getTime() > Date.now() ? `<button onclick="editAdminNotice('${item.id}')" class="px-2 py-1 bg-amber-950/60 hover:bg-amber-900 text-amber-300 border border-amber-800/60 rounded text-[10px] font-medium transition">編集</button>` : ''}
+                  <button onclick="deleteAdminNotice('${item.id}')" class="px-2 py-1 bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/60 rounded text-[10px] font-medium transition">
+                    削除
+                  </button>
+                </div>
               </div>
             `).join('');
           }
