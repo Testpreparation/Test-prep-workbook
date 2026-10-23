@@ -710,6 +710,11 @@
       }
     }
 
+    function closeAdminNoticeEditor() {
+      const editor = document.getElementById('admin-notice-edit-modal');
+      if (editor) editor.remove();
+    }
+
     async function editAdminNotice(noticeId) {
       try {
         const snapshot = await db.ref(`notices/${noticeId}`).once('value');
@@ -723,42 +728,92 @@
           return;
         }
 
-        const title = prompt('お知らせのタイトルを編集', item.title || '');
-        if (title === null) return;
-        const content = prompt('お知らせの本文を編集', item.content || '');
-        if (content === null) return;
-        const scheduledDate = new Date(item.scheduledAt);
         const pad = value => String(value).padStart(2, '0');
+        const scheduledDate = new Date(item.scheduledAt);
         const localValue = `${scheduledDate.getFullYear()}-${pad(scheduledDate.getMonth() + 1)}-${pad(scheduledDate.getDate())}T${pad(scheduledDate.getHours())}:${pad(scheduledDate.getMinutes())}`;
-        const scheduleInput = prompt('LINE配信日時を入力（YYYY-MM-DDTHH:mm、例：2026-10-25T18:30）', localValue);
-        if (scheduleInput === null) return;
-        const newScheduledAt = new Date(scheduleInput);
-        if (!Number.isFinite(newScheduledAt.getTime()) || newScheduledAt.getTime() <= Date.now()) {
-          alert('現在より後の正しい配信日時を入力してください。');
-          return;
-        }
-        if (!title.trim() || !content.trim() || title.trim().length > 100 || content.trim().length > 2000) {
-          alert('タイトル・本文を入力してください（タイトル100文字以内、本文2000文字以内）。');
-          return;
-        }
-        if (!confirm('Nurse＋内のお知らせとLINE配信予約の両方を更新します。よろしいですか？')) return;
+        const escapeHtml = value => String(value == null ? '' : value)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-        const result = await callNurseLineApi(`/api/notices/${encodeURIComponent(item.lineNoticeId)}`, {
-          title: title.trim(),
-          content: content.trim(),
-          scheduledAt: newScheduledAt.toISOString()
-        }, 'PATCH');
-        await db.ref(`notices/${noticeId}`).update({
-          title: title.trim(),
-          content: content.trim(),
-          scheduledAt: newScheduledAt.toISOString(),
-          updatedAt: Date.now()
+        closeAdminNoticeEditor();
+        const editor = document.createElement('div');
+        editor.id = 'admin-notice-edit-modal';
+        editor.className = 'fixed inset-0 z-[10000] flex items-center justify-center bg-black/75 p-3';
+        editor.innerHTML = `
+          <section class="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 p-4 shadow-2xl space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div><h3 class="text-base font-semibold text-white">予約お知らせを編集</h3><p class="mt-1 text-xs text-slate-400">下書きとして内容を整え、保存時に反映します。</p></div>
+              <button type="button" id="admin-notice-edit-close" class="rounded-lg px-3 py-1.5 text-sm text-slate-300 border border-slate-600 hover:bg-slate-800">閉じる</button>
+            </div>
+            <label class="block space-y-1"><span class="text-xs font-medium text-slate-300">タイトル</span>
+              <input id="admin-notice-edit-title" maxlength="100" value="${escapeHtml(item.title || '')}" class="w-full rounded-lg border border-slate-600 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none focus:border-sky-400" />
+            </label>
+            <label class="block space-y-1"><span class="text-xs font-medium text-slate-300">本文</span>
+              <textarea id="admin-notice-edit-content" rows="8" maxlength="2000" class="w-full resize-y rounded-lg border border-slate-600 bg-slate-950 px-3 py-2.5 text-sm leading-relaxed text-white outline-none focus:border-sky-400" placeholder="お知らせ本文を入力">${escapeHtml(item.content || '')}</textarea>
+              <div id="admin-notice-edit-count" class="text-right text-[11px] text-slate-500"></div>
+            </label>
+            <label class="block space-y-1"><span class="text-xs font-medium text-slate-300">LINE配信日時</span>
+              <input id="admin-notice-edit-scheduled-at" type="datetime-local" value="${localValue}" class="w-full rounded-lg border border-slate-600 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none focus:border-sky-400" />
+            </label>
+            <p class="text-[11px] text-slate-500">保存すると、Nurse＋内のお知らせとLINE配信予約の両方が更新されます。配信済みの内容は編集できません。</p>
+            <div class="flex justify-end gap-2 border-t border-slate-800 pt-3">
+              <button type="button" id="admin-notice-edit-cancel" class="rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-300 hover:bg-slate-800">キャンセル</button>
+              <button type="button" id="admin-notice-edit-save" class="rounded-lg border border-sky-400 bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-500">変更を保存</button>
+            </div>
+          </section>`;
+        document.body.appendChild(editor);
+
+        const titleInput = editor.querySelector('#admin-notice-edit-title');
+        const contentInput = editor.querySelector('#admin-notice-edit-content');
+        const scheduleInput = editor.querySelector('#admin-notice-edit-scheduled-at');
+        const count = editor.querySelector('#admin-notice-edit-count');
+        const saveButton = editor.querySelector('#admin-notice-edit-save');
+        const updateCount = () => { count.textContent = `本文 ${contentInput.value.length} / 2000文字`; };
+        updateCount();
+        contentInput.addEventListener('input', updateCount);
+        editor.querySelector('#admin-notice-edit-close').addEventListener('click', closeAdminNoticeEditor);
+        editor.querySelector('#admin-notice-edit-cancel').addEventListener('click', closeAdminNoticeEditor);
+        editor.addEventListener('click', event => { if (event.target === editor) closeAdminNoticeEditor(); });
+
+        saveButton.addEventListener('click', async () => {
+          const title = titleInput.value.trim();
+          const content = contentInput.value.trim();
+          const scheduleValue = scheduleInput.value;
+          const newScheduledAt = new Date(scheduleValue);
+          if (!title || !content || title.length > 100 || content.length > 2000) {
+            alert('タイトルと本文を入力してください（タイトル100文字以内、本文2000文字以内）。');
+            return;
+          }
+          if (!scheduleValue || !Number.isFinite(newScheduledAt.getTime()) || newScheduledAt.getTime() <= Date.now()) {
+            alert('現在より後の配信日時を選択してください。');
+            return;
+          }
+          if (!confirm('下書きの内容で保存し、Nurse＋内のお知らせとLINE配信予約を更新しますか？')) return;
+
+          saveButton.disabled = true;
+          saveButton.textContent = '保存中…';
+          saveButton.classList.add('opacity-60', 'cursor-not-allowed');
+          try {
+            const result = await callNurseLineApi(`/api/notices/${encodeURIComponent(item.lineNoticeId)}`, {
+              title, content, scheduledAt: newScheduledAt.toISOString()
+            }, 'PATCH');
+            await db.ref(`notices/${noticeId}`).update({
+              title, content, scheduledAt: newScheduledAt.toISOString(), updatedAt: Date.now()
+            });
+            recordAdminOperation('お知らせ編集', 'LINE配信予約を更新：' + new Date(newScheduledAt).toLocaleString('ja-JP'));
+            closeAdminNoticeEditor();
+            alert(result.message || 'お知らせとLINE配信予約を更新しました。');
+          } catch (err) {
+            console.error('お知らせの編集に失敗しました:', err);
+            alert(err.message || 'お知らせを保存できませんでした。入力内容はそのまま残しています。');
+            saveButton.disabled = false;
+            saveButton.textContent = '変更を保存';
+            saveButton.classList.remove('opacity-60', 'cursor-not-allowed');
+          }
         });
-        recordAdminOperation('お知らせ編集', 'LINE配信予約を更新：' + new Date(newScheduledAt).toLocaleString('ja-JP'));
-        alert(result.message || 'お知らせとLINE配信予約を更新しました。');
       } catch (err) {
-        console.error('お知らせの編集に失敗しました:', err);
-        alert(err.message || 'お知らせの編集に失敗しました。');
+        console.error('お知らせ編集画面を開けませんでした:', err);
+        alert(err.message || 'お知らせ編集画面を開けませんでした。');
       }
     }
 
@@ -2492,7 +2547,7 @@
                   <div class="text-xs font-medium text-slate-200 truncate">${item.title}</div>
                 </div>
                 <div class="flex items-center gap-1 shrink-0">
-                  ${item.lineNoticeId && item.scheduledAt && new Date(item.scheduledAt).getTime() > Date.now() ? `<button onclick="editAdminNotice('${item.id}')" class="px-2 py-1 bg-amber-950/60 hover:bg-amber-900 text-amber-300 border border-amber-800/60 rounded text-[10px] font-medium transition">編集</button>` : ''}
+                  ${item.lineNoticeId && item.scheduledAt && new Date(item.scheduledAt).getTime() > Date.now() ? `<button onclick="editAdminNotice('${item.id}')" class="px-2.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white border border-sky-400 rounded-md text-[10px] font-semibold shadow-sm transition">編集</button>` : ''}
                   <button onclick="deleteAdminNotice('${item.id}')" class="px-2 py-1 bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/60 rounded text-[10px] font-medium transition">
                     削除
                   </button>
