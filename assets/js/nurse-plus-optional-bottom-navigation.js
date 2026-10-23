@@ -391,3 +391,43 @@
     window.requestAnimationFrame(initNoticeEffects);
   }, true);
 })();
+
+  // Hide the bottom navigation while a user is inside a subject/study flow.
+  // It becomes visible again only when the dedicated bottom-menu home returns.
+  function bindStudyNavigationVisibility() {
+    const root = document.documentElement;
+    const nav = document.getElementById('np-bottom-navigation');
+    if (!nav || document.documentElement.dataset.npStudyNavVisibilityBound === '1') return;
+    document.documentElement.dataset.npStudyNavVisibilityBound = '1';
+
+    const studyContainers = [
+      '#bottom-menu-subject-list-container',
+      '#bottom-menu-flashcard-subject-list-container'
+    ].join(',');
+
+    document.addEventListener('click', event => {
+      const target = event.target instanceof Element ? event.target : event.target && event.target.parentElement;
+      if (!target || !target.closest(studyContainers)) return;
+      if (!root.classList.contains('np-bottom-menu-enabled')) return;
+      root.classList.add('np-bottom-menu-study-active');
+    }, true);
+
+    const home = document.getElementById('screen-dashboard-bottom-menu');
+    if (!home || !('MutationObserver' in window)) return;
+    const syncHomeVisibility = () => {
+      if (!home.classList.contains('hidden')) {
+        root.classList.remove('np-bottom-menu-study-active');
+      }
+    };
+    new MutationObserver(syncHomeVisibility).observe(home, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    syncHomeVisibility();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindStudyNavigationVisibility, { once: true });
+  } else {
+    bindStudyNavigationVisibility();
+  }
