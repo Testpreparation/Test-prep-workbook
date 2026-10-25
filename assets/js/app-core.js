@@ -750,7 +750,7 @@
           <section class="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 p-4 shadow-2xl space-y-4">
             <div class="flex items-start justify-between gap-3">
               <div><h3 class="text-base font-semibold text-white">予約お知らせを編集</h3><p class="mt-1 text-xs text-slate-400">下書きとして内容を整え、保存時に反映します。</p></div>
-              <button type="button" id="admin-notice-edit-close" class="rounded-lg px-3 py-1.5 text-sm text-slate-300 border border-slate-600 hover:bg-slate-800">閉じる</button>
+              <button type="button" id="admin-notice-edit-close" class="rounded-lg px-3 py-1.5 text-sm text-slate-200 border border-slate-500 hover:bg-slate-700">閉じる</button>
             </div>
             <label class="block space-y-1"><span class="text-xs font-medium text-slate-300">タイトル</span>
               <input id="admin-notice-edit-title" maxlength="100" value="${escapeHtml(item.title || '')}" class="w-full rounded-lg border border-slate-600 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none focus:border-sky-400" />
@@ -764,7 +764,7 @@
             </label>
             <p class="text-[11px] text-slate-500">保存すると、Nurse＋内のお知らせとLINE配信予約の両方が更新されます。配信済みの内容は編集できません。</p>
             <div class="flex justify-end gap-2 border-t border-slate-800 pt-3">
-              <button type="button" id="admin-notice-edit-cancel" class="rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-300 hover:bg-slate-800">キャンセル</button>
+              <button type="button" id="admin-notice-edit-cancel" class="rounded-lg border border-slate-500 px-4 py-2 text-sm text-slate-200 hover:bg-slate-700">キャンセル</button>
               <button type="button" id="admin-notice-edit-save" class="rounded-lg border border-sky-400 bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-sky-500">変更を保存</button>
             </div>
           </section>`;
@@ -1693,12 +1693,12 @@
             </select>
 
             <!-- 演習問題 表示/非表示切替 -->
-            <button onclick="toggleSubjectVisibility(${idx})" class="px-2.5 py-1 ${s.visible !== false ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-slate-800 text-slate-500 border-slate-700'} border rounded-lg text-[11px] transition">
+            <button onclick="toggleSubjectVisibility(${idx})" class="px-2.5 py-1 ${s.visible !== false ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-slate-800 text-slate-300 border-slate-600'} border rounded-lg text-[11px] transition">
               ${s.visible !== false ? '演習: 表示' : '演習: 非表示'}
             </button>
 
             <!-- 暗記カード 表示/非表示切替 -->
-            <button onclick="toggleSubjectFlashcardVisibilityDirect(${idx})" class="px-2.5 py-1 ${isFcVisible ? 'bg-amber-500/10 text-amber-300 border-amber-500/30' : 'bg-slate-800 text-slate-500 border-slate-700'} border rounded-lg text-[11px] transition">
+            <button onclick="toggleSubjectFlashcardVisibilityDirect(${idx})" class="px-2.5 py-1 ${isFcVisible ? 'bg-amber-500/10 text-amber-300 border-amber-500/30' : 'bg-slate-800 text-slate-300 border-slate-600'} border rounded-lg text-[11px] transition">
               ${isFcVisible ? '暗記: 表示' : '暗記: 非表示'}
             </button>
 
