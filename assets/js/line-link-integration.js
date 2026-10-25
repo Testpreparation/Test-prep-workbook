@@ -42,18 +42,20 @@
               const snap = await historyRef.once('value');
               const history = snap.val() || {};
               const updates = {};
-              Object.entries(history).forEach(([key, record]) => {
-                if (record && record.visitorId === myPlayerId && record.lineName !== savedName) {
-                  updates[`${key}/lineName`] = savedName;
-                }
-              });
-
-              // ID指定の最新履歴は必ずLINE表示名付きで保存
-              updates[`${myPlayerId}/visitorId`] = myPlayerId;
-              updates[`${myPlayerId}/lineName`] = savedName;
-              updates[`${myPlayerId}/deviceName`] = (history[myPlayerId] && history[myPlayerId].deviceName) || getVisitorDeviceName();
-              updates[`${myPlayerId}/timestamp`] = firebase.database.ServerValue.TIMESTAMP;
-              await historyRef.update(updates);
+              // 現在のアクセスに対応する直近の記録だけを更新する。
+              // 過去の訪問記録まで現在のLINE名で上書きしない。
+              const recentCutoff = Date.now() - 5 * 60 * 1000;
+              const recentRecords = Object.entries(history)
+                .filter(([, record]) => record &&
+                  record.visitorId === myPlayerId &&
+                  typeof record.timestamp === 'number' &&
+                  record.timestamp >= recentCutoff)
+                .sort((a, b) => (b[1].timestamp || 0) - (a[1].timestamp || 0));
+              const latestRecord = recentRecords[0];
+              if (latestRecord && latestRecord[1].lineName !== savedName) {
+                updates[`${latestRecord[0]}/lineName`] = savedName;
+              }
+              if (Object.keys(updates).length) await historyRef.update(updates);
 
               // この端末の履歴を再描画
               const refreshed = await historyRef.once('value');
