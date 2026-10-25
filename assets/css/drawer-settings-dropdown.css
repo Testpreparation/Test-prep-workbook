@@ -2,6 +2,11 @@
     #nav-drawer{will-change:transform,opacity;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch}
     #drawer-settings-content.drawer-settings-dropdown{overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:none;-ms-overflow-style:none}
     #drawer-settings-content.drawer-settings-dropdown::-webkit-scrollbar{display:none}
+    /* Keep the hamburger drawer stationary while the expanded settings categories scroll. */
+    #nav-drawer{overflow:hidden!important}
+    #nav-drawer>div:first-child{min-height:0;overflow-y:auto;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch}
+    #drawer-settings-accordion[open]>summary{position:sticky;top:0;z-index:3;background:rgba(15,23,42,.98);box-shadow:0 4px 10px rgba(0,0,0,.16)}
+    #drawer-settings-accordion[open] #drawer-settings-content.drawer-settings-dropdown{max-height:min(52vh,480px);overflow-y:auto;overscroll-behavior-y:contain;touch-action:pan-y}
     #drawer-settings-accordion{display:block;border-radius:14px}
     #drawer-settings-accordion>summary::-webkit-details-marker{display:none}
     #drawer-settings-content.drawer-settings-dropdown{max-height:0;opacity:0;overflow:hidden;pointer-events:none;transition:max-height 420ms cubic-bezier(.16,1,.3,1),opacity 260ms ease}
