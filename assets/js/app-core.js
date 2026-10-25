@@ -84,7 +84,14 @@
     function renderVisitorHistory(data) {
       const el = document.getElementById('admin-visitor-history');
       if (!el) return;
-      const rows = Object.entries(data || {}).map(([id, v]) => ({id, ...v}))
+      const allRows = Object.entries(data || {}).map(([id, v]) => ({id, ...v}));
+      // 旧実装で作られた「visitorIdをキーにした記録」とpush記録が重複する場合、
+      // push記録を残し、同じ訪問者の旧形式レコードだけ表示対象から除外する。
+      const visitorIdsWithPushRecords = new Set(
+        allRows.filter(row => row.visitorId && row.id !== row.visitorId).map(row => row.visitorId)
+      );
+      const rows = allRows
+        .filter(row => !(row.visitorId && row.id === row.visitorId && visitorIdsWithPushRecords.has(row.visitorId)))
         .sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0)).slice(0, 100);
       if (!rows.length) {
         el.innerHTML = '<div class="text-[11px] text-slate-500 text-center py-3">閲覧履歴はありません。</div>';
@@ -126,7 +133,7 @@
       });
 
       db.ref(`presence/daily/${todayStr}/${myPlayerId}`).set(true);
-      db.ref(`presence/history/${myPlayerId}`).set(visitorRecord);
+      // 訪問履歴はpush形式で1回だけ登録する（ID固定保存との二重登録を防止）。
       db.ref('presence/history').push(visitorRecord);
 
       db.ref('presence/online').on('value', (snap) => {
