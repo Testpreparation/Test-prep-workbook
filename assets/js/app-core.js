@@ -2685,7 +2685,7 @@
       const pages = {
         account: {
           title: 'アカウント',
-          body: '<div class="rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-semibold text-slate-700">LINEアカウント情報</div><p class="mt-2 text-sm">LINE表示名：<span class="font-semibold">' + (lineAccountName || '取得できていません') + '</span></p><p class="mt-1 text-sm">LINEログイン状態：' + (loggedIn ? 'ログイン済み' : '未ログイン') + '</p><p class="mt-1 text-xs text-slate-500">表示名はLINE連携時に取得した情報です。表示名を変更する場合はLINE側のプロフィールを変更してください。</p><a href="https://nurse-line-system.onrender.com/auth/line" class="mt-3 inline-flex rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm text-emerald-700">LINEログイン／連携 ↗</a></div><div class="mt-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-semibold text-slate-700">複数端末で同期</div><p class="mt-1 text-sm text-slate-600">LINEログインした端末間で学習履歴を共有します。</p><button type="button" id="np-account-sync" class="mt-3 np-settings-entry"><span>今すぐ同期</span><span aria-hidden="true">↻</span></button><p id="np-account-sync-status" class="mt-2 text-xs text-slate-500" role="status" aria-live="polite">' + (loggedIn ? '同期するにはサーバー側のFirebase設定が必要です。' : '同期するには先にLINEログインしてください。') + '</p></div>'
+          body: '<div class="rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-semibold text-slate-700">LINEアカウント情報</div><p class="mt-2 text-sm">LINE表示名：<span class="font-semibold">' + (lineAccountName || '取得できていません') + '</span></p><p class="mt-1 text-sm">LINEログイン状態：' + (loggedIn ? 'ログイン済み' : '未ログイン') + '</p><p class="mt-1 text-xs text-slate-500">表示名はLINE連携時に取得した情報です。表示名を変更する場合はLINE側のプロフィールを変更してください。</p><a href="https://nurse-line-system.onrender.com/auth/line" class="mt-3 inline-flex rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm text-emerald-700">LINEログイン／連携 ↗</a>' + (loggedIn ? '<button type="button" id="np-account-line-unlink" class="mt-3 w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm text-rose-700">LINE連携を解除</button><p class="mt-2 text-xs text-slate-500">この端末のLINEログイン情報のみ解除します。学習記録は削除されません。</p>' : '') + '</div><div class="mt-3 rounded-xl border border-violet-100 bg-violet-50/70 p-3"><div class="font-semibold text-slate-700">複数端末で同期</div><p class="mt-1 text-sm text-slate-600">LINEログインした端末間で学習履歴を共有します。</p><button type="button" id="np-account-sync" class="mt-3 np-settings-entry"><span>今すぐ同期</span><span aria-hidden="true">↻</span></button><p id="np-account-sync-status" class="mt-2 text-xs text-slate-500" role="status" aria-live="polite">' + (loggedIn ? '同期するにはサーバー側のFirebase設定が必要です。' : '同期するには先にLINEログインしてください。') + '</p></div>'
         },
         audio: {
           title: 'オーディオ',
@@ -2727,6 +2727,15 @@
       if (type === 'audio') npUpdateAudioUI();
       overlay.classList.remove('hidden');
       modal.classList.remove('hidden');
+      body.querySelector('#np-account-line-unlink')?.addEventListener('click', () => {
+        if (!window.confirm('この端末のLINE連携を解除しますか？学習記録やアプリ設定は削除されません。')) return;
+        localStorage.removeItem('nurse_line_user_name');
+        localStorage.removeItem('nurse_line_user_id');
+        localStorage.removeItem('nurse_line_user_session');
+        window.NURSE_LINE_USER_NAME = '';
+        window.NURSE_LINE_SESSION = '';
+        openSettingsDetail('account');
+      });
       body.querySelector('#np-support-form')?.addEventListener('submit', submitSupportInquiry);
       body.querySelector('#np-notice-toggle')?.addEventListener('change', event => {
         localStorage.setItem('nurse_plus_in_app_notices', event.target.checked ? 'on' : 'off');
