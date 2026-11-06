@@ -2,7 +2,7 @@
 (() => {
   const KEY = 'nurse_plus_bottom_menu_enabled';
   const root = document.documentElement;
-  const getToggle = () => document.getElementById('np-bottom-menu-toggle');
+  const getToggles = () => document.querySelectorAll('#np-bottom-menu-toggle, [data-np-bottom-menu-toggle]');
 
   function apply(enabled) {
     const bottomDashboard = document.getElementById('screen-dashboard-bottom-menu');
@@ -22,8 +22,7 @@
     if (wasOnBottomMenuHome && typeof window.showDashboard === 'function') {
       window.showDashboard();
     }
-    const control = getToggle();
-    if (control) control.checked = enabled;
+    getToggles().forEach(control => { control.checked = enabled; });
     try { localStorage.setItem(KEY, String(enabled)); } catch (_) {}
   }
 
@@ -31,8 +30,7 @@
     let enabled = false;
     try { enabled = localStorage.getItem(KEY) === 'true' || localStorage.getItem(KEY) === '1'; } catch (_) {}
     apply(enabled);
-    const control = getToggle();
-    if (control) control.checked = enabled;
+    getToggles().forEach(control => { control.checked = enabled; });
     // 保存済みの下部メニューモードなら、起動直後から専用ホームを表示する。
     if (enabled && typeof window.showDashboard === 'function') {
       window.showDashboard();
@@ -180,18 +178,18 @@
   // at document level instead of relying on the control existing at page load.
   document.addEventListener('change', event => {
     const control = event.target;
-    if (!control || control.id !== 'np-bottom-menu-toggle') return;
+    if (!control || (control.id !== 'np-bottom-menu-toggle' && !control.hasAttribute('data-np-bottom-menu-toggle'))) return;
     apply(Boolean(control.checked));
   });
 
   // Keep the toggle state synchronized if the existing settings UI is mounted later.
   if ('MutationObserver' in window) {
     const settingsObserver = new MutationObserver(() => {
-      const control = getToggle();
-      if (!control) return;
+      const controls = getToggles();
+      if (!controls.length) return;
       let enabled = false;
       try { enabled = localStorage.getItem(KEY) === 'true' || localStorage.getItem(KEY) === '1'; } catch (_) {}
-      if (control.checked !== enabled) control.checked = enabled;
+      controls.forEach(control => { if (control.checked !== enabled) control.checked = enabled; });
     });
     settingsObserver.observe(document.documentElement, { childList: true, subtree: true });
   }
@@ -246,7 +244,10 @@
       content.className = 'space-y-3 pt-4';
       const clonedSettings = source.cloneNode(true);
       clonedSettings.id = 'np-bottom-settings-accordion';
-      clonedSettings.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+      clonedSettings.querySelectorAll('[id]').forEach(el => {
+        if (el.id === 'np-bottom-menu-toggle') el.setAttribute('data-np-bottom-menu-toggle', '');
+        el.removeAttribute('id');
+      });
       clonedSettings.querySelectorAll('details').forEach(el => { el.open = false; });
       clonedSettings.querySelectorAll('button[onclick*="openThemeSettingsPage"]').forEach(el => el.id = 'np-bottom-theme-settings-card');
       content.appendChild(clonedSettings);
