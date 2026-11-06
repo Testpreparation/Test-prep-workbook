@@ -15,6 +15,14 @@
       return [];
     }
   }
+  function safeArraysWithPrefix(baseKey) {
+    const keys = [baseKey];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(baseKey + '_')) keys.push(key);
+    }
+    return keys.flatMap(safeArray);
+  }
   function safeNumber(value) {
     const n = Number(value);
     return Number.isFinite(n) ? n : 0;
@@ -38,9 +46,9 @@
         modes = [{key:'all',label:'通常'}];
       }
       (modes || []).forEach(mode => {
-        const accuracy = safeArray('history_accuracy_' + subject.id + '_' + mode.key)
+        const accuracy = safeArraysWithPrefix('history_accuracy_' + subject.id + '_' + mode.key)
           .map(safeNumber).filter(n => n >= 0 && n <= 100);
-        const daily = safeArray('history_accuracy_daily_' + subject.id + '_' + mode.key)
+        const daily = safeArraysWithPrefix('history_accuracy_daily_' + subject.id + '_' + mode.key)
           .filter(x => x && typeof x.date === 'string')
           .map(x => ({date:x.date, accuracy:safeNumber(x.accuracy)}))
           .filter(x => x.accuracy >= 0 && x.accuracy <= 100);
