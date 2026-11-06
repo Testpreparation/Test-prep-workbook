@@ -17,15 +17,15 @@
         if (hasLineCallback) {
           // 認証情報を含むLINEコールバック用パラメータだけをURLから除去し、
           // その他のクエリ・フラグメント情報は維持する。
-          const callbackKeys = ['line_name', 'line_user_id', 'line_session'];
-          const cleanQuery = new URLSearchParams(window.location.search);
-          const cleanFragment = new URLSearchParams(window.location.hash.replace(/^#/, ''));
-          callbackKeys.forEach(key => {
-            cleanQuery.delete(key);
-            cleanFragment.delete(key);
-          });
-          const remainingQuery = cleanQuery.toString();
-          const remainingFragment = cleanFragment.toString();
+          const callbackKeys = new Set(['line_name', 'line_user_id', 'line_session']);
+          const removeCallbackParams = raw => raw.split('&').filter(part => {
+            const rawKey = part.split('=')[0].replace(/\+/g, ' ');
+            let key = rawKey;
+            try { key = decodeURIComponent(rawKey); } catch (_) {}
+            return !callbackKeys.has(key);
+          }).join('&');
+          const remainingQuery = removeCallbackParams(window.location.search.replace(/^\?/, ''));
+          const remainingFragment = removeCallbackParams(window.location.hash.replace(/^#/, ''));
           const cleanUrl = window.location.pathname
             + (remainingQuery ? '?' + remainingQuery : '')
             + (remainingFragment ? '#' + remainingFragment : '');
