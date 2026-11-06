@@ -981,11 +981,15 @@
     let flashcardOpenedFromBottomMenu = false;
 
     function getAverageAccuracy(subjectId) {
-      const prefix = `history_accuracy_${subjectId}`;
+      const subject = (subjects || []).find(item => item && item.id === subjectId);
+      const modeKeys = typeof window.evoModeDefs === 'function' && subject
+        ? window.evoModeDefs(subject).map(mode => `history_accuracy_${subjectId}_${mode.key}`)
+        : [`history_accuracy_${subjectId}_all`];
+      const allowedKeys = new Set([`history_accuracy_${subjectId}`, ...modeKeys]);
       const records = [];
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (!key || (key !== prefix && !key.startsWith(prefix + '_'))) continue;
+        if (!key || ![...allowedKeys].some(base => key === base || key.startsWith(base + '_'))) continue;
         try {
           const stored = JSON.parse(localStorage.getItem(key) || '[]');
           if (Array.isArray(stored)) {
