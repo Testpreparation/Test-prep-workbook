@@ -700,7 +700,7 @@
           if (!lineNoticeId) throw new Error('LINE配信予約IDを取得できなかったため、アプリ内への保存を中止しました。');
           noticeData.lineNoticeId = lineNoticeId;
         } else {
-          await callNurseLineApi('/api/generate-notice', { content: fullContent });
+          await callNurseLineApi('/api/generate-notice', { title, content, url: 'https://testpreparation.github.io/Test-prep-workbook/?openExternalBrowser=1' });
         }
         await db.ref('notices').push(noticeData);
         recordAdminOperation('お知らせ投稿', scheduledAt ? 'LINE配信予約：' + new Date(scheduledAt).toLocaleString('ja-JP') : '即時配信');
