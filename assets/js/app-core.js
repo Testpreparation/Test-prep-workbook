@@ -5465,14 +5465,15 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       else if (currentSubject.id === 'pharmacology') conditionMode = currentPharmacologyMode;
       else if (currentSubject.id === 'nursing_method_3') conditionMode = currentNursingMethod3Mode;
       else if (currentSubject.id === 'pathology') conditionMode = `${currentPathologyMode}_r${currentPathologyRound || 'all'}`;
-      const historyKey = `history_accuracy_${currentSubject.id}_${conditionMode}`;
+      const historyModeKey = currentSemester ? `${conditionMode}_${currentSemester}` : conditionMode;
+      const historyKey = `history_accuracy_${currentSubject.id}_${historyModeKey}`;
       const history = readStoredArray(historyKey);
       history.push(accRate);
       if (history.length > 20) history.shift();
       localStorage.setItem(historyKey, JSON.stringify(history));
 
       const now = new Date();
-      const dailyHistoryKey = `history_accuracy_daily_${currentSubject.id}_${conditionMode}`;
+      const dailyHistoryKey = `history_accuracy_daily_${currentSubject.id}_${historyModeKey}`;
       const dailyHistory = readStoredArray(dailyHistoryKey);
       dailyHistory.push({ date: `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`, accuracy: accRate });
       if (dailyHistory.length > 100) dailyHistory.shift();
