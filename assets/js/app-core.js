@@ -879,7 +879,15 @@
 
       return {
         ...item,
-        id: item.id || `q_${Math.random().toString(36).substring(2, 9)}`,
+        id: item.id || (() => {
+          const source = `${qText}::${opts.join('\u001f')}`;
+          let hash = 2166136261;
+          for (let i = 0; i < source.length; i++) {
+            hash ^= source.charCodeAt(i);
+            hash = Math.imul(hash, 16777619);
+          }
+          return `q_${(hash >>> 0).toString(36)}`;
+        })(),
         q: qText,
         options: opts,
         answers: correctAnswers,
@@ -4462,6 +4470,9 @@
         modeSuffix += `_${currentPharmacologyMode}`;
       } else if (currentSubject.id === 'nursing_method_3') {
         modeSuffix += `_${currentNursingMethod3Mode}`;
+      } else if (currentSubject.id === 'pathology') {
+        modeSuffix += `_${currentPathologyMode}`;
+        if (currentPathologyRound) modeSuffix += `_r${currentPathologyRound}`;
       } else if (currentRound) {
         modeSuffix += `_r${currentRound}`;
       }
@@ -5173,7 +5184,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         for (let i = 0; i < targets.length; i++) {
           const normUser = normalizeStr(userTexts[i]);
           const normTarget = normalizeStr(targets[i]);
-          if (!normUser || !normTarget || !(normUser === normTarget || normTarget.includes(normUser) || normUser.includes(normTarget))) {
+          if (!normUser || !normTarget || normUser !== normTarget) {
             isCorrect = false;
             break;
           }
@@ -5251,7 +5262,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
 
         for (let target of targets) {
           const normTarget = normalizeStr(target);
-          if (normTarget && (normUser === normTarget || normTarget.includes(normUser) || normUser.includes(normTarget))) {
+          if (normTarget && normUser === normTarget) {
             isCorrect = true;
             break;
           }
@@ -5378,10 +5389,27 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
         modeSuffix += `_${currentPublicHealthMode}`;
       } else if (currentSubject.id === 'public_health_nursing' || currentSubject.hasPHNModes) {
         modeSuffix += `_${currentPHNMode}`;
+      } else if (currentSubject.id === 'pharmacology') {
+        modeSuffix += `_${currentPharmacologyMode}`;
+      } else if (currentSubject.id === 'nursing_method_3') {
+        modeSuffix += `_${currentNursingMethod3Mode}`;
+      } else if (currentSubject.id === 'pathology') {
+        modeSuffix += `_${currentPathologyMode}`;
+        if (currentPathologyRound) modeSuffix += `_r${currentPathologyRound}`;
       } else if (currentRound) {
         modeSuffix += `_r${currentRound}`;
       }
       return `attempt_history_${currentSubject.id}${modeSuffix}`;
+    }
+
+    function readStoredArray(key) {
+      try {
+        const value = JSON.parse(localStorage.getItem(key) || '[]');
+        return Array.isArray(value) ? value : [];
+      } catch (error) {
+        console.warn('[Nurse+] 保存済み履歴を読み込めませんでした:', key, error);
+        return [];
+      }
     }
 
     function showResultScreen() {
@@ -5429,21 +5457,23 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       }
 
       let conditionMode = 'all';
-      if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) conditionMode = currentPhysiologyMode;
+      if (currentSubject.id === 'biochemistry' || currentSubject.hasBiochemistryFormats) conditionMode = `biochemistry_${currentBiochemistryFormat}`;
+      else if (currentSubject.id === 'physiology' || currentSubject.hasPhysiologyModes) conditionMode = currentPhysiologyMode;
       else if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) conditionMode = currentAnatomyMode;
       else if (currentSubject.id === 'public_health' || currentSubject.hasPublicHealthModes) conditionMode = currentPublicHealthMode;
       else if (currentSubject.id === 'public_health_nursing' || currentSubject.hasPHNModes) conditionMode = currentPHNMode;
       else if (currentSubject.id === 'pharmacology') conditionMode = currentPharmacologyMode;
       else if (currentSubject.id === 'nursing_method_3') conditionMode = currentNursingMethod3Mode;
+      else if (currentSubject.id === 'pathology') conditionMode = `${currentPathologyMode}_r${currentPathologyRound || 'all'}`;
       const historyKey = `history_accuracy_${currentSubject.id}_${conditionMode}`;
-      const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+      const history = readStoredArray(historyKey);
       history.push(accRate);
       if (history.length > 20) history.shift();
       localStorage.setItem(historyKey, JSON.stringify(history));
 
       const now = new Date();
       const dailyHistoryKey = `history_accuracy_daily_${currentSubject.id}_${conditionMode}`;
-      const dailyHistory = JSON.parse(localStorage.getItem(dailyHistoryKey) || '[]');
+      const dailyHistory = readStoredArray(dailyHistoryKey);
       dailyHistory.push({ date: `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`, accuracy: accRate });
       if (dailyHistory.length > 100) dailyHistory.shift();
       localStorage.setItem(dailyHistoryKey, JSON.stringify(dailyHistory));
@@ -5453,7 +5483,7 @@ list = list.map(q => normalizeQuestion(q)).filter(Boolean);
       evoRecordStudyCompletion(now, { score, total, accRate, durationSeconds });
 
       const attemptKey = getAttemptHistoryKey();
-      const attemptHistory = JSON.parse(localStorage.getItem(attemptKey) || '[]');
+      const attemptHistory = readStoredArray(attemptKey);
       
       const dateStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
       
