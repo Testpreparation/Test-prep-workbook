@@ -5,11 +5,10 @@
       const startup = document.getElementById('np-pwa-startup');
       const startupStartedAt = performance.now();
       let pageLoaded = document.readyState === 'complete';
-      let backendWakeFinished = !navigator.onLine;
       let startupHideScheduled = false;
       const startupCaption = startup ? startup.querySelector('p') : null;
       const hideStartup = () => {
-        if (!startup || !pageLoaded || !backendWakeFinished || startupHideScheduled) return;
+        if (!startup || !pageLoaded || startupHideScheduled) return;
         startupHideScheduled = true;
         const remaining = Math.max(0, 3000 - (performance.now() - startupStartedAt));
         window.setTimeout(() => {
@@ -25,7 +24,6 @@
       // 学習画面の利用自体はサーバー応答を必須にせず、最大65秒で起動画面を解除する。
       const wakeRenderBackend = async () => {
         if (!navigator.onLine) {
-          backendWakeFinished = true;
           hideStartup();
           return;
         }
@@ -44,7 +42,6 @@
           console.info('[Nurse＋ PWA] サーバーの事前接続を終了:', error.name || error);
         } finally {
           window.clearTimeout(timeoutId);
-          backendWakeFinished = true;
           if (startupCaption) startupCaption.textContent = '学びを、少しずつ。';
           hideStartup();
         }
