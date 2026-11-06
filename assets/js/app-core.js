@@ -981,11 +981,25 @@
     let flashcardOpenedFromBottomMenu = false;
 
     function getAverageAccuracy(subjectId) {
-      const historyKey = `history_accuracy_${subjectId}`;
-      const records = JSON.parse(localStorage.getItem(historyKey) || '[]');
-      if (!records || records.length === 0) return null;
-      const sum = records.reduce((acc, curr) => acc + curr, 0);
-      return Math.round(sum / records.length);
+      const prefix = `history_accuracy_${subjectId}`;
+      const records = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key || (key !== prefix && !key.startsWith(prefix + '_'))) continue;
+        try {
+          const stored = JSON.parse(localStorage.getItem(key) || '[]');
+          if (Array.isArray(stored)) {
+            stored.forEach(value => {
+              const accuracy = Number(value);
+              if (Number.isFinite(accuracy) && accuracy >= 0 && accuracy <= 100) records.push(accuracy);
+            });
+          }
+        } catch (error) {
+          console.warn('[Nurse+] 正答率履歴を読み込めませんでした:', key, error);
+        }
+      }
+      if (!records.length) return null;
+      return Math.round(records.reduce((sum, value) => sum + value, 0) / records.length);
     }
 
     // =========================================================
@@ -1227,7 +1241,14 @@
 
     function getLearnedWordsSet(subjectId) {
       const raw = localStorage.getItem(getLearnedStorageKey(subjectId));
-      return new Set(raw ? JSON.parse(raw) : []);
+      if (!raw) return new Set();
+      try {
+        const stored = JSON.parse(raw);
+        return new Set(Array.isArray(stored) ? stored : []);
+      } catch (error) {
+        console.warn('[Nurse+] 暗記カードの習得履歴を読み込めませんでした:', subjectId, error);
+        return new Set();
+      }
     }
 
     function saveLearnedWordsSet(subjectId, setObj) {
@@ -2978,20 +2999,37 @@
     document.addEventListener('DOMContentLoaded', prepareDrawerSettingsDropdown, { once: true });
 
     const evoModeDefs = s => {
+      if (s.id === 'biochemistry' || s.hasBiochemistryFormats) return [{key:'biochemistry_choice',label:'選択式'},{key:'biochemistry_fill',label:'穴埋め式'},{key:'biochemistry_keyboard',label:'記述式'}];
       if (s.id === 'physiology' || s.hasPhysiologyModes) return [{key:'past',label:'過去問'},{key:'quiz',label:'小テスト'}];
       if (s.id === 'anatomy' || s.hasAnatomyModes) return [{key:'basic',label:'練習問題'},{key:'applied',label:'応用問題'}];
       if (s.id === 'public_health' || s.hasPublicHealthModes) return [{key:'past',label:'過去問'},{key:'exercise',label:'演習問題'},{key:'national',label:'模擬国家試験'},{key:'selfstudy',label:'自習問題'}];
       if (s.id === 'public_health_nursing' || s.hasPHNModes) return [{key:'basic',label:'練習問題'},{key:'exercise',label:'演習問題'}];
       if (s.id === 'pharmacology') return [{key:'exercise',label:'演習問題'},{key:'past',label:'過去問'},{key:'nurse_national_6years',label:'過去6年看護師国家試験'}];
       if (s.id === 'nursing_method_3') return [{key:'practice',label:'練習問題'},{key:'quiz',label:'小テスト'},{key:'exercise',label:'演習問題'}];
+      if (s.id === 'pathology') {
+        const labels = {practice:'小テスト練習',exercise:'演習問題',quiz:'小テスト',range:'小テスト範囲'};
+        return Object.entries(labels).flatMap(([mode,label]) =>
+          Array.from({length:13},(_,index)=>({key:`${mode}_r${index+1}`,label:`${label} 第${index+1}回`}))
+        );
+      }
       return [{key:'all',label:'通常'}];
     };
+    window.evoModeDefs = evoModeDefs;
+
+    function evoReadHistoryRecords(baseKey) {
+      const keys = [baseKey];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(baseKey + '_')) keys.push(key);
+      }
+      return keys.flatMap(key => readStoredArray(key));
+    }
 
     function evoGetStats() {
       const rows=[]; let attempts=0, sum=0, best=null;
       (subjects||[]).filter(s=>s.visible!==false && s.status!=='preparing').forEach(s=>{
         evoModeDefs(s).forEach(m=>{
-          const rec=JSON.parse(localStorage.getItem(`history_accuracy_${s.id}_${m.key}`)||'[]');
+          const rec=evoReadHistoryRecords(`history_accuracy_${s.id}_${m.key}`);
           if(rec.length){ const avg=Math.round(rec.reduce((a,b)=>a+b,0)/rec.length); rows.push({s,mode:m,avg}); attempts+=rec.length; sum+=rec.reduce((a,b)=>a+b,0); best=Math.max(best??0,...rec); }
         });
       });
@@ -3005,7 +3043,7 @@
       const dates = new Set();
       (subjects||[]).filter(s=>s.visible!==false && s.status!=='preparing').forEach(s=>{
         evoModeDefs(s).forEach(m=>{
-          const rec = JSON.parse(localStorage.getItem(`history_accuracy_daily_${s.id}_${m.key}`)||'[]');
+          const rec = evoReadHistoryRecords(`history_accuracy_daily_${s.id}_${m.key}`);
           rec.forEach(x=>{ if(x && x.date) dates.add(x.date); });
         });
       });
@@ -3034,14 +3072,14 @@
       (subjects||[]).filter(s=>s.visible!==false && s.status!=='preparing').forEach(s=>{
         evoModeDefs(s).forEach(m=>{
           if(selectedDate){
-            const rec=JSON.parse(localStorage.getItem(`history_accuracy_daily_${s.id}_${m.key}`)||'[]');
+            const rec=evoReadHistoryRecords(`history_accuracy_daily_${s.id}_${m.key}`);
             const dayRec=rec.filter(x=>x && x.date===selectedDate);
             if(dayRec.length){
               const avg=Math.round(dayRec.reduce((a,b)=>a+Number(b.accuracy||0),0)/dayRec.length);
               conditionRows.push({s,mode:m,avg});
             }
           }else{
-            const rec=JSON.parse(localStorage.getItem(`history_accuracy_${s.id}_${m.key}`)||'[]');
+            const rec=evoReadHistoryRecords(`history_accuracy_${s.id}_${m.key}`);
             if(rec.length){
               const avg=Math.round(rec.reduce((a,b)=>a+Number(b||0),0)/rec.length);
               conditionRows.push({s,mode:m,avg});
