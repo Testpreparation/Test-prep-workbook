@@ -674,7 +674,6 @@
         scheduledAt = localDate.toISOString();
       }
 
-      const fullContent = `【${title}】\n${content}`;
       const noticeData = {
         title: title,
         content: content,
