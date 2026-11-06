@@ -127,9 +127,9 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Keep these application scripts fresh when online, with cached fallback when offline.
-  if (url.pathname.endsWith('/assets/nurse-plus-analytics-addition.js') ||
-      url.pathname.endsWith('/assets/js/app-core.js')) {
+  // Keep application JavaScript and CSS fresh when online, with cached fallback offline.
+  // Learning-data scripts and stylesheets must not remain stale after a deployment.
+  if (/\\.(?:js|css)$/i.test(url.pathname)) {
     event.respondWith(
       fetch(request, { cache: 'no-cache' }).then(response => {
         if (response && response.ok && response.type === 'basic') {
