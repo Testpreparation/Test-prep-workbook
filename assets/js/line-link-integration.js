@@ -15,7 +15,21 @@
           window.NURSE_LINE_SESSION = lineSession;
         }
         if (hasLineCallback) {
-          window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+          // 認証情報を含むLINEコールバック用パラメータだけをURLから除去し、
+          // その他のクエリ・フラグメント情報は維持する。
+          const callbackKeys = ['line_name', 'line_user_id', 'line_session'];
+          const cleanQuery = new URLSearchParams(window.location.search);
+          const cleanFragment = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+          callbackKeys.forEach(key => {
+            cleanQuery.delete(key);
+            cleanFragment.delete(key);
+          });
+          const remainingQuery = cleanQuery.toString();
+          const remainingFragment = cleanFragment.toString();
+          const cleanUrl = window.location.pathname
+            + (remainingQuery ? '?' + remainingQuery : '')
+            + (remainingFragment ? '#' + remainingFragment : '');
+          window.history.replaceState({}, document.title, cleanUrl);
           console.info('LINEログイン情報を保存しました。');
         }
 
