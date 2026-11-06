@@ -129,7 +129,7 @@ self.addEventListener('fetch', event => {
 
   // Keep application JavaScript and CSS fresh when online, with cached fallback offline.
   // Learning-data scripts and stylesheets must not remain stale after a deployment.
-  if (/\\.(?:js|css)$/i.test(url.pathname)) {
+  if (/\.(?:js|css)$/i.test(url.pathname)) {
     event.respondWith(
       fetch(request, { cache: 'no-cache' }).then(response => {
         if (response && response.ok && response.type === 'basic') {
