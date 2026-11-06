@@ -2099,6 +2099,7 @@
           <option value="past">過去問</option>
           <option value="exercise">演習問題</option>
           <option value="national">模擬国家試験</option>
+          <option value="selfstudy">自習問題</option>
         `;
         editingSelectedRound = 'past';
         modeSelect.value = 'past';
@@ -2971,7 +2972,7 @@
     const evoModeDefs = s => {
       if (s.id === 'physiology' || s.hasPhysiologyModes) return [{key:'past',label:'過去問'},{key:'quiz',label:'小テスト'}];
       if (s.id === 'anatomy' || s.hasAnatomyModes) return [{key:'basic',label:'練習問題'},{key:'applied',label:'応用問題'}];
-      if (s.id === 'public_health' || s.hasPublicHealthModes) return [{key:'past',label:'過去問'},{key:'exercise',label:'演習問題'},{key:'national',label:'模擬国家試験'}];
+      if (s.id === 'public_health' || s.hasPublicHealthModes) return [{key:'past',label:'過去問'},{key:'exercise',label:'演習問題'},{key:'national',label:'模擬国家試験'},{key:'selfstudy',label:'自習問題'}];
       if (s.id === 'public_health_nursing' || s.hasPHNModes) return [{key:'basic',label:'練習問題'},{key:'exercise',label:'演習問題'}];
       if (s.id === 'pharmacology') return [{key:'exercise',label:'演習問題'},{key:'past',label:'過去問'},{key:'nurse_national_6years',label:'過去6年看護師国家試験'}];
       if (s.id === 'nursing_method_3') return [{key:'practice',label:'練習問題'},{key:'quiz',label:'小テスト'},{key:'exercise',label:'演習問題'}];
@@ -3857,7 +3858,7 @@
         microbiology:['microbiology'], anatomy:['anatomy','anatomy_applied'], physiology:['physiology'],
         biochemistry:['biochemistry','biochemistry_keyboard','biochemistry_fill'], nursing_method:['nursing_method'],
         public_health_nursing:['public_health_nursing','public_health_nursing_basic','public_health_nursing_exercise',...Object.keys(db).filter(k=>/^public_health_nursing_/.test(k))],
-        public_health:['public_health','public_health_past','public_health_exercise','public_health_national'],
+        public_health:['public_health','public_health_past','public_health_exercise','public_health_national','public_health_selfstudy'],
         nutrition:['nutrition','nutrition_exercise_2026_spring','nutrition_quiz_2026_spring','nutrition_exercise_2026_autumn','nutrition_quiz_2026_autumn'],
         pathology:['pathology',...Object.keys(db).filter(k=>/^pathology_(range|exercise|quiz|practice)_/.test(k))],
         pharmacology:['pharmacology','pharmacology_past_2026_spring','pharmacology_exercise_2026_spring','pharmacology_past_2026_autumn','pharmacology_exercise_2026_autumn','pharmacology_nurse_national_6years'],
@@ -4334,7 +4335,7 @@
 
       } else if (currentSubject.id === 'public_health' || currentSubject.hasPublicHealthModes) {
         backBtn.onclick = () => showPublicHealthModeSelectionScreen();
-        const modeTitle = currentPublicHealthMode === 'past' ? '過去問' : (currentPublicHealthMode === 'exercise' ? '演習問題' : '模擬国家試験');
+        const modeTitle = currentPublicHealthMode === 'past' ? '過去問' : (currentPublicHealthMode === 'exercise' ? '演習問題' : (currentPublicHealthMode === 'selfstudy' ? '自習問題' : '模擬国家試験'));
         titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
         headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
         descEl.textContent = `公衆衛生学の${modeTitle}が出題されます。`;
