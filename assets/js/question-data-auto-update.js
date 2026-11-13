@@ -142,6 +142,8 @@
   }, { once: true });
 
   window.setInterval(() => checkForDataUpdates(), CHECK_INTERVAL_MS);
+  // 更新を学習中に検知した場合、ホームへ戻った後すぐ反映できるよう軽く確認する。
+  window.setInterval(() => applyPendingUpdates(), 15000);
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       checkForDataUpdates();
