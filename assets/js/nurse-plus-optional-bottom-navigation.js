@@ -478,4 +478,4 @@
   } else {
     bindStudyNavigationVisibility();
   }
-})();
+}
