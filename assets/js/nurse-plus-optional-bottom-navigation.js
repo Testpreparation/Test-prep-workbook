@@ -33,6 +33,10 @@
 
     if (!enabled) {
       root.classList.remove('np-bottom-menu-study-active');
+      // Restore the original dashboard when disabling the mode from its home/settings.
+      if (wasOnBottomMenuHome && typeof window.showDashboard === 'function') {
+        window.showDashboard();
+      }
     } else if (studyIsVisible) {
       // Keep the current study flow in place when the setting is enabled mid-session.
       root.classList.add('np-bottom-menu-study-active');
