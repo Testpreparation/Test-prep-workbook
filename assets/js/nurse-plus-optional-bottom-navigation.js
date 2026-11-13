@@ -6,24 +6,46 @@
 
   function apply(enabled) {
     const bottomDashboard = document.getElementById('screen-dashboard-bottom-menu');
-    const wasOnBottomMenuHome = !enabled && bottomDashboard && !bottomDashboard.classList.contains('hidden');
-    root.classList.toggle('np-bottom-menu-enabled', enabled);
-    // Switch the dashboard's dedicated mode immediately when the setting changes,
-    // even if the user is already on the home screen.
+    const wasOnBottomMenuHome = Boolean(!enabled && bottomDashboard && !bottomDashboard.classList.contains('hidden'));
+    const studyScreenIds = [
+      'screen-subjects', 'screen-bottom-menu-flashcard-subjects',
+      'screen-semester-select', 'screen-physiology-mode-select',
+      'screen-anatomy-mode-select', 'screen-publichealth-mode-select',
+      'screen-phn-mode-select', 'screen-pathology-mode-select',
+      'screen-pathology-round-select', 'screen-pharmacology-mode-select',
+      'screen-nursing-mode-select', 'screen-nursing-method-3-mode-select',
+      'screen-nutrition-mode-select', 'screen-biochemistry-format-select',
+      'screen-time-select', 'screen-round-select', 'screen-count-select',
+      'screen-quiz-start', 'screen-quiz-play', 'screen-quiz-result',
+      'screen-multi-lobby', 'screen-multi-room', 'screen-multi-play'
+    ];
+    const studyIsVisible = studyScreenIds.some(id => {
+      const screen = document.getElementById(id);
+      return screen && !screen.classList.contains('hidden');
+    });
     const dashboard = document.getElementById('screen-dashboard');
-    if (dashboard) {
-      dashboard.classList.toggle('np-bottom-menu-home', enabled);
-    }
+    root.classList.toggle('np-bottom-menu-enabled', enabled);
+    if (dashboard) dashboard.classList.toggle('np-bottom-menu-home', enabled);
     if (bottomDashboard) {
       bottomDashboard.classList.toggle('hidden', !enabled);
       bottomDashboard.classList.toggle('np-bottom-menu-home', enabled);
     }
-    // Turning the optional bottom menu off from its home restores the original dashboard.
-    if (wasOnBottomMenuHome && typeof window.showDashboard === 'function') {
-      window.showDashboard();
+
+    if (!enabled) {
+      root.classList.remove('np-bottom-menu-study-active');
+    } else if (studyIsVisible) {
+      // Keep the current study flow in place when the setting is enabled mid-session.
+      root.classList.add('np-bottom-menu-study-active');
+    } else if (wasOnBottomMenuHome || (dashboard && !dashboard.classList.contains('hidden')) ||
+               (bottomDashboard && !bottomDashboard.classList.contains('hidden'))) {
+      // Switch dashboards only when the user was already on a dashboard.
+      if (typeof window.showDashboard === 'function') window.showDashboard();
     }
     getToggles().forEach(control => { control.checked = enabled; });
     try { localStorage.setItem(KEY, String(enabled)); } catch (_) {}
+    if (typeof window.syncStudyNavigationVisibility === 'function') {
+      window.syncStudyNavigationVisibility();
+    }
   }
 
   function init() {
@@ -393,38 +415,62 @@
   }, true);
 })();
 
-  // Hide the bottom navigation while a user is inside a subject/study flow.
-  // It becomes visible again only when the dedicated bottom-menu home returns.
-  function bindStudyNavigationVisibility() {
+  // Derive navigation visibility from the actual visible screen, not only from taps.
+  function syncStudyNavigationVisibility() {
     const root = document.documentElement;
     const nav = document.getElementById('np-bottom-navigation');
-    if (!nav || document.documentElement.dataset.npStudyNavVisibilityBound === '1') return;
-    document.documentElement.dataset.npStudyNavVisibilityBound = '1';
-
-    const studyContainers = [
-      '#bottom-menu-subject-list-container',
-      '#bottom-menu-flashcard-subject-list-container'
-    ].join(',');
-
-    document.addEventListener('click', event => {
-      const target = event.target instanceof Element ? event.target : event.target && event.target.parentElement;
-      if (!target || !target.closest(studyContainers)) return;
-      if (!root.classList.contains('np-bottom-menu-enabled')) return;
-      root.classList.add('np-bottom-menu-study-active');
-    }, true);
-
-    const home = document.getElementById('screen-dashboard-bottom-menu');
-    if (!home || !('MutationObserver' in window)) return;
-    const syncHomeVisibility = () => {
-      if (!home.classList.contains('hidden')) {
-        root.classList.remove('np-bottom-menu-study-active');
-      }
-    };
-    new MutationObserver(syncHomeVisibility).observe(home, {
-      attributes: true,
-      attributeFilter: ['class']
+    if (!nav) return;
+    const studyScreenIds = [
+      'screen-subjects', 'screen-bottom-menu-flashcard-subjects',
+      'screen-semester-select', 'screen-physiology-mode-select',
+      'screen-anatomy-mode-select', 'screen-publichealth-mode-select',
+      'screen-phn-mode-select', 'screen-pathology-mode-select',
+      'screen-pathology-round-select', 'screen-pharmacology-mode-select',
+      'screen-nursing-mode-select', 'screen-nursing-method-3-mode-select',
+      'screen-nutrition-mode-select', 'screen-biochemistry-format-select',
+      'screen-time-select', 'screen-round-select', 'screen-count-select',
+      'screen-quiz-start', 'screen-quiz-play', 'screen-quiz-result',
+      'screen-multi-lobby', 'screen-multi-room', 'screen-multi-play'
+    ];
+    const bottomHome = document.getElementById('screen-dashboard-bottom-menu');
+    const homeIsVisible = Boolean(bottomHome && !bottomHome.classList.contains('hidden'));
+    const studyIsVisible = studyScreenIds.some(id => {
+      const screen = document.getElementById(id);
+      return screen && !screen.classList.contains('hidden');
     });
-    syncHomeVisibility();
+
+    if (!root.classList.contains('np-bottom-menu-enabled') || homeIsVisible) {
+      root.classList.remove('np-bottom-menu-study-active');
+    } else {
+      root.classList.toggle('np-bottom-menu-study-active', studyIsVisible);
+    }
+
+    const analytics = document.getElementById('screen-data-analysis');
+    const currentDestination = homeIsVisible ? 'home' :
+      (analytics && !analytics.classList.contains('hidden') ? 'analytics' : null);
+    nav.querySelectorAll('[data-np-bottom-nav]').forEach(item => {
+      if (currentDestination && item.dataset.npBottomNav === currentDestination) {
+        item.setAttribute('aria-current', 'page');
+      } else if (currentDestination || studyIsVisible) {
+        item.removeAttribute('aria-current');
+      }
+    });
+  }
+
+  window.syncStudyNavigationVisibility = syncStudyNavigationVisibility;
+
+  function bindStudyNavigationVisibility() {
+    if (document.documentElement.dataset.npStudyNavVisibilityBound === '1') return;
+    document.documentElement.dataset.npStudyNavVisibilityBound = '1';
+    syncStudyNavigationVisibility();
+    if (!('MutationObserver' in window)) return;
+    const observer = new MutationObserver(syncStudyNavigationVisibility);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+      childList: true,
+      subtree: true
+    });
   }
 
   if (document.readyState === 'loading') {
@@ -432,3 +478,4 @@
   } else {
     bindStudyNavigationVisibility();
   }
+})();
