@@ -7,7 +7,7 @@
 
   const TREE_URL = 'https://api.github.com/repos/Testpreparation/Test-prep-workbook/git/trees/main?recursive=1';
   const CHECK_INTERVAL_MS = 10 * 60 * 1000;
-  const MIN_CHECK_GAP_MS = 60 * 1000;
+  const MIN_CHECK_GAP_MS = 10 * 60 * 1000;
   const BASE_PATH = new URL('./', window.location.href).pathname;
   const knownShas = new Map();
   let pendingUpdates = new Map();
