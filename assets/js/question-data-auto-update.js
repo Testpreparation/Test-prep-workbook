@@ -65,21 +65,25 @@
     const nextUrl = new URL(script.src, window.location.href);
     nextUrl.searchParams.set('_np_data_sha', sha);
 
-    // Some legacy subject files append with Array.push(). Clear only the database
-    // arrays explicitly appended by this file so re-execution does not duplicate questions.
+    // Some legacy subject files append with Array.push(). Reset only arrays
+    // explicitly appended by this file, and restore them if the replacement fails.
     const sourceResponse = await fetch(nextUrl.href, { cache: 'no-store' });
     if (!sourceResponse.ok) throw new Error('Failed to inspect updated data script: ' + path);
     const source = await sourceResponse.text();
     const appendedTargets = new Set();
-    const targetPattern = /window\\.(QUIZ_DB|FLASHCARD_DB)\\s*\\.([A-Za-z_$][\\w$]*)\\s*\\.push\\s*\\(/g;
+    const targetPattern = /window\.(QUIZ_DB|FLASHCARD_DB)\s*\.\s*([A-Za-z_$][\w$]*)\s*\.push\s*\(/g;
     let targetMatch;
     while ((targetMatch = targetPattern.exec(source))) {
       appendedTargets.add(targetMatch[1] + '.' + targetMatch[2]);
     }
+    const previousTargets = new Map();
     for (const target of appendedTargets) {
       const [databaseName, key] = target.split('.');
       const database = window[databaseName];
-      if (database && Array.isArray(database[key])) database[key] = [];
+      if (database && Array.isArray(database[key])) {
+        previousTargets.set(target, database[key]);
+        database[key] = [];
+      }
     }
 
     return new Promise((resolve, reject) => {
@@ -92,6 +96,11 @@
       };
       replacement.onerror = () => {
         replacement.remove();
+        for (const [target, previousValue] of previousTargets) {
+          const [databaseName, key] = target.split('.');
+          const database = window[databaseName];
+          if (database) database[key] = previousValue;
+        }
         reject(new Error('Failed to load updated data script: ' + path));
       };
       script.parentNode.insertBefore(replacement, script);
