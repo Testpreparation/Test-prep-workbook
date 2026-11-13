@@ -61,11 +61,29 @@
     return shas;
   }
 
-  function loadUpdatedScript(script, sha) {
+  async function loadUpdatedScript(script, path, sha) {
+    const nextUrl = new URL(script.src, window.location.href);
+    nextUrl.searchParams.set('_np_data_sha', sha);
+
+    // Some legacy subject files append with Array.push(). Clear only the database
+    // arrays explicitly appended by this file so re-execution does not duplicate questions.
+    const sourceResponse = await fetch(nextUrl.href, { cache: 'no-store' });
+    if (!sourceResponse.ok) throw new Error('Failed to inspect updated data script: ' + path);
+    const source = await sourceResponse.text();
+    const appendedTargets = new Set();
+    const targetPattern = /window\\.(QUIZ_DB|FLASHCARD_DB)\\s*\\.([A-Za-z_$][\\w$]*)\\s*\\.push\\s*\\(/g;
+    let targetMatch;
+    while ((targetMatch = targetPattern.exec(source))) {
+      appendedTargets.add(targetMatch[1] + '.' + targetMatch[2]);
+    }
+    for (const target of appendedTargets) {
+      const [databaseName, key] = target.split('.');
+      const database = window[databaseName];
+      if (database && Array.isArray(database[key])) database[key] = [];
+    }
+
     return new Promise((resolve, reject) => {
       const replacement = document.createElement('script');
-      const nextUrl = new URL(script.src, window.location.href);
-      nextUrl.searchParams.set('_np_data_sha', sha);
       replacement.src = nextUrl.href;
       replacement.async = false;
       replacement.onload = () => {
@@ -74,7 +92,7 @@
       };
       replacement.onerror = () => {
         replacement.remove();
-        reject(new Error('Failed to load updated data script: ' + script.src));
+        reject(new Error('Failed to load updated data script: ' + path));
       };
       script.parentNode.insertBefore(replacement, script);
     });
@@ -91,7 +109,7 @@
           pendingUpdates.delete(path);
           continue;
         }
-        await loadUpdatedScript(script, sha);
+        await loadUpdatedScript(script, path, sha);
         knownShas.set(path, sha);
         pendingUpdates.delete(path);
       }
