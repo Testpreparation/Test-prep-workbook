@@ -34,6 +34,9 @@
 
   function isSafeToApply() {
     if (document.visibilityState === 'hidden') return false;
+    const flashcardPlay = document.getElementById('fc-step-4-play');
+    if (flashcardPlay && !flashcardPlay.classList.contains('hidden') &&
+        window.getComputedStyle(flashcardPlay).display !== 'none') return false;
     return ['screen-dashboard', 'screen-dashboard-bottom-menu'].some(id => {
       const screen = document.getElementById(id);
       return screen && !screen.classList.contains('hidden') &&
