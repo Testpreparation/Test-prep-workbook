@@ -4,32 +4,41 @@
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
       const startup = document.getElementById('np-pwa-startup');
       const startupStartedAt = performance.now();
-      let pageLoaded = document.readyState === 'complete';
+      let pageReady = document.readyState !== 'loading';
       let startupHideScheduled = false;
       const startupCaption = startup ? startup.querySelector('p') : null;
       const hideStartup = () => {
-        if (!startup || !pageLoaded || startupHideScheduled) return;
+        if (!startup || !pageReady || startupHideScheduled) return;
         startupHideScheduled = true;
         const remaining = Math.max(0, 3000 - (performance.now() - startupStartedAt));
         window.setTimeout(() => {
           startup.classList.add('is-hidden');
-          // Start the home reveal at the same moment the startup overlay fades,
-          // rather than during page loading while the overlay still covers it.
+          // Start the home reveal at the same moment the startup overlay fades.
           const appShell = document.querySelector('body > div.w-full.max-w-xl.mx-auto');
           if (appShell) appShell.classList.add('np-cinematic-home-reveal-active');
         }, remaining);
       };
 
-      // 起動画面の表示中にRenderへアクセスして休止状態からの復帰を促す。
-      // 学習画面の利用自体はサーバー応答を必須にせず、最大65秒で起動画面を解除する。
-      const wakeRenderBackend = async () => {
-        if (!navigator.onLine) {
+      // 画面の起動はRenderの応答に依存させない。DOM準備完了後に起動画面を解除する。
+      if (pageReady) {
+        hideStartup();
+      } else {
+        document.addEventListener('DOMContentLoaded', () => {
+          pageReady = true;
           hideStartup();
-          return;
-        }
-        if (startupCaption) startupCaption.textContent = 'サーバーを準備しています…';
+        }, { once: true });
+      }
+      // DOMContentLoaded自体が遅延・未発火の場合の最終フォールバック。
+      window.setTimeout(() => {
+        pageReady = true;
+        hideStartup();
+      }, 8000);
+
+      // Renderへの接続確認はバックグラウンドで実行し、画面表示を待たせない。
+      const wakeRenderBackend = async () => {
+        if (!navigator.onLine) return;
         const controller = new AbortController();
-        const timeoutId = window.setTimeout(() => controller.abort(), 65000);
+        const timeoutId = window.setTimeout(() => controller.abort(), 15000);
         try {
           await fetch('https://nurse-line-system.onrender.com/', {
             method: 'GET',
@@ -38,24 +47,12 @@
             signal: controller.signal
           });
         } catch (error) {
-          // サーバー停止・通信不良でも、学習画面を開けるよう起動画面を解除する。
-          console.info('[Nurse＋ PWA] サーバーの事前接続を終了:', error.name || error);
+          console.info('[Nurse＋ PWA] サーバーの事前接続を終了:', error && error.name || error);
         } finally {
           window.clearTimeout(timeoutId);
-          if (startupCaption) startupCaption.textContent = '学びを、少しずつ。';
-          hideStartup();
         }
       };
       wakeRenderBackend();
-
-      if (pageLoaded) {
-        hideStartup();
-      } else {
-        window.addEventListener('load', () => {
-          pageLoaded = true;
-          hideStartup();
-        }, { once: true });
-      }
 
       if ('serviceWorker' in navigator && location.protocol === 'https:') {
         navigator.serviceWorker.register('./service-worker.js', { scope: './' })
