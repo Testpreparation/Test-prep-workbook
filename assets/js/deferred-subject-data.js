@@ -61,13 +61,25 @@
 
   const loadScript = src => new Promise(resolve => {
     const script = document.createElement('script');
+    let settled = false;
+    const finish = loaded => {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(timeoutId);
+      if (!loaded) script.remove();
+      resolve(loaded);
+    };
     script.src = src;
     script.async = false;
-    script.onload = () => resolve(true);
+    script.onload = () => finish(true);
     script.onerror = () => {
       console.warn('[Nurse＋] 科目データを読み込めませんでした:', src);
-      resolve(false);
+      finish(false);
     };
+    const timeoutId = window.setTimeout(() => {
+      console.warn('[Nurse＋] 科目データの読み込みがタイムアウトしました:', src);
+      finish(false);
+    }, 8000);
     document.head.appendChild(script);
   });
 
