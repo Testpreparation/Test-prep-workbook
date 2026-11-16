@@ -2,7 +2,7 @@
  * Only same-origin GET responses are cached. Learning data (Firebase/local app storage) is never
  * cleared here; this manager only removes expendable entries from this service-worker cache.
  */
-const CACHE_NAME = 'nurse-plus-pwa-v16';
+const CACHE_NAME = 'nurse-plus-pwa-v15';
 const APP_ROOT = '/Test-prep-workbook/';
 const CACHE_LIMIT_BYTES = 100 * 1024 * 1024; // 100 MiB (approximately 100 MB)
 const CORE_ASSETS = [
@@ -77,18 +77,6 @@ async function trimCacheIfNeeded() {
   return cacheTrimPromise;
 }
 
-
-// A stalled same-origin request must not keep the whole app navigation or a script blocked forever.
-async function fetchWithTimeout(request, options = {}, timeoutMs = 10000) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    return await fetch(request, { ...options, signal: controller.signal });
-  } finally {
-    clearTimeout(timeoutId);
-  }
-}
-
 async function cacheResponse(request, response) {
   try {
     const cache = await caches.open(CACHE_NAME);
@@ -126,7 +114,7 @@ self.addEventListener('fetch', event => {
 
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetchWithTimeout(request).then(response => {
+      fetch(request).then(response => {
         if (response && response.ok) {
           event.waitUntil(cacheResponse(new Request(APP_ROOT + 'index.html'), response.clone()));
         }
@@ -143,7 +131,7 @@ self.addEventListener('fetch', event => {
   // Learning-data scripts and stylesheets must not remain stale after a deployment.
   if (/\.(?:js|css)$/i.test(url.pathname)) {
     event.respondWith(
-      fetchWithTimeout(request, { cache: 'no-cache' }).then(response => {
+      fetch(request, { cache: 'no-cache' }).then(response => {
         if (response && response.ok && response.type === 'basic') {
           event.waitUntil(cacheResponse(request, response.clone()));
         }

@@ -4,8 +4,7 @@
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
       const startup = document.getElementById('np-pwa-startup');
       const startupStartedAt = performance.now();
-      // 画像などの遅延リソースを待たず、DOM構築完了時点で起動画面を解除可能にする。
-      let pageLoaded = document.readyState !== 'loading';
+      let pageLoaded = document.readyState === 'complete';
       let startupHideScheduled = false;
       const startupCaption = startup ? startup.querySelector('p') : null;
       const hideStartup = () => {
@@ -52,7 +51,7 @@
       if (pageLoaded) {
         hideStartup();
       } else {
-        document.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('load', () => {
           pageLoaded = true;
           hideStartup();
         }, { once: true });

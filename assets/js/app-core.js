@@ -4039,12 +4039,6 @@
       });
     }
 
-    // 遅延読み込みされた科目データが揃った時点で、ホームの問題あり★を再判定する。
-    window.addEventListener('nurseplus:subject-data-loaded', () => {
-      npRefreshQuizStars();
-      renderSubjectList();
-    });
-
     function renderSubjectList() {
       const containers = [
         { element: document.getElementById('subject-list-container'), count: document.getElementById('subject-count-display') },
@@ -4093,11 +4087,6 @@
     }
 
     function selectSubject(subjectId) {
-      // 科目データの遅延読み込み中に選択された場合は、完了後に通常の遷移を行う。
-      if (window.NP_SUBJECT_DATA_READY_PROMISE && !window.NP_SUBJECT_DATA_READY) {
-        window.NP_SUBJECT_DATA_READY_PROMISE.then(() => selectSubject(subjectId));
-        return;
-      }
       currentSubject = subjects.find(s => s.id === subjectId);
       if (!currentSubject || currentSubject.status === 'preparing') return;
 
