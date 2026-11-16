@@ -60,6 +60,7 @@
   }
   function renderList() {
     var entries = Object.entries(state.decks).sort(function(a,b){return (b[1].updatedAt||0)-(a[1].updatedAt||0);});
+    // Create a deck by title first, then enter it to add cards individually; later additions remain available from the deck screen.
     var html = entries.map(function(pair) {
       var key=pair[0], deck=pair[1], list=Object.values(deck.cards||{}), learned=list.filter(function(c){return c.learned;}).length;
       return '<article class="rounded-2xl bg-white border border-slate-200 p-4 shadow-sm"><button data-open="'+esc(key)+'" class="w-full text-left"><b class="block text-sm">'+esc(deck.title)+'</b><span class="text-[11px] text-slate-500">'+list.length+'枚 · 習得 '+learned+'/'+list.length+'</span></button><div class="flex justify-end gap-3 mt-3 pt-3 border-t"><button data-rename="'+esc(key)+'" class="text-xs text-slate-500">名前変更</button><button data-remove="'+esc(key)+'" class="text-xs text-rose-500">削除</button></div></article>';
@@ -75,7 +76,7 @@
     var title=prompt('カード帳の名前を入力してください。'); if(title===null)return;
     if(!title.trim()||title.trim().length>80)return alert('名前は1〜80文字で入力してください。');
     var key=id('deck'); state.decks[key]={title:title.trim(),description:'',color:'#8b9dc3',createdAt:stamp(),updatedAt:stamp(),cards:{}};
-    try{await save();renderList();}catch(e){alert(e.message);}
+    try{await save();openDeck(key);}catch(e){alert(e.message);}
   }
   async function renameDeck(key) {
     var deck=state.decks[key]; if(!deck)return;
