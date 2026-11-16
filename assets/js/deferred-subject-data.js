@@ -84,7 +84,8 @@
   });
 
   const loadAll = async () => {
-    for (const src of sources) await loadScript(src);
+    // async=false の動的scriptは挿入順に実行されるため、取得は並行しつつ依存順を維持する。
+    await Promise.all(sources.map(loadScript));
     window.NP_SUBJECT_DATA_READY = true;
     resolveReady();
     window.dispatchEvent(new CustomEvent('nurseplus:subject-data-loaded'));
