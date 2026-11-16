@@ -102,9 +102,12 @@
     else window.setTimeout(run, 0);
   };
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', schedule, { once: true });
-  } else {
+  // 初回ページ読み込み（load）を完了させてから科目データを取得する。
+  // DOMContentLoaded直後に大量のscriptを追加すると、ブラウザの読み込み表示が
+  // 長時間続き、初回表示の完了を妨げるため、初回ロード経路から切り離す。
+  if (document.readyState === 'complete') {
     schedule();
+  } else {
+    window.addEventListener('load', schedule, { once: true });
   }
 })();
