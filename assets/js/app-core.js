@@ -3614,9 +3614,9 @@
       const bottomMenuEnabled = document.documentElement.classList.contains('np-bottom-menu-enabled');
       const el = document.getElementById(bottomMenuEnabled ? 'screen-dashboard-bottom-menu' : 'screen-dashboard');
       if(el) el.classList.remove('hidden');
-      // Render the locally available subject list immediately; Firebase sync may arrive later.
-      renderSubjectList();
-      if (!bottomMenuEnabled) {
+      if (bottomMenuEnabled) {
+        renderSubjectList();
+      } else {
         renderDashboard();
       }
     }
