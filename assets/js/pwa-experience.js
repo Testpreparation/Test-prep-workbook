@@ -4,57 +4,43 @@
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
       const startup = document.getElementById('np-pwa-startup');
       const startupStartedAt = performance.now();
-      let pageLoaded = document.readyState === 'complete';
+      // 外部通信や外部スクリプトの完了を待たず、DOMの準備ができたら起動画面を解除する。
+      let pageReady = document.readyState !== 'loading';
       let startupHideScheduled = false;
-      const startupCaption = startup ? startup.querySelector('p') : null;
       const hideStartup = () => {
-        if (!startup || !pageLoaded || startupHideScheduled) return;
+        if (!startup || !pageReady || startupHideScheduled) return;
         startupHideScheduled = true;
-        const remaining = Math.max(0, 3000 - (performance.now() - startupStartedAt));
+        const remaining = Math.max(0, 1800 - (performance.now() - startupStartedAt));
         window.setTimeout(() => {
           startup.classList.add('is-hidden');
-          // Start the home reveal at the same moment the startup overlay fades,
-          // rather than during page loading while the overlay still covers it.
           const appShell = document.querySelector('body > div.w-full.max-w-xl.mx-auto');
           if (appShell) appShell.classList.add('np-cinematic-home-reveal-active');
         }, remaining);
       };
 
-      // 起動画面の表示中にRenderへアクセスして休止状態からの復帰を促す。
-      // 学習画面の利用自体はサーバー応答を必須にせず、最大65秒で起動画面を解除する。
-      const wakeRenderBackend = async () => {
-        if (!navigator.onLine) {
-          hideStartup();
-          return;
-        }
-        if (startupCaption) startupCaption.textContent = 'サーバーを準備しています…';
-        const controller = new AbortController();
-        const timeoutId = window.setTimeout(() => controller.abort(), 65000);
-        try {
-          await fetch('https://nurse-line-system.onrender.com/', {
-            method: 'GET',
-            cache: 'no-store',
-            mode: 'cors',
-            signal: controller.signal
-          });
-        } catch (error) {
-          // サーバー停止・通信不良でも、学習画面を開けるよう起動画面を解除する。
-          console.info('[Nurse＋ PWA] サーバーの事前接続を終了:', error.name || error);
-        } finally {
-          window.clearTimeout(timeoutId);
-          if (startupCaption) startupCaption.textContent = '学びを、少しずつ。';
-          hideStartup();
-        }
-      };
-      wakeRenderBackend();
-
-      if (pageLoaded) {
+      if (pageReady) {
         hideStartup();
       } else {
-        window.addEventListener('load', () => {
-          pageLoaded = true;
+        document.addEventListener('DOMContentLoaded', () => {
+          pageReady = true;
           hideStartup();
         }, { once: true });
+      }
+
+      // Renderの休止復帰はバックグラウンドで実行し、学習画面の表示を待たせない。
+      if (navigator.onLine) {
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => controller.abort(), 8000);
+        fetch('https://nurse-line-system.onrender.com/', {
+          method: 'GET',
+          cache: 'no-store',
+          mode: 'cors',
+          signal: controller.signal
+        }).catch(error => {
+          console.info('[Nurse＋ PWA] サーバー事前接続を終了:', error.name || error);
+        }).finally(() => {
+          window.clearTimeout(timeoutId);
+        });
       }
 
       if ('serviceWorker' in navigator && location.protocol === 'https:') {
