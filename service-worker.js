@@ -2,7 +2,7 @@
  * Only same-origin GET responses are cached. Learning data (Firebase/local app storage) is never
  * cleared here; this manager only removes expendable entries from this service-worker cache.
  */
-const CACHE_NAME = 'nurse-plus-pwa-v15';
+const CACHE_NAME = 'nurse-plus-pwa-v16';
 const APP_ROOT = '/Test-prep-workbook/';
 const CACHE_LIMIT_BYTES = 100 * 1024 * 1024; // 100 MiB (approximately 100 MB)
 const CORE_ASSETS = [
@@ -114,7 +114,7 @@ self.addEventListener('fetch', event => {
 
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).then(response => {
+      fetch(request, { cache: 'no-cache' }).then(response => {
         if (response && response.ok) {
           event.waitUntil(cacheResponse(new Request(APP_ROOT + 'index.html'), response.clone()));
         }
