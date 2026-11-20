@@ -8,7 +8,7 @@
       let pageReady = document.readyState !== 'loading';
       let startupHideScheduled = false;
       const hideStartup = () => {
-        if (!startup || !pageReady || startupHideScheduled) return;
+        if (!startup || !pageReady || startupHideScheduled || startup.classList.contains('is-hidden')) return;
         startupHideScheduled = true;
         const remaining = Math.max(0, 1800 - (performance.now() - startupStartedAt));
         window.setTimeout(() => {
