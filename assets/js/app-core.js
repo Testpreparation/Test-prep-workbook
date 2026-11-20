@@ -2464,13 +2464,31 @@
     //  初期化・リアルタイム同期
     // =========================================================
     window.addEventListener('DOMContentLoaded', () => {
-      initVisitorTracking();
-      initRealtimeSync();
-      initSubjectPageSwipe();
+      // 最初にホームを表示する。訪問記録やFirebase同期の失敗で起動全体を止めない。
+      const bottomMenuEnabled = document.documentElement.classList.contains('np-bottom-menu-enabled');
+      const initialDashboard = document.getElementById(bottomMenuEnabled ? 'screen-dashboard-bottom-menu' : 'screen-dashboard');
+      try {
+        showDashboard();
+      } catch (error) {
+        console.error('[Nurse＋] ホーム画面の初期表示に失敗:', error);
+        if (initialDashboard) initialDashboard.classList.remove('hidden');
+      }
 
-      if (localStorage.getItem('notice_read_status') === 'read') {
-        const redDot = document.getElementById('notice-red-dot');
-        if (redDot) redDot.classList.add('hidden');
+      // 以下はホーム表示に必須ではない初期化。個別に失敗を隔離する。
+      try { initVisitorTracking(); }
+      catch (error) { console.warn('[Nurse＋] 訪問記録の初期化をスキップ:', error); }
+      try { initRealtimeSync(); }
+      catch (error) { console.warn('[Nurse＋] Firebaseリアルタイム同期の初期化をスキップ:', error); }
+      try { initSubjectPageSwipe(); }
+      catch (error) { console.warn('[Nurse＋] 科目ページ操作の初期化をスキップ:', error); }
+
+      try {
+        if (localStorage.getItem('notice_read_status') === 'read') {
+          const redDot = document.getElementById('notice-red-dot');
+          if (redDot) redDot.classList.add('hidden');
+        }
+      } catch (error) {
+        console.warn('[Nurse＋] お知らせ既読状態の読み込みをスキップ:', error);
       }
 
       const startBtn = document.getElementById("startButton");
@@ -2505,7 +2523,6 @@
           showStartScreen();
         });
       }
-      showDashboard();
     });
 
     function initRealtimeSync() {
