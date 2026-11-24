@@ -443,10 +443,9 @@
       return screen && !screen.classList.contains('hidden');
     });
 
-    if (!root.classList.contains('np-bottom-menu-enabled') || homeIsVisible) {
-      root.classList.remove('np-bottom-menu-study-active');
-    } else {
-      root.classList.toggle('np-bottom-menu-study-active', studyIsVisible);
+    const shouldStudyBeActive = root.classList.contains('np-bottom-menu-enabled') && !homeIsVisible && studyIsVisible;
+    if (root.classList.contains('np-bottom-menu-study-active') !== shouldStudyBeActive) {
+      root.classList.toggle('np-bottom-menu-study-active', shouldStudyBeActive);
     }
 
     const analytics = document.getElementById('screen-data-analysis');
