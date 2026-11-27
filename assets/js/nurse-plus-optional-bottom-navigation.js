@@ -6,7 +6,11 @@
 
   function apply(enabled) {
     const bottomDashboard = document.getElementById('screen-dashboard-bottom-menu');
-    const wasOnBottomMenuHome = Boolean(!enabled && bottomDashboard && !bottomDashboard.classList.contains('hidden'));
+    const standardDashboard = document.getElementById('screen-dashboard');
+    const wasOnHome = Boolean(
+      (standardDashboard && !standardDashboard.classList.contains('hidden')) ||
+      (bottomDashboard && !bottomDashboard.classList.contains('hidden'))
+    );
     const studyScreenIds = [
       'screen-subjects', 'screen-bottom-menu-flashcard-subjects',
       'screen-semester-select', 'screen-physiology-mode-select',
@@ -23,35 +27,26 @@
       const screen = document.getElementById(id);
       return screen && !screen.classList.contains('hidden');
     });
-    const dashboard = document.getElementById('screen-dashboard');
+
+    // モード設定をホームの唯一の定義として先に確定する。
     root.classList.toggle('np-bottom-menu-enabled', enabled);
-    if (dashboard) dashboard.classList.toggle('np-bottom-menu-home', enabled);
-    if (bottomDashboard) {
-      bottomDashboard.classList.toggle('hidden', !enabled);
-      bottomDashboard.classList.toggle('np-bottom-menu-home', enabled);
+    root.classList.toggle('np-bottom-menu-study-active', enabled && studyIsVisible);
+    if (standardDashboard) standardDashboard.classList.toggle('np-bottom-menu-home', enabled);
+    if (bottomDashboard) bottomDashboard.classList.toggle('np-bottom-menu-home', enabled);
+
+    // ホーム上で切り替えた場合は、必ず新モードのホームを再構築する。
+    if (wasOnHome && typeof window.showDashboard === 'function') {
+      window.showDashboard();
+    } else if (!enabled) {
+      root.classList.remove('np-bottom-menu-study-active');
     }
 
-    if (!enabled) {
-      root.classList.remove('np-bottom-menu-study-active');
-      // Restore the original dashboard when disabling the mode from its home/settings.
-      if (wasOnBottomMenuHome && typeof window.showDashboard === 'function') {
-        window.showDashboard();
-      }
-    } else if (studyIsVisible) {
-      // Keep the current study flow in place when the setting is enabled mid-session.
-      root.classList.add('np-bottom-menu-study-active');
-    } else if (wasOnBottomMenuHome || (dashboard && !dashboard.classList.contains('hidden')) ||
-               (bottomDashboard && !bottomDashboard.classList.contains('hidden'))) {
-      // Switch dashboards only when the user was already on a dashboard.
-      if (typeof window.showDashboard === 'function') window.showDashboard();
-    }
     getToggles().forEach(control => { control.checked = enabled; });
     try { localStorage.setItem(KEY, String(enabled)); } catch (_) {}
     if (typeof window.syncStudyNavigationVisibility === 'function') {
       window.syncStudyNavigationVisibility();
     }
   }
-
   function init() {
     let enabled = false;
     try { enabled = localStorage.getItem(KEY) === 'true' || localStorage.getItem(KEY) === '1'; } catch (_) {}
