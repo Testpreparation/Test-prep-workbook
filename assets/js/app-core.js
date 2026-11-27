@@ -1238,13 +1238,7 @@
 
       loadFlashcardData();
       currentFlashcardUnit = 'all';
-      if (subjectId === 'biochemistry') {
-        renderBiochemistryFlashcardUnits();
-        document.getElementById('fc-step-1-subject-select').classList.add('hidden');
-        document.getElementById('fc-step-biochemistry-units')?.classList.remove('hidden');
-      } else {
-        backToFlashcardStep(2);
-      }
+      backToFlashcardStep(2);
     }
 
     function getBiochemistryFlashcardUnit(cardId) {
@@ -1279,37 +1273,14 @@
       return visible.filter(item => getBiochemistryFlashcardUnit(item.id) === currentFlashcardUnit);
     }
 
-    function renderBiochemistryFlashcardUnits() {
-      const container = document.getElementById('biochemistry-flashcard-unit-list');
-      if (!container) return;
-      const learnedSet = getLearnedWordsSet('biochemistry');
-      container.innerHTML = BIOCHEMISTRY_FLASHCARD_UNITS.map(unit => {
-        const cards = unit.id === 'all'
-          ? flashcardAllList.filter(item => item.visible !== false)
-          : flashcardAllList.filter(item => item.visible !== false && getBiochemistryFlashcardUnit(item.id) === unit.id);
-        const learned = cards.filter(item => learnedSet.has(item.id)).length;
-        const progress = cards.length ? Math.round(learned / cards.length * 100) : 0;
-        return '<button type="button" onclick="selectBiochemistryFlashcardUnit(\'' + unit.id + '\')" class="w-full p-3.5 rounded-xl border border-slate-700 bg-slate-900/70 text-left flex items-center justify-between gap-3 hover:border-amber-500/60 transition">' +
-          '<span class="min-w-0"><span class="block text-xs font-semibold text-slate-100">' + unit.title + '</span><span class="block mt-1 text-[10px] text-slate-400">' + unit.description + '</span><span class="block mt-1 text-[10px] text-amber-400">' + cards.length + '枚 ・ 習得 ' + learned + '/' + cards.length + ' ・ ' + progress + '%</span></span>' +
-          '<span class="text-amber-400 text-xs shrink-0">学習 →</span></button>';
-      }).join('');
-    }
-
     function selectBiochemistryFlashcardUnit(unitId) {
       if (!BIOCHEMISTRY_FLASHCARD_UNITS.some(unit => unit.id === unitId)) return;
       currentFlashcardUnit = unitId;
-      document.getElementById('fc-step-biochemistry-units')?.classList.add('hidden');
-      backToFlashcardStep(2);
+      updateFlashcardDashboardUI();
     }
 
-    function backToBiochemistryFlashcardUnits() {
-      if (!currentFlashcardSubject || currentFlashcardSubject.id !== 'biochemistry') {
-        backToFlashcardStep(1);
-        return;
-      }
-      document.getElementById('fc-step-2-dashboard')?.classList.add('hidden');
-      document.getElementById('fc-step-biochemistry-units')?.classList.remove('hidden');
-      renderBiochemistryFlashcardUnits();
+    function changeBiochemistryFlashcardUnit(unitId) {
+      selectBiochemistryFlashcardUnit(unitId);
     }
 
     function getLearnedStorageKey(subjectId) {
@@ -1360,8 +1331,13 @@
       const learnedSet = getLearnedWordsSet(currentFlashcardSubject.id);
       const learnedCount = validList.filter(item => learnedSet.has(item.id)).length;
       const unit = currentFlashcardSubject.id === 'biochemistry' ? BIOCHEMISTRY_FLASHCARD_UNITS.find(item => item.id === currentFlashcardUnit) : null;
+      const unitSelect = document.getElementById('fc-biochemistry-unit-select');
+      if (unitSelect) {
+        unitSelect.classList.toggle('hidden', currentFlashcardSubject.id !== 'biochemistry');
+        if (currentFlashcardSubject.id === 'biochemistry') unitSelect.value = currentFlashcardUnit;
+      }
       const titleEl = document.getElementById('fc-dash-subject-title');
-      if (titleEl && unit) titleEl.textContent = currentFlashcardSubject.name + '｜' + unit.title;
+      if (titleEl) titleEl.textContent = currentFlashcardSubject.name + (unit ? '｜' + unit.title : '');
       const progressPercent = total > 0 ? Math.round((learnedCount / total) * 100) : 0;
 
       document.getElementById('fc-dash-learned-count').textContent = learnedCount;
