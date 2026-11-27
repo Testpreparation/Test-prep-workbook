@@ -1250,6 +1250,7 @@
     function getBiochemistryFlashcardUnit(cardId) {
       const number = Number(String(cardId || '').match(/(\d+)$/)?.[1]);
       if (!Number.isFinite(number)) return 'other';
+      if (number === 4 || number === 10) return 'lipid';
       if (number <= 10) return 'foundation';
       if (number <= 18) return 'carbohydrate';
       if (number <= 28) return 'lipid';
@@ -1451,7 +1452,9 @@
           document.getElementById('fc-step-3-count').classList.remove('hidden');
           return;
         }
-        localStorage.removeItem(getLearnedStorageKey(currentFlashcardSubject.id));
+        const learnedToKeep = getLearnedWordsSet(currentFlashcardSubject.id);
+        getCurrentFlashcardCards().forEach(item => learnedToKeep.delete(item.id));
+        saveLearnedWordsSet(currentFlashcardSubject.id, learnedToKeep);
         loadFlashcardData();
         list = getCurrentFlashcardCards();
       }
@@ -1567,10 +1570,17 @@
 
     function resetLearnedWordsForCurrentSubject() {
       if (!currentFlashcardSubject) return;
-      if (confirm(`科目「${currentFlashcardSubject.name}」の記憶状態をリセットしますか？`)) {
-        localStorage.removeItem(getLearnedStorageKey(currentFlashcardSubject.id));
+      const unitCards = getCurrentFlashcardCards();
+      const unitLabel = currentFlashcardSubject.id === 'biochemistry' && currentFlashcardUnit !== 'all'
+        ? BIOCHEMISTRY_FLASHCARD_UNITS.find(unit => unit.id === currentFlashcardUnit)?.title
+        : currentFlashcardSubject.name;
+      if (confirm(`「${unitLabel}」の記憶状態をリセットしますか？`)) {
+        const learnedSet = getLearnedWordsSet(currentFlashcardSubject.id);
+        unitCards.forEach(item => learnedSet.delete(item.id));
+        saveLearnedWordsSet(currentFlashcardSubject.id, learnedSet);
         loadFlashcardData();
         updateFlashcardDashboardUI();
+        if (currentFlashcardSubject.id === 'biochemistry') renderBiochemistryFlashcardUnits();
         alert("記憶状態をリセットしました。");
       }
     }
