@@ -978,6 +978,7 @@
     let flashcardMode = 0;             // 0: [表:単語 / 裏:意味], 1: [表:意味 / 裏:単語]
     let flashcardSubjectLocked = false;
     let flashcardOpenedFromBottomMenu = false;
+    let currentFlashcardUnit = 'all';
 
     function getAverageAccuracy(subjectId) {
       const subject = (subjects || []).find(item => item && item.id === subjectId);
@@ -1100,6 +1101,7 @@
         return;
       }
       document.getElementById('fc-step-1-subject-select').classList.add('hidden');
+      document.getElementById('fc-step-biochemistry-units')?.classList.add('hidden');
       document.getElementById('fc-step-2-dashboard').classList.add('hidden');
       document.getElementById('fc-step-3-time').classList.add('hidden');
       document.getElementById('fc-step-3-count').classList.add('hidden');
@@ -1235,6 +1237,67 @@
       if (!currentFlashcardSubject) return;
 
       loadFlashcardData();
+      currentFlashcardUnit = 'all';
+      if (subjectId === 'biochemistry') {
+        renderBiochemistryFlashcardUnits();
+        document.getElementById('fc-step-1-subject-select').classList.add('hidden');
+        document.getElementById('fc-step-biochemistry-units')?.classList.remove('hidden');
+      } else {
+        backToFlashcardStep(2);
+      }
+    }
+
+    function getBiochemistryFlashcardUnit(cardId) {
+      const number = Number(String(cardId || '').match(/(\\d+)$/)?.[1]);
+      if (!Number.isFinite(number)) return 'other';
+      if (number <= 10) return 'foundation';
+      if (number <= 18) return 'carbohydrate';
+      if (number <= 28) return 'lipid';
+      if (number <= 37) return 'protein';
+      if (number <= 48) return 'enzyme';
+      if (number <= 60) return 'nucleic';
+      if (number <= 72) return 'gene_energy';
+      return 'glycolysis';
+    }
+
+    const BIOCHEMISTRY_FLASHCARD_UNITS = [
+      { id: 'all', title: 'すべての単元', description: '全カードをまとめて学習' },
+      { id: 'foundation', title: '第1単元｜生体の基礎', description: '細胞・体液・代謝の基礎' },
+      { id: 'carbohydrate', title: '第2単元｜糖質', description: '糖の構造・性質' },
+      { id: 'lipid', title: '第3単元｜脂質', description: '脂肪酸・脂質の種類と働き' },
+      { id: 'protein', title: '第4単元｜タンパク質', description: 'アミノ酸・タンパク質の構造' },
+      { id: 'enzyme', title: '第5単元｜酵素', description: '酵素の性質・調節' },
+      { id: 'nucleic', title: '第6単元｜核酸', description: 'DNA・RNA・染色体' },
+      { id: 'gene_energy', title: '第7単元｜遺伝子発現・エネルギー代謝', description: '転写・翻訳・ATP・アセチルCoA' },
+      { id: 'glycolysis', title: '第8単元｜糖代謝', description: '解糖系・TCA回路・電子伝達系' }
+    ];
+
+    function getCurrentFlashcardCards() {
+      const visible = flashcardAllList.filter(item => item.visible !== false);
+      if (!currentFlashcardSubject || currentFlashcardSubject.id !== 'biochemistry' || currentFlashcardUnit === 'all') return visible;
+      return visible.filter(item => getBiochemistryFlashcardUnit(item.id) === currentFlashcardUnit);
+    }
+
+    function renderBiochemistryFlashcardUnits() {
+      const container = document.getElementById('biochemistry-flashcard-unit-list');
+      if (!container) return;
+      const learnedSet = getLearnedWordsSet('biochemistry');
+      container.innerHTML = BIOCHEMISTRY_FLASHCARD_UNITS.map(unit => {
+        const cards = unit.id === 'all'
+          ? flashcardAllList.filter(item => item.visible !== false)
+          : flashcardAllList.filter(item => item.visible !== false && getBiochemistryFlashcardUnit(item.id) === unit.id);
+        const learned = cards.filter(item => learnedSet.has(item.id)).length;
+        const progress = cards.length ? Math.round(learned / cards.length * 100) : 0;
+        return '<button type="button" onclick="selectBiochemistryFlashcardUnit(\'' + unit.id + '\')" class="w-full p-3.5 rounded-xl border border-slate-700 bg-slate-900/70 text-left flex items-center justify-between gap-3 hover:border-amber-500/60 transition">' +
+          '<span class="min-w-0"><span class="block text-xs font-semibold text-slate-100">' + unit.title + '</span><span class="block mt-1 text-[10px] text-slate-400">' + unit.description + '</span><span class="block mt-1 text-[10px] text-amber-400">' + cards.length + '枚 ・ 習得 ' + learned + '/' + cards.length + ' ・ ' + progress + '%</span></span>' +
+          '<span class="text-amber-400 text-xs shrink-0">学習 →</span></button>';
+      }).join('');
+    }
+
+    function selectBiochemistryFlashcardUnit(unitId) {
+      if (!BIOCHEMISTRY_FLASHCARD_UNITS.some(unit => unit.id === unitId)) return;
+      currentFlashcardUnit = unitId;
+      document.getElementById('fc-step-biochemistry-units')?.classList.add('hidden');
       backToFlashcardStep(2);
     }
 
@@ -1281,10 +1344,13 @@
 
       document.getElementById('fc-dash-subject-title').textContent = currentFlashcardSubject.name;
 
-      const validList = flashcardAllList.filter(item => item.visible !== false);
+      const validList = getCurrentFlashcardCards();
       const total = validList.length;
       const learnedSet = getLearnedWordsSet(currentFlashcardSubject.id);
-      const learnedCount = Math.min(learnedSet.size, total);
+      const learnedCount = validList.filter(item => learnedSet.has(item.id)).length;
+      const unit = currentFlashcardSubject.id === 'biochemistry' ? BIOCHEMISTRY_FLASHCARD_UNITS.find(item => item.id === currentFlashcardUnit) : null;
+      const titleEl = document.getElementById('fc-dash-subject-title');
+      if (titleEl && unit) titleEl.textContent = currentFlashcardSubject.name + '｜' + unit.title;
       const progressPercent = total > 0 ? Math.round((learnedCount / total) * 100) : 0;
 
       document.getElementById('fc-dash-learned-count').textContent = learnedCount;
@@ -1331,7 +1397,7 @@
 
     // ステップ3-A（目標秒数選択画面）へ遷移
     function goToFlashcardTimeSetting() {
-      const validList = flashcardAllList.filter(item => item.visible !== false);
+      const validList = getCurrentFlashcardCards();
       if (validList.length === 0) {
         alert("この科目には暗記カードが登録されていません。");
         return;
@@ -1365,7 +1431,8 @@
 
       const reqCount = parseInt(document.getElementById('fc-count-slider').value, 10) || 10;
       
-      let list = [...flashcardUnlearnedList];
+      const learnedSetForUnit = getLearnedWordsSet(currentFlashcardSubject.id);
+      let list = getCurrentFlashcardCards().filter(item => !learnedSetForUnit.has(item.id));
       if (list.length === 0) {
         const shouldReset = confirm(`「${currentFlashcardSubject.name}」はすべての単語を覚えています。記憶状態をリセットして、もう一度学習しますか？`);
         if (!shouldReset) {
@@ -1503,7 +1570,7 @@
 
       const subId = currentFlashcardSubject.id;
       const learnedSet = getLearnedWordsSet(subId);
-      const learnedList = flashcardAllList.filter(item => learnedSet.has(item.id));
+      const learnedList = flashcardAllList.filter(item => learnedSet.has(item.id) && (currentFlashcardSubject.id !== 'biochemistry' || currentFlashcardUnit === 'all' || getBiochemistryFlashcardUnit(item.id) === currentFlashcardUnit));
 
       const container = document.getElementById('learned-words-list-container');
       
