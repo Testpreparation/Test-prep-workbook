@@ -6,13 +6,15 @@
   'use strict';
 
   const TREE_URL = 'https://api.github.com/repos/Testpreparation/Test-prep-workbook/git/trees/main?recursive=1';
-  const CHECK_INTERVAL_MS = 10 * 60 * 1000;
-  const MIN_CHECK_GAP_MS = 10 * 60 * 1000;
+  // GitHub APIの利用制限を避けながら、変更を短い間隔で検知する。
+  const CHECK_INTERVAL_MS = 5 * 60 * 1000;
+  const MIN_CHECK_GAP_MS = 5 * 60 * 1000;
   const BASE_PATH = new URL('./', window.location.href).pathname;
   const knownShas = new Map();
   let pendingUpdates = new Map();
   let checking = false;
   let applying = false;
+  let updateNotice = null;
   let lastCheckAt = 0;
 
   function getLoadedDataScripts() {
@@ -30,6 +32,42 @@
       const path = decodeURIComponent(url.pathname).slice(BASE_PATH.length);
       return { script, path };
     });
+  }
+
+  function isQuestionScreenVisible() {
+    const questionScreenIds = ['screen-quiz-play', 'screen-multi-play', 'fc-step-4-play'];
+    return questionScreenIds.some(id => {
+      const screen = document.getElementById(id);
+      return screen && !screen.classList.contains('hidden') &&
+        window.getComputedStyle(screen).display !== 'none';
+    });
+  }
+
+  function ensureUpdateNotice() {
+    if (updateNotice || !document.body) return;
+    const notice = document.createElement('aside');
+    notice.id = 'np-question-data-update-notice';
+    notice.setAttribute('role', 'status');
+    notice.style.cssText = 'position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom, 0px));z-index:99990;display:none;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid rgba(167,139,250,.35);border-radius:16px;background:rgba(255,255,255,.97);box-shadow:0 8px 28px rgba(40,30,60,.18);color:#514166;font-size:12px;backdrop-filter:blur(12px)';
+    const message = document.createElement('span');
+    message.textContent = '問題データが更新されました';
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = '更新する';
+    button.style.cssText = 'flex:none;border:0;border-radius:10px;padding:9px 16px;background:#8b72b5;color:#fff;font-weight:700;font-size:12px';
+    button.addEventListener('click', () => {
+      button.disabled = true;
+      button.textContent = '更新中…';
+      window.location.reload();
+    });
+    notice.append(message, button);
+    document.body.appendChild(notice);
+    updateNotice = notice;
+  }
+
+  function refreshUpdateNoticeVisibility() {
+    if (!updateNotice || pendingUpdates.size === 0) return;
+    updateNotice.style.display = isQuestionScreenVisible() ? 'none' : 'flex';
   }
 
   function isSafeToApply() {
@@ -159,7 +197,10 @@
         if (currentSha && currentSha !== remoteSha) pendingUpdates.set(path, remoteSha);
         else if (!currentSha) knownShas.set(path, remoteSha);
       }
-      await applyPendingUpdates();
+      if (pendingUpdates.size > 0) {
+        ensureUpdateNotice();
+        refreshUpdateNoticeVisibility();
+      }
     } catch (error) {
       console.info('[Nurse＋] 問題データの更新確認をスキップしました:', error && error.message || error);
     } finally {
@@ -172,12 +213,12 @@
   }, { once: true });
 
   window.setInterval(() => checkForDataUpdates(), CHECK_INTERVAL_MS);
-  // 更新を学習中に検知した場合、ホームへ戻った後すぐ反映できるよう軽く確認する。
-  window.setInterval(() => applyPendingUpdates(), 15000);
+  // 問題画面を離れたタイミングで、保留中の更新ボタンを表示する。
+  window.setInterval(refreshUpdateNoticeVisibility, 500);
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       checkForDataUpdates();
-      applyPendingUpdates();
+      refreshUpdateNoticeVisibility();
     }
   });
   window.addEventListener('focus', () => checkForDataUpdates());
