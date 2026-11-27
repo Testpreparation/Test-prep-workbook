@@ -98,6 +98,9 @@
   <script src="科目/公衆衛生看護学概論/2026春学期/演習問題/publichealthnursing_exercise2026harugakki.js" defer></script>
 
   <!-- 各科目の外部問題データベースJSの読み込み（秋学期） -->
+  <script src="科目/解剖生理学/2026秋学期/小テスト/anatomy_quiz_2026akigakki.js" defer></script>
+  <script src="科目/解剖生理学/2026秋学期/練習問題/anatomy_practice_2026akigakki.js" defer></script>
+  <script src="科目/解剖生理学/2026秋学期/統合問題/anatomy_integrated_2026akigakki.js" defer></script>
   <script src="科目/解剖生理学/2026秋学期/練習問題/anatomy2026akigakki.js" defer></script>
   <script src="./科目/生化学/2026秋学期/選択式/biochemistry2026akigakki.js" defer></script>
   <script src="./科目/生化学/穴埋め式/biochemistry_fill.js" onerror="console.log('biochemistry_fill.js 未検出。')" defer></script>
@@ -654,23 +657,32 @@
         </div>
 
         <div class="space-y-3 pt-2">
-          <button onclick="selectAnatomyMode('basic')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+          <button onclick="selectAnatomyMode('quiz')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
             <div class="flex items-center gap-3">
               <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">ANA-1</span>
               <div>
-                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">練習問題</div>
-                <div class="text-[11px] text-slate-400 font-light mt-0.5">小テスト・ちいかわの問題</div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">小テスト</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">秋学期の小テスト問題</div>
               </div>
             </div>
             <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
           </button>
 
-          <button onclick="selectAnatomyMode('applied')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+          <button onclick="selectAnatomyMode('practice')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
             <div class="flex items-center gap-3">
               <span class="px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 font-mono text-xs font-bold">ANA-2</span>
               <div>
-                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">応用問題</div>
-                <div class="text-[11px] text-slate-400 font-light mt-0.5">小テスト・ちいかわの問題の応用(AIを使用してます。)</div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">練習問題</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">秋学期の練習問題</div>
+              </div>
+            </div>
+            <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
+          </button>          <button onclick="selectAnatomyMode('integrated')" class="card-item w-full p-4 rounded-xl text-left flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 rounded-lg bg-violet-500/10 border border-violet-500/30 text-violet-400 font-mono text-xs font-bold">ANA-3</span>
+              <div>
+                <div class="text-sm font-medium text-slate-100 group-hover:text-amber-300 transition">統合問題</div>
+                <div class="text-[11px] text-slate-400 font-light mt-0.5">複数の学習内容を組み合わせた問題</div>
               </div>
             </div>
             <span class="text-slate-500 group-hover:text-amber-400 transition text-sm">→</span>
