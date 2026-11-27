@@ -1101,7 +1101,6 @@
         return;
       }
       document.getElementById('fc-step-1-subject-select').classList.add('hidden');
-      document.getElementById('fc-step-biochemistry-units')?.classList.add('hidden');
       document.getElementById('fc-step-2-dashboard').classList.add('hidden');
       document.getElementById('fc-step-3-time').classList.add('hidden');
       document.getElementById('fc-step-3-count').classList.add('hidden');
@@ -1556,7 +1555,6 @@
         saveLearnedWordsSet(currentFlashcardSubject.id, learnedSet);
         loadFlashcardData();
         updateFlashcardDashboardUI();
-        if (currentFlashcardSubject.id === 'biochemistry') renderBiochemistryFlashcardUnits();
         alert("記憶状態をリセットしました。");
       }
     }
