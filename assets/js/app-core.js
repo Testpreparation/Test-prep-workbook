@@ -3921,7 +3921,7 @@
       const db = window.QUIZ_DB || {};
       const exact = {
         psychology:['psychology'], mind_behavior:['mind_behavior'], medical_intro:['medical_intro'],
-        microbiology:['microbiology'], anatomy:['anatomy','anatomy_applied',...Object.keys(db).filter(k=>/^anatomy_(quiz|practice|integrated)_2026_autumn$/.test(k))], physiology:['physiology'],
+        microbiology:['microbiology'], anatomy: currentSemester === '2026_autumn' ? ['anatomy_quiz_2026_autumn','anatomy_practice_2026_autumn','anatomy_integrated_2026_autumn'] : ['anatomy','anatomy_applied'], physiology:['physiology'],
         biochemistry:['biochemistry','biochemistry_keyboard','biochemistry_fill'], nursing_method:['nursing_method'],
         public_health_nursing:['public_health_nursing','public_health_nursing_basic','public_health_nursing_exercise',...Object.keys(db).filter(k=>/^public_health_nursing_/.test(k))],
         public_health:['public_health','public_health_past','public_health_exercise','public_health_national','public_health_selfstudy'],
@@ -3959,7 +3959,7 @@
       if(click.includes('selectAnatomyMode(')){
         const mode=modeFrom('selectAnatomyMode');
         if(semester==='2026_autumn') return [`anatomy_${mode}_2026_autumn`];
-        return mode==='applied'?['anatomy_applied']:['anatomy'];
+        return mode==='practice'?['anatomy_applied']:['anatomy'];
       }
       if(click.includes('selectPublicHealthMode(')){const m=modeFrom('selectPublicHealthMode');return m==='past'?['public_health','public_health_past']:[`public_health_${m}`];}
       if(click.includes('selectPHNMode(')){
@@ -4189,7 +4189,22 @@
 
     function showAnatomyModeSelectionScreen() {
       hideAllScreens();
-      document.getElementById('screen-anatomy-mode-select').classList.remove('hidden');
+      const screen = document.getElementById('screen-anatomy-mode-select');
+      const buttons = screen.querySelectorAll('button[onclick^="selectAnatomyMode("]');
+      const autumn = currentSemester === '2026_autumn';
+      if (buttons[0]) {
+        buttons[0].querySelector('.text-sm').textContent = autumn ? '小テスト' : '練習問題';
+        buttons[0].querySelector('.text-\\[11px\\]')?.replaceChildren(document.createTextNode(autumn ? '秋学期の小テスト問題' : '春学期の練習問題'));
+        buttons[0].setAttribute('onclick', "selectAnatomyMode('quiz')");
+      }
+      if (buttons[1]) {
+        buttons[1].querySelector('.text-sm').textContent = autumn ? '練習問題' : '応用問題';
+        const description = buttons[1].querySelector('[class*="text-[11px]"]');
+        if (description) description.textContent = autumn ? '秋学期の練習問題' : '春学期の応用問題';
+        buttons[1].setAttribute('onclick', autumn ? "selectAnatomyMode('practice')" : "selectAnatomyMode('practice')");
+      }
+      if (buttons[2]) buttons[2].classList.toggle('hidden', !autumn);
+      screen.classList.remove('hidden');
       updateStudyBreadcrumb();
       npRefreshQuizStars();
     }
@@ -4880,7 +4895,7 @@
             const data = window[selected.getter]();
             if (Array.isArray(data)) window.QUIZ_DB[selected.key] = data;
           }
-        } else if (currentAnatomyMode === 'applied') {
+        } else if (currentAnatomyMode === 'practice' || currentAnatomyMode === 'applied') {
           const fnName = 'getAnatomyAppliedQuestions';
           if (typeof window[fnName] === 'function') {
             const data = window[fnName]();
@@ -4900,7 +4915,7 @@
       if (currentSubject.id === 'anatomy') {
         targetDbKey = isAutumn
           ? `anatomy_${currentAnatomyMode}_2026_autumn`
-          : (currentAnatomyMode === 'applied' ? 'anatomy_applied' : 'anatomy');
+          : (currentAnatomyMode === 'practice' || currentAnatomyMode === 'applied' ? 'anatomy_applied' : 'anatomy');
       } else if (currentSubject.id === 'public_health') {
         targetDbKey = `public_health_${currentPublicHealthMode}`;
       } else if (currentSubject.id === 'public_health_nursing') {
