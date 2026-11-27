@@ -4194,7 +4194,8 @@
       const autumn = currentSemester === '2026_autumn';
       if (buttons[0]) {
         buttons[0].querySelector('.text-sm').textContent = autumn ? '小テスト' : '練習問題';
-        buttons[0].querySelector('.text-\\[11px\\]')?.replaceChildren(document.createTextNode(autumn ? '秋学期の小テスト問題' : '春学期の練習問題'));
+        const description = buttons[0].querySelector('[class*="text-[11px]"]');
+        if (description) description.textContent = autumn ? '秋学期の小テスト問題' : '春学期の練習問題';
         buttons[0].setAttribute('onclick', "selectAnatomyMode('quiz')");
       }
       if (buttons[1]) {
@@ -4409,10 +4410,9 @@
 
       } else if (currentSubject.id === 'anatomy' || currentSubject.hasAnatomyModes) {
         backBtn.onclick = () => showAnatomyModeSelectionScreen();
-        const modeTitle = currentAnatomyMode === 'quiz' ? '小テスト'
-          : currentAnatomyMode === 'integrated' ? '統合問題'
-          : currentAnatomyMode === 'practice' ? '練習問題'
-          : currentAnatomyMode === 'applied' ? '応用問題' : '練習問題';
+        const modeTitle = currentSemester === '2026_autumn'
+          ? (currentAnatomyMode === 'quiz' ? '小テスト' : currentAnatomyMode === 'integrated' ? '統合問題' : '練習問題')
+          : (currentAnatomyMode === 'practice' || currentAnatomyMode === 'applied' ? '応用問題' : '練習問題');
         titleEl.textContent = `${currentSubject.name} - ${modeTitle}`;
         headingEl.textContent = `${currentSubject.name}（${modeTitle}）`;
         descEl.textContent = `${currentSubject.name}の${modeTitle}が出題されます。`;
