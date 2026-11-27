@@ -4852,7 +4852,9 @@
       }
 
       if (currentSubject.id === 'biochemistry') {
-        const fnName = isAutumn ? 'getBiochemistryQuestionsAutumn' : 'getBiochemistryQuestions';
+        const fnName = (isAutumn && typeof window.getBiochemistryQuestionsAutumn === 'function')
+          ? 'getBiochemistryQuestionsAutumn'
+          : 'getBiochemistryQuestions';
         if (typeof window[fnName] === 'function') {
           const bioData = window[fnName]();
           if (Array.isArray(bioData) && bioData.length > 0) window.QUIZ_DB.biochemistry = bioData;
