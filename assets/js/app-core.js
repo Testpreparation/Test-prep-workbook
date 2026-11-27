@@ -1248,7 +1248,7 @@
     }
 
     function getBiochemistryFlashcardUnit(cardId) {
-      const number = Number(String(cardId || '').match(/(\\d+)$/)?.[1]);
+      const number = Number(String(cardId || '').match(/(\d+)$/)?.[1]);
       if (!Number.isFinite(number)) return 'other';
       if (number <= 10) return 'foundation';
       if (number <= 18) return 'carbohydrate';
@@ -1299,6 +1299,16 @@
       currentFlashcardUnit = unitId;
       document.getElementById('fc-step-biochemistry-units')?.classList.add('hidden');
       backToFlashcardStep(2);
+    }
+
+    function backToBiochemistryFlashcardUnits() {
+      if (!currentFlashcardSubject || currentFlashcardSubject.id !== 'biochemistry') {
+        backToFlashcardStep(1);
+        return;
+      }
+      document.getElementById('fc-step-2-dashboard')?.classList.add('hidden');
+      document.getElementById('fc-step-biochemistry-units')?.classList.remove('hidden');
+      renderBiochemistryFlashcardUnits();
     }
 
     function getLearnedStorageKey(subjectId) {
@@ -1417,7 +1427,7 @@
     }
 
     function startFlashcardPlay() {
-      const validList = flashcardAllList.filter(item => item.visible !== false);
+      const validList = getCurrentFlashcardCards();
       if (validList.length === 0) {
         alert("この科目には暗記カードが登録されていません。");
         backToFlashcardStep(2);
@@ -1443,7 +1453,7 @@
         }
         localStorage.removeItem(getLearnedStorageKey(currentFlashcardSubject.id));
         loadFlashcardData();
-        list = [...flashcardUnlearnedList];
+        list = getCurrentFlashcardCards();
       }
 
       const countToTake = Math.min(reqCount, list.length);
