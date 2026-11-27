@@ -3627,10 +3627,19 @@
     function showDashboard(){
       closeAuthModal();
       closeAdminModal();
+      const root = document.documentElement;
+      // ホームの種類は保存済みモードのルートクラスだけを基準に決定する。
+      const bottomMenuEnabled = root.classList.contains('np-bottom-menu-enabled');
       hideAllScreens();
-      const bottomMenuEnabled = document.documentElement.classList.contains('np-bottom-menu-enabled');
-      const el = document.getElementById(bottomMenuEnabled ? 'screen-dashboard-bottom-menu' : 'screen-dashboard');
-      if(el) el.classList.remove('hidden');
+      const standardHome = document.getElementById('screen-dashboard');
+      const bottomMenuHome = document.getElementById('screen-dashboard-bottom-menu');
+      // 以前のホーム状態を残さず、選択されたホームだけを表示する。
+      standardHome?.classList.add('hidden');
+      bottomMenuHome?.classList.add('hidden');
+      standardHome?.classList.toggle('np-bottom-menu-home', bottomMenuEnabled);
+      bottomMenuHome?.classList.toggle('np-bottom-menu-home', bottomMenuEnabled);
+      const activeHome = bottomMenuEnabled ? bottomMenuHome : standardHome;
+      activeHome?.classList.remove('hidden');
       if (bottomMenuEnabled) {
         renderSubjectList();
       } else {
