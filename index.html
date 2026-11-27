@@ -399,12 +399,13 @@
 
               <!-- ★ ステップ2: 科目ダッシュボード画面（配置・デザイン最適化） -->
               <div id="fc-step-2-dashboard" class="hidden space-y-4">
-                <div class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 pb-2.5 border-b border-slate-800">
-                  <button onclick="backToFlashcardStep(1)" class="justify-self-start whitespace-nowrap text-xs text-amber-400 hover:text-amber-300 hover:underline flex items-center gap-1 font-medium transition">
+                <div class="flex justify-between items-center pb-2.5 border-b border-slate-800">
+                  <button onclick="backToFlashcardStep(1)" class="text-xs text-amber-400 hover:text-amber-300 hover:underline flex items-center gap-1 font-medium transition">
                     <span>← 科目選択へ</span>
                   </button>
-                  <span id="fc-dash-subject-title" class="justify-self-center whitespace-nowrap text-xs font-bold text-slate-100 tracking-wide">科目名</span>
-                  <select id="fc-biochemistry-unit-select" onchange="changeBiochemistryFlashcardUnit(this.value)" class="hidden justify-self-end w-[145px] min-w-[145px] max-w-[145px] shrink-0 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-900 px-2 py-1.5 text-[10px] text-slate-200 focus:border-amber-500 focus:outline-none">
+                  <div class="flex items-center gap-2">
+                    <span id="fc-dash-subject-title" class="text-xs font-bold text-slate-100 tracking-wide">科目名</span>
+                    <select id="fc-biochemistry-unit-select" onchange="changeBiochemistryFlashcardUnit(this.value)" class="hidden max-w-[155px] rounded-lg border border-slate-700 bg-slate-900 px-2 py-1.5 text-[10px] text-slate-200 focus:border-amber-500 focus:outline-none">
                       <option value="all">すべての単元</option>
                       <option value="foundation">第1単元｜生体の基礎</option>
                       <option value="carbohydrate">第2単元｜糖質</option>
